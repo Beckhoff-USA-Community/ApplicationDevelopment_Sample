@@ -1,0 +1,39 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
+  "Documents": [],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{4b2fb114-ebcc-47aa-84f6-626b9526ee7c}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{4b2fb114-ebcc-47aa-84f6-626b9526ee7c}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{86ffb26f-af2d-4647-8db8-6983d79a7202}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
