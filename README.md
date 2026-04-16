@@ -23,7 +23,7 @@ This structure enforces separation of concerns, makes each element independently
 
 **2. As a copy-template** — Take only what you need. Copy individual function blocks, components, or patterns into your own project and leave the rest behind. The framework is designed so that pieces work independently.
 
-**3. As a complete framework** — Reference the entire `ApplicationBase` library in your TwinCAT project and build your application on top of it, using the module-component hierarchy as your foundation from day one. The code is fully open and can be freely changed or adapted to fit a wide variety of needs and project requirements.
+**3. As a complete framework** — Reference the entire `ApplicationBase` library in your TwinCAT project and build your application on top of it, using the module-component hierarchy as your foundation from day one. The code is fully open and can be freely changed or adapted to fit a wide variety of needs and project requirements. > **Warning:** See the [Disclaimer](#disclaimer) below — this code is provided as-is and must be validated for your specific application before use in production.
 
 ## Disclaimer
 
