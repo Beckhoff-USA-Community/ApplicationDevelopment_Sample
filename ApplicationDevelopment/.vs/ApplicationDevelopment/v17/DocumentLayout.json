@@ -1,7 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\UnitTests\\Axis\\Axis_Test.TcPOU@Reset||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|solutionrelative:UnitTests\\UnitTests\\Axis\\Axis_Test.TcPOU@Reset||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -30,6 +35,21 @@
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Axis_Test.Reset",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\UnitTests\\Axis\\Axis_Test.TcPOU@Reset",
+              "RelativeDocumentMoniker": "UnitTests\\UnitTests\\Axis\\Axis_Test.TcPOU@Reset",
+              "ToolTip": "Reset [ApplicationDevelopment.UnitTests.Axis_Test]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-04-16T19:39:40.074Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
             }
           ]
         }

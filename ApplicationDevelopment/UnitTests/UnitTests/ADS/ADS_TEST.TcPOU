@@ -58,7 +58,7 @@ END_VAR]]></Declaration>
 	Expected := AdsRwSymbol;
 	CASE Seq OF
 		0:
-			AdsReadWrite.ReadBySymbol(SymbolName := 'MAIN.ADS_TEST.AdsRwSymbol', pDestAddr := ADR(Value), Length := SIZEOF(Value));
+			AdsReadWrite.ReadBySymbol(SymbolName := 'TestsBase.ADS_TEST.AdsRwSymbol', pDestAddr := ADR(Value), Length := SIZEOF(Value));
 			Seq := 10;
 
 		10:
@@ -118,7 +118,7 @@ END_VAR]]></Declaration>
 	CASE Seq OF
 		0:
 			Value := 79;
-			AdsReadWrite.WriteBySymbol(SymbolName := 'MAIN.ADS_TEST.AdsRwSymbol', pSourceAddr := ADR(Value), Length := SIZEOF(Value));
+			AdsReadWrite.WriteBySymbol(SymbolName := 'TestsBase.ADS_TEST.AdsRwSymbol', pSourceAddr := ADR(Value), Length := SIZEOF(Value));
 			Seq := 10;
 
 		10:

@@ -6,7 +6,7 @@
 		<Contexts>
 			<Context>
 				<Id>0</Id>
-				<Name>PlcTask</Name>
+				<Name>TestsBaseTask</Name>
 				<ManualConfig>
 					<OTCID>#x02010030</OTCID>
 				</ManualConfig>
@@ -20,27 +20,31 @@
 	</Instance>
 	<Mappings>
 		<OwnerA>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^TestAxis">
+				<Link VarA="TestsBaseTask Inputs^TestsBase.Axis_Test.AxisRef.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.Axis_Test.AxisRef.PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
 			<OwnerB Name="TIPC^UnitTests^UnitTests Instance">
-				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_NOK.InfoData^Diag" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_NOK^Diag"/>
-				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_NOK.InfoData^State" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_NOK^State"/>
-				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_OK.InfoData^Diag" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^Diag"/>
-				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_OK.InfoData^State" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^State"/>
-				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_Sim.InfoData^Diag" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^Diag"/>
-				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_Sim.InfoData^State" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^State"/>
-				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.Group.InfoData^Diag" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_Group^Diag"/>
-				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.Group.InfoData^State" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_Group^State"/>
-				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.Reset" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.ResetPulse.Reset"/>
-				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.Run" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.Group.Run"/>
-				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.Group.Run" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.Run"/>
-				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_Group^Diag" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.Group.InfoData^Diag"/>
-				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_Group^State" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.Group.InfoData^State"/>
-				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_NOK^Diag" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_NOK.InfoData^Diag"/>
-				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_NOK^State" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_NOK.InfoData^State"/>
-				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^Diag" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_OK.InfoData^Diag"/>
-				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^Diag" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_Sim.InfoData^Diag"/>
-				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^State" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_OK.InfoData^State"/>
-				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^State" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_Sim.InfoData^State"/>
-				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.ResetPulse.Reset" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.Reset"/>
+				<Link VarA="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_NOK.InfoData^Diag" VarB="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_NOK^Diag"/>
+				<Link VarA="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_NOK.InfoData^State" VarB="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_NOK^State"/>
+				<Link VarA="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_OK.InfoData^Diag" VarB="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_OK^Diag"/>
+				<Link VarA="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_OK.InfoData^State" VarB="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_OK^State"/>
+				<Link VarA="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_Sim.InfoData^Diag" VarB="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_OK^Diag"/>
+				<Link VarA="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_Sim.InfoData^State" VarB="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_OK^State"/>
+				<Link VarA="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.Group.InfoData^Diag" VarB="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_Group^Diag"/>
+				<Link VarA="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.Group.InfoData^State" VarB="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_Group^State"/>
+				<Link VarA="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.Reset" VarB="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.ResetPulse.Reset"/>
+				<Link VarA="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.Run" VarB="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.Group.Run"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.Group.Run" VarB="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.Run"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_Group^Diag" VarB="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.Group.InfoData^Diag"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_Group^State" VarB="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.Group.InfoData^State"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_NOK^Diag" VarB="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_NOK.InfoData^Diag"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_NOK^State" VarB="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_NOK.InfoData^State"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_OK^Diag" VarB="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_OK.InfoData^Diag"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_OK^Diag" VarB="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_Sim.InfoData^Diag"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_OK^State" VarB="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_OK.InfoData^State"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.InfoData_OK^State" VarB="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.EStop_Sim.InfoData^State"/>
+				<Link VarA="TestsBaseTask Outputs^TestsBase.SafetyBase_TEST.ResetPulse.Reset" VarB="TestsBaseTask Inputs^TestsBase.SafetyBase_TEST.Reset"/>
 			</OwnerB>
 		</OwnerA>
 	</Mappings>

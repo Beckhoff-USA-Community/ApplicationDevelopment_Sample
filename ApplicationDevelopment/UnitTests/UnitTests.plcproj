@@ -19,10 +19,10 @@
     <LibraryReferences>{757aef4f-c663-481a-828c-9a898489f60e}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="MAIN.TcPOU">
+    <Compile Include="TestsBase.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PlcTask.TcTTO">
+    <Compile Include="TestsBaseTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="UnitTests\ADS\ADS_TEST.TcPOU">
@@ -68,6 +68,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_ReplaceAtIndex.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Axis\Axis_Test.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="UnitTests\CollectionPeeker\CollectionPeeker_Test.TcPOU">
@@ -248,6 +251,10 @@
       <DefaultResolution>Tc2_Math, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_Math</Namespace>
     </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_MC2">
+      <DefaultResolution>Tc2_MC2, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_MC2</Namespace>
+    </PlaceholderReference>
     <PlaceholderReference Include="Tc2_Standard">
       <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_Standard</Namespace>
@@ -301,6 +308,7 @@
     <Folder Include="UnitTests\ModeChange" />
     <Folder Include="UnitTests\Module" />
     <Folder Include="UnitTests\ModuleCollection" />
+    <Folder Include="UnitTests\Axis" />
     <Folder Include="UnitTests\Recipe" />
     <Folder Include="UnitTests\Safety" />
     <Folder Include="UnitTests\Serial" />
@@ -402,8 +410,8 @@
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-        <Data>
-          <o xml:space="preserve" t="OptionKey">
+  <Data>
+    <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
@@ -416,6 +424,12 @@
         <o>
           <v n="Name">"{29BD8D0C-3586-4548-BB48-497B9A01693F}"</v>
           <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+            <v>Metrics</v>
+            <o>
+              <v n="Name">"Metrics"</v>
+              <d n="SubKeys" t="Hashtable" />
+              <d n="Values" t="Hashtable" />
+            </o>
             <v>NamingConventions</v>
             <o>
               <v n="Name">"NamingConventions"</v>
@@ -473,14 +487,14 @@
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-        </Data>
-        <TypeList>
-          <Type n="Boolean">System.Boolean</Type>
-          <Type n="Hashtable">System.Collections.Hashtable</Type>
-          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-          <Type n="String">System.String</Type>
-        </TypeList>
-      </XmlArchive>
+  </Data>
+  <TypeList>
+    <Type n="Boolean">System.Boolean</Type>
+    <Type n="Hashtable">System.Collections.Hashtable</Type>
+    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+    <Type n="String">System.String</Type>
+  </TypeList>
+</XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>

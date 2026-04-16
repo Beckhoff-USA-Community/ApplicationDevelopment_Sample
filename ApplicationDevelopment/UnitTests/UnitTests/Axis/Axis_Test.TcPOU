@@ -1,0 +1,260 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Axis_Test" Id="{5cab368b-ab80-4ef2-aa97-f3dde24c7634}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Axis_Test
+VAR
+	AxisRef		: Tc2_MC2.AXIS_REF;
+	Axis		: AxisPTP('Unit Test Axis', AxisRef) := (Override := 100.0);
+	StartupTime : TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Axis.CyclicLogic();
+StartupTime(IN := TRUE, PT := T#1S);
+IF NOT StartupTime.Q THEN
+	RETURN;
+END_IF
+
+Initialize();
+Enable();
+JogForward();
+JogBackward();
+MoveAbsoluteToStop();
+Stop();
+MoveAbsoluteToPoint();
+Home();
+Disable();
+Error();
+Reset();]]></ST>
+    </Implementation>
+    <Method Name="Disable" Id="{3d5bd3bc-55eb-4ebb-887e-a203596c0da3}">
+      <Declaration><![CDATA[METHOD Disable
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	DoneTimer(IN := TRUE, PT := T#50MS);
+	Axis.Disable();
+	IF DoneTimer.Q THEN
+		Actual := NOT Axis.Enabled AND NOT Axis.Busy AND NOT Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Enable" Id="{95b7ba08-618e-494b-9618-16370cbf6c9d}">
+      <Declaration><![CDATA[METHOD Enable
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	DoneTimer(IN := TRUE, PT := T#50MS);
+	Axis.Enable();
+	IF DoneTimer.Q THEN
+		Actual := Axis.Enabled AND NOT Axis.Busy AND NOT Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Error" Id="{c75d096b-dce5-40ec-ba9e-d82a79208b06}">
+      <Declaration><![CDATA[METHOD Error
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	DoneTimer(IN := TRUE, PT := T#50MS);
+	Axis.MoveAbsolute(20);
+	IF DoneTimer.Q THEN
+		Actual := (Axis.ErrorId <> 0) AND NOT Axis.Busy AND Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Home" Id="{1226a598-fdb6-490a-aa51-c96bf1b714d6}">
+      <Declaration><![CDATA[METHOD Home
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+	Command	  : BOOL := TRUE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	DoneTimer(IN := TRUE, PT := T#100MS);
+	IF Command AND NOT Axis.Busy THEN
+		Command := FALSE;
+		Axis.Home();
+	END_IF
+
+	IF DoneTimer.Q THEN
+		Actual := CompareLREAL(Axis.ActualVelocity, 0, 0.1) AND CompareLREAL(Axis.ActualPosition, 0, 0.1) AND NOT Axis.Busy AND NOT Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize" Id="{25d4923c-5a4a-4a0b-800b-4153f59fb89a}">
+      <Declaration><![CDATA[METHOD Initialize
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	DoneTimer(IN := TRUE, PT := T#250MS);
+	Expected := TRUE;
+	IF DoneTimer.Q THEN
+		Actual := Axis.Initialized AND NOT Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogBackward" Id="{91518556-7475-446a-8b7d-98374a78dab7}">
+      <Declaration><![CDATA[METHOD JogBackward
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	DoneTimer(IN := TRUE, PT := T#1S);
+	Axis.Jog(FALSE, TRUE);
+	IF DoneTimer.Q THEN
+		Actual := (Axis.ActualVelocity < 0) AND Axis.Busy AND NOT Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+		Axis.Jog(FALSE, FALSE);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogForward" Id="{142449b5-e22b-4fa8-b4e1-98146a69a71c}">
+      <Declaration><![CDATA[METHOD JogForward
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	DoneTimer(IN := TRUE, PT := T#100MS);
+	Axis.Jog(TRUE, FALSE);
+	IF DoneTimer.Q THEN
+		Actual := (Axis.ActualVelocity > 0) AND Axis.Busy AND NOT Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+		Axis.Jog(FALSE, FALSE);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveAbsoluteToPoint" Id="{7572ef69-496e-4fdd-ba51-4b5b7959b36a}">
+      <Declaration><![CDATA[METHOD MoveAbsoluteToPoint
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+	Command	  : BOOL := TRUE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	DoneTimer(IN := TRUE, PT := T#2S);
+	IF Command AND NOT Axis.Busy THEN
+		Command := FALSE;
+		Axis.MoveAbsolute(100);
+	END_IF
+
+	IF DoneTimer.Q THEN
+		Actual := CompareLREAL(Axis.ActualVelocity, 0, 0.1) AND CompareLREAL(Axis.ActualPosition, 100, 0.1) AND NOT Axis.Busy AND NOT Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveAbsoluteToStop" Id="{c5a5b3a7-cfc8-41e8-9420-7bd681c15a3a}">
+      <Declaration><![CDATA[METHOD MoveAbsoluteToStop
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+	Command	  : BOOL := TRUE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	DoneTimer(IN := TRUE, PT := T#1S);
+	IF Command AND NOT Axis.Busy THEN
+		Command := FALSE;
+		Axis.MoveAbsolute(1000);
+	END_IF
+
+	IF DoneTimer.Q THEN
+		Actual := (Axis.ActualVelocity > 0) AND Axis.Busy AND NOT Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{2b6ca310-61cf-4411-902f-b7aa838c0584}">
+      <Declaration><![CDATA[METHOD Reset
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+	Command	  : BOOL := TRUE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	DoneTimer(IN := TRUE, PT := T#500MS);
+	IF Command THEN
+		Command := FALSE;
+		Axis.Reset();
+	END_IF
+
+	IF DoneTimer.Q THEN
+		Actual := (Axis.ErrorId = 0) AND NOT Axis.Busy AND NOT Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stop" Id="{e1ec2db5-a040-4d14-92c4-f1acc2975626}">
+      <Declaration><![CDATA[METHOD Stop
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	DoneTimer : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	DoneTimer(IN := TRUE, PT := T#500MS);
+	Axis.Stop();
+	IF DoneTimer.Q THEN
+		Actual := CompareLREAL(Axis.ActualVelocity, 0, 0.1) AND NOT Axis.Busy AND NOT Axis.Error;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

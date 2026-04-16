@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <POU Name="MAIN" Id="{9cddac07-df1f-4e43-80ae-f6917cc2c1c0}" SpecialFunc="None">
-    <Declaration><![CDATA[PROGRAM MAIN
+  <POU Name="TestsBase" Id="{9cddac07-df1f-4e43-80ae-f6917cc2c1c0}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TestsBase
 VAR
 	CyclicRunner_TEST			   : CyclicRunner_TEST;
 	ComponentCollection_TEST	   : ComponentCollection_TEST;
@@ -32,6 +32,7 @@ VAR
 	Recipe_TEST					   : Recipe_TEST;
 	Analog_TEST					   : Analog_TEST;
 	Serial_TEST					   : SerialConnection_Tests;
+	Axis_Test					   : Axis_Test;
 
 	//
 	Component1				  : CyclicComponent_Mockup('Component 1');
@@ -79,6 +80,7 @@ Analog_TEST();
 AnyBuffer_TEST();
 ForcibleInt_Test();
 Serial_TEST();
+Axis_Test();
 
 // Mockup code
 Samples_AnyBuffer();
