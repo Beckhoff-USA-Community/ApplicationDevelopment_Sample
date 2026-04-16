@@ -1,0 +1,710 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_AnyBuffer_PopRight" Id="{d4e5f6a7-b8c9-01de-fa67-890123def012}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST_AnyBuffer_PopRight
+VAR
+	// Loop counter
+	i						: DINT;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[RetrievesLastElement();
+DoesNotShiftElements();
+ClearsLastElement();
+DecrementsElementCount();
+ReturnsTrueOnSuccess();
+WrongSize();
+EmptyElement();
+PopFromEmptyBuffer();
+PopSingleElement();
+ConsecutivePops();
+PopAfterAppendRight();
+PopAfterAppendLeft();
+PopUntilEmpty();
+ElementOrderPreserved();
+PopDiscardTrue();
+PopDiscardTrueSkipsTypeCheck();
+PopDiscardTrueNoShift();
+PopDiscardTrueDecrementsCount();
+PopDiscardFalseRetrievesValue();
+PopDiscardFalseValidatesType();
+PopDiscardWithWrongTypeSucceeds();
+PopDiscardReturnsTrueOnSuccess();
+]]></ST>
+    </Implementation>
+    <Method Name="ClearsLastElement" Id="{a7b8c9d0-e1f2-34a1-cd9a-123456f12345}">
+      <Declaration><![CDATA[// PopRight clears the last element of the buffer
+METHOD ClearsLastElement
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	RawBuffer[TEST_LL+3] := 400;
+	RawBuffer[TEST_LL+4] := 500;
+	fbAnyBuffer.Metadata.elementCount := 5;
+	ReturnedElement := 0;
+
+	// Act
+	Success := fbAnyBuffer.PopRight(element := ReturnedElement);
+
+	// Assert - Last element should be cleared (0)
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ConsecutivePops" Id="{b4c5d6e7-f8a9-01b8-de6b-890123678012}">
+      <Declaration><![CDATA[// PopRight multiple times maintains correct order (LIFO)
+METHOD ConsecutivePops
+VAR
+	pop1 : DINT;
+	pop2 : DINT;
+	pop3 : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Fill buffer with sequential values
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 10;
+	RawBuffer[TEST_LL+1] := 20;
+	RawBuffer[TEST_LL+2] := 30;
+	RawBuffer[TEST_LL+3] := 40;
+	RawBuffer[TEST_LL+4] := 50;
+	fbAnyBuffer.Metadata.elementCount := 5;
+
+	// Act - Pop three times consecutively from right
+	fbAnyBuffer.PopRight(element := pop1);
+	fbAnyBuffer.PopRight(element := pop2);
+	fbAnyBuffer.PopRight(element := pop3);
+
+	// Assert - Elements should be retrieved in reverse order (LIFO)
+	TEST_DINT := 50;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, pop1);
+	TEST_DINT := 40;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, pop2);
+	TEST_DINT := 30;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, pop3);
+
+	// Remaining buffer state: [10, 20, 0, 0, 0]
+	TEST_DINT := 10;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 20;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DecrementsElementCount" Id="{b8c9d0e1-f2a3-45b2-de0b-234567012456}">
+      <Declaration><![CDATA[// PopRight decreases elementCount by 1
+METHOD DecrementsElementCount
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	fbAnyBuffer.Metadata.elementCount := 3;
+
+	// Act
+	Success := fbAnyBuffer.PopRight(element := ReturnedElement);
+
+	// Assert - elementCount should be decremented from 3 to 2
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DoesNotShiftElements" Id="{f6a7b8c9-d0e1-23f0-bc89-012345f01234}">
+      <Declaration><![CDATA[// PopRight does not shift any remaining elements
+METHOD DoesNotShiftElements
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	RawBuffer[TEST_LL+3] := 400;
+	RawBuffer[TEST_LL+4] := 500;
+	fbAnyBuffer.Metadata.elementCount := 5;
+	ReturnedElement := 0;
+
+	// Act
+	Success := fbAnyBuffer.PopRight(element := ReturnedElement);
+
+	// Assert - Elements should remain at their original positions
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ElementOrderPreserved" Id="{f8a9b0c1-d2e3-45fc-bc0f-234567012456}">
+      <Declaration><![CDATA[// PopRight preserves remaining element positions
+METHOD ElementOrderPreserved
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 111;
+	RawBuffer[TEST_LL+1] := 222;
+	RawBuffer[TEST_LL+2] := 333;
+	RawBuffer[TEST_LL+3] := 444;
+	RawBuffer[TEST_LL+4] := 555;
+	fbAnyBuffer.Metadata.elementCount := 5;
+
+	// Act - Pop last two elements
+	fbAnyBuffer.PopRight(element := ReturnedElement);
+	fbAnyBuffer.PopRight(element := ReturnedElement);
+
+	// Assert - First three elements should remain at original positions
+	TEST_DINT := 111;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 222;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 333;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+
+	// Last two positions should be cleared
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EmptyElement" Id="{e1f2a3b4-c5d6-78e5-ab3e-567890345789}">
+      <Declaration><![CDATA[// PopRight with zero-sized element just clears without copying
+METHOD EmptyElement
+VAR
+	EmptyAny				: __SYSTEM.AnyType;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	fbAnyBuffer.Metadata.elementCount := 3;
+	fbAnyBuffer.Metadata.capacity := 2;
+
+	// Initialize empty AnyType (size = 0)
+	EmptyAny.pValue := 0;
+	EmptyAny.diSize := 0;
+
+	// Act - Call with zero-sized element
+	Success := fbAnyBuffer.PopRight(element := EmptyAny);
+
+	// Assert - Should NOT succeed and clear last element
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopAfterAppendLeft" Id="{d6e7f8a9-b0c1-23da-fa8d-012345890234}">
+      <Declaration><![CDATA[// PopRight with AppendLeft demonstrates FIFO behavior
+METHOD PopAfterAppendLeft
+VAR
+	ReturnedElement : DINT;
+	testElement : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Act - Append left and Pop right (FIFO: First In First Out)
+	testElement := DINT#100;
+	fbAnyBuffer.PushLeft(element := testElement);  // [100]
+	testElement := DINT#200;
+	fbAnyBuffer.PushLeft(element := testElement);  // [200, 100]
+	testElement := DINT#300;
+	fbAnyBuffer.PushLeft(element := testElement);  // [300, 200, 100]
+	fbAnyBuffer.PopRight(element := ReturnedElement); // Pop 100 (first appended)
+
+	// Assert - Should pop the first appended value (100)
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Buffer should now be [300, 200]
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopAfterAppendRight" Id="{c5d6e7f8-a9b0-12c9-ef7c-901234789123}">
+      <Declaration><![CDATA[// PopRight with AppendRight demonstrates LIFO behavior
+METHOD PopAfterAppendRight
+VAR
+	ReturnedElement : DINT;
+	testElement : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Act - Append and Pop from right (LIFO: Last In First Out)
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);  // [100]
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);  // [100, 200]
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);  // [100, 200, 300]
+	fbAnyBuffer.PopRight(element := ReturnedElement);  // Pop 300
+
+	// Assert - Should pop the last appended value (300)
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Buffer should now be [100, 200]
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopDiscardFalseRetrievesValue" Id="{a3b4c5d6-eeee-4415-f8a9-b0c1d2e3f4a5}">
+      <Declaration><![CDATA[// Element value is copied when popDiscard=FALSE (default)
+METHOD PopDiscardFalseRetrievesValue
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 123;
+	RawBuffer[TEST_LL+1] := 456;
+	fbAnyBuffer.Metadata.elementCount := 2;
+	ReturnedElement := 0;
+
+	// Act - Pop with explicit popDiscard=FALSE
+	Success := fbAnyBuffer.PopRight(element := ReturnedElement, popDiscard := FALSE);
+
+	// Assert - Value is retrieved (last element)
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 456;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopDiscardFalseValidatesType" Id="{b4c5d6e7-ffff-4526-a9b0-c1d2e3f4a5b6}">
+      <Declaration><![CDATA[// Type checking occurs when popDiscard=FALSE
+METHOD PopDiscardFalseValidatesType
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	fbAnyBuffer.Metadata.elementCount := 1;
+	WrongSizeElement := 0;
+
+	// Act - Pop with wrong type and popDiscard=FALSE (should fail)
+	Success := fbAnyBuffer.PopRight(element := WrongSizeElement, popDiscard := FALSE);
+
+	// Assert - Should fail due to type mismatch
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	// Element count should remain unchanged (pop failed)
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopDiscardReturnsTrueOnSuccess" Id="{d6e7f8a9-1111-4748-c1d2-e3f4a5b6c7d8}">
+      <Declaration><![CDATA[// Method returns TRUE when popDiscard=TRUE succeeds
+METHOD PopDiscardReturnsTrueOnSuccess
+VAR
+	discardBuffer : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 777;
+	fbAnyBuffer.Metadata.elementCount := 1;
+
+	// Act
+	Success := fbAnyBuffer.PopRight(element := discardBuffer, popDiscard := TRUE);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;  // Buffer empty
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopDiscardTrue" Id="{c9d0e1f2-aaaa-40d1-b4c5-d6e7f8a9b0c1}">
+      <Declaration><![CDATA[// Element is removed but not copied when popDiscard=TRUE
+METHOD PopDiscardTrue
+VAR
+	discardBuffer : BYTE;  // Can be any type when popDiscard=TRUE
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	fbAnyBuffer.Metadata.elementCount := 3;
+	discardBuffer := 0;
+
+	// Act - Pop with discard=TRUE
+	Success := fbAnyBuffer.PopRight(element := discardBuffer, popDiscard := TRUE);
+
+	// Assert - Success but discardBuffer unchanged (no copy occurred)
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	// Buffer should remain unchanged except last element cleared: [100, 200, 0]
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopDiscardTrueDecrementsCount" Id="{f2a3b4c5-dddd-4304-e7f8-a9b0c1d2e3f4}">
+      <Declaration><![CDATA[// ElementCount decreases when popDiscard=TRUE
+METHOD PopDiscardTrueDecrementsCount
+VAR
+	discardBuffer : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	fbAnyBuffer.Metadata.elementCount := 3;
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Act - Pop with discard=TRUE
+	Success := fbAnyBuffer.PopRight(element := discardBuffer, popDiscard := TRUE);
+
+	// Assert - Count decremented
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopDiscardTrueNoShift" Id="{e1f2a3b4-cccc-42f3-d6e7-f8a9b0c1d2e3}">
+      <Declaration><![CDATA[// No element shifting occurs when popDiscard=TRUE (same as default)
+METHOD PopDiscardTrueNoShift
+VAR
+	discardBuffer : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 10;
+	RawBuffer[TEST_LL+1] := 20;
+	RawBuffer[TEST_LL+2] := 30;
+	RawBuffer[TEST_LL+3] := 40;
+	fbAnyBuffer.Metadata.elementCount := 4;
+
+	// Act - Pop with discard=TRUE
+	Success := fbAnyBuffer.PopRight(element := discardBuffer, popDiscard := TRUE);
+
+	// Assert - Elements stay in place (no shift)
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 10;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 20;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 30;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 0;  // Last element cleared
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopDiscardTrueSkipsTypeCheck" Id="{d0e1f2a3-bbbb-41e2-c5d6-e7f8a9b0c1d2}">
+      <Declaration><![CDATA[// No error when element size is wrong and popDiscard=TRUE
+METHOD PopDiscardTrueSkipsTypeCheck
+VAR
+	wrongSizeBuffer : BYTE;  // Only 1 byte, but buffer expects DINT (4 bytes)
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	fbAnyBuffer.Metadata.elementCount := 2;
+	wrongSizeBuffer := 0;
+
+	// Act - Pop with wrong type but popDiscard=TRUE (should succeed)
+	Success := fbAnyBuffer.PopRight(element := wrongSizeBuffer, popDiscard := TRUE);
+
+	// Assert - Should succeed despite type mismatch
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopDiscardWithWrongTypeSucceeds" Id="{c5d6e7f8-0000-4637-b0c1-d2e3f4a5b6c7}">
+      <Declaration><![CDATA[// PopRight with wrong type succeeds when popDiscard=TRUE
+METHOD PopDiscardWithWrongTypeSucceeds
+VAR
+	wrongTypeBuffer : INT;  // 2 bytes instead of 4
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 999;
+	RawBuffer[TEST_LL+1] := 888;
+	fbAnyBuffer.Metadata.elementCount := 2;
+	wrongTypeBuffer := 0;
+
+	// Act - Pop with wrong type but popDiscard=TRUE
+	Success := fbAnyBuffer.PopRight(element := wrongTypeBuffer, popDiscard := TRUE);
+
+	// Assert - Should succeed
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	// First element unchanged, last element cleared
+	TEST_DINT := 999;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopFromEmptyBuffer" Id="{f2a3b4c5-d6e7-89f6-bc4f-678901456890}">
+      <Declaration><![CDATA[// PopRight on empty buffer returns FALSE and does not modify buffer
+METHOD PopFromEmptyBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Clear buffer (elementCount = 0)
+	fbAnyBuffer.Clear();
+	ReturnedElement := 999;  // Set to non-zero to verify it is NOT overwritten
+
+	// Act - Pop from empty buffer
+	Success := fbAnyBuffer.PopRight(element := ReturnedElement);
+
+	// Assert - Should fail because buffer is empty
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Element should remain unchanged (999) since pop failed
+	TEST_DINT := 999;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// All buffer positions should remain 0
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopSingleElement" Id="{a3b4c5d6-e7f8-90a7-cd5a-789012567901}">
+      <Declaration><![CDATA[// PopRight when buffer contains exactly one element
+METHOD PopSingleElement
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Only first element has data
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 42;
+	fbAnyBuffer.Metadata.elementCount := 1;
+	ReturnedElement := 0;
+
+	// Act
+	Success := fbAnyBuffer.PopRight(element := ReturnedElement);
+
+	// Assert - Should retrieve the single element
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 42;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Buffer should now be completely empty
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopUntilEmpty" Id="{e7f8a9b0-c1d2-34eb-ab9e-123456901345}">
+      <Declaration><![CDATA[// PopRight can pop all elements until buffer is empty
+METHOD PopUntilEmpty
+VAR
+	i : INT;
+	ReturnedElement : DINT;
+	testElement : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Fill buffer completely
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO 5 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Pop all elements
+	FOR i := 5 TO 1 BY -1 DO
+		Success := fbAnyBuffer.PopRight(element := ReturnedElement);
+		TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+		TEST_DINT := TO_DINT(i * 100);
+		TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+	END_FOR
+
+	// Assert - Buffer should be completely empty
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Try to pop from empty buffer
+	Success := fbAnyBuffer.PopRight(element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RetrievesLastElement" Id="{e5f6a7b8-c9d0-12ef-ab78-901234ef0123}">
+      <Declaration><![CDATA[// PopRight retrieves the last element from the buffer
+METHOD RetrievesLastElement
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	RawBuffer[TEST_LL+3] := 400;
+	RawBuffer[TEST_LL+4] := 500;
+	fbAnyBuffer.Metadata.elementCount := 5;
+	ReturnedElement := 0;
+
+	// Act
+	Success := fbAnyBuffer.PopRight(element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsTrueOnSuccess" Id="{c9d0e1f2-a3b4-56c3-ef1c-345678123567}">
+      <Declaration><![CDATA[// PopRight returns TRUE when pop succeeds
+METHOD ReturnsTrueOnSuccess
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	fbAnyBuffer.Metadata.elementCount := 1;
+
+	// Act
+	Success := fbAnyBuffer.PopRight(element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WrongSize" Id="{d0e1f2a3-b4c5-67d4-fa2d-456789234678}">
+      <Declaration><![CDATA[// PopRight returns FALSE when element size doesn't match buffer element size
+METHOD WrongSize
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	fbAnyBuffer.Metadata.elementCount := 1;
+	WrongSizeElement := 0;
+
+	// Act - Pass an INT (2 bytes) to a DINT buffer (4 bytes)
+	Success := fbAnyBuffer.PopRight(element := WrongSizeElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

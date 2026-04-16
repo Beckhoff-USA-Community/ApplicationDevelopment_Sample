@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SafetyBase_TEST" Id="{6be4978a-2f26-464e-beb5-cab4014c2806}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SafetyBase_TEST
+VAR
+	ResetPulse : SafetyResetPulse('Reset');
+	Group	   : SafetyGroup_TcEvents('Group');
+	EStop_Sim  : SafetyEstopFB_TcEvents('E-Stop');
+	EStop_OK   : SafetyEstopFB_TcEvents('E-Stop') := (ResetFunction := ResetPulse);
+	EStop_NOK  : SafetyEstopFB_TcEvents('E-Stop') := (ResetFunction := ResetPulse);
+END_VAR
+
+VAR
+	Init				  : BOOL := TRUE;
+	InfoData_Group AT %Q* : ST_SafetyStateDiag;
+	InfoData_OK	   AT %Q* : ST_SafetyStateDiag;
+	InfoData_NOK   AT %Q* : ST_SafetyStateDiag;
+	Run			   AT %I* : BOOL;
+	Reset		   AT %I* : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF Init THEN
+	InfoData_Group.State := E_SafetyGroup_State.Run;
+	InfoData_OK.State	 := E_SafetyEStop_State.Run;
+	InfoData_NOK.State	 := E_SafetyEStop_State.Error;
+	Init				 := FALSE;
+ELSE
+	Group.CyclicLogic();
+	EStop_OK.CyclicLogic();
+	EStop_NOK.CyclicLogic();
+	SimEstopOK();
+	SimEstopOK();
+	EstopOK();
+	EstopNOK();
+	GroupRun();
+	EstopReset();
+END_IF]]></ST>
+    </Implementation>
+    <Method Name="EstopNOK" Id="{bbb9d71f-ac67-49b1-8347-1560777e5be9}">
+      <Declaration><![CDATA[METHOD EstopNOK
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	Actual	 := EStop_NOK.OK;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EstopOK" Id="{f7a79cd2-b569-47c0-bab9-7bd6872642a9}">
+      <Declaration><![CDATA[METHOD EstopOK
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Actual	 := EStop_OK.OK;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EstopReset" Id="{c57b1b44-af29-4e8c-bb33-f07b955be460}">
+      <Declaration><![CDATA[METHOD EstopReset
+VAR_INST
+	Expected  : BOOL;
+	Actual	  : BOOL;
+	TestDelay : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	TestDelay(IN := TRUE, PT := T#50MS);
+	Expected := TRUE;
+	EStop_NOK.Reset();
+	IF TestDelay.Q THEN
+		Actual := Reset;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GroupRun" Id="{1840cf64-74bf-4b20-9bbe-a833aab308aa}">
+      <Declaration><![CDATA[METHOD GroupRun
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Actual	 := Run;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SimEstopNOK" Id="{ce9ae527-8176-465f-81e5-ee11c826cac1}">
+      <Declaration><![CDATA[METHOD SimEstopNOK
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	EStop_Sim.SimulateSafetyState(E_SafetyEStop_State.Error);
+	EStop_Sim.CyclicLogic();
+	Actual := EStop_Sim.OK;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SimEstopOK" Id="{e2b447d2-6712-474c-aa86-d9b49ebd5c7f}">
+      <Declaration><![CDATA[METHOD SimEstopOK
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	EStop_Sim.SimulateSafetyState(E_SafetyEStop_State.Run);
+	EStop_Sim.CyclicLogic();
+	Actual := EStop_Sim.OK;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SampleLifo" Id="{2e3f4a5b-6c7d-4e8f-9a0b-1c2d3e4f5a6b}" SpecialFunc="None">
+    <Declaration><![CDATA[// Manual test program for LifoBuffer adapter functionality
+PROGRAM SampleLifo
+VAR
+	lifo					: LifoBuffer(anyBuffer, FALSE, FALSE);	// no overwrite, not reversed
+
+	firstRun				: BOOL := TRUE; // lazy firstrun
+	elementPush				: ST_TEST_AnyBuffer_Element;
+	elementPop				: ST_TEST_AnyBuffer_Element;
+
+	// Manual control bits
+	bPush					: BOOL;
+	bPop					: BOOL;
+	bClear					: BOOL;
+
+	// Status information
+	isEmpty					: BOOL;
+	isFull					: BOOL;
+	elementCount			: DINT;
+	capacity				: DINT;
+
+	// Operation counters
+	pushCount				: UDINT;
+	popCount				: UDINT;
+	pushFailCount			: UDINT;
+	popFailCount			: UDINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Manual control actions
+IF bClear			THEN
+	bClear 			:= FALSE;
+	lifo.Clear();
+ELSIF bPush			THEN
+	bPush 			:= FALSE;
+	elementPush.id 		:= elementPush.id + 1;
+	elementPush.name	:= concat('element :', TO_STRING(elementPush.id));
+	IF lifo.Push(elementPush) THEN
+		pushCount := pushCount + 1;
+	ELSE
+		pushFailCount := pushFailCount + 1;
+	END_IF
+ELSIF bPop			THEN
+	bPop 			:= FALSE;
+	IF lifo.Pop(elementPop) THEN
+		popCount := popCount + 1;
+	ELSE
+		popFailCount := popFailCount + 1;
+	END_IF
+END_IF
+
+// Update status information
+isEmpty := lifo.isEmpty;
+isFull := lifo.isFull;
+elementCount := anyBuffer.Metadata.elementCount;
+capacity := anyBuffer.Metadata.capacity;
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

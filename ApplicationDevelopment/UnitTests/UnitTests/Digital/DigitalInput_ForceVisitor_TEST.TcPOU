@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DigitalInput_ForceVisitor_TEST" Id="{12345678-1234-1234-1234-123456789abc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DigitalInput_ForceVisitor_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ForceOffVisitor_NO();
+ForceOnVisitor_NO();
+UnforcedVisitor_NO();
+ForceOffVisitor_NC();
+ForceOnVisitor_NC();
+UnforcedVisitor_NC();]]></ST>
+    </Implementation>
+    <Method Name="ForceOffVisitor_NC" Id="{87654321-4321-4321-4321-cba987654321}">
+      <Declaration><![CDATA[METHOD ForceOffVisitor_NC
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	Input		 : BOOL;
+	DigitalInput : DigitalInput_NC('DigitalInput', Input);
+	ForceVisitor : ForceVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		   := FALSE;
+	DigitalInput.Force := E_ForceState.ForceOn;
+	ForceVisitor.Force := E_ForceState.ForceOff;
+	DigitalInput.Accept(ForceVisitor);
+	Input  := FALSE;
+	Actual := DigitalInput.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForceOffVisitor_NO" Id="{11111111-2222-3333-4444-555555555555}">
+      <Declaration><![CDATA[METHOD ForceOffVisitor_NO
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	Input		 : BOOL;
+	DigitalInput : DigitalInput_NO('DigitalInput', Input);
+	ForceVisitor : ForceVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		   := FALSE;
+	DigitalInput.Force := E_ForceState.ForceOn;
+	ForceVisitor.Force := E_ForceState.ForceOff;
+	DigitalInput.Accept(ForceVisitor);
+	Input  := TRUE;
+	Actual := DigitalInput.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForceOnVisitor_NC" Id="{aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee}">
+      <Declaration><![CDATA[METHOD ForceOnVisitor_NC
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	Input		 : BOOL;
+	DigitalInput : DigitalInput_NC('DigitalInput', Input);
+	ForceVisitor : ForceVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		   := TRUE;
+	DigitalInput.Force := E_ForceState.ForceOff;
+	ForceVisitor.Force := E_ForceState.ForceOn;
+	DigitalInput.Accept(ForceVisitor);
+	Input  := FALSE;
+	Actual := DigitalInput.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForceOnVisitor_NO" Id="{22222222-3333-4444-5555-666666666666}">
+      <Declaration><![CDATA[METHOD ForceOnVisitor_NO
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	Input		 : BOOL;
+	DigitalInput : DigitalInput_NO('DigitalInput', Input);
+	ForceVisitor : ForceVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		   := TRUE;
+	DigitalInput.Force := E_ForceState.ForceOff;
+	ForceVisitor.Force := E_ForceState.ForceOn;
+	DigitalInput.Accept(ForceVisitor);
+	Input  := FALSE;
+	Actual := DigitalInput.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UnforcedVisitor_NC" Id="{dddddddd-eeee-ffff-aaaa-bbbbbbbbbbbb}">
+      <Declaration><![CDATA[METHOD UnforcedVisitor_NC
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	Input		 : BOOL;
+	DigitalInput : DigitalInput_NC('DigitalInput', Input);
+	ForceVisitor : ForceVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		   := TRUE;
+	DigitalInput.Force := E_ForceState.ForceOn;
+	ForceVisitor.Force := E_ForceState.Unforced;
+	DigitalInput.Accept(ForceVisitor);
+	Input  := FALSE;
+	Actual := DigitalInput.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UnforcedVisitor_NO" Id="{33333333-4444-5555-6666-777777777777}">
+      <Declaration><![CDATA[METHOD UnforcedVisitor_NO
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	Input		 : BOOL;
+	DigitalInput : DigitalInput_NO('DigitalInput', Input);
+	ForceVisitor : ForceVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		   := FALSE;
+	DigitalInput.Force := E_ForceState.ForceOn;
+	ForceVisitor.Force := E_ForceState.Unforced;
+	DigitalInput.Accept(ForceVisitor);
+	Input  := FALSE;
+	Actual := DigitalInput.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

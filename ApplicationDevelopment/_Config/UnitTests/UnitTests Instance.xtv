@@ -1,4 +1,80 @@
 <?xml version="1.0"?>
 <TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.21" ClassName="CTComPlcObjDef">
-	<Instance TmcHash="{28DCC256-38D4-8F7A-AEAC-1BC4FFD9F3D4}"/>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{CE873937-B250-EE13-D5FE-39EFFAB3B019}" Namespace="ApplicationBase" AutoDeleteType="true">ST_SafetyStateDiag</Name>
+			<BitSize>24</BitSize>
+			<SubItem>
+				<Name>State</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Diag</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<Comment><![CDATA[ **NOT PRESENT ON AND/OR FBs ** For components with USINT as Diag connection, connect first 8 Bit of UINT Diag. Inherited FB is evaluating correct length.]]></Comment>
+				<BitSize>16</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<Properties>
+				<Property>
+					<Name>pack_mode</Name>
+					<Value>1</Value>
+				</Property>
+			</Properties>
+		</DataType>
+	</DataTypes>
+	<Instance TmcHash="{58C18955-F6CA-1ABF-29F9-63856505929C}">
+		<Vars VarGrpType="1">
+			<Name>PlcTask Inputs</Name>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.Group.InfoData</Name>
+				<Type GUID="{CE873937-B250-EE13-D5FE-39EFFAB3B019}" Namespace="ApplicationBase">ST_SafetyStateDiag</Type>
+			</Var>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.EStop_Sim.InfoData</Name>
+				<Type GUID="{CE873937-B250-EE13-D5FE-39EFFAB3B019}" Namespace="ApplicationBase">ST_SafetyStateDiag</Type>
+			</Var>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.EStop_OK.InfoData</Name>
+				<Type GUID="{CE873937-B250-EE13-D5FE-39EFFAB3B019}" Namespace="ApplicationBase">ST_SafetyStateDiag</Type>
+			</Var>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.EStop_NOK.InfoData</Name>
+				<Type GUID="{CE873937-B250-EE13-D5FE-39EFFAB3B019}" Namespace="ApplicationBase">ST_SafetyStateDiag</Type>
+			</Var>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.Run</Name>
+				<Type>BOOL</Type>
+			</Var>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.Reset</Name>
+				<Type>BOOL</Type>
+			</Var>
+		</Vars>
+		<Vars VarGrpType="2" AreaNo="1">
+			<Name>PlcTask Outputs</Name>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.ResetPulse.Reset</Name>
+				<Type>BOOL</Type>
+			</Var>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.Group.Run</Name>
+				<Type>BOOL</Type>
+			</Var>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.InfoData_Group</Name>
+				<Type GUID="{CE873937-B250-EE13-D5FE-39EFFAB3B019}" Namespace="ApplicationBase">ST_SafetyStateDiag</Type>
+			</Var>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.InfoData_OK</Name>
+				<Type GUID="{CE873937-B250-EE13-D5FE-39EFFAB3B019}" Namespace="ApplicationBase">ST_SafetyStateDiag</Type>
+			</Var>
+			<Var>
+				<Name>MAIN.SafetyBase_TEST.InfoData_NOK</Name>
+				<Type GUID="{CE873937-B250-EE13-D5FE-39EFFAB3B019}" Namespace="ApplicationBase">ST_SafetyStateDiag</Type>
+			</Var>
+		</Vars>
+	</Instance>
 </TcSmItem>

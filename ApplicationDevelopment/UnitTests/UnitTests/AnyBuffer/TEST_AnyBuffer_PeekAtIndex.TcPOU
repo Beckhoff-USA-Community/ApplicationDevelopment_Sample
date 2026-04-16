@@ -1,0 +1,500 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_AnyBuffer_PeekAtIndex" Id="{c3d4e5f6-a7b8-9012-cdef-345678901def}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST_AnyBuffer_PeekAtIndex
+VAR
+	// Loop counter
+	i						: DINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[PeekFromBeginning();
+PeekFromMiddle();
+PeekFromEnd();
+ReturnsTrueOnSuccess();
+ReturnsFalseOnNegativeIndex();
+ReturnsFalseOnIndexOutOfBounds();
+ReturnsFalseOnEmptyBuffer();
+WrongElementSize();
+EmptyElement();
+BufferUnchangedAfterPeek();
+ElementCountUnchanged();
+MultiplePeeksOnSameIndex();
+PeekAllPositions();
+ElementOrderUnchanged();
+ConsecutivePeeks();
+]]></ST>
+    </Implementation>
+    <Method Name="BufferUnchangedAfterPeek" Id="{11223344-5566-7788-99aa-bbccddeeff02}">
+      <Declaration><![CDATA[// Buffer contents unchanged after peek
+METHOD BufferUnchangedAfterPeek
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Peek middle element
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+1, element := ReturnedElement);
+
+	// Assert - Buffer should be unchanged
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Verify all elements still in place
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ConsecutivePeeks" Id="{22334455-6677-8899-aabb-ccddeeff0022}">
+      <Declaration><![CDATA[// Multiple consecutive peeks at different indices work correctly
+METHOD ConsecutivePeeks
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Peek multiple positions
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+2, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+4, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Assert - Buffer unchanged after all peeks
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ElementCountUnchanged" Id="{33445566-7788-99aa-bbcc-ddeeff001133}">
+      <Declaration><![CDATA[// Element count remains same after peek
+METHOD ElementCountUnchanged
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Act - Peek several times
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+2, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+4, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - Element count should be unchanged
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ElementOrderUnchanged" Id="{44556677-8899-aabb-ccdd-eeff00112244}">
+      <Declaration><![CDATA[// Element order unchanged after multiple peeks
+METHOD ElementOrderUnchanged
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - [100, 200, 300, 400, 500]
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Peek all elements in random order
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+2, element := ReturnedElement);
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+0, element := ReturnedElement);
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+4, element := ReturnedElement);
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+1, element := ReturnedElement);
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+3, element := ReturnedElement);
+
+	// Assert - All elements should be in original positions
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EmptyElement" Id="{55667788-99aa-bbcc-ddee-ff0011223355}">
+      <Declaration><![CDATA[// Behavior when element.diSize is 0 (validation only, no copy)
+METHOD EmptyElement
+VAR
+	EmptyAny : __SYSTEM.AnyType;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Peek with empty element
+	EmptyAny.diSize := 0;
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+1, element := EmptyAny);
+
+	// Assert - Should fail
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MultiplePeeksOnSameIndex" Id="{66778899-aabb-ccdd-eeff-001122334466}">
+      <Declaration><![CDATA[// Can peek same index multiple times with consistent results
+METHOD MultiplePeeksOnSameIndex
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Peek same index multiple times
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+1, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+1, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+1, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Assert - Buffer unchanged after multiple peeks
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PeekAllPositions" Id="{778899aa-bbcc-ddee-ff00-112233445577}">
+      <Declaration><![CDATA[// Can peek all valid positions in sequence
+METHOD PeekAllPositions
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act & Assert - Peek all positions
+	FOR i := TEST_LL TO TEST_UL DO
+		Success := fbAnyBuffer.PeekAtIndex(index := TO_DINT(i), element := ReturnedElement);
+		TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+		TEST_DINT := TO_DINT((i - TEST_LL + 1) * 100);
+		TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+	END_FOR
+
+	// Assert - Buffer still full after peeking all positions
+	TEST_DINT := TEST_UL-TEST_LL+1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PeekFromBeginning" Id="{8899aabb-ccdd-eeff-0011-223344556688}">
+      <Declaration><![CDATA[// Peeking at index 0 retrieves first element without modification
+METHOD PeekFromBeginning
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Verify buffer unchanged
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PeekFromEnd" Id="{99aabbcc-ddee-ff00-1122-334455667799}">
+      <Declaration><![CDATA[// Peeking at last index retrieves last element
+METHOD PeekFromEnd
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Peek last element
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+2, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Verify buffer unchanged
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PeekFromMiddle" Id="{aabbccdd-eeff-0011-2233-4455667788aa}">
+      <Declaration><![CDATA[// Peeking from middle index retrieves correct element
+METHOD PeekFromMiddle
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#400;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Peek middle element (index 1)
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL+1, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Verify buffer unchanged
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 4;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnEmptyBuffer" Id="{bbccddee-ff00-1122-3344-556677889abb}">
+      <Declaration><![CDATA[// FALSE returned when buffer is empty (elementCount = 0)
+METHOD ReturnsFalseOnEmptyBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Act
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnIndexOutOfBounds" Id="{ccddeeff-0011-2233-4455-66778899aacc}">
+      <Declaration><![CDATA[// FALSE returned when index >= elementCount
+METHOD ReturnsFalseOnIndexOutOfBounds
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Try to peek beyond element count
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_UL+1, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Try index much larger than element count
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_UL+100, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnNegativeIndex" Id="{ddeeff00-1122-3344-5566-778899aabbdd}">
+      <Declaration><![CDATA[// FALSE returned for negative index
+METHOD ReturnsFalseOnNegativeIndex
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL-1, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsTrueOnSuccess" Id="{eeff0011-2233-4455-6677-8899aabbccee}">
+      <Declaration><![CDATA[// Method returns TRUE when peek succeeds
+METHOD ReturnsTrueOnSuccess
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WrongElementSize" Id="{ff001122-3344-5566-7788-99aabbccdeff}">
+      <Declaration><![CDATA[// FALSE returned when element size doesn't match
+METHOD WrongElementSize
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Try to peek with wrong element size
+	Success := fbAnyBuffer.PeekAtIndex(index := TEST_LL, element := WrongSizeElement);
+
+	// Assert - Should fail because of size difference
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Verify buffer unchanged
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

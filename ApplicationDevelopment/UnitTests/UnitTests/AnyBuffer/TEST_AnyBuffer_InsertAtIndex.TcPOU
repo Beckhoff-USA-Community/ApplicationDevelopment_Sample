@@ -1,0 +1,586 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_AnyBuffer_InsertAtIndex" Id="{a1b2c3d4-e5f6-7890-1234-567890abcdef}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST_AnyBuffer_InsertAtIndex
+VAR
+	// Loop counter
+	i						: DINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[InsertAtBeginning();
+InsertInMiddle();
+InsertAtEnd();
+InsertIntoEmptyBuffer();
+ReturnsTrueOnSuccess();
+ReturnsFalseOnNegativeIndex();
+ReturnsFalseOnIndexOutOfBounds();
+ReturnsFalseOnFullBuffer();
+WrongElementSize();
+IncrementsElementCount();
+ShiftsElementsCorrectly();
+PreservesElementOrder();
+MultipleInsertions();
+InsertAllValidPositions();
+InsertAtIndexEquivalentToAppendLeft();
+InsertAtIndexEquivalentToAppendRight();
+]]></ST>
+    </Implementation>
+    <Method Name="IncrementsElementCount" Id="{0d67851b-79fa-4b90-bcb6-7db1e86261b4}">
+      <Declaration><![CDATA[// Element count increases by 1 after insert
+METHOD IncrementsElementCount
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Act - Insert at middle
+	testElement := DINT#150;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+1, element := testElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertAllValidPositions" Id="{9274917f-55bf-4fee-ae35-df948944cb4a}">
+      <Declaration><![CDATA[// Can insert at every valid position (0 to elementCount)
+METHOD InsertAllValidPositions
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Start with one element
+	fbAnyBuffer.Clear();
+	testElement := DINT#1000;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act & Assert - Insert at position 0 (before existing element)
+	testElement := DINT#500;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Insert at position 1 (middle)
+	testElement := DINT#750;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+1, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Insert at position 3 (end)
+	testElement := DINT#1500;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+3, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 4;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Verify final order: [500, 750, 1000, 1500]
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 750;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 1000;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 1500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertAtBeginning" Id="{11223344-5566-7788-99aa-bbccdd001122}">
+      <Declaration><![CDATA[// Inserting at index 0 shifts all elements and inserts at front
+METHOD InsertAtBeginning
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - [100, 200, 300]
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Insert 50 at beginning
+	testElement := DINT#50;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL, element := testElement);
+
+	// Assert - [50, 100, 200, 300]
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 50;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 4;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertAtEnd" Id="{106e9818-0acd-4e6a-92b4-6b51185153ca}">
+      <Declaration><![CDATA[// Inserting at index elementCount appends at end (like AppendRight)
+METHOD InsertAtEnd
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - [100, 200, 300]
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Insert 400 at end (index 3 = elementCount)
+	testElement := DINT#400;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+3, element := testElement);
+
+	// Assert - [100, 200, 300, 400]
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 4;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertAtIndexEquivalentToAppendLeft" Id="{ff001122-3344-5566-7788-99ff00112233}">
+      <Declaration><![CDATA[// InsertAtIndex(0) behaves same as AppendLeft
+METHOD InsertAtIndexEquivalentToAppendLeft
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Two buffers with same initial state
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Use a second buffer for comparison
+	fbCompareBuffer.Clear();
+	testElement := DINT#100;
+	fbCompareBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbCompareBuffer.PushRight(element := testElement);
+
+	// Act - InsertAtIndex(0) vs AppendLeft
+	testElement := DINT#50;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#50;
+	fbCompareBuffer.PushLeft(element := testElement);
+
+	// Assert - Both buffers should be identical
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbCompareBuffer.Metadata.elementCount);
+
+	TEST_DINT := 50;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, CompareBuffer[TEST_LL+0]);
+
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, CompareBuffer[TEST_LL+1]);
+
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, CompareBuffer[TEST_LL+2]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertAtIndexEquivalentToAppendRight" Id="{00112233-4455-6677-8899-aa0011223344}">
+      <Declaration><![CDATA[// InsertAtIndex(elementCount) behaves same as AppendRight
+METHOD InsertAtIndexEquivalentToAppendRight
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Two buffers with same initial state
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Use a second buffer for comparison
+	fbCompareBuffer.Clear();
+	testElement := DINT#100;
+	fbCompareBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbCompareBuffer.PushRight(element := testElement);
+
+	// Act - InsertAtIndex(elementCount) vs AppendRight
+	testElement := DINT#300;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+2, element := testElement);  // elementCount = 2
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#300;
+	fbCompareBuffer.PushRight(element := testElement);
+
+	// Assert - Both buffers should be identical
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbCompareBuffer.Metadata.elementCount);
+
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, CompareBuffer[TEST_LL+0]);
+
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, CompareBuffer[TEST_LL+1]);
+
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, CompareBuffer[TEST_LL+2]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertInMiddle" Id="{22334455-6677-8899-aabb-ccddee002233}">
+      <Declaration><![CDATA[// Inserting at middle index shifts remaining elements correctly
+METHOD InsertInMiddle
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - [100, 300]
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Insert 200 in middle (index 1)
+	testElement := DINT#200;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+1, element := testElement);
+
+	// Assert - [100, 200, 300]
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertIntoEmptyBuffer" Id="{bf5b695f-0c37-4df8-a316-28f354ce57b3}">
+      <Declaration><![CDATA[// Inserting at index 0 in empty buffer works
+METHOD InsertIntoEmptyBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Act - Insert into empty buffer
+	testElement := DINT#100;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL, element := testElement);
+
+	// Assert - [100]
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MultipleInsertions" Id="{466b4c7d-d2f2-4f31-8944-0dce550781ec}">
+      <Declaration><![CDATA[// Sequential insertions at different indices work correctly
+METHOD MultipleInsertions
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#400;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Multiple inserts
+	testElement := DINT#200;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+1, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#300;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+2, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#500;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+4, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - [100, 200, 300, 400, 500]
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PreservesElementOrder" Id="{2efe7378-6cdb-4d6c-ba25-8a87aefecf61}">
+      <Declaration><![CDATA[// Element order is preserved after insert
+METHOD PreservesElementOrder
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - [10, 20, 30, 40, 50]
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO 5 DO
+		testElement := TO_DINT(i * 10);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Insert 25 between 20 and 30 (index 2)
+	testElement := DINT#25;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+2, element := testElement);
+
+	// Assert - [10, 20, 25, 30, 40] (50 dropped due to capacity)
+	// Wait, buffer has capacity 5, so after 5 elements it's full
+	// Actually with capacity 5 (0..4), we can't add a 6th element
+	// Let me reconsider: start with 4 elements, then insert
+	fbAnyBuffer.Clear();
+	testElement := DINT#10;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#20;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#30;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#40;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Insert 25 between 20 and 30
+	testElement := DINT#25;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+2, element := testElement);
+
+	// Assert - [10, 20, 25, 30, 40]
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 10;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 20;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 25;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 30;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 40;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnFullBuffer" Id="{3b74c613-cdaf-4c41-b647-60b2e9ba44f8}">
+      <Declaration><![CDATA[// FALSE returned when buffer is at capacity
+METHOD ReturnsFalseOnFullBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Fill buffer to capacity
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO 5 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Act - Try to insert into full buffer
+	testElement := DINT#999;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+2, element := testElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnIndexOutOfBounds" Id="{026432cb-f242-456d-ad1e-78547f306229}">
+      <Declaration><![CDATA[// FALSE returned when index > elementCount
+METHOD ReturnsFalseOnIndexOutOfBounds
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Try to insert beyond elementCount
+	testElement := DINT#999;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+3, element := testElement);  // elementCount = 2
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Try index much larger than element count
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_UL+100, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnNegativeIndex" Id="{b3e211e4-5603-4565-8245-6b158cf71966}">
+      <Declaration><![CDATA[// FALSE returned for negative index
+METHOD ReturnsFalseOnNegativeIndex
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act
+	testElement := DINT#999;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL-1, element := testElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsTrueOnSuccess" Id="{f2e398cb-42f8-42ff-8522-8e1e6a097018}">
+      <Declaration><![CDATA[// Method returns TRUE when insert succeeds
+METHOD ReturnsTrueOnSuccess
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act
+	testElement := DINT#150;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+1, element := testElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ShiftsElementsCorrectly" Id="{760a1c07-816f-4cc8-8310-e2189bfe5bb3}">
+      <Declaration><![CDATA[// All elements from index onward shift right by one
+METHOD ShiftsElementsCorrectly
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - [100, 200, 300, 400]
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#400;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Insert 250 at index 2
+	testElement := DINT#250;
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL+2, element := testElement);
+
+	// Assert - [100, 200, 250, 300, 400]
+	// Elements at index 2 and beyond shifted right: 300->index3, 400->index4
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);  // unchanged
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);  // unchanged
+	TEST_DINT := 250;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);  // new element
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);  // shifted from index 2
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);  // shifted from index 3
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WrongElementSize" Id="{e3f548f0-700e-42d7-8d64-bd877e48fa13}">
+      <Declaration><![CDATA[// FALSE returned when element size doesn't match
+METHOD WrongElementSize
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Try to insert with wrong element size
+	Success := fbAnyBuffer.PushAtIndex(index := TEST_LL, element := WrongSizeElement);
+
+	// Assert - Should fail (BYTE is 1 byte, DINT is 4 bytes)
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Verify buffer element count unchanged
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

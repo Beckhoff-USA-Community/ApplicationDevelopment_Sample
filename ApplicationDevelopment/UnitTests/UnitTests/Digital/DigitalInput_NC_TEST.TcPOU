@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DigitalInput_NC_TEST" Id="{e9214884-715e-486d-b6b0-594869346b3c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DigitalInput_NC_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ForcedOn();
+ForcedOff();
+On();
+Off();]]></ST>
+    </Implementation>
+    <Method Name="ForcedOff" Id="{5db2355d-80e2-43b5-8ede-1fa6b7ffb802}">
+      <Declaration><![CDATA[METHOD ForcedOff : BOOL
+VAR
+	Expected		: BOOL;
+	Actual			: BOOL;
+	Input			: BOOL;
+	DigitalInput_NC : DigitalInput_NC('DigitalInput', Input);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := FALSE;
+	DigitalInput_NC.Force := E_ForceState.ForceOff;
+	Input				  := FALSE;
+	Actual				  := DigitalInput_NC.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForcedOn" Id="{3cd99017-f14a-42eb-8d24-8a743d6673a9}">
+      <Declaration><![CDATA[METHOD ForcedOn : BOOL
+VAR
+	Expected		: BOOL;
+	Actual			: BOOL;
+	Input			: BOOL;
+	DigitalInput_NC : DigitalInput_NC('DigitalInput', Input);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	DigitalInput_NC.Force := E_ForceState.ForceOn;
+	Input				  := TRUE;
+	Actual				  := DigitalInput_NC.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Off" Id="{899584b3-5dcc-4106-86b6-f9aafeb05755}">
+      <Declaration><![CDATA[METHOD Off : BOOL
+VAR
+	Expected		: BOOL;
+	Actual			: BOOL;
+	Input			: BOOL;
+	DigitalInput_NC : DigitalInput_NC('DigitalInput', Input);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := FALSE;
+	DigitalInput_NC.Force := E_ForceState.Unforced;
+	Input				  := TRUE;
+	Actual				  := DigitalInput_NC.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="On" Id="{50df22eb-6301-41fc-9b18-f07dd55bf9a6}">
+      <Declaration><![CDATA[METHOD On
+VAR
+	Expected		: BOOL;
+	Actual			: BOOL;
+	Input			: BOOL;
+	DigitalInput_NC : DigitalInput_NC('DigitalInput', Input);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	DigitalInput_NC.Force := E_ForceState.Unforced;
+	Input				  := FALSE;
+	Actual				  := DigitalInput_NC.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

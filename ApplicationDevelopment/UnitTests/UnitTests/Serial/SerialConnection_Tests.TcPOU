@@ -1,0 +1,310 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SerialConnection_Tests" Id="{5fd39f02-9604-4c1d-ba31-123b8ae2764b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SerialConnection_Tests
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ByteConnectionAcceptsSendByte_Test();
+StringConnectionAcceptsSendString_Test();
+ByteConnectionRejectsSendByteWithNoLineCtrl_Test();
+StringConnectionRejectsSendStringWithNoLineCtrl_Test();
+ByteConnectionAcceptsSerialLineSet_Test();
+ByteConnectionRejectsNulSerialLineSet_Test();
+StringConnectionAcceptsSerialLineSet_Test();
+StringConnectionRejectsNulSerialLineSet_Test();
+ByteConnectionFlagsRecievedByte_Test();
+ByteConnectionRecievesByteCorrectly_Test();
+StringConnectionFlagsRecievedString_Test();
+StringConnectionRecievesStringCorrectly_Test();
+ByteConnectionRejectsResetWithNoLineCtrl_Test();
+ByteConnectionResetsRxCommBuffer_Test();
+StringConnectionRejectsResetWithNoLineCtrl_Test();
+StringConnectionResetsRxCommBuffer_Test();]]></ST>
+    </Implementation>
+    <Method Name="ByteConnectionAcceptsSendByte_Test" Id="{72c9300e-9212-4ed2-84a6-6866b6333beb}">
+      <Declaration><![CDATA[METHOD ByteConnectionAcceptsSendByte_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	seriallineCtrl : SerialLineControl_ADS;
+	serialConnection : SerialByteConnection(Name := 'Channel 1',SerialLineController := seriallineCtrl);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := SUCCEEDED(serialConnection.SendAByte(1));
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ByteConnectionAcceptsSerialLineSet_Test" Id="{d43c4ae1-4bfb-43ea-a3b9-7acc1215265b}">
+      <Declaration><![CDATA[METHOD ByteConnectionAcceptsSerialLineSet_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	seriallineCtrl : SerialLineControl_ADS;
+	serialConnection : SerialByteConnection(Name := 'Channel 1',SerialLineController := 0);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := serialConnection.SetDependencies(seriallineCtrl);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ByteConnectionFlagsRecievedByte_Test" Id="{bb04914d-f46b-4668-8a0a-f3913b782ea9}">
+      <Declaration><![CDATA[METHOD ByteConnectionFlagsRecievedByte_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	seriallineCtrl : MockSerialLineCtrl;
+	serialConnection : SerialByteConnection(Name := 'Channel 1',SerialLineController := seriallineCtrl);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	seriallineCtrl.SetComBufferByte(4);
+	serialConnection.CyclicLogic();
+	serialConnection.CyclicLogic();
+	Actual := serialConnection.ByteDataRecieved;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ByteConnectionRecievesByteCorrectly_Test" Id="{c7081a92-504f-4749-887e-46b0ec6809af}">
+      <Declaration><![CDATA[METHOD ByteConnectionRecievesByteCorrectly_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	seriallineCtrl : MockSerialLineCtrl;
+	serialConnection : SerialByteConnection(Name := 'Channel 1',SerialLineController := seriallineCtrl);
+	TestByte : BYTE := 4;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	seriallineCtrl.SetComBufferByte(TestByte);
+	serialConnection.CyclicLogic();
+	serialConnection.CyclicLogic();
+	IF serialConnection.ByteDataRecieved THEN
+		Actual := serialConnection.ByteData = TestByte;
+	END_IF
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ByteConnectionRejectsNulSerialLineSet_Test" Id="{edf53629-ad47-4593-a3ef-ba0b0228d8a2}">
+      <Declaration><![CDATA[METHOD ByteConnectionRejectsNulSerialLineSet_Test
+VAR
+	Expected : BOOL := FALSE;
+	Actual	 : BOOL;
+	serialConnection : SerialByteConnection(Name := 'Channel 1',SerialLineController := 0);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := serialConnection.SetDependencies(0);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ByteConnectionRejectsResetWithNoLineCtrl_Test" Id="{b17f7843-41dc-4306-82c9-864be40fd714}">
+      <Declaration><![CDATA[METHOD ByteConnectionRejectsResetWithNoLineCtrl_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	serialConnection : SerialByteConnection(Name := 'Channel 1',SerialLineController := 0);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := FAILED(serialConnection.Reset());
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ByteConnectionRejectsSendByteWithNoLineCtrl_Test" Id="{7c8edc6b-b442-42ac-b718-f47eff76c854}">
+      <Declaration><![CDATA[METHOD ByteConnectionRejectsSendByteWithNoLineCtrl_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	serialConnection : SerialByteConnection(Name := 'Channel 1',SerialLineController := 0);
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := FAILED(serialConnection.SendAByte(1));
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ByteConnectionResetsRxCommBuffer_Test" Id="{16a53eca-1d7a-4151-8014-7faa9b256ca6}">
+      <Declaration><![CDATA[METHOD ByteConnectionResetsRxCommBuffer_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	seriallineCtrl : MockSerialLineCtrl;
+	serialConnection : SerialByteConnection(Name := 'Channel 1',SerialLineController := seriallineCtrl);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	seriallineCtrl.SetComBufferByte(4);
+	serialConnection.CyclicLogic();
+	serialConnection.CyclicLogic();
+	serialConnection.Reset();
+	Actual := seriallineCtrl.rxBuffer.RdIdx = 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StringConnectionAcceptsSendString_Test" Id="{9c1d98df-8ed7-4758-be86-e31811c326ff}">
+      <Declaration><![CDATA[METHOD StringConnectionAcceptsSendString_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	seriallineCtrl : SerialLineControl_ADS;
+	serialConnection : SerialStringConnection(Name := 'Channel 1',SerialLineController := seriallineCtrl);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := SUCCEEDED(serialConnection.SendAString('Bob'));
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StringConnectionAcceptsSerialLineSet_Test" Id="{580490a8-66e1-48e2-9d9a-c737a78bfb64}">
+      <Declaration><![CDATA[METHOD StringConnectionAcceptsSerialLineSet_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	seriallineCtrl : SerialLineControl_ADS;
+	serialConnection : SerialStringConnection(Name := 'Channel 1',SerialLineController := 0);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := serialConnection.SetDependencies(seriallineCtrl);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StringConnectionFlagsRecievedString_Test" Id="{3d21da3d-ec7d-457d-a621-49c592c5292d}">
+      <Declaration><![CDATA[METHOD StringConnectionFlagsRecievedString_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	seriallineCtrl : MockSerialLineCtrl;
+	serialConnection : SerialStringConnection(Name := 'Channel 1',SerialLineController := seriallineCtrl);
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	seriallineCtrl.SetComBufferString('$02 I Love Chips $03',20);
+	serialConnection.SetSerialConfiguration('$02','$03');
+	serialConnection.CyclicLogic();
+	serialConnection.CyclicLogic();
+	serialConnection.CyclicLogic();
+	Actual := serialConnection.StringRecieved;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StringConnectionRecievesStringCorrectly_Test" Id="{95ea016e-ca98-4353-b969-0cccdfcd63f0}">
+      <Declaration><![CDATA[METHOD StringConnectionRecievesStringCorrectly_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	seriallineCtrl : MockSerialLineCtrl;
+	serialConnection : SerialStringConnection(Name := 'Channel 1',SerialLineController := seriallineCtrl);
+	testString : T_MaxString := '$02 I Love Chips $03';
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	seriallineCtrl.SetComBufferString('$02 I Love Chips $03',20);
+	serialConnection.SetSerialConfiguration('$02','$03');
+	serialConnection.CyclicLogic();
+	serialConnection.CyclicLogic();
+	serialConnection.CyclicLogic();
+	IF serialConnection.StringRecieved THEN
+		Actual := serialConnection.StringData = testString;
+	END_IF
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StringConnectionRejectsNulSerialLineSet_Test" Id="{7af0281e-75d8-48da-94a2-beb805da549d}">
+      <Declaration><![CDATA[METHOD StringConnectionRejectsNulSerialLineSet_Test
+VAR
+	Expected : BOOL := FALSE;
+	Actual	 : BOOL;
+	serialConnection : SerialStringConnection(Name := 'Channel 1',SerialLineController := 0);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := serialConnection.SetDependencies(0);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StringConnectionRejectsResetWithNoLineCtrl_Test" Id="{8c574e55-ff45-41e9-812d-04a277bb3465}">
+      <Declaration><![CDATA[METHOD StringConnectionRejectsResetWithNoLineCtrl_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	serialConnection : SerialStringConnection(Name := 'Channel 1',SerialLineController := 0);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := FAILED(serialConnection.Reset());
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StringConnectionRejectsSendStringWithNoLineCtrl_Test" Id="{7e955c79-eca2-4e88-8bed-f740d8933336}">
+      <Declaration><![CDATA[METHOD StringConnectionRejectsSendStringWithNoLineCtrl_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	serialConnection : SerialStringConnection(Name := 'Channel 1',SerialLineController := 0);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := FAILED(serialConnection.SendAString('Bob'));
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StringConnectionResetsRxCommBuffer_Test" Id="{6216d277-9c66-4b78-ba1e-e58819498a42}">
+      <Declaration><![CDATA[METHOD StringConnectionResetsRxCommBuffer_Test : BOOL
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	seriallineCtrl : MockSerialLineCtrl;
+	serialConnection : SerialStringConnection(Name := 'Channel 1',SerialLineController := seriallineCtrl);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	seriallineCtrl.SetComBufferByte(4);
+	serialConnection.CyclicLogic();
+	serialConnection.CyclicLogic();
+	serialConnection.Reset();
+	Actual := seriallineCtrl.rxBuffer.RdIdx = 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

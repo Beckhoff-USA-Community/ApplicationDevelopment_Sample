@@ -1,0 +1,559 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_AnyBuffer_PopAtIndex" Id="{a2b3c4d5-e6f7-8901-bcde-234567890bcd}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST_AnyBuffer_PopAtIndex
+VAR
+	// Loop counter
+	i						: DINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[PopFromBeginning();
+PopFromMiddle();
+PopFromEnd();
+ReturnsTrueOnSuccess();
+ReturnsFalseOnNegativeIndex();
+ReturnsFalseOnIndexOutOfBounds();
+ReturnsFalseOnEmptyBuffer();
+WrongElementSize();
+EmptyElement();
+ShiftsElementsCorrectly();
+ClearsLastPosition();
+DecrementsElementCount();
+ConsecutivePops();
+PopAllElements();
+ElementOrderPreserved();
+PopAtIndexEquivalentToPopLeft();
+PopAtIndexEquivalentToPopRight();
+]]></ST>
+    </Implementation>
+    <Method Name="ClearsLastPosition" Id="{11223344-5566-7788-99aa-bbccddeeff01}">
+      <Declaration><![CDATA[// The last position is cleared to zero after shift
+METHOD ClearsLastPosition
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Pop middle element
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+1, element := ReturnedElement);
+
+	// Assert - Last position should be cleared
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]); // Position 2 was position 3, now cleared
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ConsecutivePops" Id="{22334455-6677-8899-aabb-ccddeeff0011}">
+      <Declaration><![CDATA[// Multiple consecutive PopAtIndex calls maintain correct state
+METHOD ConsecutivePops
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Pop multiple times at different indices
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+2, element := ReturnedElement);  // Pop 300
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+1, element := ReturnedElement);  // Pop 200
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL, element := ReturnedElement);  // Pop 100
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Assert - Buffer should be [400, 500]
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DecrementsElementCount" Id="{33445566-7788-99aa-bbcc-ddeeff001122}">
+      <Declaration><![CDATA[// Element count decreases by 1 after pop
+METHOD DecrementsElementCount
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO 5 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Act
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+2, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 4;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ElementOrderPreserved" Id="{44556677-8899-aabb-ccdd-eeff00112233}">
+      <Declaration><![CDATA[// Element order is preserved after pop (except removed element)
+METHOD ElementOrderPreserved
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - [100, 200, 300, 400, 500]
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO 5 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Remove 300 from middle
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+2, element := ReturnedElement);
+
+	// Assert - Order should be [100, 200, 400, 500]
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EmptyElement" Id="{55667788-99aa-bbcc-ddee-ff0011223344}">
+      <Declaration><![CDATA[// Behavior when element.diSize is 0 (discard mode)
+METHOD EmptyElement
+VAR
+	EmptyAny : BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Pop but discard
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+1, element := EmptyAny, TRUE);
+
+	// Assert - Should succeed, element removed but not copied
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopAllElements" Id="{66778899-aabb-ccdd-eeff-001122334455}">
+      <Declaration><![CDATA[// Can pop all elements sequentially using index 0
+METHOD PopAllElements
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Pop all elements from index 0
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		Success := fbAnyBuffer.PopAtIndex(index := TEST_LL, element := ReturnedElement);
+		TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+		TEST_DINT := TO_DINT(i * 100);
+		TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+	END_FOR
+
+	// Assert - Buffer should be empty
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopAtIndexEquivalentToPopLeft" Id="{778899aa-bbcc-ddee-ff00-112233445566}">
+      <Declaration><![CDATA[// PopAtIndex(0) behaves same as PopLeft
+METHOD PopAtIndexEquivalentToPopLeft
+VAR
+	popLeftValue : DINT;
+	popAtIndexValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Two identical buffers
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO 5 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Pop using PopLeft
+	Success := fbAnyBuffer.PopLeft(element := popLeftValue);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Clear and rebuild buffer
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Pop using PopAtIndex(TEST_LL)
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL, element := popAtIndexValue);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - Both should return same value
+	TestSuite.Test(__POUNAME()).AssertEqual(popLeftValue, popAtIndexValue);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, popAtIndexValue);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopAtIndexEquivalentToPopRight" Id="{8899aabb-ccdd-eeff-0011-223344556677}">
+      <Declaration><![CDATA[// PopAtIndex(elementCount-1) behaves same as PopRight
+METHOD PopAtIndexEquivalentToPopRight
+VAR
+	popRightValue : DINT;
+	popAtIndexValue : DINT;
+	lastIndex : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Two identical buffers
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO 5 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Pop using PopRight
+	Success := fbAnyBuffer.PopRight(element := popRightValue);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Clear and rebuild buffer
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO 5 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Pop using PopAtIndex(elementCount-1)
+	lastIndex := fbAnyBuffer.Metadata.elementCount - 1;
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+lastIndex, element := popAtIndexValue);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - Both should return same value
+	TestSuite.Test(__POUNAME()).AssertEqual(popRightValue, popAtIndexValue);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, popAtIndexValue);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopFromBeginning" Id="{99aabbcc-ddee-ff00-1122-334455667788}">
+      <Declaration><![CDATA[// Popping at index 0 retrieves first element and shifts all
+METHOD PopFromBeginning
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Verify elements shifted left
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopFromEnd" Id="{b490b6f1-38dd-4a22-b85b-4be86efb3df5}">
+      <Declaration><![CDATA[// Popping at last index (elementCount-1) retrieves last element
+METHOD PopFromEnd
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Pop last element
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+2, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Verify remaining elements unchanged
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopFromMiddle" Id="{bbccddee-ff00-1122-3344-556677889900}">
+      <Declaration><![CDATA[// Popping from middle index retrieves correct element and shifts remaining
+METHOD PopFromMiddle
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#400;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Pop middle element (index 1)
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+1, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Verify elements after index shifted left
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnEmptyBuffer" Id="{ccddeeff-0011-2233-4455-66778899aabb}">
+      <Declaration><![CDATA[// FALSE returned when buffer is empty (elementCount = 0)
+METHOD ReturnsFalseOnEmptyBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Act
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnIndexOutOfBounds" Id="{ddeeff00-1122-3344-5566-778899aabbcc}">
+      <Declaration><![CDATA[// FALSE returned when index >= elementCount
+METHOD ReturnsFalseOnIndexOutOfBounds
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Try to pop beyond element count
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+2, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Try index much larger than element count
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_UL+100, element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnNegativeIndex" Id="{eeff0011-2233-4455-6677-8899aabbccdd}">
+      <Declaration><![CDATA[// FALSE returned for negative index
+METHOD ReturnsFalseOnNegativeIndex
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL-1, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsTrueOnSuccess" Id="{ff001122-3344-5566-7788-99aabbccddee}">
+      <Declaration><![CDATA[// Method returns TRUE when pop succeeds
+METHOD ReturnsTrueOnSuccess
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL, element := ReturnedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ShiftsElementsCorrectly" Id="{00112233-4455-6677-8899-aabbccddeeff}">
+      <Declaration><![CDATA[// All elements after index shift left by one position
+METHOD ShiftsElementsCorrectly
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - [100, 200, 300, 400, 500]
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO 5 DO
+		testElement := TO_DINT(i * 100);
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Remove 200 (index 1)
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL+1, element := ReturnedElement);
+
+	// Assert - Buffer should be [100, 300, 400, 500]
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Verify all elements after index 1 shifted left
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);  // Was at index 2
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);  // Was at index 3
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);  // Was at index 4
+	TEST_DINT := 4;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WrongElementSize" Id="{11223344-5566-7788-99aa-bbccddeeff00}">
+      <Declaration><![CDATA[// FALSE returned when element size doesn't match
+METHOD WrongElementSize
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Try to pop with wrong element size
+	Success := fbAnyBuffer.PopAtIndex(index := TEST_LL, element := WrongSizeElement);
+
+	// Assert - Should fail because of size difference
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Verify buffer unchanged
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

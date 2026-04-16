@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SampleList" Id="{d1e2f3a4-b5c6-d1e2-f3a4-b5c6d1e2f3a4}" SpecialFunc="None">
+    <Declaration><![CDATA[// Manual test program for List adapter functionality with directional fill and shift-overwrite
+PROGRAM SampleList
+VAR
+	list					: ListBuffer(anyBuffer, FALSE);				// fillFromLeft=FALSE (append mode, default)
+
+	firstRun				: BOOL := TRUE; // lazy firstrun
+	elementPush				: ST_TEST_AnyBuffer_Element;
+	elementPop				: ST_TEST_AnyBuffer_Element;
+
+	// Manual control bits
+	bPush					: BOOL;
+	bPop					: BOOL;
+	bClear					: BOOL;
+	bToggleFillDirection	: BOOL;  // Toggle fill direction (note: requires reinit)
+
+	// Status information
+	isEmpty					: BOOL;
+	isFull					: BOOL;
+	elementCount			: DINT;
+	capacity				: DINT;
+	fillFromLeft			: BOOL := FALSE;  // Display current fill direction
+
+	// Operation counters
+	pushCount				: UDINT;
+	popCount				: UDINT;
+	pushFailCount			: UDINT;
+	popFailCount			: UDINT;
+	shiftOverwriteCount		: UDINT;  // Track how many times we pushed to full buffer (shift-overwrite)
+
+	// Visual buffer state (for debugging)
+	bufferSnapshot			: ARRAY[S_LL..S_UL] OF ST_TEST_AnyBuffer_Element;  // Copy of current buffer state
+
+	// Fill direction info display
+	fillDirectionInfo		: STRING := 'Fill from RIGHT (append)';  // Human-readable fill direction
+	pushPerformance			: STRING := 'Push: O(1), Pop: O(n)';    // Performance characteristics
+END_VAR
+VAR CONSTANT
+	LL						: INT := 0;
+	UL						: INT := 4;  // Moderate buffer size to observe shift behavior
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Manual control actions
+IF bClear			THEN
+	bClear 			:= FALSE;
+	list.Clear();
+	shiftOverwriteCount := 0;  // Reset overwrite counter on clear
+ELSIF bToggleFillDirection THEN
+	bToggleFillDirection := FALSE;
+	// Note: Fill direction is set at initialization and cannot be changed at runtime
+	// This is just for demonstration - would need to recreate the List instance
+	// For testing: manually change the list instantiation parameter and rebuild
+	fillFromLeft := NOT fillFromLeft;
+	IF fillFromLeft THEN
+		fillDirectionInfo := 'Fill from LEFT (prepend)';
+		pushPerformance := 'Push: O(n), Pop: O(1)';
+	ELSE
+		fillDirectionInfo := 'Fill from RIGHT (append)';
+		pushPerformance := 'Push: O(1), Pop: O(n)';
+	END_IF
+ELSIF bPush			THEN
+	bPush 			:= FALSE;
+	elementPush.id 		:= elementPush.id + 1;
+	elementPush.name	:= concat('element :', TO_STRING(elementPush.id));
+
+	// Track if pushing to a full buffer (will trigger shift-and-overwrite)
+	IF isFull THEN
+		shiftOverwriteCount := shiftOverwriteCount + 1;
+	END_IF
+
+	IF list.Push(elementPush) THEN
+		pushCount := pushCount + 1;
+	ELSE
+		pushFailCount := pushFailCount + 1;
+	END_IF
+ELSIF bPop			THEN
+	bPop 			:= FALSE;
+	IF list.Pop(elementPop) THEN
+		popCount := popCount + 1;
+	ELSE
+		popFailCount := popFailCount + 1;
+	END_IF
+END_IF
+
+// Update status information
+isEmpty := list.isEmpty;
+isFull := list.isFull;
+elementCount := anyBuffer.Metadata.elementCount;
+capacity := anyBuffer.Metadata.capacity;
+
+// Update buffer snapshot for visualization
+bufferSnapshot := buffer;
+
+// Visual representation of buffer state
+// When fillFromLeft=FALSE: [oldest at 0] -> [newer] -> [newest at end]
+// When fillFromLeft=TRUE:  [newest at 0] <- [older] <- [oldest at end]
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

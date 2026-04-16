@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ForcibleBool_TEST" Id="{fce2d78e-4523-495d-a99b-53d59e003270}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ForcibleBool_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ForceOff();
+ForceOn();
+UnforcedOff();
+UnforcedOn();]]></ST>
+    </Implementation>
+    <Method Name="ForceOff" Id="{88699ade-61bd-4059-a8a2-615a4cbf8a98}">
+      <Declaration><![CDATA[METHOD ForceOff
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	ForcibleBool : ForcibleBool('');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	ForcibleBool.SetForceState(E_ForceState.ForceOff);
+	ForcibleBool.Input := TRUE;
+	Actual			   := ForcibleBool.Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForceOn" Id="{004fb711-bf79-4a7b-a9f5-e5416fd7edf2}">
+      <Declaration><![CDATA[METHOD ForceOn
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	ForcibleBool : ForcibleBool('');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	ForcibleBool.SetForceState(E_ForceState.ForceOn);
+	ForcibleBool.Input := FALSE;
+	Actual			   := ForcibleBool.Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UnforcedOff" Id="{329007b5-8123-45d1-882e-01c74a5fbc95}">
+      <Declaration><![CDATA[METHOD UnforcedOff
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	ForcibleBool : ForcibleBool('');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	ForcibleBool.SetForceState(E_ForceState.Unforced);
+	ForcibleBool.Input := FALSE;
+	Actual			   := ForcibleBool.Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UnforcedOn" Id="{4a1ed549-5c0b-456d-87a1-87bafdfa006b}">
+      <Declaration><![CDATA[METHOD UnforcedOn
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	ForcibleBool : ForcibleBool('');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	ForcibleBool.SetForceState(E_ForceState.Unforced);
+	ForcibleBool.Input := TRUE;
+	Actual			   := ForcibleBool.Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

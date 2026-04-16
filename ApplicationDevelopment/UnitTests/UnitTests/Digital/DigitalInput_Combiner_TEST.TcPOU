@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DigitalInput_Combiner_TEST" Id="{a617e324-e5b0-4819-983e-1d76910ea031}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DigitalInput_Combiner_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[AddTwoInputsBothActiveCheckIsActive();
+AddTwoInputsOneActiveCheckIsActiveFalse();
+CheckIsActiveFalseWhenNoInputAdded();
+TryAddDuplicateInput();]]></ST>
+    </Implementation>
+    <Method Name="AddTwoInputsBothActiveCheckIsActive" Id="{b5bc8568-14e0-4498-9c8a-113d04d212f5}">
+      <Declaration><![CDATA[METHOD AddTwoInputsBothActiveCheckIsActive
+VAR
+	Expected			  : BOOL;
+	Actual				  : BOOL;
+	Input1				  : BOOL;
+	Input2				  : BOOL;
+	DigitalInput1		  : DigitalInput_NO('Input1', Input1);
+	DigitalInput2		  : DigitalInput_NO('Input2', Input2);
+	DigitalInput_Combiner : DigitalInput_Combiner<2>('Input1 & Input2');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Input1	 := TRUE;
+	Input2	 := TRUE;
+	DigitalInput_Combiner.AddInput(DigitalInput1);
+	DigitalInput_Combiner.AddInput(DigitalInput2);
+	Actual := DigitalInput_Combiner.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AddTwoInputsOneActiveCheckIsActiveFalse" Id="{ed3f3356-79ec-498b-a8cf-2efbb24817e2}">
+      <Declaration><![CDATA[METHOD AddTwoInputsOneActiveCheckIsActiveFalse
+VAR
+	Expected			  : BOOL;
+	Actual				  : BOOL;
+	Input1				  : BOOL;
+	Input2				  : BOOL;
+	DigitalInput1		  : DigitalInput_NO('Input1', Input1);
+	DigitalInput2		  : DigitalInput_NO('Input2', Input2);
+	DigitalInput_Combiner : DigitalInput_Combiner<2>('Input1 & Input2');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	Input1	 := FALSE;
+	Input2	 := TRUE;
+	DigitalInput_Combiner.AddInput(DigitalInput1);
+	DigitalInput_Combiner.AddInput(DigitalInput2);
+	Actual := DigitalInput_Combiner.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CheckIsActiveFalseWhenNoInputAdded" Id="{1640fbc8-0103-40d3-a91d-ca75ac742e82}">
+      <Declaration><![CDATA[METHOD CheckIsActiveFalseWhenNoInputAdded
+VAR
+	Expected			  : BOOL;
+	Actual				  : BOOL;
+	DigitalInput_Combiner : DigitalInput_Combiner<2>('Input1 & Input2');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	Actual	 := DigitalInput_Combiner.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TryAddDuplicateInput" Id="{80a889d4-cdb8-48c4-a06a-3d6d4b28c796}">
+      <Declaration><![CDATA[METHOD TryAddDuplicateInput
+VAR
+	Expected			  : BOOL;
+	Actual				  : BOOL;
+	Input1				  : BOOL;
+	Input2				  : BOOL;
+	DigitalInput1		  : DigitalInput_NO('Input1', Input1);
+	DigitalInput2		  : DigitalInput_NO('Input2', Input2);
+	DigitalInput_Combiner : DigitalInput_Combiner<2>('Input1 & Input2');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	Input1	 := TRUE;
+	Input2	 := FALSE;
+	DigitalInput_Combiner.AddInput(DigitalInput1);
+	DigitalInput_Combiner.AddInput(DigitalInput1);
+	DigitalInput_Combiner.AddInput(DigitalInput2);
+	Actual := DigitalInput_Combiner.IsActive;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

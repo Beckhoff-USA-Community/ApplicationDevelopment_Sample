@@ -9,7 +9,7 @@
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>UnitTests</Name>
-    <ProgramVersion>3.1.4026.21</ProgramVersion>
+    <ProgramVersion>3.1.4026.22</ProgramVersion>
     <WriteBookmarksToFile>true</WriteBookmarksToFile>
     <Application>{28c98e47-392f-4ae5-8727-5ae01afd9de3}</Application>
     <TypeSystem>{73a1b4ba-ee83-4965-b3e2-ae18f13d9fa5}</TypeSystem>
@@ -23,6 +23,51 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PlcTask.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\ADS\ADS_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Analog\Analog_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\AnyBuffer_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\DUTs\ST_TEST_AnyBuffer_Element.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\GVL_TEST_AnyBuffer.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_Clear.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_DeleteAtIndex.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_InsertAtIndex.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_PeekAtIndex.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_PopAtIndex.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_PopLeft.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_PopRight.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_PushLeft.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_PushRight.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\AnyBuffer\TEST_AnyBuffer_ReplaceAtIndex.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="UnitTests\CollectionPeeker\CollectionPeeker_Test.TcPOU">
@@ -43,7 +88,34 @@
     <Compile Include="UnitTests\CyclicRunner\CyclicRunner_TEST.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="UnitTests\Cylinder\Cylinder_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Digital\DigitalInput_Combiner_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Digital\DigitalInput_Debounce_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Digital\DigitalInput_ForceVisitor_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Digital\DigitalInput_NC_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Digital\DigitalInput_NO_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Digital\DigitalOutput_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="UnitTests\Events\Events_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Force\ForcibleBool_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Force\ForcibleInt_Test.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="UnitTests\Initializer\Initializer_TEST.TcPOU">
@@ -61,10 +133,43 @@
     <Compile Include="UnitTests\Module\Module_TEST.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="UnitTests\Recipe\Recipe_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Recipe\ST_Recipe.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Safety\SafetyBase_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Serial\SerialConnection_Tests.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="UnitTests\Statemachine\Statemachine_TEST.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="UnitTests\Tracing\Tracing_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnitTests\Utilities\Utilities_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Mockups\AnyBuffer\GVL_Samples_AnyBuffer.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Mockups\AnyBuffer\SampleFifo.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Mockups\AnyBuffer\SampleLifo.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Mockups\AnyBuffer\SampleList.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Mockups\AnyBuffer\SampleRing.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Mockups\AnyBuffer\Samples_AnyBuffer.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="_Mockups\CollectionPeeker\CollectionPeeker_Mock.TcPOU">
@@ -103,6 +208,9 @@
     <Compile Include="_Mockups\Modules\Module_Mockup.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="_Mockups\SerialLineCtrl\MockSerialLineCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="_Mockups\Statemachine\StateMachineVisitor_Mockup.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -136,6 +244,10 @@
         </Parameter>
       </Parameters>
     </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Math">
+      <DefaultResolution>Tc2_Math, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Math</Namespace>
+    </PlaceholderReference>
     <PlaceholderReference Include="Tc2_Standard">
       <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_Standard</Namespace>
@@ -143,6 +255,10 @@
     <PlaceholderReference Include="Tc2_System">
       <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Utilities">
+      <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Utilities</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc3_Module">
       <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
@@ -153,35 +269,48 @@
       <DefaultResolution>Tc3_PlcTestSuite, * (Simmel)</DefaultResolution>
       <Namespace>Tc3_PlcTestSuite</Namespace>
       <Parameters>
-        <Parameter ListName="TESTSUITEPARAMETER" xmlns="">
+        <Parameter ListName="TESTSUITEPARAMETER">
           <Key>MAXTESTCOUNT</Key>
-          <Value>150</Value>
+          <Value>500</Value>
         </Parameter>
       </Parameters>
     </PlaceholderReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="UnitTests" />
+    <Folder Include="UnitTests\ADS" />
+    <Folder Include="UnitTests\Analog" />
+    <Folder Include="UnitTests\AnyBuffer" />
+    <Folder Include="UnitTests\AnyBuffer\DUTs" />
     <Folder Include="UnitTests\Collection" />
     <Folder Include="UnitTests\CollectionPeeker" />
     <Folder Include="UnitTests\Component" />
     <Folder Include="UnitTests\ComponentCollection" />
     <Folder Include="UnitTests\CyclicComponent" />
     <Folder Include="UnitTests\CyclicRunner" />
+    <Folder Include="UnitTests\Cylinder" />
+    <Folder Include="UnitTests\Digital" />
     <Folder Include="UnitTests\Events" />
+    <Folder Include="UnitTests\Force" />
     <Folder Include="UnitTests\Initializer" />
     <Folder Include="UnitTests\List" />
     <Folder Include="UnitTests\ModeChange" />
     <Folder Include="UnitTests\Module" />
     <Folder Include="UnitTests\ModuleCollection" />
+    <Folder Include="UnitTests\Recipe" />
+    <Folder Include="UnitTests\Safety" />
+    <Folder Include="UnitTests\Serial" />
     <Folder Include="UnitTests\Statemachine" />
     <Folder Include="UnitTests\Tracing" />
+    <Folder Include="UnitTests\Utilities" />
     <Folder Include="_Mockups" />
+    <Folder Include="_Mockups\AnyBuffer" />
     <Folder Include="_Mockups\Collection" />
     <Folder Include="_Mockups\CollectionPeeker" />
     <Folder Include="_Mockups\Components" />
     <Folder Include="_Mockups\ModeChange" />
     <Folder Include="_Mockups\Modules" />
+    <Folder Include="_Mockups\SerialLineCtrl" />
     <Folder Include="_Mockups\Statemachine" />
     <Folder Include="_Mockups\Visitors" />
   </ItemGroup>
@@ -189,6 +318,77 @@
     <None Include="UnitTests.tmc">
       <SubType>Content</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PlaceholderResolution Include="ApplicationBase">
+      <Resolution>[ApplicationBase], 1.0.0 (Beckhoff Automation LLC)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_DataExchange">
+      <Resolution>Tc2_DataExchange, 3.4.2.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_Drive">
+      <Resolution>Tc2_Drive, 3.3.14.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_EtherCAT">
+      <Resolution>Tc2_EtherCAT, 3.7.1.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_IoFunctions">
+      <Resolution>Tc2_IoFunctions, 3.4.5.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_Math">
+      <Resolution>Tc2_Math, 3.5.1.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_MC2">
+      <Resolution>Tc2_MC2, 3.3.72.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_MC2_Drive">
+      <Resolution>Tc2_MC2_Drive, 3.3.54.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_NC">
+      <Resolution>Tc2_NC, 3.3.11.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_NCI">
+      <Resolution>Tc2_NCI, 3.3.19.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_NcKinematicTransformation">
+      <Resolution>Tc2_NcKinematicTransformation, 3.2.11.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_PlcInterpolation">
+      <Resolution>Tc2_PlcInterpolation, 3.3.23.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_SerialCom">
+      <Resolution>Tc2_SerialCom, 3.4.6.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_Standard">
+      <Resolution>Tc2_Standard, 3.4.5.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_System">
+      <Resolution>Tc2_System, 3.10.1.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_TcpIp">
+      <Resolution>Tc2_TcpIp, 3.4.4.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_Utilities">
+      <Resolution>Tc2_Utilities, 3.10.1.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_DynamicMemory">
+      <Resolution>Tc3_DynamicMemory, 1.1.4.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_EventLogger">
+      <Resolution>Tc3_EventLogger, 3.3.13.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_JsonXml">
+      <Resolution>Tc3_JsonXml, 3.4.7.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_Module">
+      <Resolution>Tc3_Module, 3.4.5.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_PackML_V3">
+      <Resolution>Tc3_PackML_V3, 1.0.6.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_PlcTestSuite">
+      <Resolution>Tc3_PlcTestSuite, 1.1.2 (Simmel)</Resolution>
+    </PlaceholderResolution>
   </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>

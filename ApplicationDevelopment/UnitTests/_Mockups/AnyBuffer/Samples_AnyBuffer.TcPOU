@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Samples_AnyBuffer" Id="{3dc76d33-9b87-4efd-85c7-6cf031984290}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Samples_AnyBuffer
+(*
+## Recent Performance Optimizations - Summary of Changes
+
+### 1. FifoBuffer Optimization
+**Changed from inefficient to efficient FIFO implementation:**
+- **Before**: Used `AppendLeft` (O(n) - shifts all elements) for Push and `PopRight` (O(1)) for Pop
+- **After**: Uses `AppendRight` (O(1) - no shifting) for Push and `PopLeft` (O(n)) for Pop
+- **Benefit**: Push operations are now constant-time, which is much more common than Pop in FIFO queues
+- **Performance**: Push now O(1) instead of O(n)
+- **Documentation**: Updated all documentation to reflect the new behavior and performance characteristics
+
+### 2. RingBuffer - Eliminated All Shifting Operations
+**Implemented proper circular buffer with head/tail pointers:**
+- **Added tracking variables**: `headIndex`, `tailIndex`, `elementCount`
+- **Push**: Now uses circular indexing to overwrite oldest element **without any shifting** (true O(1))
+- **Pop**: Uses `PeekAtIndex` with circular head pointer advancement **without shifting** (O(1))
+- **Before**: Used `PopLeft()` which shifted all elements (O(n) operation)
+- **After**: Direct circular buffer implementation with no shifting at all
+- **Performance**: Both Push and Pop are now true O(1) constant-time operations
+
+### 3. New WriteAtIndex Method in AnyBuffer
+**Added low-level method for direct buffer access:**
+- **Purpose**: Write to any physical index (0 to capacity-1) without changing buffer counters
+- **Key difference from ReplaceAtIndex**:
+  - `ReplaceAtIndex`: Only writes to logical indices (requires elements to exist)
+  - `WriteAtIndex`: Writes to physical indices (works on empty buffer)
+- **Use case**: Perfect for circular buffer implementations that manage their own counters
+- **Documentation**: Comprehensive documentation with warnings about low-level nature
+
+### 4. RingBuffer Updated to Use WriteAtIndex
+- **Replaced** `ReplaceAtIndex` with `WriteAtIndex` for both initial fill and overwrite
+- **Benefit**: No longer requires buffer to have elements, RingBuffer manages its own `elementCount`
+- **Documentation**: Updated all RingBuffer documentation to reflect use of WriteAtIndex
+
+### Performance Improvements Summary
+
+| Operation | Before | After |
+|-----------|--------|-------|
+| **FifoBuffer.Push** | O(n) - shifts all | O(1) - append right |
+| **FifoBuffer.Pop** | O(1) - no shift | O(n) - shift left |
+| **RingBuffer.Push** | O(n) - PopLeft shifts | O(1) - direct write |
+| **RingBuffer.Pop** | O(n) - PopLeft shifts | O(1) - PeekAtIndex |
+
+**Result**: RingBuffer now implements a true circular buffer with optimal O(1) performance for all operations!
+
+---
+
+## Summary of Manual Test Programs
+
+This project includes four manual test programs for interactively testing the AnyBuffer adapter
+implementations. Each program provides control bits for manual testing and status monitoring.
+
+### SampleFifo - Bounded Queue Testing
+**File**: POUs/SampleFifo.TcPOU
+**Adapter**: FifoBuffer (bounded FIFO queue without overwrite)
+**Buffer Size**: 3 elements (indices 0..2)
+**Performance**: Push O(1), Pop O(n)
+
+**Configuration**:
+```iecst
+fifo : FifoBuffer(anyBuffer, overwrite := FALSE, reversed := FALSE);
+```
+
+**Features**:
+- Tests bounded queue behavior (rejects push when full)
+- Optimized for frequent Push operations (O(1) constant time)
+- Status info: isEmpty, isFull, elementCount, capacity
+- Operation counters: pushCount, popCount, pushFailCount, popFailCount
+- Auto-incrementing element IDs for easy tracking
+
+**Manual Controls**:
+- `bPush` - Push new element (fails when buffer is full)
+- `bPop` - Pop oldest element (FIFO order)
+- `bClear` - Clear all elements
+
+**Testing Scenario**:
+1. Push 3 elements → buffer becomes full
+2. Try pushing 4th element → fails (pushFailCount increments)
+3. Pop 1 element → creates space
+4. Push again → now succeeds
+
+### SampleLifo - Bounded Stack Testing
+**File**: POUs/SampleLifo.TcPOU
+**Adapter**: LifoBuffer (bounded LIFO/stack without overwrite)
+**Buffer Size**: 3 elements (indices 0..2)
+**Performance**: Push O(1), Pop O(1)
+
+**Configuration**:
+```iecst
+lifo : LifoBuffer(anyBuffer, overwrite := FALSE, reversed := FALSE);
+```
+
+**Features**:
+- Tests bounded stack behavior (rejects push when full)
+- LIFO semantics: Last-In, First-Out (stack operations)
+- Both Push and Pop are O(1) constant time operations
+- Status info: isEmpty, isFull, elementCount, capacity
+- Operation counters: pushCount, popCount, pushFailCount, popFailCount
+- Auto-incrementing element IDs for easy tracking
+
+**Manual Controls**:
+- `bPush` - Push new element to top of stack (fails when buffer is full)
+- `bPop` - Pop most recent element (LIFO order)
+- `bClear` - Clear all elements
+
+**Testing Scenario**:
+1. Push elements with IDs 1, 2, 3 → buffer becomes full
+2. Try pushing 4th element → fails (pushFailCount increments)
+3. Pop element → returns ID 3 (last pushed, LIFO)
+4. Pop again → returns ID 2 (second-to-last pushed)
+5. Pop again → returns ID 1 (first pushed)
+6. Observe: LIFO behavior - reverse order from FIFO
+
+### SampleRing - Circular Buffer Testing
+**File**: POUs/SampleRing.TcPOU
+**Adapter**: RingBuffer (circular buffer with automatic overwrite)
+**Buffer Size**: 5 elements (indices 0..4)
+**Performance**: Push O(1), Pop O(1) - **No shifting operations!**
+
+**Configuration**:
+```iecst
+ring : RingBuffer(anyBuffer, overwriteEnabled := TRUE);
+```
+
+**Features**:
+- Tests circular buffer behavior (automatic overwrite of oldest)
+- True O(1) performance using head/tail circular indexing
+- No element shifting - direct memory access with WriteAtIndex
+- Status info: isEmpty, isFull, elementCount, capacity, overwriteEnabled
+- Operation counters: pushCount, popCount, pushFailCount, popFailCount, **overwriteCount**
+- Buffer snapshot array for visualizing circular behavior
+- Tracks how many times push triggered an overwrite
+
+**Manual Controls**:
+- `bPush` - Push new element (overwrites oldest when full)
+- `bPop` - Pop oldest element
+- `bClear` - Clear all elements
+- `bToggleOverwrite` - Display toggle (informational only)
+
+**Testing Scenario**:
+1. Push 5 elements → buffer becomes full: [0, 1, 2, 3, 4]
+2. Push 6th element (ID=5) → succeeds, removes 0: [1, 2, 3, 4, 5]
+3. Push 7th element (ID=6) → succeeds, removes 1: [2, 3, 4, 5, 6]
+4. Watch bufferSnapshot to observe elements cycling through
+5. Pop retrieves current oldest (not original first element)
+
+### SampleList - Directional Fill with Shift-Overwrite
+**File**: POUs/SampleList.TcPOU
+**Adapter**: List (configurable-direction FIFO with shift-overwrite)
+**Buffer Size**: 5 elements (indices 0..4)
+
+**Configuration**:
+```iecst
+list : List(anyBuffer, fillFromLeft := FALSE);  // Append mode (default)
+```
+
+**Features**:
+- Tests directional fill behavior (append or prepend)
+- Status info: isEmpty, isFull, elementCount, capacity, fillFromLeft
+- Operation counters: pushCount, popCount, pushFailCount, popFailCount, **shiftOverwriteCount**
+- Buffer snapshot array for visualizing shift behavior
+- Direction info: fillDirectionInfo, pushPerformance strings
+- Tracks shift-and-overwrite operations
+
+**Manual Controls**:
+- `bPush` - Push new element (shift-overwrites oldest when full)
+- `bPop` - Pop oldest element (FIFO order)
+- `bClear` - Clear all elements
+- `bToggleFillDirection` - Display toggle (requires rebuild to change actual direction)
+
+**Fill Direction Modes**:
+
+**Mode A: fillFromLeft = FALSE (Append Mode - DEFAULT)**
+- Push: Adds to end using AppendRight - O(1)
+- Pop: Removes from front using PopLeft - O(n)
+- Visual: `[oldest at 0] → [newer] → [newest at end]`
+- Best for: Frequent pushes, infrequent pops
+
+**Mode B: fillFromLeft = TRUE (Prepend Mode)**
+- Push: Adds to front using AppendLeft - O(n)
+- Pop: Removes from end using PopRight - O(1)
+- Visual: `[newest at 0] ← [older] ← [oldest at end]`
+- Best for: Frequent pops, infrequent pushes
+
+**Testing Scenario (Append Mode)**:
+1. Push 5 elements → buffer: [0, 1, 2, 3, 4] (IDs in order)
+2. Push 6th element (ID=5) → shift-overwrite: [1, 2, 3, 4, 5] (0 removed from front)
+3. Push 7th element (ID=6) → shift-overwrite: [2, 3, 4, 5, 6] (1 removed from front)
+4. Pop → returns 2 (oldest remaining)
+5. Observe: Push is fast O(1), Pop requires shifting O(n)
+
+## Comparison Table
+
+| Feature | SampleFifo | SampleLifo | SampleRing | SampleList |
+|---------|------------|------------|------------|------------|
+| **Adapter Type** | FifoBuffer | LifoBuffer | RingBuffer | List |
+| **Buffer Size** | 3 elements | 3 elements | 5 elements | 5 elements |
+| **Push Performance** | O(1) | O(1) | O(1) | O(1) or O(n) |
+| **Pop Performance** | O(n) | O(1) | O(1) | O(1) or O(n) |
+| **Semantic Order** | FIFO (queue) | LIFO (stack) | FIFO (circular) | FIFO (shift) |
+| **Overwrite** | No (fails) | No (fails) | Yes (circular) | Yes (shift) |
+| **Special Counter** | - | - | overwriteCount | shiftOverwriteCount |
+| **Buffer Snapshot** | No | No | Yes | Yes |
+| **Direction Config** | Fixed | Fixed | Fixed | Configurable |
+| **Best for Testing** | Queue limits | Stack behavior | Circular behavior | Directional fill |
+
+## Common Features
+
+All four sample programs share:
+- **ST_Element structure**: Simple struct with id (INT) and name (STRING)
+- **Status display**: isEmpty, isFull, elementCount, capacity
+- **Operation counters**: Track successful and failed push/pop operations
+- **Persistent buffer**: Buffer array is PERSISTENT for observing data across PLC cycles
+- **Auto-incrementing IDs**: Easy to track element insertion order
+
+## Usage Instructions
+
+1. **Add to task**: Ensure the desired sample program is called in MAIN or mapped to a task
+2. **Online mode**: Go online with the PLC
+3. **Watch variables**: Add program variables to watch list
+4. **Set control bits**: Set bPush, bPop, or bClear to TRUE to trigger actions
+5. **Observe behavior**: Watch counters, status, and bufferSnapshot (Ring/List) to understand behavior
+6. **Test edge cases**: Try pushing to full buffer, popping from empty, etc.
+
+## Test Data Structure
+
+```iecst
+TYPE ST_Element :
+STRUCT
+    id      : INT;      // Auto-incremented on each push
+    name    : STRING;   // Format: 'element :X' where X is the id
+END_STRUCT
+END_TYPE
+```
+*)
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SampleFifo();
+SampleLifo();
+SampleList();
+SampleRing();
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

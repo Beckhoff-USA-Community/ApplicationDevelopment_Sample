@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DigitalOutput_TEST" Id="{3ba2e228-33a7-4e30-9662-0183028c8a20}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DigitalOutput_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ForcedOn();
+ForcedOff();
+On();
+Off();
+ForceOffVisitor();
+ForceOnVisitor();]]></ST>
+    </Implementation>
+    <Method Name="ForcedOff" Id="{c0f50dc9-918e-492a-a29a-1558ec510433}">
+      <Declaration><![CDATA[METHOD ForcedOff
+VAR
+	Expected	  : BOOL;
+	Actual		  : BOOL;
+	Output		  : BOOL;
+	DigitalOutput : DigitalOutput('Name', Output);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			:= FALSE;
+	DigitalOutput.Force := E_ForceState.ForceOff;
+	DigitalOutput.On	:= TRUE;
+	Actual				:= Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForcedOn" Id="{16a6026d-b23d-419b-ae2c-d6bccd5352aa}">
+      <Declaration><![CDATA[METHOD ForcedOn
+VAR
+	Expected	  : BOOL;
+	Actual		  : BOOL;
+	Output		  : BOOL;
+	DigitalOutput : DigitalOutput('Name', Output);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			:= TRUE;
+	DigitalOutput.Force := E_ForceState.ForceOn;
+	DigitalOutput.On	:= FALSE;
+	Actual				:= Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForceOffVisitor" Id="{7eec34f1-d608-44c1-9fc5-bf3e075bfbc9}">
+      <Declaration><![CDATA[METHOD ForceOffVisitor
+VAR
+	Expected	  : BOOL;
+	Actual		  : BOOL;
+	Output		  : BOOL;
+	DigitalOutput : DigitalOutput('Name', Output);
+	ForceVisitor  : ForceVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			:= FALSE;
+	DigitalOutput.Force := E_ForceState.ForceOn;
+	ForceVisitor.Force	:= E_ForceState.ForceOff;
+	DigitalOutput.Accept(ForceVisitor);
+	DigitalOutput.On := TRUE;
+	Actual			 := Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForceOnVisitor" Id="{4b8766a5-e0e3-4115-81b3-c1b94bd5630f}">
+      <Declaration><![CDATA[METHOD ForceOnVisitor
+VAR
+	Expected	  : BOOL;
+	Actual		  : BOOL;
+	Output		  : BOOL;
+	DigitalOutput : DigitalOutput('Name', Output);
+	ForceVisitor  : ForceVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			:= TRUE;
+	DigitalOutput.Force := E_ForceState.ForceOff;
+	ForceVisitor.Force	:= E_ForceState.ForceOn;
+	DigitalOutput.Accept(ForceVisitor);
+	DigitalOutput.On := FALSE;
+	Actual			 := Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Off" Id="{c3039cd2-ab96-4201-b56c-0b9b3d8b3ac0}">
+      <Declaration><![CDATA[METHOD Off : BOOL
+VAR
+	Expected	  : BOOL;
+	Actual		  : BOOL;
+	Output		  : BOOL;
+	DigitalOutput : DigitalOutput('Name', Output);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			:= FALSE;
+	DigitalOutput.Force := E_ForceState.Unforced;
+	DigitalOutput.On	:= FALSE;
+	Actual				:= Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="On" Id="{0f028936-b18d-474d-a924-a4f5f7fbefdf}">
+      <Declaration><![CDATA[METHOD On
+VAR
+	Expected	  : BOOL;
+	Actual		  : BOOL;
+	Output		  : BOOL;
+	DigitalOutput : DigitalOutput('Name', Output);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			:= TRUE;
+	DigitalOutput.Force := E_ForceState.Unforced;
+	DigitalOutput.On	:= TRUE;
+	Actual				:= Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

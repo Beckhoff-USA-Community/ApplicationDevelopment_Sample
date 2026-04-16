@@ -1,0 +1,339 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_AnyBuffer_Clear" Id="{32b250bf-f35b-4d32-94b4-6a400e9704fc}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST_AnyBuffer_Clear
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ClearsAllElements();
+ResetsElementCount();
+ResetsAllMetadata();
+ReturnsTrue();
+ClearEmptyBuffer();
+ClearAfterPush();
+ClearAfterPop();
+MultipleClearCalls();
+ClearFullBuffer();
+ClearPartialBuffer();
+PreservesConfiguration();
+CanReuseAfterClear();
+]]></ST>
+    </Implementation>
+    <Method Name="CanReuseAfterClear" Id="{aabbccce-bfbb-bcf5-bedd-acabaacdeda6}">
+      <Declaration><![CDATA[// Buffer can be reused (push/pop) immediately after Clear
+METHOD CanReuseAfterClear
+VAR
+	ReturnedElement : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Fill and clear buffer
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushLeft(element := testElement);
+	fbAnyBuffer.Clear();
+
+	// Act - Reuse buffer immediately after clear
+	testElement := DINT#200;
+	Success := fbAnyBuffer.PushLeft(element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#300;
+	Success := fbAnyBuffer.PushLeft(element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	Success := fbAnyBuffer.PopLeft(element := ReturnedElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - Buffer works correctly after clear
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearAfterPop" Id="{bbeccccd-cacc-cda0-c9ae-bdbdb79fbe1c}">
+      <Declaration><![CDATA[// Clear works correctly after popping elements
+METHOD ClearAfterPop
+VAR
+	ReturnedElement : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Push and then pop elements
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushLeft(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushLeft(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushLeft(element := testElement);
+	fbAnyBuffer.PopLeft(element := ReturnedElement);
+	fbAnyBuffer.PopLeft(element := ReturnedElement);
+
+	// Act
+	Success := fbAnyBuffer.Clear();
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearAfterPush" Id="{aadbbbc8-b9bd-bc9f-b89d-ac9ac68ead0b}">
+      <Declaration><![CDATA[// Clear works correctly after pushing elements
+METHOD ClearAfterPush
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Push some elements first
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushLeft(element := testElement);
+	fbAnyBuffer.PushLeft(element := testElement);
+	fbAnyBuffer.PushLeft(element := testElement);
+
+	// Act
+	Success := fbAnyBuffer.Clear();
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearEmptyBuffer" Id="{99caab7d-a8ac-ab8e-a78c-9b89b57efc9a}">
+      <Declaration><![CDATA[// Clear on already-empty buffer returns TRUE
+METHOD ClearEmptyBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Buffer is already empty (elementCount = 0)
+	fbAnyBuffer.Clear();
+
+	// Act - Clear again
+	Success := fbAnyBuffer.Clear();
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearFullBuffer" Id="{ddeeeee0-ecee-efc2-ebaa-dfdfdd9bbda3}">
+      <Declaration><![CDATA[// Clear works when buffer is at capacity
+METHOD ClearFullBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Fill buffer to capacity (5 elements)
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	RawBuffer[TEST_LL+3] := 400;
+	RawBuffer[TEST_LL+4] := 500;
+	fbAnyBuffer.Metadata.elementCount := 5;
+
+	// Act
+	Success := fbAnyBuffer.Clear();
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearPartialBuffer" Id="{eeffaafa-fdff-fad3-fcbb-eaeaeeacceb4}">
+      <Declaration><![CDATA[// Clear works when buffer is partially filled
+METHOD ClearPartialBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Partially fill buffer (2 out of 5 elements)
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	fbAnyBuffer.Metadata.elementCount := 2;
+
+	// Act
+	Success := fbAnyBuffer.Clear();
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearsAllElements" Id="{33c44b17-a2a6-4528-a126-3523b918fc34}">
+      <Declaration><![CDATA[// Clear zeros all buffer positions
+METHOD ClearsAllElements
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	RawBuffer[TEST_LL+3] := 400;
+	RawBuffer[TEST_LL+4] := 500;
+	fbAnyBuffer.Metadata.elementCount := 5;
+	fbAnyBuffer.Metadata.capacity := 0;
+	
+	// Act
+	Success := fbAnyBuffer.Clear();
+
+	// Assert - All buffer positions should be zero
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MultipleClearCalls" Id="{ccddddde-dbdd-deb1-daff-cececc8aacf2}">
+      <Declaration><![CDATA[// Consecutive Clear calls all return TRUE
+METHOD MultipleClearCalls
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	RawBuffer[TEST_LL+0] := 100;
+	fbAnyBuffer.Metadata.elementCount := 1;
+
+	// Act - Clear multiple times consecutively
+	Success := fbAnyBuffer.Clear();
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	Success := fbAnyBuffer.Clear();
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	Success := fbAnyBuffer.Clear();
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - Still returns TRUE and buffer remains clear
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PreservesConfiguration" Id="{ffaabbbd-aeaa-abe4-adcc-fbfbffbddfc5}">
+      <Declaration><![CDATA[// Clear preserves buffer configuration (capacity, elementSize)
+METHOD PreservesConfiguration
+VAR
+	capacityBefore : DINT;
+	elementSizeBefore : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	RawBuffer[TEST_LL+0] := 100;
+	fbAnyBuffer.Metadata.elementCount := 1;
+	capacityBefore := fbAnyBuffer.Configuration.capacity;
+	elementSizeBefore := fbAnyBuffer.Configuration.elementSize;
+
+	// Act
+	Success := fbAnyBuffer.Clear();
+
+	// Assert - Configuration should remain unchanged
+	TestSuite.Test(__POUNAME()).AssertEqual(capacityBefore, fbAnyBuffer.Configuration.capacity);
+	TestSuite.Test(__POUNAME()).AssertEqual(elementSizeBefore, fbAnyBuffer.Configuration.elementSize);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetsAllMetadata" Id="{55e66d39-c4c8-674a-c348-5745d13abe56}">
+      <Declaration><![CDATA[// Clear resets all metadata fields to zero
+METHOD ResetsAllMetadata
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	fbAnyBuffer.Metadata.elementCount := 2;
+	fbAnyBuffer.Metadata.capacity := 3;
+
+	// Act
+	Success := fbAnyBuffer.Clear();
+
+	// Assert - All metadata should be zeroed
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := fbAnyBuffer.Configuration.capacity;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.capacity);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetsElementCount" Id="{44d55c28-b3b7-5639-b237-4634c029ad45}">
+      <Declaration><![CDATA[// Clear resets elementCount to 0
+METHOD ResetsElementCount
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	fbAnyBuffer.Metadata.elementCount := 3;
+
+	// Act
+	Success := fbAnyBuffer.Clear();
+
+	// Assert - elementCount should be 0
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsTrue" Id="{66f77e4a-d5d9-785b-d459-6856e24bcf67}">
+      <Declaration><![CDATA[// Clear returns TRUE when buffer is initialized
+METHOD ReturnsTrue
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	RawBuffer[TEST_LL+0] := 100;
+	fbAnyBuffer.Metadata.elementCount := 1;
+
+	// Act
+	Success := fbAnyBuffer.Clear();
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ForcibleInt_Test" Id="{2f9cf0f1-d030-45bf-b782-62522d677f5a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ForcibleInt_Test
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ForceOff();
+ForceOn();
+ForcibleAcceptsValue();
+ForciblePassesUnforcedValue();]]></ST>
+    </Implementation>
+    <Method Name="ForceOff" Id="{4d4970d2-14e3-4347-b9c3-45b8f984675e}">
+      <Declaration><![CDATA[METHOD ForceOff
+VAR
+	Expected	 : INT;
+	Actual		 : INT;
+	Forcible : ForcibleInt('');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 0;
+	Forcible.SetForceState(E_ForceState.ForceOff);
+	Forcible.Input := 12;
+	Actual	:= Forcible.Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForceOn" Id="{739f519d-3921-43cd-832e-bfa4947cb96e}">
+      <Declaration><![CDATA[METHOD ForceOn
+VAR
+	Expected	 : INT;
+	Actual		 : INT;
+	Forcible : ForcibleInt('');
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 16;
+	Forcible.ForceValue := 16;
+	Forcible.SetForceState(E_ForceState.ForceOn);
+	Forcible.Input := 23;
+	Actual			   := Forcible.Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForcibleAcceptsValue" Id="{1f48dbd0-403c-4cdd-af0c-a2434cd9cab7}">
+      <Declaration><![CDATA[METHOD ForcibleAcceptsValue
+VAR
+	Expected	 : INT;
+	Actual		 : INT;
+	Forcible : ForcibleInt('');
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 17;
+	Forcible.ForceValue := Expected;
+	Actual			   := Forcible.ForceValue;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ForciblePassesUnforcedValue" Id="{c33e2b19-d07b-4d3f-a34a-afe5b49e1799}">
+      <Declaration><![CDATA[METHOD ForciblePassesUnforcedValue
+VAR
+	Expected	 : INT;
+	Actual		 : INT;
+	Forcible : ForcibleInt('');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 16;
+	Forcible.SetForceState(E_ForceState.Unforced);
+	Forcible.Input := 16;
+	Actual			   := Forcible.Output;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

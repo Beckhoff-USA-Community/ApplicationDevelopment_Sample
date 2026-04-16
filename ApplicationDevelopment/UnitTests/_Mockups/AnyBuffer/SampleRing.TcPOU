@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SampleRing" Id="{c1d2e3f4-a5b6-c1d2-e3f4-a5b6c1d2e3f4}" SpecialFunc="None">
+    <Declaration><![CDATA[// Manual test program for RingBuffer adapter functionality with circular overwrite
+PROGRAM SampleRing
+VAR
+	ring					: RingBuffer(anyBuffer, TRUE);			// overwrite enabled (circular buffer mode)
+
+	firstRun				: BOOL := TRUE; // lazy firstrun
+	elementPush				: ST_TEST_AnyBuffer_Element;
+	elementPop				: ST_TEST_AnyBuffer_Element;
+
+	// Manual control bits
+	bPush					: BOOL;
+	bPop					: BOOL;
+	bClear					: BOOL;
+	bToggleOverwrite		: BOOL;  // Toggle overwrite mode on/off
+
+	// Status information
+	isEmpty					: BOOL;
+	isFull					: BOOL;
+	elementCount			: DINT;
+	capacity				: DINT;
+	overwriteEnabled		: BOOL := TRUE;  // Display current overwrite mode
+
+	// Operation counters
+	pushCount				: UDINT;
+	popCount				: UDINT;
+	pushFailCount			: UDINT;
+	popFailCount			: UDINT;
+	overwriteCount			: UDINT;  // Track how many times we pushed to a full buffer
+
+	// Visual buffer state (for debugging)
+	bufferSnapshot			: ARRAY[S_LL..S_UL] OF ST_TEST_AnyBuffer_Element;  // Copy of current buffer state
+END_VAR
+VAR CONSTANT
+	LL						: INT := 0;
+	UL						: INT := 4;  // Slightly larger buffer to see circular behavior
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Manual control actions
+IF bClear			THEN
+	bClear 			:= FALSE;
+	ring.Clear();
+	overwriteCount := 0;  // Reset overwrite counter on clear
+ELSIF bToggleOverwrite THEN
+	bToggleOverwrite := FALSE;
+	// Note: Overwrite mode is set at initialization and cannot be changed at runtime
+	// This is just for demonstration - would need to recreate the RingBuffer instance
+	// overwriteEnabled := NOT overwriteEnabled;
+ELSIF bPush			THEN
+	bPush 			:= FALSE;
+	elementPush.id 		:= elementPush.id + 1;
+	elementPush.name	:= concat('element :', TO_STRING(elementPush.id));
+
+	// Track if pushing to a full buffer (will trigger overwrite in circular mode)
+	IF isFull AND overwriteEnabled THEN
+		overwriteCount := overwriteCount + 1;
+	END_IF
+
+	IF ring.Push(elementPush) THEN
+		pushCount := pushCount + 1;
+	ELSE
+		pushFailCount := pushFailCount + 1;
+	END_IF
+ELSIF bPop			THEN
+	bPop 			:= FALSE;
+	IF ring.Pop(elementPop) THEN
+		popCount := popCount + 1;
+	ELSE
+		popFailCount := popFailCount + 1;
+	END_IF
+END_IF
+
+// Update status information
+isEmpty := ring.isEmpty;
+isFull := ring.isFull;
+elementCount := anyBuffer.Metadata.elementCount;
+capacity := anyBuffer.Metadata.capacity;
+
+// Update buffer snapshot for visualization
+bufferSnapshot := buffer;
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

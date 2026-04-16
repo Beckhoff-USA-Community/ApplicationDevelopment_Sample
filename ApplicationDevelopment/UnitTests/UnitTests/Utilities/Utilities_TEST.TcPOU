@@ -1,0 +1,245 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Utilities_TEST" Id="{6a0297c1-3d14-4b4a-8225-47f2a2313175}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Utilities_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CompareLREALFalse();
+CompareLREALTrue();
+CompareModuloFalse();
+CompareModuloTrue();
+PercentToAnalogConversion();
+AnalogScaleReturns0IfInMinGTInMax();
+AnalogScaleReturns0IfOutMinGTOutMax();
+AnalogScaleReturnsOutMaxIFValueGTInMax();
+AnalogScaleReturnsOutMinIFValueLTInMin();
+AnalogueScaleConvertsCorrectly();
+CalibrateAppliesGainCorrectly();
+CalibrateAppliesOffsetCorrectly();]]></ST>
+    </Implementation>
+    <Method Name="AnalogScaleReturns0IfInMinGTInMax" Id="{1100faef-46d0-42a5-8251-a1af1b9c0c0a}">
+      <Declaration><![CDATA[METHOD AnalogScaleReturns0IfInMinGTInMax
+VAR
+	InputGeneric : LREAL;
+	TestScale : AnalogScale;
+
+	Expected : LREAL := 0.0;
+	Actual	 : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	InputGeneric							   := 750;
+	TestScale.InputMaximum	   := 100;
+	TestScale.InputMinimum	   := 200;
+	TestScale.OutputMaximum	   := 10;
+	TestScale.OutputMinimum	   := -10;
+	Actual									   := TestScale.Transform(InputGeneric);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogScaleReturns0IfOutMinGTOutMax" Id="{28ae8859-e5dd-4c6b-aa4c-6c922f24f0f3}">
+      <Declaration><![CDATA[METHOD AnalogScaleReturns0IfOutMinGTOutMax
+VAR
+	InputGeneric : LREAL;
+	TestScale : AnalogScale;
+
+	Expected : LREAL := 0.0;
+	Actual	 : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	InputGeneric							   := 750;
+	TestScale.InputMaximum	   := 100;
+	TestScale.InputMinimum	   := -200;
+	TestScale.OutputMaximum	   := 10;
+	TestScale.OutputMinimum	   := 20;
+	Actual									   := TestScale.Transform(InputGeneric);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogScaleReturnsOutMaxIFValueGTInMax" Id="{b4cb1e68-ab90-4cc9-b263-ff4e0d458fe9}">
+      <Declaration><![CDATA[METHOD AnalogScaleReturnsOutMaxIFValueGTInMax
+VAR
+	InputGeneric : LREAL;
+	TestScale : AnalogScale;
+
+	Expected : LREAL := -10.0;
+	Actual	 : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	InputGeneric			   := -110;
+	TestScale.InputMaximum	   := 100;
+	TestScale.InputMinimum	   := -100;
+	TestScale.OutputMaximum	   := 10;
+	TestScale.OutputMinimum	   := -10;
+	Actual									   := TestScale.Transform(InputGeneric);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogScaleReturnsOutMinIFValueLTInMin" Id="{3cbc6cc8-7822-47b0-b07b-837f737c2798}">
+      <Declaration><![CDATA[METHOD AnalogScaleReturnsOutMinIFValueLTInMin
+VAR
+	InputGeneric : LREAL;
+	TestScale : AnalogScale;
+
+	Expected : LREAL := 10.0;
+	Actual	 : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	InputGeneric			   := 110;
+	TestScale.InputMaximum	   := 100;
+	TestScale.InputMinimum	   := -100;
+	TestScale.OutputMaximum	   := 10;
+	TestScale.OutputMinimum	   := -10;
+	Actual									   := TestScale.Transform(InputGeneric);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogueScaleConvertsCorrectly" Id="{cf7972c1-c144-4150-9548-355bc94c4b04}">
+      <Declaration><![CDATA[METHOD AnalogueScaleConvertsCorrectly
+VAR
+	InputGeneric : LREAL;
+	TestScale : AnalogScale;
+
+	Expected : LREAL;
+	Actual	 : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	InputGeneric							   := 500;
+	Expected								   := 5;
+	TestScale.InputMaximum	   := 1000;
+	TestScale.InputMinimum	   := 0.0;
+	TestScale.OutputMaximum	   := 10;
+	TestScale.OutputMinimum	   := 0.0;
+	Actual									   := TestScale.Transform(InputGeneric);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CalibrateAppliesGainCorrectly" Id="{8ce34b8b-9ee3-4528-9689-24a10f1263d0}">
+      <Declaration><![CDATA[METHOD CalibrateAppliesGainCorrectly
+VAR
+	InputGeneric : LREAL;
+	TestCalib : Calibrate;
+
+	Expected : LREAL;
+	Actual	 : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	InputGeneric							   := 500;
+	Expected								   := 501;
+	TestCalib.Gain	   := 1;
+	TestCalib.Offset	   := 1.0;
+	Actual									   := TestCalib.Transform(InputGeneric);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CalibrateAppliesOffsetCorrectly" Id="{281e4d35-cc9d-444f-bfbb-580862577287}">
+      <Declaration><![CDATA[METHOD CalibrateAppliesOffsetCorrectly
+VAR
+	InputGeneric : LREAL;
+	TestCalib : Calibrate;
+
+	Expected : LREAL;
+	Actual	 : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	InputGeneric							   := 500;
+	Expected								   := 1000;
+	TestCalib.Gain	   := 2;
+	TestCalib.Offset	   := 0.0;
+	Actual									   := TestCalib.Transform(InputGeneric);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CompareLREALFalse" Id="{3e4f4635-8cc0-4d06-891a-cad65d4d7033}">
+      <Declaration><![CDATA[METHOD CompareLREALFalse
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	Actual	 := CompareLREAL(10.0, 11.8);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CompareLREALTrue" Id="{79b26382-cacc-4421-bb53-c4def7efb4be}">
+      <Declaration><![CDATA[METHOD CompareLREALTrue
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Actual	 := CompareLREAL(10.5, 10.5);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CompareModuloFalse" Id="{5afd97d8-928f-412f-9deb-2630a7edddfe}">
+      <Declaration><![CDATA[METHOD CompareModuloFalse
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	Actual	 := CompareModulo(360, 500);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CompareModuloTrue" Id="{e4877f7d-fbeb-43aa-a91f-33916a8e1c2a}">
+      <Declaration><![CDATA[METHOD CompareModuloTrue
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Actual	 := CompareModulo(0, 720);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PercentToAnalogConversion" Id="{17f50908-228a-4aeb-9618-0f6de1f7ab49}">
+      <Declaration><![CDATA[METHOD PercentToAnalogConversion
+VAR
+	Expected : INT;
+	Actual	 : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 16383;
+	Actual	 := PercentToAnalog(50);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

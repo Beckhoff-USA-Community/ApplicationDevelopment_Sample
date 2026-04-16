@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <GVL Name="GVL_Samples_AnyBuffer" Id="{849221f6-7114-41bb-a5ec-f5e82f2740cb}">
+    <Declaration><![CDATA[VAR_GLOBAL PERSISTENT
+	buffer					: ARRAY[S_LL..S_UL] OF ST_TEST_AnyBuffer_Element;			// Any size buffer of any type
+END_VAR
+
+VAR_GLOBAL
+	anyBuffer				: AnyBuffer(buffer, S_LL, S_UL, TRUE); 		// persistent buffer handler
+END_VAR
+
+VAR_GLOBAL CONSTANT
+	S_LL					: INT := 0;
+	S_UL					: INT := 2;
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,564 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_AnyBuffer_ReplaceAtIndex" Id="{d5e6f7a8-9012-34ef-ab67-890123def456}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST_AnyBuffer_ReplaceAtIndex
+VAR
+	// Loop counter
+	i						: DINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ReplaceAtBeginning();
+ReplaceInMiddle();
+ReplaceAtEnd();
+ReturnsTrueOnSuccess();
+ReturnsFalseOnNegativeIndex();
+ReturnsFalseOnIndexAtCapacity();
+ReturnsFalseOnIndexAboveCapacity();
+WrongElementSize();
+BufferUnchangedExceptIndex();
+MetadataUnchanged();
+MultipleReplacements();
+ReplaceAllCapacityPositions();
+ReplaceWithDifferentValues();
+ReplaceSameIndexMultipleTimes();
+ReplaceEmptyPosition();
+ReplaceWhenBufferEmpty();
+]]></ST>
+    </Implementation>
+    <Method Name="BufferUnchangedExceptIndex" Id="{11223344-5566-7788-99aa-bbccddee1122}">
+      <Declaration><![CDATA[// All other elements remain unchanged after replace
+METHOD BufferUnchangedExceptIndex
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - [100, 200, 300, 400, 500]
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO 5 DO
+		testElement := i * 100;
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Replace middle element (index 2)
+	testElement := DINT#999;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+2, element := testElement);
+
+	// Assert - Only index 2 should be changed
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 999;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MetadataUnchanged" Id="{22334455-6677-8899-aabb-ccddeeaa2233}">
+      <Declaration><![CDATA[// ElementCount and all metadata remain unchanged after replace
+METHOD MetadataUnchanged
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		testElement := i * 100;
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	// Verify capacity was updated by PushRight
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.capacity);
+
+	// Act - Replace several elements
+	testElement := DINT#111;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#333;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+2, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#555;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+4, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - All metadata should be unchanged
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.capacity);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MultipleReplacements" Id="{33445566-7788-99aa-bbcc-ddeeff003344}">
+      <Declaration><![CDATA[// Sequential replacements at different indices work correctly
+METHOD MultipleReplacements
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		testElement := i * 100;
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Replace multiple positions
+	testElement := DINT#111;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#222;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+1, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#555;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+4, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - All replacements should be successful
+	TEST_DINT := 111;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	TEST_DINT := 222;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 555;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReplaceAllCapacityPositions" Id="{44556677-8899-aabb-ccdd-eeff00444455}">
+      <Declaration><![CDATA[// Can replace every capacity position (0 to capacity-1)
+METHOD ReplaceAllCapacityPositions
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Fill buffer completely
+	fbAnyBuffer.Clear();
+	FOR i := 1 TO TEST_UL-TEST_LL+1 DO
+		testElement := i * 100;
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Replace all capacity positions (0 through capacity-1 = 0 through 4)
+	FOR i := TEST_LL TO TEST_UL DO
+		testElement := (i-TEST_LL + 1) * 1000;
+		Success := fbAnyBuffer.ReplaceAtIndex(index := TO_DINT(i), element := testElement);
+		TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	END_FOR
+
+	// Assert - All positions should be replaced
+	TEST_DINT := 1000;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	TEST_DINT := 2000;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 3000;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 4000;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 5000;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+	// Metadata unchanged
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReplaceAtBeginning" Id="{55667788-99aa-bbcc-ddee-ff0011225566}">
+      <Declaration><![CDATA[// Replacing at index 0 updates first element correctly
+METHOD ReplaceAtBeginning
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Replace first element
+	testElement := DINT#999;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL, element := testElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 999;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReplaceAtEnd" Id="{66778899-aabb-ccdd-eeff-001122336677}">
+      <Declaration><![CDATA[// Replacing at last capacity index updates last element
+METHOD ReplaceAtEnd
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - fill buffer to capacity
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#400;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#500;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Replace last capacity position (index 4 = capacity-1)
+	testElement := DINT#999;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+4, element := testElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 999;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+	// Metadata unchanged
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReplaceEmptyPosition" Id="{50f1f761-3d82-446f-943f-fdd0c0d24206}">
+      <Declaration><![CDATA[// Can replace position that was never filled (elementCount < index < capacity)
+METHOD ReplaceEmptyPosition
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - only fill first 2 positions
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	// elementCount = 2, but capacity = 5, so indices 2, 3, 4 are "empty"
+
+	// Act - Replace position 3 (which was never logically filled)
+	testElement := DINT#999;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+3, element := testElement);
+
+	// Assert - Should succeed because index 3 is within capacity
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 999;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+
+	// Metadata should remain unchanged
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReplaceInMiddle" Id="{778899aa-bbcc-ddee-ff00-112233447788}">
+      <Declaration><![CDATA[// Replacing at middle index updates correct element
+METHOD ReplaceInMiddle
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#400;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Replace middle element (index 1)
+	testElement := DINT#999;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+1, element := testElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 999;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 4;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReplaceSameIndexMultipleTimes" Id="{8899aabb-ccdd-eeff-0011-223344558899}">
+      <Declaration><![CDATA[// Can overwrite same position repeatedly
+METHOD ReplaceSameIndexMultipleTimes
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Replace same index multiple times
+	testElement := DINT#111;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+1, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 111;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+
+	testElement := DINT#222;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+1, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 222;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+
+	testElement := DINT#333;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+1, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 333;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+
+	// Assert - Other elements unchanged, count unchanged
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReplaceWhenBufferEmpty" Id="{f48a97da-a4b4-4112-a4e5-0ae6ab1afb48}">
+      <Declaration><![CDATA[// Replace succeeds even when elementCount = 0 (if index < capacity)
+METHOD ReplaceWhenBufferEmpty
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - empty buffer (elementCount = 0)
+	fbAnyBuffer.Clear();
+	// Buffer is empty, but capacity is 5, so indices 0-4 are valid
+
+	// Act - Replace at various positions in empty buffer
+	testElement := DINT#111;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 111;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+
+	testElement := DINT#333;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+2, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 333;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+
+	testElement := DINT#555;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+4, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 555;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+
+	// Metadata should remain unchanged (still empty from logical perspective)
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReplaceWithDifferentValues" Id="{99aabbcc-ddee-ff00-1122-3344556699aa}">
+      <Declaration><![CDATA[// Replace works with various data values
+METHOD ReplaceWithDifferentValues
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	FOR i := TEST_LL-TEST_LL+1  TO TEST_UL-TEST_LL+1 DO
+		testElement := i * 100;
+		fbAnyBuffer.PushRight(element := testElement);
+	END_FOR
+
+	// Act - Replace with various values (zero, negative, large)
+	testElement := DINT#0;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+0, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#-999;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+2, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	testElement := DINT#2147483647;  // Max DINT
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+4, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - All values replaced correctly
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := -999;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 2147483647;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnIndexAboveCapacity" Id="{bbccddee-ff00-1122-3344-5566bbccddee}">
+      <Declaration><![CDATA[// FALSE returned when index > capacity
+METHOD ReturnsFalseOnIndexAboveCapacity
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - capacity is 5
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act & Assert - Try index much larger than capacity
+	testElement := DINT#999;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_UL+100, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Act & Assert - Try another large index
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_UL+10, element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnIndexAtCapacity" Id="{aabbccdd-eeff-0011-2233-445566aabbcc}">
+      <Declaration><![CDATA[// FALSE returned when index == capacity
+METHOD ReturnsFalseOnIndexAtCapacity
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - capacity is 5
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Try to replace beyond last index
+	testElement := DINT#999;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL+5, element := testElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnNegativeIndex" Id="{ccddeeff-0011-2233-4455-66ccddeeff00}">
+      <Declaration><![CDATA[// FALSE returned for negative index
+METHOD ReturnsFalseOnNegativeIndex
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act
+	testElement := DINT#999;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL-1, element := testElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsTrueOnSuccess" Id="{ddeeff00-1122-3344-5566-77ddeeff0011}">
+      <Declaration><![CDATA[// Method returns TRUE when replace succeeds
+METHOD ReturnsTrueOnSuccess
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act
+	testElement := DINT#999;
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL, element := testElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WrongElementSize" Id="{eeff0011-2233-4455-6677-88eeff001122}">
+      <Declaration><![CDATA[// FALSE returned when element size doesn't match
+METHOD WrongElementSize
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Act - Try to replace with wrong element size
+	Success := fbAnyBuffer.ReplaceAtIndex(index := TEST_LL, element := WrongSizeElement);
+
+	// Assert - Should fail (IN and DINT are different size)
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Verify buffer element count unchanged
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

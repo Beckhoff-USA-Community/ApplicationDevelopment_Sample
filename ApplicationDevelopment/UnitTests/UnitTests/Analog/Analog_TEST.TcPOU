@@ -1,0 +1,266 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Analog_TEST" Id="{5f77a4f3-171c-4fa8-ae40-6fe0c5502db9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Analog_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[AnalogInputReturnsCorrectValue();
+AnalogInputReturnsRawValueCorrectly();
+AnalogOutputGenericCheckValue();
+AnalogOutputGenericCheckRawValue();
+AnalogAcceptsForceOff();
+AnalogAcceptsForceOn();
+AnalogAcceptsForceValue();
+AnalogGenericPassesDataInValidCorrectly();
+AnalogGenericPassesDataValidCorrectly();
+AnalogGenericPassesErrorCorrectly();
+AnalogGenericPassesOverrangeCorrectly();
+AnalogGenericPassesUnderrangeCorrectly();]]></ST>
+    </Implementation>
+    <Method Name="AnalogAcceptsForceOff" Id="{fa6591cc-dbbf-45e6-b271-6360f8ffb641}">
+      <Declaration><![CDATA[METHOD AnalogAcceptsForceOff
+VAR
+	InputGeneric		 : INT;
+	AnalogInput_Generic	 : AnalogInput('Input Generic', InputGeneric);
+	Expected : INT;
+	Actual	 : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected								   := 0;
+	InputGeneric := 750;
+	AnalogInput_Generic.ForceValue := 300;
+	AnalogInput_Generic.Force := E_ForceState.ForceOff;
+	Actual							:= AnalogInput_Generic.RawValue;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogAcceptsForceOn" Id="{181b91c2-c25c-4c5f-ad49-4b1ad2d0f983}">
+      <Declaration><![CDATA[METHOD AnalogAcceptsForceOn
+VAR
+	InputGeneric		 : INT;
+	AnalogInput_Generic	 : AnalogInput('Input Generic', InputGeneric);
+	Expected : INT;
+	Actual	 : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected								   := 425;
+	InputGeneric := 750;
+	AnalogInput_Generic.ForceValue := Expected;
+	AnalogInput_Generic.Force := E_ForceState.ForceOn;
+	Actual							:= AnalogInput_Generic.RawValue;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogAcceptsForceValue" Id="{ba787b26-9739-4654-a55a-28e43ff73736}">
+      <Declaration><![CDATA[METHOD AnalogAcceptsForceValue
+VAR
+	InputGeneric		 : INT;
+	AnalogInput_Generic	 : AnalogInput('Input Generic', InputGeneric);
+	Expected : INT;
+	Actual	 : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected								   := 750;
+	AnalogInput_Generic.ForceValue := Expected;
+	Actual							:= AnalogInput_Generic.ForceValue;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogGenericPassesDataInValidCorrectly" Id="{7117b63b-b743-4bd9-ac8f-57ad179f73e5}">
+      <Declaration><![CDATA[METHOD AnalogGenericPassesDataInValidCorrectly
+VAR
+	InputGeneric		 : INT;
+	AnalogStatus : ST_AnalogInputStatus_Generic;
+	AnalogInput_Generic	 : AnalogInput_Generic('Input Generic', InputGeneric, AnalogStatus );
+
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	AnalogStatus.WcState := 0;
+	Actual									   := AnalogInput_Generic.DataValid	;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogGenericPassesDataValidCorrectly" Id="{ffd88dba-6109-4889-acf2-a0c2fcb55cf3}">
+      <Declaration><![CDATA[METHOD AnalogGenericPassesDataValidCorrectly
+VAR
+	InputGeneric		 : INT;
+	AnalogStatus : ST_AnalogInputStatus_Generic;
+	AnalogInput_Generic	 : AnalogInput_Generic('Input Generic', InputGeneric, AnalogStatus );
+
+	Expected : BOOL := FALSE;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	AnalogStatus.WcState := 1;
+	Actual									   := AnalogInput_Generic.DataValid	;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogGenericPassesErrorCorrectly" Id="{57946d52-ee5a-44aa-8d99-61f2a5c5eba2}">
+      <Declaration><![CDATA[METHOD AnalogGenericPassesErrorCorrectly
+VAR
+	InputGeneric		 : INT;
+	AnalogStatus : ST_AnalogInputStatus_Generic;
+	AnalogInput_Generic	 : AnalogInput_Generic('Input Generic', InputGeneric, AnalogStatus );
+
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	AnalogStatus.Error := 1;
+	Actual									   := AnalogInput_Generic.Error	;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogGenericPassesOverrangeCorrectly" Id="{ea55ab4a-3d82-401c-95d0-b5aee126b11f}">
+      <Declaration><![CDATA[METHOD AnalogGenericPassesOverrangeCorrectly
+VAR
+	InputGeneric		 : INT;
+	AnalogStatus : ST_AnalogInputStatus_Generic;
+	AnalogInput_Generic	 : AnalogInput_Generic('Input Generic', InputGeneric, AnalogStatus );
+
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	AnalogStatus.Overrange := 1;
+	Actual									   := AnalogInput_Generic.Overrange	;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogGenericPassesUnderrangeCorrectly" Id="{ed99f059-37a2-4f4e-8229-7ea122bcd6c2}">
+      <Declaration><![CDATA[METHOD AnalogGenericPassesUnderrangeCorrectly
+VAR
+	InputGeneric		 : INT;
+	AnalogStatus : ST_AnalogInputStatus_Generic;
+	AnalogInput_Generic	 : AnalogInput_Generic('Input Generic', InputGeneric, AnalogStatus );
+
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	AnalogStatus.Underrrange := 1;
+	Actual									   := AnalogInput_Generic.Underrange	;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogInputReturnsCorrectValue" Id="{3f16d67a-c36a-49a7-93d0-e31413d02005}">
+      <Declaration><![CDATA[METHOD AnalogInputReturnsCorrectValue
+VAR
+	InputGeneric		 : INT;
+	AnalogInput_Generic	 : AnalogInput('Input Generic', InputGeneric);
+
+	Expected : LREAL;
+	Actual	 : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	InputGeneric							   := 8192;
+	Expected								   := 6.00015;
+	AnalogInput_Generic.Scale.InputMaximum	   := 32767;
+	AnalogInput_Generic.Scale.InputMinimum	   := 0.0;
+	AnalogInput_Generic.Scale.OutputMaximum	   := 10;
+	AnalogInput_Generic.Scale.OutputMinimum	   := 0.0;
+	AnalogInput_Generic.CalibrateLinear.Gain   := 2;
+	AnalogInput_Generic.CalibrateLinear.Offset := 1;
+	Actual									   := floor(AnalogInput_Generic.Value * 100000) / 100000;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogInputReturnsRawValueCorrectly" Id="{6939e3ef-e744-40bd-a80f-fc7d0491b60f}">
+      <Declaration><![CDATA[METHOD AnalogInputReturnsRawValueCorrectly
+VAR
+	InputGeneric		 : INT;
+	AnalogInput_Generic	 : AnalogInput('Input', InputGeneric);
+
+	Expected : LREAL;
+	Actual	 : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	InputGeneric							   := 750;
+	Expected								   := 750;
+
+	Actual									   := AnalogInput_Generic.RawValue;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogOutputGenericCheckRawValue" Id="{ef6d5722-074d-488a-be3e-279c6473546a}">
+      <Declaration><![CDATA[METHOD AnalogOutputGenericCheckRawValue
+VAR
+	Expected : LREAL;
+	Actual	 : LREAL;
+	OutputGeneric		 : INT;
+	AnalogOutput_Generic : AnalogOutput('Output Generic', OutputGeneric);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	AnalogOutput_Generic.RawValue				:= 750;
+	Expected									:= 750;
+	AnalogOutput_Generic.Scale.InputMaximum		:= 10; // Process Value from plc e.g. liters
+	AnalogOutput_Generic.Scale.InputMinimum		:= -10;
+	AnalogOutput_Generic.Scale.OutputMaximum	:= 1000; // Output to terminal
+	AnalogOutput_Generic.Scale.OutputMinimum	:= -1000;
+	AnalogOutput_Generic.CalibrateLinear.Gain	:= 2;
+	AnalogOutput_Generic.CalibrateLinear.Offset := 1;
+	Actual										:= AnalogOutput_Generic.RawValue;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnalogOutputGenericCheckValue" Id="{bcbdd86d-b9d5-4f63-a850-25ea80143a18}">
+      <Declaration><![CDATA[METHOD AnalogOutputGenericCheckValue
+VAR
+	Expected : LREAL;
+	Actual	 : LREAL;
+	OutputGeneric		 : INT;
+	AnalogOutput_Generic : AnalogOutput('Output Generic', OutputGeneric);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected									:= 750;
+	AnalogOutput_Generic.Scale.InputMaximum		:= 10; // Process Value from plc e.g. liters
+	AnalogOutput_Generic.Scale.InputMinimum		:= -10;
+	AnalogOutput_Generic.Scale.OutputMaximum	:= 1000; // Output to terminal
+	AnalogOutput_Generic.Scale.OutputMinimum	:= -1000;
+	AnalogOutput_Generic.CalibrateLinear.Gain	:= 1;
+	AnalogOutput_Generic.CalibrateLinear.Offset := 0;
+	AnalogOutput_Generic.Value					:= 7.5;
+	Actual										:= AnalogOutput_Generic.RawValue;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

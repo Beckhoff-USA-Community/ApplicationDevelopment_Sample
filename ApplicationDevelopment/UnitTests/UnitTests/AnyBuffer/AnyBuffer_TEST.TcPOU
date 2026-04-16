@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="AnyBuffer_TEST" Id="{bd1fed9e-e9b7-40dc-92f8-2f6304d9e6b3}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM AnyBuffer_TEST
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// TEST_AnyBuffer_Clear();
+// TEST_AnyBuffer_DeleteAtIndex();
+// TEST_AnyBuffer_PeekAtIndex();
+// TEST_AnyBuffer_ReplaceAtIndex();
+// TEST_AnyBuffer_PushLeft();
+// TEST_AnyBuffer_PushRight();
+// TEST_AnyBuffer_PopLeft();
+// TEST_AnyBuffer_PopRight();
+// TEST_AnyBuffer_PopAtIndex();
+// TEST_AnyBuffer_InsertAtIndex();
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

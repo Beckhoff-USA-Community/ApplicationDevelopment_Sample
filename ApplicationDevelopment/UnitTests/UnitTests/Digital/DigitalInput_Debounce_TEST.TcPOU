@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DigitalInput_Debounce_TEST" Id="{3ad5555a-5893-4cd8-9a82-a5686e2c89d3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DigitalInput_Debounce_TEST
+// DebounceRisingEdgeOn
+VAR
+	RisingEdgeOnExpected						: BOOL;
+	RisingEdgeOnActual							: BOOL;
+	RisingEdgeOnInput1							: BOOL;
+	RisingEdgeOnDigitalInput1					: DigitalInput_NO('Input1', RisingEdgeOnInput1);
+	RisingEdgeOnDigitalInput_DebounceRisingEdge : DigitalInput_DebounceRisingEdge('Input1', RisingEdgeOnDigitalInput1);
+	RisingEdgeOnTestTimer						: TON;
+END_VAR
+
+// DebounceRisingEdgeStayOff
+VAR
+	RisingEdgeStayOffExpected						 : BOOL;
+	RisingEdgeStayOffActual							 : BOOL;
+	RisingEdgeStayOffInput1							 : BOOL;
+	RisingEdgeStayOffDigitalInput1					 : DigitalInput_NO('Input1', RisingEdgeStayOffInput1);
+	RisingEdgeStayOffDigitalInput_DebounceRisingEdge : DigitalInput_DebounceRisingEdge('Input1', RisingEdgeStayOffDigitalInput1);
+	RisingEdgeStayOffTestTimer						 : TON;
+END_VAR
+
+// DebounceFallingEdgeOn
+VAR
+	FallingEdgeOnExpected						  : BOOL;
+	FallingEdgeOnActual							  : BOOL;
+	FallingEdgeOnInput1							  : BOOL := TRUE;
+	FallingEdgeOnDigitalInput1					  : DigitalInput_NO('Input1', FallingEdgeOnInput1);
+	FallingEdgeOnDigitalInput_DebounceFallingEdge : DigitalInput_DebounceFallingEdge('Input1', FallingEdgeOnDigitalInput1);
+	FallingEdgeOnTestTimer						  : TON;
+END_VAR
+
+// DebounceFallingEdgeStayOff
+VAR
+	FallingEdgeStayOffExpected						   : BOOL;
+	FallingEdgeStayOffActual						   : BOOL;
+	FallingEdgeStayOffInput1						   : BOOL := TRUE;
+	FallingEdgeStayOffDigitalInput1					   : DigitalInput_NO('Input1', FallingEdgeStayOffInput1);
+	FallingEdgeStayOffDigitalInput_DebounceFallingEdge : DigitalInput_DebounceFallingEdge('Input1', FallingEdgeStayOffDigitalInput1);
+	FallingEdgeStayOffTestTimer						   : TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[DebounceRisingEdgeStayOff();
+DebounceRisingEdgeOn();
+DebounceFallingEdgeStayOff();
+DebounceFallingEdgeOn();]]></ST>
+    </Implementation>
+    <Method Name="DebounceFallingEdgeOn" Id="{175e7d8e-c196-4612-890b-2b201871f921}">
+      <Declaration><![CDATA[METHOD DebounceFallingEdgeOn
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	FallingEdgeOnExpected := TRUE;
+
+	//
+	FallingEdgeOnDigitalInput_DebounceFallingEdge.DebounceTime := T#250MS;
+	FallingEdgeOnDigitalInput_DebounceFallingEdge.CyclicLogic();
+	FallingEdgeOnInput1 := FALSE;
+
+	//
+	FallingEdgeOnTestTimer(IN := TRUE, PT := T#235MS);
+	IF FallingEdgeOnTestTimer.Q THEN
+		FallingEdgeOnActual := FallingEdgeOnDigitalInput_DebounceFallingEdge.IsActive;
+		TestSuite.Test(__POUNAME()).AssertEqual(FallingEdgeOnExpected, FallingEdgeOnActual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DebounceFallingEdgeStayOff" Id="{633f698b-be97-43e1-9308-be3a9fe047f2}">
+      <Declaration><![CDATA[METHOD DebounceFallingEdgeStayOff
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	FallingEdgeStayOffExpected := FALSE;
+
+	//
+	FallingEdgeStayOffDigitalInput_DebounceFallingEdge.DebounceTime := T#250MS;
+	FallingEdgeStayOffDigitalInput_DebounceFallingEdge.CyclicLogic();
+	FallingEdgeStayOffInput1 := FALSE;
+
+	//
+	FallingEdgeStayOffTestTimer(IN := TRUE, PT := T#265MS);
+	IF FallingEdgeStayOffTestTimer.Q THEN
+		FallingEdgeStayOffActual := FallingEdgeStayOffDigitalInput_DebounceFallingEdge.IsActive;
+		TestSuite.Test(__POUNAME()).AssertEqual(FallingEdgeStayOffExpected, FallingEdgeStayOffActual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DebounceRisingEdgeOn" Id="{569938d5-7cd1-4045-8576-c88741cb1521}">
+      <Declaration><![CDATA[METHOD DebounceRisingEdgeOn]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	RisingEdgeOnExpected := TRUE;
+	RisingEdgeOnInput1	 := TRUE;
+
+	//
+	RisingEdgeOnDigitalInput_DebounceRisingEdge.DebounceTime := T#250MS;
+	RisingEdgeOnDigitalInput_DebounceRisingEdge.CyclicLogic();
+
+	//
+	RisingEdgeOnTestTimer(IN := TRUE, PT := T#250MS);
+	IF RisingEdgeOnTestTimer.Q THEN
+		RisingEdgeOnActual := RisingEdgeOnDigitalInput_DebounceRisingEdge.IsActive;
+		TestSuite.Test(__POUNAME()).AssertEqual(RisingEdgeOnExpected, RisingEdgeOnActual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DebounceRisingEdgeStayOff" Id="{46153f3a-a455-4597-803f-b87304cc4a3c}">
+      <Declaration><![CDATA[METHOD DebounceRisingEdgeStayOff
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	RisingEdgeStayOffExpected := FALSE;
+	RisingEdgeStayOffInput1	  := TRUE;
+
+	//
+	RisingEdgeStayOffDigitalInput_DebounceRisingEdge.DebounceTime := T#250MS;
+	RisingEdgeStayOffDigitalInput_DebounceRisingEdge.CyclicLogic();
+
+	//
+	RisingEdgeStayOffTestTimer(IN := TRUE, PT := T#235MS);
+	IF RisingEdgeStayOffTestTimer.Q THEN
+		RisingEdgeStayOffActual := RisingEdgeStayOffDigitalInput_DebounceRisingEdge.IsActive;
+		TestSuite.Test(__POUNAME()).AssertEqual(RisingEdgeStayOffExpected, RisingEdgeStayOffActual);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

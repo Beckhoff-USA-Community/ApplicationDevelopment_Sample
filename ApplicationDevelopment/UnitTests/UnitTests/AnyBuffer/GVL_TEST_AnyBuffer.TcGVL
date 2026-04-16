@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <GVL Name="GVL_TEST_AnyBuffer" Id="{cd79e4cb-142a-4424-9b07-c8c8d3595308}">
+    <Declaration><![CDATA[VAR_GLOBAL
+	// System Under Test (SUT)
+    RawBuffer       		: ARRAY[TEST_LL..TEST_UL] OF DINT;
+    fbAnyBuffer    			: AnyBuffer(pBuffer := RawBuffer,
+									bufferBoundLower := TEST_LL,
+									bufferBoundUpper := TEST_UL,
+									isBufferPersistent := FALSE);
+
+	// Compare buffer
+	CompareBuffer : ARRAY[TEST_LL..TEST_UL] OF DINT;
+	fbCompareBuffer : AnyBuffer(pBuffer := CompareBuffer,
+								bufferBoundLower := TEST_LL,
+								bufferBoundUpper := TEST_UL,
+								isBufferPersistent := FALSE);
+
+    // Test Variables
+    Success         		: BOOL;
+	AppendedElement			: DINT;
+	ReturnedElement			: DINT;
+	WrongSizeElement		: INT;
+	testElement				: DINT;
+
+	// Bool
+	TEST_BOOL_TRUE			: BOOL := TRUE;
+	TEST_BOOL_FALSE			: BOOL := FALSE;
+	TEST_DINT				: DINT;
+	TEST_REAL				: REAL;
+END_VAR
+VAR_GLOBAL CONSTANT
+	// Changing the limits is allowed, but the tests are built for an array size 5 elements
+	TEST_LL					: INT := 0;
+	TEST_UL					: INT := 4;
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

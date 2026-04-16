@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Recipe_TEST" Id="{06b94fa7-9be3-4426-85c7-d52f720dcbe7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Recipe_TEST
+VAR
+	ActiveRecipe	: ST_Recipe;
+	UpdateRecipe	: ST_Recipe;
+	RecipeManagment : RecipeManagment('Test Recipe Mgmt', nRecipe := SIZEOF(ST_Recipe), pActiveRecipeData := ADR(ActiveRecipe), pUpdateRecipeData := ADR(UpdateRecipe));
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FirstCycleLoadNoChange();
+DetectChangesLReal();
+UpdateChangesLReal();
+DetectChangesDint();
+UpdateChangesDint();
+DetectChangesBool();
+UpdateChangesBool();
+AutoLoad();]]></ST>
+    </Implementation>
+    <Method Name="AutoLoad" Id="{f9f3a48c-0a67-4fc2-9142-a01139cade4a}">
+      <Declaration><![CDATA[METHOD AutoLoad
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected								:= TRUE;
+	UpdateRecipe.ValueA						:= 0.756;
+	RecipeManagment.AutoLoadChangesToActive := TRUE;
+	RecipeManagment.CyclicLogic();
+	Actual := NOT RecipeManagment.ChangesPending AND ActiveRecipe.ValueA = 0.756;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DetectChangesBool" Id="{8a282abb-e4fd-4316-b6c1-cac12e0d02f4}">
+      <Declaration><![CDATA[METHOD DetectChangesBool
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			:= TRUE;
+	UpdateRecipe.ValueC := TRUE;
+	RecipeManagment.CyclicLogic();
+	Actual := RecipeManagment.ChangesPending;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DetectChangesDint" Id="{2df2ef9f-184d-41dc-8e7c-5169c4865dc2}">
+      <Declaration><![CDATA[METHOD DetectChangesDint
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			:= TRUE;
+	UpdateRecipe.ValueB := 584;
+	RecipeManagment.CyclicLogic();
+	Actual := RecipeManagment.ChangesPending;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DetectChangesLReal" Id="{da464272-98dc-416d-ad6a-d0bf5cd12fc2}">
+      <Declaration><![CDATA[METHOD DetectChangesLReal
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			:= TRUE;
+	UpdateRecipe.ValueA := 0.0584;
+	RecipeManagment.CyclicLogic();
+	Actual := RecipeManagment.ChangesPending;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FirstCycleLoadNoChange" Id="{edfbc96a-fd29-49a9-848f-fed8767ed628}">
+      <Declaration><![CDATA[METHOD FirstCycleLoadNoChange
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	RecipeManagment.CyclicLogic();
+	Actual := RecipeManagment.ChangesPending;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UpdateChangesBool" Id="{cd2707df-5c16-49a9-b1cf-b442ce443955}">
+      <Declaration><![CDATA[METHOD UpdateChangesBool
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	RecipeManagment.LoadChangesToActive();
+	RecipeManagment.CyclicLogic();
+	Actual := NOT RecipeManagment.ChangesPending AND ActiveRecipe.ValueC;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UpdateChangesDint" Id="{79d68d4b-352b-45bf-816b-ee031b5299e3}">
+      <Declaration><![CDATA[METHOD UpdateChangesDint
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	RecipeManagment.LoadChangesToActive();
+	RecipeManagment.CyclicLogic();
+	Actual := NOT RecipeManagment.ChangesPending AND ActiveRecipe.ValueB = 584;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UpdateChangesLReal" Id="{f582cb1a-0c3c-4cab-a30f-bd4b4779ed21}">
+      <Declaration><![CDATA[METHOD UpdateChangesLReal
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	RecipeManagment.LoadChangesToActive();
+	RecipeManagment.CyclicLogic();
+	Actual := NOT RecipeManagment.ChangesPending AND ActiveRecipe.ValueA = 0.0584;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

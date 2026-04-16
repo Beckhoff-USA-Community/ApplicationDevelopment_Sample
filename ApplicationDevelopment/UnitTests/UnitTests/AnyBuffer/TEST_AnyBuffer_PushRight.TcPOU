@@ -1,0 +1,517 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_AnyBuffer_PushRight" Id="{e5f6a7b8-9012-34cd-ef56-789012cdef01}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST_AnyBuffer_PushRight
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[PushToEmptyBuffer();
+PushToNonEmptyBuffer();
+IncrementsElementCount();
+DoesNotShiftElements();
+ReturnsTrueOnSuccess();
+ReturnsFalseOnFullBuffer();
+ReturnsFalseOnWrongSize();
+PreservesExistingData();
+PushMultipleElements();
+PushToFullBufferMinus1();
+PushWhenFullCapacity();
+PushZeroSizedElement();
+PushWithDifferentDataTypes();
+ConsecutivePushAndPopLeft();
+ConsecutivePushAndPopRight();
+ElementOrderAfterMultiplePushes();
+FillBufferCompletely();
+]]></ST>
+    </Implementation>
+    <Method Name="ConsecutivePushAndPopLeft" Id="{a9b0c1d2-3456-78e9-2890-123456901345}">
+      <Declaration><![CDATA[// AppendRight and PopLeft demonstrate FIFO behavior
+METHOD ConsecutivePushAndPopLeft
+VAR
+	ReturnedElement : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Act - Append then Pop (FIFO: First In First Out)
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);  // [100]
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);  // [100, 200]
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);  // [100, 200, 300]
+	fbAnyBuffer.PopLeft(element := ReturnedElement);   // Pop 100
+
+	// Assert - Should pop the first appended value (100)
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Buffer should now be [200, 300]
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ConsecutivePushAndPopRight" Id="{b0c1d2e3-4567-89f0-3901-234567012456}">
+      <Declaration><![CDATA[// AppendRight and PopRight demonstrate LIFO behavior
+METHOD ConsecutivePushAndPopRight
+VAR
+	ReturnedElement : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Act - Append then Pop from right (LIFO: Last In First Out)
+	testElement := DINT#100;
+	fbAnyBuffer.PushRight(element := testElement);  // [100]
+	testElement := DINT#200;
+	fbAnyBuffer.PushRight(element := testElement);  // [100, 200]
+	testElement := DINT#300;
+	fbAnyBuffer.PushRight(element := testElement);  // [100, 200, 300]
+	fbAnyBuffer.PopRight(element := ReturnedElement);  // Pop 300
+
+	// Assert - Should pop the last appended value (300)
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, ReturnedElement);
+
+	// Buffer should now be [100, 200]
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DoesNotShiftElements" Id="{c9d0e1f2-3456-78a0-2890-123456f12345}">
+      <Declaration><![CDATA[// AppendRight does not move any existing elements
+METHOD DoesNotShiftElements
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 111;
+	RawBuffer[TEST_LL+1] := 222;
+	RawBuffer[TEST_LL+2] := 333;
+	fbAnyBuffer.Metadata.elementCount := 3;
+	AppendedElement := 444;
+
+	// Act
+	Success := fbAnyBuffer.PushRight(element := AppendedElement);
+
+	// Assert - all existing elements remain at their original positions
+	TEST_DINT := 111;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 222;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 333;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 444;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ElementOrderAfterMultiplePushes" Id="{c1d2e3f4-5678-90a1-4012-345678123567}">
+      <Declaration><![CDATA[// AppendRight maintains correct element order after multiple appends
+METHOD ElementOrderAfterMultiplePushes
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Act - Append 5 different values
+	testElement := DINT#1;
+	fbAnyBuffer.PushRight(element := testElement);    // [1]
+	testElement := DINT#2;
+	fbAnyBuffer.PushRight(element := testElement);    // [1, 2]
+	testElement := DINT#3;
+	fbAnyBuffer.PushRight(element := testElement);    // [1, 2, 3]
+	testElement := DINT#4;
+	fbAnyBuffer.PushRight(element := testElement);    // [1, 2, 3, 4]
+	testElement := DINT#5;
+	fbAnyBuffer.PushRight(element := testElement);    // [1, 2, 3, 4, 5]
+
+	// Assert - Verify sequential order
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 2;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 4;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FillBufferCompletely" Id="{d2e3f4a5-6789-01b2-5123-456789234678}">
+      <Declaration><![CDATA[// AppendRight can fill buffer to full capacity correctly
+METHOD FillBufferCompletely
+VAR
+	i : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Act - Fill buffer completely
+	FOR i := 1 TO 5 DO
+		testElement := TO_DINT(i * 100);
+		Success := fbAnyBuffer.PushRight(element := testElement);
+		TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	END_FOR
+
+	// Assert - All elements in correct positions
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Assert - Cannot append when full
+	testElement := DINT#600;
+	Success := fbAnyBuffer.PushRight(element := testElement);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IncrementsElementCount" Id="{b8c9d0e1-2345-67f0-1789-012345f01234}">
+      <Declaration><![CDATA[// AppendRight increases elementCount by 1 after append
+METHOD IncrementsElementCount
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	fbAnyBuffer.Metadata.elementCount := 2;
+	AppendedElement := 300;
+
+	// Act
+	Success := fbAnyBuffer.PushRight(element := AppendedElement);
+
+	// Assert - elementCount should be incremented from 2 to 3
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PreservesExistingData" Id="{a3b4c5d6-7890-12e3-6234-567890345789}">
+      <Declaration><![CDATA[// AppendRight preserves existing element values
+METHOD PreservesExistingData
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 111;
+	RawBuffer[TEST_LL+1] := 222;
+	RawBuffer[TEST_LL+2] := 333;
+	fbAnyBuffer.Metadata.elementCount := 3;
+	AppendedElement := 999;
+
+	// Act
+	Success := fbAnyBuffer.PushRight(element := AppendedElement);
+
+	// Assert - All original values preserved (not shifted)
+	TEST_DINT := 111;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 222;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 333;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 999;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PushMultipleElements" Id="{b4c5d6e7-8901-23f4-7345-678901456890}">
+      <Declaration><![CDATA[// AppendRight consecutive appends work correctly (FIFO order with PopLeft)
+METHOD PushMultipleElements
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Act - Append multiple elements to the right (queue behavior)
+	testElement := DINT#10;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#20;
+	fbAnyBuffer.PushRight(element := testElement);
+	testElement := DINT#30;
+	fbAnyBuffer.PushRight(element := testElement);
+
+	// Assert - Sequential order: elements appear in order appended
+	TEST_DINT := 10;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 20;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 30;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	TEST_DINT := 3;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PushToEmptyBuffer" Id="{f6a7b8c9-0123-45de-f567-890123def012}">
+      <Declaration><![CDATA[// AppendRight inserts element at position 0 in empty buffer
+METHOD PushToEmptyBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	AppendedElement := 100;
+
+	// Act
+	Success := fbAnyBuffer.PushRight(element := AppendedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PushToFullBufferMinus1" Id="{c5d6e7f8-9012-34a5-8456-789012567901}">
+      <Declaration><![CDATA[// AppendRight succeeds when buffer has exactly 1 space remaining
+METHOD PushToFullBufferMinus1
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Fill buffer with 4 elements (capacity is 5)
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	RawBuffer[TEST_LL+3] := 400;
+	fbAnyBuffer.Metadata.elementCount := 4;
+	AppendedElement := 500;
+
+	// Act - Append to buffer with exactly 1 space left
+	Success := fbAnyBuffer.PushRight(element := AppendedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PushToNonEmptyBuffer" Id="{a7b8c9d0-1234-56ef-0678-901234ef0123}">
+      <Declaration><![CDATA[// AppendRight inserts element at position elementCount and no elements shift
+METHOD PushToNonEmptyBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	fbAnyBuffer.Metadata.capacity := 3;
+	fbAnyBuffer.Metadata.elementCount := 2;
+	AppendedElement := 300;
+
+	// Act
+	Success := fbAnyBuffer.PushRight(element := AppendedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 200;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PushWhenFullCapacity" Id="{d6e7f8a9-0123-45b6-9567-890123678012}">
+      <Declaration><![CDATA[// AppendRight fails when elementCount equals capacity
+METHOD PushWhenFullCapacity
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Fill buffer to capacity (5 elements)
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	RawBuffer[TEST_LL+3] := 400;
+	RawBuffer[TEST_LL+4] := 500;
+	fbAnyBuffer.Metadata.elementCount := TEST_UL-TEST_LL+1;
+	fbAnyBuffer.Metadata.capacity := 0;
+	AppendedElement := 999;
+
+	// Act
+	Success := fbAnyBuffer.PushRight(element := AppendedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PushWithDifferentDataTypes" Id="{f8a9b0c1-2345-67d8-1789-012345890234}">
+      <Declaration><![CDATA[// AppendRight works with various data types (DINT, REAL, struct)
+METHOD PushWithDifferentDataTypes
+VAR
+	realBuffer : ARRAY[0..4] OF REAL;
+	fbRealBuffer : AnyBuffer(pBuffer := realBuffer,
+								bufferBoundLower := 0,
+								bufferBoundUpper := 4,
+								isBufferPersistent := FALSE);
+	realValue : REAL := 3.14159;
+	retrievedReal : REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbRealBuffer.Clear();
+	realValue := 3.14159;
+
+	// Act - Append REAL type
+	Success := fbRealBuffer.PushRight(element := realValue);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_REAL := 3.14159;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_REAL, realBuffer[0]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PushZeroSizedElement" Id="{e7f8a9b0-1234-56c7-0678-901234789123}">
+      <Declaration><![CDATA[// AppendRight with zero-sized element
+METHOD PushZeroSizedElement
+VAR
+	EmptyAny				: __SYSTEM.AnyType;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+
+	// Initialize empty AnyType (size = 0)
+	EmptyAny.pValue := 0;
+	EmptyAny.diSize := 0;
+
+	// Act - Call with zero-sized element
+	Success := fbAnyBuffer.PushRight(element := EmptyAny);
+
+	// Assert - Should fail because element size doesn't match
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnFullBuffer" Id="{e1f2a3b4-5678-90c1-4012-345678123567}">
+      <Declaration><![CDATA[// AppendRight returns FALSE when buffer is at capacity
+METHOD ReturnsFalseOnFullBuffer
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - Fill buffer to capacity (5 elements)
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	RawBuffer[TEST_LL+3] := 400;
+	RawBuffer[TEST_LL+4] := 500;
+	fbAnyBuffer.Metadata.elementCount := TEST_UL+1;
+	fbAnyBuffer.Metadata.capacity := 0;
+	AppendedElement := 600;
+
+	// Act - Try to append to full buffer
+	Success := fbAnyBuffer.PushRight(element := AppendedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+	// Verify buffer unchanged
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnWrongSize" Id="{f2a3b4c5-6789-01d2-5123-456789234678}">
+      <Declaration><![CDATA[// AppendRight returns FALSE when element size doesn't match buffer element size
+METHOD ReturnsFalseOnWrongSize
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	WrongSizeElement := 100;  // INT is 2 bytes, buffer expects DINT (4 bytes)
+
+	// Act - Pass an INT to a DINT buffer
+	Success := fbAnyBuffer.PushRight(element := WrongSizeElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsTrueOnSuccess" Id="{d0e1f2a3-4567-89b0-3901-234567012456}">
+      <Declaration><![CDATA[// AppendRight returns TRUE when append succeeds
+METHOD ReturnsTrueOnSuccess
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	AppendedElement := 42;
+
+	// Act
+	Success := fbAnyBuffer.PushRight(element := AppendedElement);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

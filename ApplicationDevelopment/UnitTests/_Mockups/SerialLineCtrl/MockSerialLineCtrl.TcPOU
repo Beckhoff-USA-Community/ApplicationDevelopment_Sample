@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MockSerialLineCtrl" Id="{b266ebe3-892b-4341-a93a-824b096a16b9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK MockSerialLineCtrl EXTENDS SerialLineControl_ADS
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="SetComBufferByte" Id="{11923ddb-7e92-44fb-93e7-8eb76656ddcf}">
+      <Declaration><![CDATA[METHOD SetComBufferByte
+VAR_INPUT
+	ByteValue : BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[rxComBuffer.Buffer[0] := ByteValue;
+rxComBuffer.RdIdx := 0;
+rxComBuffer.WrIdx := 0;
+rxComBuffer.Count := 1;
+rxComBuffer.FreeByte := 301;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetComBufferString" Id="{071c076b-f8b3-4afe-807a-5c50b190c79e}">
+      <Declaration><![CDATA[METHOD SetComBufferString
+VAR_INPUT
+	TestString : T_MaxString;
+	StringSize : UINT;
+END_VAR
+VAR
+	InterimString : T_MaxString;
+	ByteOutput: ARRAY [0..Tc2_Utilities.MAX_STRING_LENGTH] OF BYTE;
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ByteOutput := MAXSTRING_TO_BYTEARR(TestString);
+FOR i := StringSize - 1 TO MAX_STRING_LENGTH DO
+	ByteOutput[i] := 0;
+END_FOR
+FOR i := 0 TO MAX_STRING_LENGTH DO
+	rxComBuffer.Buffer[i] := ByteOutput[i];
+END_FOR
+rxComBuffer.RdIdx := 0;
+rxComBuffer.WrIdx := 0;
+rxComBuffer.Count := StringSize;
+rxComBuffer.FreeByte := 301;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

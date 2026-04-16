@@ -1,0 +1,449 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_AnyBuffer_DeleteAtIndex" Id="{75d13f05-23fa-481a-8129-482050d3a488}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST_AnyBuffer_DeleteAtIndex
+VAR
+	// Loop counter
+	i						: DINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[DeletesAtValidIndex();
+ReturnsTrueOnSuccess();
+ReturnsFalseOnInvalidIndex();
+RejectsNegativeIndex();
+RejectsIndexAtCapacity();
+RejectsIndexAboveCapacity();
+ExtremeBounds();
+DeleteAtZero();
+DeleteAtCapacityMinusOne();
+DeleteAllPositions();
+PreservesOtherData();
+DeleteAlreadyEmpty();
+DeleteDoesNotShift();
+DeleteWhenEmpty();
+MetadataUnchanged();
+ConsecutiveDeletesSamePosition();
+]]></ST>
+    </Implementation>
+    <Method Name="ConsecutiveDeletesSamePosition" Id="{44b55c66-4444-5555-6666-777788889999}">
+      <Declaration><![CDATA[// Multiple deletes at same position succeed without metadata changes
+METHOD ConsecutiveDeletesSamePosition
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+2] := 9999;
+	fbAnyBuffer.Metadata.elementCount := 5;
+
+	// Act & Assert - first delete
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+2);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	// Metadata should remain unchanged
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Act & Assert - second delete at same position (already zero)
+	RawBuffer[TEST_LL+2] := 8888;  // Set to non-zero to test clearing
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+2);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	// Metadata should remain unchanged
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+
+	// Act & Assert - third delete at same position
+	RawBuffer[TEST_LL+2] := 7777;  // Set to non-zero again
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+2);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+	// Metadata should STILL remain unchanged
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeleteAllPositions" Id="{11e22f33-1111-2222-3333-444455556666}">
+      <Declaration><![CDATA[// DeleteAtIndex works correctly at all valid indices (0 through capacity-1)
+METHOD DeleteAllPositions
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - fill all positions with distinct values
+	fbAnyBuffer.Clear();
+	FOR i := TEST_LL TO TEST_UL DO
+		RawBuffer[i] := (i - TEST_LL + 1) * 1000;  // 1000, 2000, 3000, 4000, 5000
+	END_FOR
+	fbAnyBuffer.Metadata.elementCount := 5;
+
+	// Act & Assert - delete each position and verify it's cleared
+	FOR i := TEST_LL TO TEST_UL DO
+		Success := fbAnyBuffer.DeleteAtIndex(index := i);
+		TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+		TEST_DINT := 0;
+		TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[i]);
+	END_FOR
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeleteAlreadyEmpty" Id="{33a44b55-3333-4444-5555-666677778888}">
+      <Declaration><![CDATA[// Deleting an already-cleared position returns TRUE and remains zero
+METHOD DeleteAlreadyEmpty
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - clear buffer so all positions are zero
+	fbAnyBuffer.Clear();
+
+	// Verify position is already zero
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+
+	// Act - delete at already empty position
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+2);
+
+	// Assert - should return TRUE
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - position should still be zero
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeleteAtCapacityMinusOne" Id="{00d11e22-0000-1111-2222-333344445555}">
+      <Declaration><![CDATA[// DeleteAtIndex at last position (capacity-1) works correctly
+METHOD DeleteAtCapacityMinusOne
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - capacity is 5, last valid index is 4
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+4] := 5000;
+	fbAnyBuffer.Metadata.elementCount := 1;
+
+	// Act
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+4);
+
+	// Assert - position cleared, metadata unchanged
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+	// Metadata should remain unchanged
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeleteAtZero" Id="{99c00d11-9999-0000-1111-222233334444}">
+      <Declaration><![CDATA[// DeleteAtIndex at first position (index 0) works correctly
+METHOD DeleteAtZero
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL] := 1000;
+	fbAnyBuffer.Metadata.elementCount := 1;
+
+	// Act
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL);
+
+	// Assert - position cleared, metadata unchanged
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL]);
+	// Metadata should remain unchanged
+	TEST_DINT := 1;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeleteDoesNotShift" Id="{55c66d77-5555-6666-7777-888899990000}">
+      <Declaration><![CDATA[// Elements after deleted index remain at their original positions
+METHOD DeleteDoesNotShift
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - fill all positions with distinct values
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	RawBuffer[TEST_LL+3] := 400;
+	RawBuffer[TEST_LL+4] := 500;
+	fbAnyBuffer.Metadata.elementCount := 5;
+
+	// Act - delete at index 1
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+1);
+
+	// Assert - deleted position is zero
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+
+	// Assert - elements after deleted index remain at their original positions (NO SHIFT)
+	TEST_DINT := 100;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 300;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);  // Still at position 2
+	TEST_DINT := 400;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);  // Still at position 3
+	TEST_DINT := 500;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);  // Still at position 4
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeletesAtValidIndex" Id="{11a22b33-1111-2222-3333-444455556666}">
+      <Declaration><![CDATA[// DeleteAtIndex zeros element at valid index
+METHOD DeletesAtValidIndex
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+2] := 9999;
+	fbAnyBuffer.Metadata.elementCount := 1;
+
+	// Act
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+2);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeleteWhenEmpty" Id="{77e88f99-7777-8888-9999-000011112222}">
+      <Declaration><![CDATA[// Deletion succeeds even when elementCount is 0 (clears position only)
+METHOD DeleteWhenEmpty
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - clear buffer (elementCount = 0)
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+2] := 9999;  // Manually set a position to non-zero
+	fbAnyBuffer.Metadata.elementCount := 0;
+
+	// Act - delete when elementCount is 0
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+2);
+
+	// Assert - should succeed (clears position)
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+
+	// Note: elementCount will decrement to -1, which may need handling
+	// This test documents current behavior
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExtremeBounds" Id="{88b99c00-8888-9999-0000-111122223333}">
+      <Declaration><![CDATA[// DeleteAtIndex rejects extreme index values
+METHOD ExtremeBounds
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Act & Assert - very large negative index
+	Success := fbAnyBuffer.DeleteAtIndex(index := -10000);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Act & Assert - very large positive index
+	Success := fbAnyBuffer.DeleteAtIndex(index := 10000);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Act & Assert - maximum DINT value
+	Success := fbAnyBuffer.DeleteAtIndex(index := 16#7FFFFFFF);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Act & Assert - minimum DINT value
+	Success := fbAnyBuffer.DeleteAtIndex(index := -16#7FFFFFFF);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MetadataUnchanged" Id="{aabbccdd-eeff-0011-2233-445566778899}">
+      <Declaration><![CDATA[// ElementCount and all metadata remain unchanged after deletion
+METHOD MetadataUnchanged
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 100;
+	RawBuffer[TEST_LL+1] := 200;
+	RawBuffer[TEST_LL+2] := 300;
+	RawBuffer[TEST_LL+3] := 400;
+	RawBuffer[TEST_LL+4] := 500;
+	fbAnyBuffer.Metadata.elementCount := 5;
+	fbAnyBuffer.Metadata.capacity := 0;  // Set to 0 for this test
+
+	// Act - delete at various indices
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+1);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+
+	// Assert - metadata should remain completely unchanged
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.capacity);
+
+	// Act - delete another position
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+3);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+
+	// Assert - metadata should STILL be unchanged
+	TEST_DINT := 5;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.elementCount);
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, fbAnyBuffer.Metadata.capacity);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PreservesOtherData" Id="{22f33a44-2222-3333-4444-555566667777}">
+      <Declaration><![CDATA[// Deletion at one index does not affect data at other indices
+METHOD PreservesOtherData
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - fill all positions with distinct values
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL+0] := 1000;
+	RawBuffer[TEST_LL+1] := 2000;
+	RawBuffer[TEST_LL+2] := 3000;
+	RawBuffer[TEST_LL+3] := 4000;
+	RawBuffer[TEST_LL+4] := 5000;
+	fbAnyBuffer.Metadata.elementCount := 5;
+
+	// Act - delete middle position
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+2);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+
+	// Assert - deleted position is cleared
+	TEST_DINT := 0;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+2]);
+
+	// Assert - other positions are preserved
+	TEST_DINT := 1000;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+0]);
+	TEST_DINT := 2000;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+1]);
+	TEST_DINT := 4000;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+3]);
+	TEST_DINT := 5000;
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_DINT, RawBuffer[TEST_LL+4]);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RejectsIndexAboveCapacity" Id="{77a88b99-7777-8888-9999-000011112222}">
+      <Declaration><![CDATA[// DeleteAtIndex rejects index > capacity with error log
+METHOD RejectsIndexAboveCapacity
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - capacity is 5
+
+	// Act - try to delete at index 10 (above capacity)
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_UL+10);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RejectsIndexAtCapacity" Id="{66f77a88-6666-7777-8888-999900001111}">
+      <Declaration><![CDATA[// DeleteAtIndex rejects index == capacity with error log
+METHOD RejectsIndexAtCapacity
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange - capacity is TEST_UL-TEST_LL+1 
+
+	// Act - try to delete at index TEST_UL (equals capacity)
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_UL+1);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RejectsNegativeIndex" Id="{55e66f77-5555-6666-7777-888899990000}">
+      <Declaration><![CDATA[// DeleteAtIndex rejects index < 0 with error log
+METHOD RejectsNegativeIndex
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Act
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL+-1);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsFalseOnInvalidIndex" Id="{44d55e66-4444-5555-6666-777788889999}">
+      <Declaration><![CDATA[// DeleteAtIndex returns FALSE for out-of-bounds index
+METHOD ReturnsFalseOnInvalidIndex
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Act & Assert - negative index
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL-1);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Act & Assert - index at capacity
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_UL+1);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+
+	// Act & Assert - index above capacity
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_UL+100);
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_FALSE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReturnsTrueOnSuccess" Id="{33c44d55-3333-4444-5555-666677778888}">
+      <Declaration><![CDATA[// DeleteAtIndex returns TRUE when deletion succeeds
+METHOD ReturnsTrueOnSuccess
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	// Arrange
+	fbAnyBuffer.Clear();
+	RawBuffer[TEST_LL] := 100;
+	fbAnyBuffer.Metadata.elementCount := 1;
+
+	// Act
+	Success := fbAnyBuffer.DeleteAtIndex(index := TEST_LL);
+
+	// Assert
+	TestSuite.Test(__POUNAME()).AssertEqual(TEST_BOOL_TRUE, Success);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

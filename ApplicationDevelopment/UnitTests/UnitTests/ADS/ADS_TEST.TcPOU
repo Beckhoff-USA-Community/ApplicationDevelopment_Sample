@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ADS_TEST" Id="{70e0e222-363e-43ad-a756-817a5165603c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ADS_TEST
+VAR
+	AdsReadWrite		: AdsReadWrite('Ads Read/Write') := (AmsNetId := '', AmsPort := 852);
+	AdsRwNumber AT %MD0 : UDINT							 := 50;
+	AdsRwSymbol			: UDINT							 := 85;
+	Value				: UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[AdsRead();
+AdsWrite();
+AdsReadBySymbol();
+AdsWriteBySymbol();
+AdsReadWrite.CyclicLogic();]]></ST>
+    </Implementation>
+    <Method Name="AdsRead" Id="{edd6a06e-2155-49ff-bda2-2e3dfa4e1654}">
+      <Declaration><![CDATA[METHOD AdsRead
+VAR_INST
+	Expected : UDINT;
+	Actual	 : UDINT;
+	Seq		 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := AdsRwNumber;
+	CASE Seq OF
+		0:
+			AdsReadWrite.Read(IdxGrp	:= 16#4020,
+							  IdxOffset := 16#0,
+							  pDestAddr := ADR(Value),
+							  Length	:= SIZEOF(Value));
+
+			Seq := 10;
+
+		10:
+			IF NOT AdsReadWrite.Busy THEN
+				Seq := 20;
+			END_IF
+
+		20:
+			Actual := Value;
+			TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_CASE
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AdsReadBySymbol" Id="{f3ea6836-679d-430a-86d0-f5878cb90a72}">
+      <Declaration><![CDATA[METHOD AdsReadBySymbol
+VAR_INST
+	Expected : UDINT;
+	Actual	 : UDINT;
+	Seq		 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := AdsRwSymbol;
+	CASE Seq OF
+		0:
+			AdsReadWrite.ReadBySymbol(SymbolName := 'MAIN.ADS_TEST.AdsRwSymbol', pDestAddr := ADR(Value), Length := SIZEOF(Value));
+			Seq := 10;
+
+		10:
+			IF NOT AdsReadWrite.Busy THEN
+				Seq := 20;
+			END_IF
+
+		20:
+			Actual := Value;
+			TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_CASE
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AdsWrite" Id="{119cc4dd-8def-450e-86d0-c9c983290150}">
+      <Declaration><![CDATA[METHOD AdsWrite
+VAR_INST
+	Expected : UDINT;
+	Actual	 : UDINT;
+	Seq		 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 95;
+	CASE Seq OF
+		0:
+			Value := 95;
+			AdsReadWrite.Write(IdxGrp	   := 16#4020,
+							   IdxOffset   := 16#0,
+							   pSourceAddr := ADR(Value),
+							   Length	   := SIZEOF(Value));
+
+			Seq := 10;
+
+		10:
+			IF NOT AdsReadWrite.Busy THEN
+				Seq := 20;
+			END_IF
+
+		20:
+			Actual := AdsRwNumber;
+			TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_CASE
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AdsWriteBySymbol" Id="{30e1f9bb-367e-427f-90e4-9e77cb6642f1}">
+      <Declaration><![CDATA[METHOD AdsWriteBySymbol
+VAR_INST
+	Expected : UDINT;
+	Actual	 : UDINT;
+	Seq		 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 79;
+	CASE Seq OF
+		0:
+			Value := 79;
+			AdsReadWrite.WriteBySymbol(SymbolName := 'MAIN.ADS_TEST.AdsRwSymbol', pSourceAddr := ADR(Value), Length := SIZEOF(Value));
+			Seq := 10;
+
+		10:
+			IF NOT AdsReadWrite.Busy THEN
+				Seq := 20;
+			END_IF
+
+		20:
+			Actual := AdsRwSymbol;
+			TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_CASE
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

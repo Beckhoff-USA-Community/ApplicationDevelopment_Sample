@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Cylinder_TEST" Id="{d2c91de8-438c-4e14-aef8-10a4d783101a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Cylinder_TEST
+VAR
+	DiExtended		   : BOOL;
+	DiRetracted		   : BOOL;
+	DoExtend		   : BOOL;
+	DoRetract		   : BOOL;
+	Extend			   : DigitalOutput('Extend', DoExtend);
+	Retract			   : DigitalOutput('Retract', DoRetract);
+	Extended		   : DigitalInput_NO('Extended', DiExtended);
+	Retracted		   : DigitalInput_NO('Retracted', DiRetracted);
+	TestCylinder	   : Cylinder('Test Cylinder', Extend, Retract, Extended, Retracted) := (ExtendTimeout := T#250MS, RetractTimeout := T#250MS);
+	TestCylinderEvents : Cylinder_TcEvents('Test Cylinder Events', TestCylinder);
+	TonTimeout		   : TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[RetractCheckRetracting();
+RetractCheckRetracted();
+ExtendCheckExtending();
+ExtendCheckExtended();
+ErrorBothSensorsOn();
+ErrorRetracting();
+ErrorExtending();]]></ST>
+    </Implementation>
+    <Method Name="ErrorBothSensorsOn" Id="{1f8a0108-d118-4fcb-8a4a-0959004477a7}">
+      <Declaration><![CDATA[METHOD ErrorBothSensorsOn
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected	:= 3;
+	DiRetracted := TRUE;
+	DiExtended	:= TRUE;
+	TestCylinder.CyclicLogic();
+	TestCylinderEvents.CyclicLogic();
+	Actual := TestCylinderEvents.GetHighestActiveEventReaction();
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+
+	// Cleanup
+	DiRetracted := FALSE;
+	DiExtended	:= FALSE;
+	TestCylinder.Reset();
+	TestCylinderEvents.Reset();
+	TestCylinder.CyclicLogic();
+	TestCylinderEvents.CyclicLogic();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ErrorExtending" Id="{bfd96c15-c266-4b33-8b78-6fc929e6d6d5}">
+      <Declaration><![CDATA[METHOD ErrorExtending
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected	:= 3;
+	DiRetracted := FALSE;
+	DiExtended	:= FALSE;
+	TestCylinder.Extend();
+	TestCylinderEvents.CyclicLogic();
+	TestCylinder.CyclicLogic();
+	TonTimeout.IN := TRUE;
+	IF TonTimeout.Q THEN
+		Actual := TestCylinderEvents.GetHighestActiveEventReaction();
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+
+		// Cleanup
+		TonTimeout.IN := FALSE;
+		DiExtended	  := TRUE;
+		TestCylinder.Reset();
+		TestCylinderEvents.Reset();
+		TestCylinderEvents.CyclicLogic();
+		TestCylinder.CyclicLogic();
+	END_IF
+END_IF
+
+TonTimeout(PT := T#300MS);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ErrorRetracting" Id="{c18ab28f-51d5-4c40-965d-147ff74d200a}">
+      <Declaration><![CDATA[METHOD ErrorRetracting
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected	:= 3;
+	DiRetracted := FALSE;
+	DiExtended	:= FALSE;
+	TestCylinder.Retract();
+	TestCylinder.CyclicLogic();
+	TestCylinderEvents.CyclicLogic();
+	TonTimeout.IN := TRUE;
+	IF TonTimeout.Q THEN
+		Actual := TestCylinderEvents.GetHighestActiveEventReaction();
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+
+		// Cleanup
+		TonTimeout.IN := FALSE;
+		DiRetracted	  := TRUE;
+		TestCylinder.Reset();
+		TestCylinderEvents.Reset();
+		TestCylinderEvents.CyclicLogic();
+		TestCylinder.CyclicLogic();
+	END_IF
+END_IF
+
+TonTimeout(PT := T#300MS);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExtendCheckExtended" Id="{e22552d2-1006-4f7f-b802-c4e5124072db}">
+      <Declaration><![CDATA[METHOD ExtendCheckExtended
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected	:= TRUE;
+	DiRetracted := FALSE;
+	DiExtended	:= TRUE;
+	TestCylinder.CyclicLogic();
+	Actual := TestCylinder.Extended;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExtendCheckExtending" Id="{2878b28c-aca5-49a3-aa56-18d282e672c7}">
+      <Declaration><![CDATA[METHOD ExtendCheckExtending
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	TestCylinder.Extend();
+	TestCylinder.CyclicLogic();
+	Actual := TestCylinder.Extending;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RetractCheckRetracted" Id="{5ca54f9b-2125-43a9-9143-d99d6f61f206}">
+      <Declaration><![CDATA[METHOD RetractCheckRetracted
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected	:= TRUE;
+	DiRetracted := TRUE;
+	TestCylinder.CyclicLogic();
+	Actual := TestCylinder.Retracted;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RetractCheckRetracting" Id="{42cdfe25-cb41-4c5c-a7cd-677ef50df3b8}">
+      <Declaration><![CDATA[METHOD RetractCheckRetracting
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	TestCylinder.Retract();
+	TestCylinder.CyclicLogic();
+	Actual := TestCylinder.Retracting;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>
