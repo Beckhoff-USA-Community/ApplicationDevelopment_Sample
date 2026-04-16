@@ -4,12 +4,12 @@
 
 This repository demonstrates how a PLC application can be structured using **OOP and SOLID principles** in TwinCAT 3. It serves two purposes:
 
-- Show how Beckhoff products can be used interconnectedly and how existing TwinCAT libraries can be extended.
+- Show how Beckhoff products can be used interconnectedly and how existing TwinCAT libraries can be functionally applied.
 - Provide a structured foundation that enables **automatic HMI generation** and easy information aggregation once a project is organized.
 
 ## Component-Module Hierarchy for Modern Machine Design
 
-The framework models a machine as a tree of **Modules** and **Components**:
+The application sample code models a machine as a tree of **Modules** and **Components**:
 
 - **Component** — the smallest reusable unit of functionality (e.g., a digital input, a cylinder, an analog output). Each component encapsulates a single responsibility and exposes a well-defined interface (`I_Component`).
 - **Module** — a logical grouping that owns a collection of components and sub-modules. Modules represent physical or functional sections of a machine (e.g., an equipment unit or an entire machine). They coordinate initialization and cyclic execution of everything they contain.
