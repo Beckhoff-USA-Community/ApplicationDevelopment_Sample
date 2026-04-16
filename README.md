@@ -7,6 +7,18 @@ This repository demonstrates how a PLC application can be structured using **OOP
 - Show how Beckhoff products can be used interconnectedly and how existing TwinCAT libraries can be functionally applied.
 - Provide a structured foundation that enables **automatic HMI generation** and easy information aggregation once a project is organized.
 
+### Why OOP and SOLID for Modern Machine Software
+
+1. **Maintainability** — Code organised into focused, single-responsibility classes is easier to read, debug, and extend. Changes to one part of the system do not ripple unpredictably through the rest.
+
+2. **Reusability** — Well-defined components and interfaces can be lifted out of one project and dropped into another without modification, reducing duplication and the cost of starting new projects.
+
+3. **Testability** — Isolated components with clear interfaces can be unit-tested independently, catching bugs early and giving confidence that individual building blocks behave correctly before they are integrated.
+
+4. **Scalability** — A hierarchical module structure grows naturally with machine complexity. New equipment or functionality is added by composing existing building blocks rather than rewriting existing logic.
+
+5. **Team collaboration** — Interfaces and abstractions create stable contracts between components, allowing multiple developers to work in parallel on different parts of a machine without stepping on each other's code.
+
 ## How to Use This Repository
 
 **1. As a source of ideas** — Browse the code to see how OOP and SOLID principles apply to PLC development. Use it as a reference when designing your own architecture without taking any code directly.
