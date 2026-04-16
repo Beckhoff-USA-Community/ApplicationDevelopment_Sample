@@ -1,7 +1,20 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\UnitTests\\ADS\\ADS_TEST.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|solutionrelative:UnitTests\\UnitTests\\ADS\\ADS_TEST.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\UnitTests\\ADS\\ADS_TEST.TcPOU@AdsRead||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|solutionrelative:UnitTests\\UnitTests\\ADS\\ADS_TEST.TcPOU@AdsRead||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\MAIN.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|solutionrelative:UnitTests\\MAIN.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -32,8 +45,41 @@
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ADS_TEST",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\UnitTests\\ADS\\ADS_TEST.TcPOU",
+              "RelativeDocumentMoniker": "UnitTests\\UnitTests\\ADS\\ADS_TEST.TcPOU",
+              "ToolTip": "ADS_TEST [ApplicationDevelopment.UnitTests]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-04-16T17:30:24.608Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ADS_TEST.AdsRead",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\UnitTests\\ADS\\ADS_TEST.TcPOU@AdsRead",
+              "RelativeDocumentMoniker": "UnitTests\\UnitTests\\ADS\\ADS_TEST.TcPOU@AdsRead",
+              "ToolTip": "AdsRead [ApplicationDevelopment.UnitTests.ADS_TEST]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-04-16T17:30:21.786Z",
+              "EditorCaption": ""
+            },
+            {
               "$type": "Bookmark",
               "Name": "ST:1:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MAIN",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\MAIN.TcPOU",
+              "RelativeDocumentMoniker": "UnitTests\\MAIN.TcPOU",
+              "ToolTip": "MAIN [ApplicationDevelopment.UnitTests]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-04-16T17:28:31.116Z",
+              "EditorCaption": ""
             }
           ]
         }

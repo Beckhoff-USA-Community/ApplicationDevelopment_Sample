@@ -3,7 +3,7 @@
   <POU Name="ADS_TEST" Id="{70e0e222-363e-43ad-a756-817a5165603c}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ADS_TEST
 VAR
-	AdsReadWrite		: AdsReadWrite('Ads Read/Write') := (AmsNetId := '', AmsPort := 852);
+	AdsReadWrite		: AdsReadWrite('Ads Read/Write') := (AmsNetId := '', AmsPort := 851);
 	AdsRwNumber AT %MD0 : UDINT							 := 50;
 	AdsRwSymbol			: UDINT							 := 85;
 	Value				: UDINT;

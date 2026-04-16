@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.21" ClassName="CTComPlcObjDef">
-	<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" XtvPath="UnitTests\UnitTests Instance.xtv">
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.22" ClassName="CTComPlcObjDef">
+	<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" XtvPath="UnitTests\UnitTests Instance.xtv" TmcPath="UnitTests\UnitTests.tmc">
 		<Name>__FILENAME__</Name>
 		<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 		<Contexts>
@@ -18,4 +18,30 @@
 			<TaskPouOid Prio="20" OTCID="#x08502001"/>
 		</TaskPouOids>
 	</Instance>
+	<Mappings>
+		<OwnerA>
+			<OwnerB Name="TIPC^UnitTests^UnitTests Instance">
+				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_NOK.InfoData^Diag" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_NOK^Diag"/>
+				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_NOK.InfoData^State" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_NOK^State"/>
+				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_OK.InfoData^Diag" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^Diag"/>
+				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_OK.InfoData^State" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^State"/>
+				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_Sim.InfoData^Diag" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^Diag"/>
+				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_Sim.InfoData^State" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^State"/>
+				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.Group.InfoData^Diag" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_Group^Diag"/>
+				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.Group.InfoData^State" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_Group^State"/>
+				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.Reset" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.ResetPulse.Reset"/>
+				<Link VarA="PlcTask Inputs^MAIN.SafetyBase_TEST.Run" VarB="PlcTask Outputs^MAIN.SafetyBase_TEST.Group.Run"/>
+				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.Group.Run" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.Run"/>
+				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_Group^Diag" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.Group.InfoData^Diag"/>
+				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_Group^State" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.Group.InfoData^State"/>
+				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_NOK^Diag" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_NOK.InfoData^Diag"/>
+				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_NOK^State" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_NOK.InfoData^State"/>
+				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^Diag" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_OK.InfoData^Diag"/>
+				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^Diag" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_Sim.InfoData^Diag"/>
+				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^State" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_OK.InfoData^State"/>
+				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.InfoData_OK^State" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.EStop_Sim.InfoData^State"/>
+				<Link VarA="PlcTask Outputs^MAIN.SafetyBase_TEST.ResetPulse.Reset" VarB="PlcTask Inputs^MAIN.SafetyBase_TEST.Reset"/>
+			</OwnerB>
+		</OwnerA>
+	</Mappings>
 </TcSmItem>

@@ -260,6 +260,10 @@
       <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_Utilities</Namespace>
     </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_EventLogger">
+      <DefaultResolution>Tc3_EventLogger, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_EventLogger</Namespace>
+    </PlaceholderReference>
     <PlaceholderReference Include="Tc3_Module">
       <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc3_Module</Namespace>
@@ -387,8 +391,13 @@
       <Resolution>Tc3_PackML_V3, 1.0.6.0 (Beckhoff Automation GmbH)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="Tc3_PlcTestSuite">
-      <Resolution>Tc3_PlcTestSuite, 1.1.2 (Simmel)</Resolution>
+      <Resolution>Tc3_PlcTestSuite, 1.1.3 (Simmel)</Resolution>
     </PlaceholderResolution>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ExternalTypes.tmc">
+      <SubType>Content</SubType>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>
