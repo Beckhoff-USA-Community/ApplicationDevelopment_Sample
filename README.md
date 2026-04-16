@@ -31,23 +31,37 @@ This repository demonstrates how a PLC application can be structured using **OOP
 
 This repository is composed of four parts:
 
-**1. ApplicationBase** *(available)* — The core framework library. Referenced by other projects in this repository and by external TwinCAT projects that want to build on the component-module hierarchy. Contains all reusable function blocks, interfaces, and utilities.
+**1. ApplicationBase**  — The core framework library. Referenced by other projects in this repository and by external TwinCAT projects that want to build on the component-module hierarchy. Contains all reusable function blocks, interfaces, and utilities.
 
-**2. Unit Tests** *(available)* — A dedicated TwinCAT PLC project that tests the function blocks in `ApplicationBase`. Covers all major building blocks and serves as executable documentation of how each function block is intended to be used.
+**2. Unit Tests**  — A dedicated TwinCAT PLC project that tests the function blocks in `ApplicationBase`. Covers all major building blocks and serves as executable documentation of how each function block is intended to be used.
 
-**3. VFFS Demo** *(coming soon)* — A sample application modelling a Vertical Form Fill Seal (VFFS) packaging machine. Demonstrates how to apply the `ApplicationBase` framework to a realistic machine design, showing how modules, components, and state machines compose into a complete application.
+**3. VFFS Demo**  — A sample application modelling a Vertical Form Fill Seal (VFFS) packaging machine. Demonstrates how to apply the `ApplicationBase` framework to a realistic machine design, showing how modules, components, and state machines compose into a complete application.
 
 **4. Template Project** *(coming soon)* — A minimal, pre-wired TwinCAT project to use as a starting point for new applications. Provides the scaffolding and references needed to build on `ApplicationBase` without having to set up the structure from scratch.
 
 ## Component-Module Hierarchy for Modern Machine Design
 
-The application sample code models a machine as a tree of **Modules** and **Components**:
+The application sample code models a machine as a tree of **Modules** and **Components** — from a top-level `MachineModule` down to individual `Component` leaves. Modules coordinate initialization and cyclic execution of everything they contain. Tree-wide operations (reset, mode change, HMI generation) are applied via the **Visitor pattern**, keeping operations decoupled from the objects they act on.
 
-- **Component** — the smallest reusable unit of functionality (e.g., a digital input, a cylinder, an analog output). Each component encapsulates a single responsibility and exposes a well-defined interface (`I_Component`).
-- **Module** — a logical grouping that owns a collection of components and sub-modules. Modules represent physical or functional sections of a machine (e.g., an equipment unit or an entire machine). They coordinate initialization and cyclic execution of everything they contain.
-- **Hierarchy** — modules nest inside other modules, forming a tree from the highest-level `MachineModule` down to individual `Component` leaves. Traversal of this tree (for reset, mode change, HMI name generation, etc.) is done via the **Visitor pattern**, keeping operations decoupled from the objects they act on.
+### Documentation
 
-This structure enforces separation of concerns, makes each element independently testable, and maps naturally onto real machine architecture.
+| Topic | Description |
+|-------|-------------|
+| [Component & CyclicComponent](Documentation/Component.md) | Base classes for all building blocks |
+| [Module](Documentation/Module.md) | Container hierarchy — `EquipmentModule` and `MachineModule` |
+| [Statemachine](Documentation/Statemachine.md) | Generic indexed state machine and `State` base class |
+| [Visitors](Documentation/Visitors.md) | Tree-traversal operations (reset, enable, mode change, HMI, …) |
+| [Digital I/O](Documentation/Digital.md) | `DigitalInput_NO/NC`, `DigitalOutput`, Combiner, Debounce |
+| [Analog I/O](Documentation/Analog.md) | `AnalogInput`, `AnalogOutput`, `AnalogScale` |
+| [Cylinder](Documentation/Cylinder.md) | Double-acting cylinder controller with state machine and fault detection |
+| [Collections & Buffers](Documentation/Collections.md) | `AnyBuffer`, `ComponentCollection`, `Collection` |
+| [Utilities](Documentation/Utilities.md) | `ForcibleBool/Int`, `AnalogScale`, `Stopwatch`, `RecipeManagement` |
+| [Safety](Documentation/Safety.md) | `SafetyBase`, `SafetyAndOrFB`, `SafetyModule`, `SafetyResetPulse` |
+| [EtherCAT](Documentation/EtherCAT.md) | `EtherCatMaster`, `EtherCatIoDevice` |
+| [CoE](Documentation/CoE.md) | `CoeDevice`, `NullCoeDevice` — SDO read/write for EtherCAT slaves |
+| [ADS](Documentation/ADS.md) | `AdsReadWrite` — ADS read/write by index or symbol name |
+| [Serial](Documentation/Serial.md) | `SerialByteConnection`, `SerialStringConnection`, line control variants |
+| [TCP/IP](Documentation/TcpIp.md) | `TcpIpConnection`, `TcpIpCommandResultFilter` |
 
 ## Disclaimer
 
