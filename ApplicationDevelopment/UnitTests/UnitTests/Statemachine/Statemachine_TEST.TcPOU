@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Statemachine_TEST" Id="{014ea801-0af5-498e-a3ab-efbc4d21605a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Statemachine_TEST
+VAR
+	Statemachine : Statemachine<1>('Test Statemachine');
+	IdleState	 : State_Mockup(0, Statemachine);
+	ExecuteState : State_Mockup(1, Statemachine);
+
+	//
+	TestState	  : State_Mockup(0, 0);
+	StateList	  : StateList<ApplicationBaseParameter.MaxCountInCollections>;
+	TestState2	  : State_Mockup(0, 0);
+	Statemachine2 : Statemachine<1>('Test Statemachine');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ListAddGetState();
+StatemachineVisitor();
+StatemachineCollectionAccess();
+CurrentState();
+ChangeState();
+StateExecuting();]]></ST>
+    </Implementation>
+    <Method Name="ChangeState" Id="{456ad090-1e53-4c7f-835d-af690b5b041b}">
+      <Declaration><![CDATA[METHOD ChangeState
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	Statemachine.States.AddStateAtIndex(0, IdleState);
+	Statemachine.States.AddStateAtIndex(1, ExecuteState);
+	Statemachine.CyclicLogic();
+	Statemachine.ChangeState(1);
+	Actual := Statemachine.CurrentState;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CurrentState" Id="{f78214ed-580c-4801-a076-d5086a900dae}">
+      <Declaration><![CDATA[METHOD CurrentState
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	Statemachine.CyclicLogic();
+	Actual := Statemachine.CurrentState;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ListAddGetState" Id="{ad2540c6-8232-4e0e-abbd-0e0f2c7db3d4}">
+      <Declaration><![CDATA[METHOD ListAddGetState
+VAR_INST
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	InputState : I_State;
+	GetState   : I_State;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	InputState := TestState;
+	StateList.AddStateAtIndex(0, TestState);
+	GetState := StateList.GetStateAtIndex(0);
+	Actual	 := GetState = InputState;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StateExecuting" Id="{2ae91d8b-fca7-4de9-aeb2-eded31e72f50}">
+      <Declaration><![CDATA[METHOD StateExecuting
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Statemachine.CyclicLogic();
+	Actual := ExecuteState.IsExecuting;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StatemachineCollectionAccess" Id="{845e4c15-fc91-4915-97d7-12ca2ec5e331}">
+      <Declaration><![CDATA[METHOD StatemachineCollectionAccess
+VAR_INST
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	InputState : I_State;
+	GetState   : I_State;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	InputState := TestState2;
+	Statemachine2.States.AddStateAtIndex(1, TestState2);
+	GetState := Statemachine2.States.GetStateAtIndex(1);
+	Actual	 := GetState = InputState;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StatemachineVisitor" Id="{00339453-fe5b-4656-b872-01039b85a46d}">
+      <Declaration><![CDATA[METHOD StatemachineVisitor
+VAR_INST
+	Expected			: STRING;
+	Actual				: STRING;
+	StateVisitor_Mockup : StateMachineVisitor_Mockup;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 'Test Statemachine';
+	Statemachine.Accept(StateVisitor_Mockup);
+	Actual := StateVisitor_Mockup.StatemachineName;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

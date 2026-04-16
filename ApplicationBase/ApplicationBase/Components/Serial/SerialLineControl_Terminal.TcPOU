@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SerialLineControl_Terminal" Id="{00b1fe36-2ab1-47ce-b04e-229f33910b31}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SerialLineControl_Terminal IMPLEMENTS I_Cyclic, I_SerialLineControl
+VAR
+	SerialLineCtrl : SerialLineControl;
+	_serialMode	   : ComSerialLineMode_t := ComSerialLineMode_t.SERIALLINEMODE_EL6_22B;
+	txComBuffer	   : Tc2_SerialCom.ComBuffer;
+	rxComBuffer	   : Tc2_SerialCom.ComBuffer;
+	_ComIn		   : POINTER TO ARRAY[0..65] OF BYTE;
+	_ComOut		   : POINTER TO ARRAY[0..65] OF BYTE;
+	_SizeComIn	   : INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CyclicLogic" Id="{8e2acf26-fc76-43b4-97f9-795e070c7a36}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _ComIn = 0 OR _ComOut = 0 THEN
+	RETURN;
+END_IF
+
+SerialLineCtrl(Mode		 := _serialMode,
+			   pComIn	 := _ComIn,
+			   pComOut	 := _ComOut,
+			   SizeComIn := _SizeComIn,
+			   TxBuffer	 := txComBuffer,
+			   RxBuffer	 := rxComBuffer);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{ed663239-7e99-4fc5-b250-7ac9f81dbf47}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	ComIn		 : POINTER TO ARRAY[0..65] OF BYTE;
+	ComOut		 : POINTER TO ARRAY[0..65] OF BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetDependencies(ComIn, ComOut);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="rxBuffer" Id="{2cab068d-58ca-42b3-8d7a-f641aa569bf4}">
+      <Declaration><![CDATA[PROPERTY rxBuffer : REFERENCE TO combuffer]]></Declaration>
+      <Get Name="Get" Id="{b394fdaf-628e-4c0d-a215-90e40cfb2c07}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[rxBuffer REF= rxComBuffer;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SetConnectionConfig" Id="{32151661-81f0-4cd8-bb4e-5bcffef672f6}">
+      <Declaration><![CDATA[METHOD SetConnectionConfig : BOOL
+VAR_INPUT
+	SizeComIn  : INT;
+	SerialMode : ComSerialLineMode_t;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_SizeComIn	:= SizeComIn;
+_serialMode := SerialMode;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetDependencies" Id="{bb8b2ac3-3b52-42f4-86bf-a7cad8941a97}">
+      <Declaration><![CDATA[METHOD SetDependencies : BOOL
+VAR_INPUT
+	ComIn  : POINTER TO ARRAY[0..65] OF BYTE;
+	ComOut : POINTER TO ARRAY[0..65] OF BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_ComIn	:= ComIn;
+_ComOut := ComOut;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="txBuffer" Id="{702972b9-dfa0-4738-9941-6e75462679fd}">
+      <Declaration><![CDATA[PROPERTY txBuffer : REFERENCE TO combuffer]]></Declaration>
+      <Get Name="Get" Id="{ed72f3f2-5f69-4e86-a2f2-945e52182d56}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[txBuffer REF= txComBuffer;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

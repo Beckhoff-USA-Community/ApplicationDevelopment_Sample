@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_IoDevice" Id="{55569bad-0315-4b40-b972-0142acab1cd9}">
+    <Declaration><![CDATA[INTERFACE I_IoDevice EXTENDS I_Base]]></Declaration>
+    <Property Name="IoDataValid" Id="{8281629a-37fa-44ae-b2b6-da055b34c7a5}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IoDataValid : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b0ff3aed-ebb6-4c28-a97f-44733f96ef75}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

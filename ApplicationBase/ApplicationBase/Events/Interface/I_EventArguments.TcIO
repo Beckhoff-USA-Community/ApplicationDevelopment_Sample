@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_EventArguments" Id="{5fe54d5b-6bc7-4222-856f-4263dbc1a30a}">
+    <Declaration><![CDATA[INTERFACE I_EventArguments EXTENDS I_Base]]></Declaration>
+    <Method Name="AddString" Id="{54bf0031-ba16-4d7e-be75-fc922e00da46}">
+      <Declaration><![CDATA[METHOD AddString : I_EventArguments
+VAR_INPUT
+	Argument : STRING;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="Clear" Id="{9dd9def1-3051-4b42-a743-6d6d2fdf370b}">
+      <Declaration><![CDATA[METHOD Clear : I_EventArguments
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

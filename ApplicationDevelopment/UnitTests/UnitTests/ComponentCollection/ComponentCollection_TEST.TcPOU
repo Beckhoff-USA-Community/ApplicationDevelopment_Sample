@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ComponentCollection_TEST" Id="{e3340b3a-1f47-411e-8cf3-592998e732d3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ComponentCollection_TEST
+VAR
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CollectionAddsComponentSucessfully();
+CollectionRejectsAddingComponentDuplicate();
+CollectionRejectsAddingNullComponent();
+CollectionRejectsAddingTooManyComponents();
+CollectionRejectsRemoveWhenEmpty();
+CollectionRejectsRemoveWhenNotFound();
+CollectionRejectsRemovingNullComponent();
+CollectionReturnsComponentByName();
+CollectionRemovesComponentSuccessfully();
+CollectionGetItemAtIndex();
+CollectionGetCount();]]></ST>
+    </Implementation>
+    <Method Name="CollectionAddsComponentSucessfully" Id="{7ec61a68-feef-4afa-9c67-66271e8ef843}">
+      <Declaration><![CDATA[METHOD CollectionAddsComponentSucessfully
+VAR
+	Expected			: BOOL := TRUE;
+	Actual				: BOOL;
+	ComponentCollection : ComponentCollection<ApplicationBaseParameter.MaxCountInCollections>;
+	Component			: CyclicComponent_Mockup(Name := 'Component 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := ComponentCollection.AddComponent(Component) = RegistrationResult.Succeeded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionGetCount" Id="{5b1ce18c-d96c-4f15-8dee-2e504a5dd2c3}">
+      <Declaration><![CDATA[METHOD CollectionGetCount
+VAR
+	Expected			: UDINT;
+	Actual				: UDINT;
+	ComponentCollection : ComponentCollection<ApplicationBaseParameter.MaxCountInCollections>;
+	Component			: CyclicComponent_Mockup(Name := 'Component 1');
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	ComponentCollection.AddComponent(Component);
+	Actual := ComponentCollection.Count;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionGetItemAtIndex" Id="{6a520ef9-32d2-4c4e-97b0-72b71a124044}">
+      <Declaration><![CDATA[METHOD CollectionGetItemAtIndex
+VAR
+	Expected			: BOOL := TRUE;
+	Actual				: BOOL;
+	ComponentCollection : ComponentCollection<2>;
+	Component1			: CyclicComponent_Mockup(Name := 'Component 1');
+	Component2			: CyclicComponent_Mockup(Name := 'Component 2');
+	ReturnedComponent	: I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ComponentCollection.AddComponent(Component1);
+	ComponentCollection.AddComponent(Component2);
+	ReturnedComponent := ComponentCollection.GetAtIndex(1);
+	Actual			  := ReturnedComponent.Name = Component2.Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingComponentDuplicate" Id="{ab12516f-81ad-44f7-9c61-e577d843f2f6}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingComponentDuplicate
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	ComponentCollection : ComponentCollection<ApplicationBaseParameter.MaxCountInCollections>;
+	Component			: CyclicComponent_Mockup(Name := 'Component 1');
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ComponentCollection.AddComponent(Component);
+	Actual := ComponentCollection.AddComponent(Component) = RegistrationResult.AlreadyAdded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingNullComponent" Id="{4bf860c3-8cd5-43d8-92d8-ab0de04135f2}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingNullComponent
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	ComponentCollection : ComponentCollection<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := ComponentCollection.AddComponent(16#0) = RegistrationResult.NullReference;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingTooManyComponents" Id="{e3170356-2bf3-4f6a-bb76-f0fb8c845f0a}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingTooManyComponents
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	ComponentCollection : ComponentCollection<1>;
+	Component1			: CyclicComponent_Mockup(Name := 'Component 1');
+	Component2			: CyclicComponent_Mockup(Name := 'Component 2');
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ComponentCollection.AddComponent(Component1);
+	Actual := ComponentCollection.AddComponent(Component2) = RegistrationResult.TooManyComponents;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemoveWhenEmpty" Id="{a105872f-e488-4478-9074-219be1266bb2}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemoveWhenEmpty
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	ComponentCollection : ComponentCollection<ApplicationBaseParameter.MaxCountInCollections>;
+	Component			: CyclicComponent_Mockup(Name := 'Component 1');
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := ComponentCollection.RemoveComponent(Component) = RegistrationResult.CollectionEmpty;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemoveWhenNotFound" Id="{f5b296ac-e254-4762-ba66-073dcecd396f}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemoveWhenNotFound
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	ComponentCollection : ComponentCollection<1>;
+	Component1			: CyclicComponent_Mockup(Name := 'Component 1');
+	Component2			: CyclicComponent_Mockup(Name := 'Component 2');
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ComponentCollection.AddComponent(Component1);
+	Actual := ComponentCollection.RemoveComponent(Component2) = RegistrationResult.NotFoundInCollection;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemovingNullComponent" Id="{bb5487a6-9114-4666-bb94-b52d1246decc}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemovingNullComponent
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	ComponentCollection : ComponentCollection<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := ComponentCollection.RemoveComponent(16#0) = RegistrationResult.NullReference;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRemovesComponentSuccessfully" Id="{a7c852a9-afa2-4cc8-9983-0b8abec4032e}">
+      <Declaration><![CDATA[METHOD CollectionRemovesComponentSuccessfully
+VAR
+	Expected			: BOOL := TRUE;
+	Actual				: BOOL;
+	ComponentCollection : ComponentCollection<ApplicationBaseParameter.MaxCountInCollections>;
+	Component			: CyclicComponent_Mockup(Name := 'Component 1');
+	AddedComponent		: I_Component := Component;
+	CollectionComponent : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ComponentCollection.AddComponent(Component);
+	CollectionComponent := ComponentCollection.GetComponentByName('Component 1');
+	IF CollectionComponent = AddedComponent THEN
+		Actual := ComponentCollection.RemoveComponent(Component) = RegistrationResult.Succeeded;
+	END_IF
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionReturnsComponentByName" Id="{2b07c489-b6c2-4148-83b1-220f4c152bb1}">
+      <Declaration><![CDATA[METHOD CollectionReturnsComponentByName
+VAR
+	Expected	   : STRING := 'Component 1';
+	Actual		   : STRING;
+	ComponentCollection : ComponentCollection<ApplicationBaseParameter.MaxCountInCollections>;
+	Component			: CyclicComponent_Mockup(Name := 'Component 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ComponentCollection.AddComponent(Component);
+	Actual := ComponentCollection.GetComponentByName(Expected).Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

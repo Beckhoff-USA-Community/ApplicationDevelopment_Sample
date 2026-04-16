@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="EtherCatMaster_TcEvents" Id="{8b17340b-39aa-4ed6-8d9d-6213a01d66ff}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK EtherCatMaster_TcEvents EXTENDS Component IMPLEMENTS I_EtherCatDiagnosticEventProvider
+VAR
+	EtherCatMasterDiagnostic : I_EtherCatMasterDiagnostic;
+	SyncUnitEvents			 : TcEventClass('Sync Unit Events');
+	EtherCatMasterEvents	 : TcEventClass('EtherCAT Master Events');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Events" Id="{6b9f24c4-6508-4362-ab4f-c2a70da86337}" />
+    <Method Name="FB_Init" Id="{58e5e684-3aa3-440d-9e92-88eb38819ab0}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode				 : BOOL;
+	Name					 : T_MaxString;
+	EtherCatMasterDiagnostic : I_EtherCatMasterDiagnostic;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.EtherCatMasterDiagnostic := EtherCatMasterDiagnostic;
+THIS^.EtherCatMasterDiagnostic.RegisterEventProvider(THIS^);
+SyncUnitEvents.GenerateTcEvents(EtherCatMasterDiagnostic.Name, ADR(TC_Events.SyncUnit), SIZEOF(ST_SyncUnit));
+EtherCatMasterEvents.GenerateTcEvents(EtherCatMasterDiagnostic.Name, ADR(TC_Events.EtherCatMaster), SIZEOF(ST_EtherCatMaster));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventReaction" Id="{a508d1b0-8386-4e23-92c0-08165e9e148b}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventReaction := MAX(EtherCatMasterEvents.GetHighestActiveEventReaction(), SyncUnitEvents.GetHighestActiveEventReaction());]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{bb72c537-ec58-467b-9a9d-a9d9ae297f00}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventSeverity := MAX(SyncUnitEvents.GetHighestActiveEventSeverity(), EtherCatMasterEvents.GetHighestActiveEventSeverity());]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RaiseEtherCatDiagnosticEvent" Id="{c5fd0bde-e926-43b9-85cc-cbc6d85d3c7e}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD RaiseEtherCatDiagnosticEvent
+VAR_INPUT
+	EventId	  : UDINT;
+	Argument1 : STRING := '';
+	Argument2 : STRING := '';
+	Argument3 : STRING := '';
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Argument3 <> '' THEN
+	EtherCatMasterEvents.Arguments(EventId).Clear().AddString(Argument1).AddString(Argument2).AddString(Argument3);
+ELSIF Argument2 <> '' THEN
+	EtherCatMasterEvents.Arguments(EventId).Clear().AddString(Argument1).AddString(Argument2);
+ELSIF Argument1 <> '' THEN
+	EtherCatMasterEvents.Arguments(EventId).Clear().AddString(Argument1);
+ELSE
+	EtherCatMasterEvents.Arguments(EventId).Clear();
+END_IF
+
+EtherCatMasterEvents.RaiseEvent(EventId);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RaiseSyncUnitEvent" Id="{8aa474f1-6ef6-44bd-a30c-323309ab4d2e}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD RaiseSyncUnitEvent
+VAR_INPUT
+	EventId	  : UDINT;
+	Argument1 : STRING := '';
+	Argument2 : STRING := '';
+	Argument3 : STRING := '';
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Argument3 <> '' THEN
+	SyncUnitEvents.Arguments(EventId).Clear().AddString(Argument1).AddString(Argument2).AddString(Argument3);
+ELSIF Argument2 <> '' THEN
+	SyncUnitEvents.Arguments(EventId).Clear().AddString(Argument1).AddString(Argument2);
+ELSIF Argument1 <> '' THEN
+	SyncUnitEvents.Arguments(EventId).Clear().AddString(Argument1);
+ELSE
+	SyncUnitEvents.Arguments(EventId).Clear();
+END_IF
+
+SyncUnitEvents.RaiseEvent(EventId);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{bd2b6d29-e5a1-49c9-b61a-68720c111b00}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SyncUnitEvents.Reset();
+EtherCatMasterEvents.Reset();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEventReactions" Id="{f93b8668-ee4c-4f1b-adaa-a86569ad6632}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SyncUnitEvents.SetEventReactions(Verbose,
+								 Info,
+								 Warning,
+								 Error,
+								 Critical);
+
+EtherCatMasterEvents.SetEventReactions(Verbose,
+									   Info,
+									   Warning,
+									   Error,
+									   Critical);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

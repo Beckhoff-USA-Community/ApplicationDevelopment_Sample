@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<TcModuleClass>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{B08F5F0D-AEC2-4F21-8045-2E4B82BD1F68}">EtherCatMaster</Name>
+			<DisplayName TxtId=""><![CDATA[EtherCatMaster]]></DisplayName>
+			<EventId>
+				<Name Id="1">ReadSlave</Name>
+				<DisplayName TxtId=""><![CDATA[Read Slave States and Names failed!]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="2">MasterError</Name>
+				<DisplayName TxtId=""><![CDATA[EtherCat Master Error!]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="3">SlaveError</Name>
+				<DisplayName TxtId=""><![CDATA[EtherCat Slave Error!]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="4">SlaveDisabled</Name>
+				<DisplayName TxtId=""><![CDATA[EtherCat at least one Slave disabled!]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{193DF5F8-206E-4B26-8C55-E8057269CD72}"/>
+				<Hide GUID="{AE5608B8-3213-4317-8830-D6D3E1955A08}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{ABCBB5B0-8E3D-436A-BA55-7C1739AC3CFD}">SyncUnit</Name>
+			<DisplayName TxtId=""><![CDATA[Sync Unit]]></DisplayName>
+			<EventId>
+				<Name Id="1">SyncUnitError</Name>
+				<DisplayName TxtId=""><![CDATA[EtherCat - Slaves in SyncUnit '{0}' do not provide valid Data! Slaves: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="2">SyncUnitWarning</Name>
+				<DisplayName TxtId=""><![CDATA[EtherCat - Slaves in SyncUnit '{0}' do not provide valid Data! Slaves: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{A7B099E8-0DF0-4650-94D4-525650EB5A11}"/>
+				<Hide GUID="{461402EA-4FAE-42F2-808F-5DB1EA25A647}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+</TcModuleClass>

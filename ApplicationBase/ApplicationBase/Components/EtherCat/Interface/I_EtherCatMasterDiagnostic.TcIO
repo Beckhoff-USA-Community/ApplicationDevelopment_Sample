@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_EtherCatMasterDiagnostic" Id="{d3244326-e8cc-4168-94a8-54382d32be09}">
+    <Declaration><![CDATA[INTERFACE I_EtherCatMasterDiagnostic EXTENDS I_Component, I_Resettable]]></Declaration>
+    <Property Name="ConfiguredSlaveCount" Id="{96160ad3-3684-4597-872a-65dd5161395c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ConfiguredSlaveCount : UINT]]></Declaration>
+      <Get Name="Get" Id="{ffdd7ffe-1a36-4de4-bfc6-65ae3519bd6e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="GetIoDeviceByAddr" Id="{32fe8214-5c95-4d51-ab86-b26ff0cba3b4}">
+      <Declaration><![CDATA[METHOD GetIoDeviceByAddr : I_EcIoDevice
+VAR_INPUT
+	Addr : WORD;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="GetIoDeviceByName" Id="{07e6d9ba-ce2c-4670-8bab-be3b592360a7}">
+      <Declaration><![CDATA[METHOD GetIoDeviceByName : I_EcIoDevice
+VAR_INPUT
+	Name : STRING(31);
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="LocalAmsNetId" Id="{632657fe-c107-0bc1-3a88-2ec0303b1452}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY LocalAmsNetId : T_AmsNetId]]></Declaration>
+      <Get Name="Get" Id="{f71aa313-7c5a-053b-17ba-71a4374885fd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="MasterAmsNetId" Id="{0844b1b5-8884-41ff-8311-005cb0130eaf}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY MasterAmsNetId : T_AmsNetId]]></Declaration>
+      <Get Name="Get" Id="{5d815bcb-9c01-4e07-92ac-c3e71960136a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="RegisterEventProvider" Id="{ab1390bb-ff23-4966-8077-63518787eb45}">
+      <Declaration><![CDATA[METHOD RegisterEventProvider
+VAR_INPUT
+	EventProvider : I_EtherCatDiagnosticEventProvider;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="SlaveCount" Id="{1e69259f-ee52-42e1-a0ed-fe5dbf856a8a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY SlaveCount : UINT]]></Declaration>
+      <Get Name="Get" Id="{408a4639-9168-4575-b7b1-5a47bcabbee0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

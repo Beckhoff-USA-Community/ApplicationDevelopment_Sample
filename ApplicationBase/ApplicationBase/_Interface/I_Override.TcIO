@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Override" Id="{079ec021-667a-4390-bf30-3cf6bc7f151f}">
+    <Declaration><![CDATA[INTERFACE I_Override EXTENDS I_Base]]></Declaration>
+    <Property Name="Override" Id="{5c3080d9-496b-4ed4-8bd6-19dfd5da33c2}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Override : LREAL]]></Declaration>
+      <Set Name="Set" Id="{a89271c7-ac3a-48aa-8737-188977c54c23}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

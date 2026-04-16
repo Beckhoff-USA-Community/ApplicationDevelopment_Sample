@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AnalogScale" Id="{e3f6f230-57c3-4b01-86fd-9afa774b2c71}">
+    <Declaration><![CDATA[INTERFACE I_AnalogScale EXTENDS I_TransformLrealValue]]></Declaration>
+    <Property Name="InputMaximum" Id="{e9792567-ace9-4c7c-9ea3-de7ee35eded7}">
+      <Declaration><![CDATA[PROPERTY InputMaximum : LREAL]]></Declaration>
+      <Get Name="Get" Id="{10d77b64-987d-47b3-882a-1f371629d2c7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{9e3f0a21-b7b3-4e24-8217-08d2c73282aa}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="InputMinimum" Id="{9cb5a823-8101-4614-a784-4d966af483ef}">
+      <Declaration><![CDATA[PROPERTY InputMinimum : LREAL]]></Declaration>
+      <Get Name="Get" Id="{9c9270fd-c1ff-4ef5-8ff5-3ec9a82cfa68}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{cd786c49-edc2-4e2e-922f-6f5a516fac42}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="OutputMaximum" Id="{b142b85a-91be-4563-a07c-51f713596441}">
+      <Declaration><![CDATA[PROPERTY OutputMaximum : LREAL]]></Declaration>
+      <Get Name="Get" Id="{12c1dfbc-f316-4a2f-b0aa-aa75ef8b8fa9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{97de8491-496c-4e14-a8a9-58f98202ab6e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="OutputMinimum" Id="{52547ed7-964e-4526-97b4-0ae37e9f8a41}">
+      <Declaration><![CDATA[PROPERTY OutputMinimum : LREAL]]></Declaration>
+      <Get Name="Get" Id="{e90ebef2-5a8d-4a13-9070-0a23a1a98121}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{cf1adeab-61b6-4bf4-9b27-df00c7039758}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,453 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TcEventClass" Id="{f296ebbc-7688-440d-8415-d25114030b28}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK TcEventClass EXTENDS CyclicComponent IMPLEMENTS I_EventClassTcEvents
+VAR
+	pEventClass				   : PVOID;
+	pEventBuffer			   : POINTER TO PVOID;
+	pEventTriggerBuffer		   : POINTER TO PVOID;
+	pEventAutoResetBuffer	   : POINTER TO PVOID;
+	NullEvent				   : FB_TcAlarm;
+	NullBool				   : BOOL;
+	NumberOfEvents			   : UDINT;
+	HighestActiveEventSeverity : TcEventSeverity;
+	EventReactionVerbose	   : DINT := 0;
+	EventReactionInfo		   : DINT := 1;
+	EventReactionWarning	   : DINT := 2;
+	EventReactionError		   : DINT := 3;
+	EventReactionCritical	   : DINT := 4;
+	TcEventClassArguments	   : TcEventClassArguments;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Destructor" Id="{3c44b2be-77f6-48de-8306-fda5c0f1ccaa}" />
+    <Folder Name="EventClass" Id="{9b7e3a0b-cb27-481d-a5fd-de6679491d19}" />
+    <Folder Name="Private" Id="{d1044572-d217-4de9-b6fc-8ee0a16193c5}" />
+    <Folder Name="Reset" Id="{44e59c43-7a7e-4a95-b81b-c9383285c707}" />
+    <Method Name="Arguments" Id="{f4e9bbbb-37cb-456a-98e1-ee5ad2878507}">
+      <Declaration><![CDATA[METHOD PUBLIC Arguments : I_EventArguments
+VAR_INPUT
+	EventId : UDINT;
+END_VAR
+
+VAR
+	pEvent : POINTER TO FB_TcAlarm;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF CheckEventId(EventId) THEN
+	pEvent := GetEventInstance(EventId);
+	IF (pEvent <> 0) THEN
+		TcEventClassArguments.Event := pEvent;
+	ELSE
+		TcEventClassArguments.Event := ADR(NullEvent);
+	END_IF
+ELSE
+	TcEventClassArguments.Event := ADR(NullEvent);
+END_IF
+
+Arguments := TcEventClassArguments;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CheckEventId" Id="{c3195e9d-ff2e-4617-92b6-b77cccbd8812}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED CheckEventId : BOOL
+VAR_INPUT
+	EventId : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CheckEventId := (EventID > 0) AND (EventId <= NumberOfEvents) AND (pEventBuffer <> 0);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearEventById" Id="{0bc34990-e2a1-4d61-80e6-6e73e823ff10}" FolderPath="EventClass\">
+      <Declaration><![CDATA[METHOD ClearEventById
+VAR_INPUT
+	EventId : UDINT;
+END_VAR
+
+VAR
+	pEvent : POINTER TO FB_TcAlarm;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF CheckEventId(EventId) THEN
+	pEvent := GetEventInstance(EventId);
+	IF (pEvent <> 0) THEN
+		IF pEvent^.bRaised THEN
+			pEvent^.Clear();
+			FindActiveSeverity();
+		END_IF
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CyclicLogic" Id="{de50ef7d-7e5b-4c92-88c5-8ff275abf33f}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR
+	i	   : UDINT;
+	pEvent : POINTER TO FB_TcAlarm;
+	pTrigger  : POINTER TO BOOL;
+    AutoReset : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO NumberOfEvents DO
+	pTrigger := GetEventTriggerInstance(i);
+	IF (pTrigger <> 0) THEN
+		pEvent	  := GetEventInstance(i);
+		AutoReset := GetEventAutoResetInstance(i)^;
+		IF (pEvent <> 0) AND_THEN AutoReset AND NOT pTrigger^ THEN
+			pEvent^.Clear();
+			FindActiveSeverity();
+		END_IF
+
+		IF (pEvent <> 0) AND_THEN pTrigger^ THEN
+			pEvent^.Raise(0);
+			FindActiveSeverity();
+		END_IF
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Dispose" Id="{c2a2e0ed-32e6-414a-9fba-591f7246fc2e}" FolderPath="Destructor\">
+      <Declaration><![CDATA[METHOD Dispose
+VAR
+	i				: UDINT;
+	pEvent			: POINTER TO FB_TcAlarm;
+	pDispose		: POINTER TO TcEventClass;
+	pEventAutoReset : POINTER TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[pDispose := THIS;
+FOR i := 1 TO NumberOfEvents DO
+	pEvent := GetEventInstance(i);
+	__DELETE(pEvent);
+	pEventAutoReset := GetEventAutoResetInstance(i);
+	__DELETE(pEventAutoReset);
+END_FOR
+
+__DELETE(pEventBuffer);
+__DELETE(pDispose);
+__DELETE(pEventTriggerBuffer);
+__DELETE(pEventAutoResetBuffer);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Exit" Id="{17232ae3-3631-4da3-b234-aa6161b3bc99}" FolderPath="Destructor\">
+      <Declaration><![CDATA[//FB_Exit must be implemented explicitly. If there is an implementation, then the
+
+//method is called before the controller removes the code of the function block instance
+
+//(implicit call). The return value is not evaluated.
+METHOD FB_Exit : BOOL
+VAR_INPUT
+	bInCopyCode : BOOL; // TRUE: the exit method is called in order to leave the instance which will be copied afterwards (online change).  
+END_VAR
+
+VAR
+	i				: UDINT;
+	pEvent			: POINTER TO FB_TcAlarm;
+	pEventAutoReset : POINTER TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO NumberOfEvents DO
+	pEvent := GetEventInstance(i);
+	__DELETE(pEvent);
+	pEventAutoReset := GetEventAutoResetInstance(i);
+	__DELETE(pEventAutoReset);
+END_FOR
+
+__DELETE(pEventBuffer);
+__DELETE(pEventTriggerBuffer);
+__DELETE(pEventAutoResetBuffer);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindActiveSeverity" Id="{e9db7bf4-bc96-4131-b2cb-d92e8b4fea93}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED FindActiveSeverity
+VAR
+	i	   : UDINT;
+	pEvent : POINTER TO FB_TcAlarm;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HighestActiveEventSeverity := Global.TcEventSeverity.Verbose;
+FOR i := 1 TO NumberOfEvents DO
+	pEvent := GetEventInstance(i);
+	IF (pEvent <> 0) AND_THEN pEvent^.bRaised AND_THEN pEvent^.eSeverity > HighestActiveEventSeverity THEN
+		HighestActiveEventSeverity := pEvent^.eSeverity;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GenerateTcEvents" Id="{b70681ab-99f1-42be-b37f-8c919729985e}">
+      <Declaration><![CDATA[METHOD PUBLIC GenerateTcEvents
+VAR_INPUT
+	Name   : T_MaxString;
+	pClass : PVOID; // ADR(TC_Events.XY) - TC Event Class in TypeSystem
+	nSize  : UDINT; // SIZEOF(ST_XY) - TC Event Class in TypeSystem
+END_VAR
+
+VAR
+	i				 : UDINT;
+	pEventDef		 : POINTER TO TcEventEntry;
+	pEvent			 : POINTER TO FB_TcAlarm;
+	pBuffer			 : PVOID;
+	ppBuffer		 : POINTER TO POINTER TO FB_TcAlarm;
+	SourceInfo		 : FB_TcSourceInfo;
+	pEventAutoReset	 : POINTER TO BOOL;
+	ppEventAutoReset : POINTER TO POINTER TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[NumberOfEvents		  := nSize / SIZEOF(TcEventEntry);
+pEventBuffer		  := __NEW(PVOID, NumberOfEvents);
+pEventTriggerBuffer	  := __NEW(PVOID, NumberOfEvents);
+pEventAutoResetBuffer := __NEW(PVOID, NumberOfEvents);
+pEventClass			  := pClass;
+IF pEventBuffer <> 0 THEN
+	SourceInfo.ResetToDefault();
+	SourceInfo.sName := Name;
+	FOR i := 1 TO NumberOfEvents DO
+		pEvent	  := __NEW(FB_TcAlarm);
+		ppBuffer  := pEventBuffer + ((i - 1) * SIZEOF(PVOID));
+		ppBuffer^ := pEvent;
+		pEventDef := pEventClass + ((i - 1) * SIZEOF(TcEventEntry));
+		pEvent^.CreateEx2(pEventDef^, SourceInfo);
+
+		//
+		pEventAutoReset	  := __NEW(BOOL);
+		ppEventAutoReset  := pEventAutoResetBuffer + ((i - 1) * SIZEOF(PVOID));
+		ppEventAutoReset^ := pEventAutoReset;
+	END_FOR
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetEventAutoResetInstance" Id="{ccc4ce8d-afb2-44b8-9905-aada37ad25a4}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED GetEventAutoResetInstance : POINTER TO BOOL
+VAR_INPUT
+	EventId : UDINT;
+END_VAR
+
+VAR
+	ppEventAutoReset : POINTER TO POINTER TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF CheckEventId(EventId) THEN
+	ppEventAutoReset := pEventAutoResetBuffer + ((EventId - 1) * SIZEOF(PVOID));
+	GetEventAutoResetInstance := ppEventAutoReset^;
+ELSE
+	GetEventAutoResetInstance := ADR(NullBool);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetEventInstance" Id="{8c4f7721-baec-4f66-b099-e4a1d6d31119}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED GetEventInstance : POINTER TO FB_TcAlarm
+VAR_INPUT
+	EventId : UDINT;
+END_VAR
+
+VAR
+	ppEvent : POINTER TO POINTER TO FB_TcAlarm;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF CheckEventId(EventId) THEN
+	ppEvent			 := pEventBuffer + ((EventId - 1) * SIZEOF(PVOID));
+	GetEventInstance := ppEvent^;
+ELSE
+	GetEventInstance := ADR(NullEvent);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetEventTriggerInstance" Id="{44e2756d-7eda-4a5d-a41f-06ab35d92b28}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED GetEventTriggerInstance : POINTER TO BOOL
+VAR_INPUT
+	EventId : UDINT;
+END_VAR
+
+VAR
+	ppEventTrigger : POINTER TO POINTER TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF CheckEventId(EventId) THEN
+	ppEventTrigger := pEventTriggerBuffer + ((EventId - 1) * SIZEOF(PVOID));
+	GetEventTriggerInstance := ppEventTrigger^;
+ELSE
+	GetEventTriggerInstance := ADR(NullBool);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventReaction" Id="{3dd72723-00f8-4a41-9c50-1e832e481a96}" FolderPath="EventClass\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE HighestActiveEventSeverity OF
+	TcEventSeverity.Verbose:
+		GetHighestActiveEventReaction := EventReactionVerbose;
+
+	TcEventSeverity.Info:
+		GetHighestActiveEventReaction := EventReactionInfo;
+
+	TcEventSeverity.Warning:
+		GetHighestActiveEventReaction := EventReactionWarning;
+
+	TcEventSeverity.Error:
+		GetHighestActiveEventReaction := EventReactionError;
+
+	TcEventSeverity.Critical:
+		GetHighestActiveEventReaction := EventReactionCritical;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{4fbe4d53-d662-402d-94fc-b4b0c75556f4}" FolderPath="EventClass\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventSeverity := HighestActiveEventSeverity;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsResettable" Id="{6572cedf-e2f0-4204-b69d-e02d9ba95338}" FolderPath="EventClass\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IsResettable : BOOL]]></Declaration>
+      <Get Name="Get" Id="{36d93a76-f89b-4346-be4a-d5bd3fe859e2}">
+        <Declaration><![CDATA[VAR
+	i		  : UDINT;
+	pEvent	  : POINTER TO FB_TcAlarm;
+	pTrigger  : POINTER TO BOOL;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsResettable := FALSE;
+FOR i := 1 TO NumberOfEvents DO
+	pTrigger := GetEventTriggerInstance(i);
+	IF (pTrigger <> 0) THEN
+		pEvent := GetEventInstance(i);
+		IF (pEvent <> 0) AND_THEN NOT pTrigger^ AND pEvent^.bRaised THEN
+			IsResettable := TRUE;
+		END_IF
+	END_IF
+END_FOR]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="RaiseEvent" Id="{648ad2c3-20e6-47f9-8c03-6521ffdaefac}" FolderPath="EventClass\">
+      <Declaration><![CDATA[METHOD RaiseEvent
+VAR_INPUT
+	EventId	  : UDINT;
+END_VAR
+
+VAR
+	pEvent : POINTER TO FB_TcAlarm;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF CheckEventId(EventId) THEN
+	pEvent := GetEventInstance(EventId);
+	IF (pEvent <> 0) THEN
+		IF NOT pEvent^.bRaised THEN
+			pEvent^.Raise();
+			IF pEvent^.eSeverity > HighestActiveEventSeverity THEN
+				HighestActiveEventSeverity := pEvent^.eSeverity;
+			END_IF
+
+			pEvent^.ipArguments.Clear();
+		END_IF
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{84598324-b79b-4c91-9e45-be0f6a3b4619}" FolderPath="Reset\">
+      <Declaration><![CDATA[METHOD Reset
+VAR
+	i		 : UDINT;
+	pEvent	 : POINTER TO FB_TcAlarm;
+	pTrigger : POINTER TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO NumberOfEvents DO
+	pTrigger := GetEventTriggerInstance(i);
+	pEvent	 := GetEventInstance(i);
+	IF (pEvent <> 0) THEN
+		IF (pTrigger <> 0) AND_THEN NOT pTrigger^ THEN
+			pEvent^.Clear();
+		END_IF
+
+		IF (pTrigger = 0) THEN
+			pEvent^.Clear();
+		END_IF
+	END_IF
+END_FOR
+
+HighestActiveEventSeverity := Global.TcEventSeverity.Verbose;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetBySeverity" Id="{4d4f7798-b9b3-4572-8959-f8d476034098}" FolderPath="EventClass\">
+      <Declaration><![CDATA[METHOD ResetBySeverity : BOOL
+VAR_INPUT
+	Severity : UDINT;
+END_VAR
+
+VAR
+	i	   : UDINT;
+	pEvent : POINTER TO FB_TcAlarm;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO NumberOfEvents DO
+	pEvent := GetEventInstance(i);
+	IF (pEvent <> 0) AND_THEN (pEvent^.eSeverity <= TO_DINT(Severity)) THEN
+		pEvent^.Clear();
+	END_IF
+END_FOR
+
+FindActiveSeverity();
+ResetBySeverity := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEvent" Id="{fb706f66-4415-4158-b47a-e2aff277a8b4}" FolderPath="EventClass\">
+      <Declaration><![CDATA[METHOD SetEvent
+VAR_INPUT
+	EventId	  : UDINT;
+	Trigger	  : POINTER TO BOOL;
+	AutoReset : BOOL;
+END_VAR
+
+VAR
+	pBool : POINTER TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF CheckEventId(EventId) THEN
+	IF Trigger <> 0 THEN
+		SetEventTriggerInstance(EventId, Trigger);
+	END_IF
+
+	pBool  := GetEventAutoResetInstance(EventId);
+	pBool^ := AutoReset;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEventReactions" Id="{8ac7ddb8-251e-4580-8cc8-495adcd545af}" FolderPath="EventClass\">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[EventReactionVerbose  := Verbose;
+EventReactionInfo	  := Info;
+EventReactionWarning  := Warning;
+EventReactionError	  := Error;
+EventReactionCritical := Critical;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEventTriggerInstance" Id="{aeb516f8-63fe-41e6-8f6a-ca6ce4cf8b29}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED SetEventTriggerInstance
+VAR_INPUT
+	EventId : UDINT;
+    Trigger : POINTER TO BOOL;
+END_VAR
+
+VAR
+	ppEventTrigger : POINTER TO POINTER TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF CheckEventId(EventId) THEN
+	ppEventTrigger	:= pEventTriggerBuffer + ((EventId - 1) * SIZEOF(PVOID));
+	ppEventTrigger^ := Trigger;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

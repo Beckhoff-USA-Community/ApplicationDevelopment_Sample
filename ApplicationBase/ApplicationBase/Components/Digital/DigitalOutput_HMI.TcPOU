@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DigitalOutput_HMI" Id="{f0113d82-f398-4272-9386-6b8d9f69409c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DigitalOutput_HMI EXTENDS HmiFunction
+VAR
+	DigitalOutput : I_DigitalOutput;
+	{ attribute 'TcHmiSymbol.AddSymbol' }
+	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators,Admin' }
+	DigitalOutput_HMI : ST_DigitalOutput_HMI;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ControlObject" Id="{19cca1ad-4f51-4528-b3f2-3d0ff46c0e02}">
+      <Declaration><![CDATA[PROPERTY ControlObject : I_Base]]></Declaration>
+      <Set Name="Set" Id="{81ca5ed9-81a3-4253-813c-b7ed48c61998}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[__QueryInterface(ControlObject,DigitalOutput);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{df85ed5d-381b-4deb-bcc1-ca5422013460}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF DigitalOutput = 0 THEN
+	RETURN;
+END_IF
+
+DigitalOutput_HMI.Name		 := DigitalOutput.Name;
+DigitalOutput_HMI.On		 := DigitalOutput.On;
+DigitalOutput_HMI.HmiEnabled := Enabled;
+IF Enabled THEN
+	DigitalOutput.Force := DigitalOutput_HMI.Force;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{9b4eb191-1358-471b-8dae-85cf149b3ce0}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode	  : BOOL;
+	Name		  : T_MaxString;
+	DigitalOutput : I_DigitalOutput;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.DigitalOutput := DigitalOutput;
+ControlType			:= 'DigitalOutput';
+LinkObject			:= 'DigitalOutput_HMI';]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

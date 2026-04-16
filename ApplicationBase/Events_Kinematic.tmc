@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<TcModuleClass>
+	<Translations>
+		<Text TxtId="KinematicGroupError">
+			<Text LcId="1033"><![CDATA[Kinematic Group Error! Error ID - {0}]]></Text>
+		</Text>
+	</Translations>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{DFF3F0F2-E949-4655-96D9-D6CB23F13E61}">KinematicGroup</Name>
+			<DisplayName TxtId=""><![CDATA[KinematicGroup]]></DisplayName>
+			<EventId>
+				<Name Id="1">KinematicGroupError</Name>
+				<DisplayName TxtId=""><![CDATA[KinematicGroupError]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{4E7B903F-C384-4946-866A-932757958FFF}"/>
+				<Hide GUID="{4A87E623-7D4D-4D69-9AB7-F24A9C110D85}"/>
+				<Hide GUID="{A1CA5D65-028E-BE73-6A61-98D39757577B}"/>
+				<Hide GUID="{36AF8512-6B19-4DA3-96F2-59782A47B2BA}"/>
+				<Hide GUID="{E62167A0-FA99-4981-9C3B-AF41B2FA6877}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+</TcModuleClass>

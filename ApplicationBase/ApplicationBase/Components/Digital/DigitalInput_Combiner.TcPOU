@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DigitalInput_Combiner" Id="{85b8aac0-ef90-4788-a252-266e964e17ce}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DigitalInput_Combiner
+VAR_GENERIC CONSTANT
+	NumberOfCombinedInputs : DINT := 2;
+END_VAR
+EXTENDS Component IMPLEMENTS I_DigitalInput
+VAR
+	Inputs : ARRAY[0..(NumberOfCombinedInputs - 1)] OF I_DigitalInput;
+	{attribute 'hide'}
+	_Force : E_ForceState;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AddInput" Id="{bc488cb0-624c-427e-9b71-f3f4aa667e0e}">
+      <Declaration><![CDATA[METHOD AddInput
+VAR_INPUT
+	Input : I_DigitalInput;
+END_VAR
+
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO (NumberOfCombinedInputs - 1) DO
+	IF Inputs[i] = Input THEN
+		RETURN;
+	END_IF
+END_FOR
+
+FOR i := 0 TO (NumberOfCombinedInputs - 1) DO
+	IF Inputs[i] = 0 THEN
+		Inputs[i] := Input;
+		RETURN;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Force" Id="{d2b94b84-9d59-49ca-87c7-768419c63204}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Force : E_ForceState]]></Declaration>
+      <Get Name="Get" Id="{d809e4ed-4465-4d67-836a-9d4973387873}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Force := _Force;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{72f5db18-fb88-4ced-89bc-9eccce7e0b99}">
+        <Declaration><![CDATA[VAR
+	i : DINT;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Force := Force;
+IF Inputs[0] = 0 THEN
+	RETURN;
+END_IF
+
+FOR i := 0 TO (NumberOfCombinedInputs - 1) DO
+	IF Inputs[i] = 0 THEN
+		RETURN;
+	END_IF
+
+	Inputs[i].Force := Force;
+END_FOR]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="IsActive" Id="{8e2bc024-93dc-4f73-8d35-c19f30c0746f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IsActive : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7286a73a-a3cc-49e6-ba19-38b5212d4306}">
+        <Declaration><![CDATA[VAR
+	i : DINT;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF Inputs[0] = 0 THEN
+	RETURN;
+END_IF
+
+IsActive := TRUE;
+FOR i := 0 TO (NumberOfCombinedInputs - 1) DO
+	IF Inputs[i] = 0 THEN
+		RETURN;
+	END_IF
+
+	IsActive := IsActive AND Inputs[i].IsActive;
+END_FOR]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

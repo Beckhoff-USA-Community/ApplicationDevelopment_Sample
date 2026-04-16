@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="EquipmentModule_Mockup" Id="{e3b2d8af-43d8-45aa-b584-2dcb9f767bd3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK EquipmentModule_Mockup EXTENDS Module
+VAR
+	SubModule	   : I_Module;
+	TestComponent1 : I_Component;
+	TestComponent2 : I_Component;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_Init" Id="{fae51f47-68ee-4928-b07a-eeddf0a81408}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains   : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	   : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	Name		   : T_MaxString;
+	TestComponent1 : I_Component;
+	TestComponent2 : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.TestComponent1 := TestComponent1;
+THIS^.TestComponent2 := TestComponent2;
+TestComponent1.RegisterWithParent(THIS^);
+TestComponent2.RegisterWithParent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetComponentByName" Id="{949850a5-e0eb-4d74-aac7-93755b84b42c}">
+      <Declaration><![CDATA[METHOD GetComponentByName : I_Component
+VAR_INPUT
+	Name : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetComponentByName := ComponentCollection.GetComponentByName(Name);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetModuleByName" Id="{097d684a-05df-43d6-af71-eb39da99a05e}">
+      <Declaration><![CDATA[METHOD GetModuleByName : I_Module
+VAR_INPUT
+	Module : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetModuleByName := ModuleCollection.GetModuleByName(Module);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initializing" Id="{151a6095-7c9d-4b05-8c85-84fd2fbee122}">
+      <Declaration><![CDATA[(* This Module will be done initializeing when ModuleInitialized := TRUE, subequently all subitems will be called to be initialized*)
+METHOD Initializing]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ModuleInitialized := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCyclicCall" Id="{af47785e-f23c-42b9-937a-07594d22e12b}">
+      <Declaration><![CDATA[METHOD OnCyclicCall]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

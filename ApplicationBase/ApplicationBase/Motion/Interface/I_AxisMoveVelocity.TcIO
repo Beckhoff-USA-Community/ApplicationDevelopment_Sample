@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AxisMoveVelocity" Id="{8cee7583-ea15-463b-88b6-009ca18897f0}">
+    <Declaration><![CDATA[INTERFACE I_AxisMoveVelocity EXTENDS I_Base]]></Declaration>
+    <Method Name="MoveVelocity" Id="{73d31342-a8a2-4aa7-9f5d-170d9fb4ee21}">
+      <Declaration><![CDATA[METHOD MoveVelocity : BOOL
+VAR_INPUT
+	Velocity	  : LREAL;
+	AbortPrevious : BOOL := TRUE;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_SafetyBase" Id="{33cdca74-ea3a-06f2-0eb4-beaa47fde1de}">
+    <Declaration><![CDATA[INTERFACE I_SafetyBase EXTENDS I_Component, I_Resettable, I_SafetySimulation, I_TaskResult]]></Declaration>
+    <Property Name="OK" Id="{e0b95048-8d34-0742-1bc2-2e478b2bf63f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY OK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1b196e97-c4df-0d05-36fe-37a5f988eac4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ResetFunction" Id="{c1ee9de6-a76e-47a1-b1dc-9c3695e49a5b}">
+      <Declaration><![CDATA[PROPERTY ResetFunction : I_SafetyReset]]></Declaration>
+      <Set Name="Set" Id="{77bda360-72a9-4a6a-b0b0-d54c26cc427e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

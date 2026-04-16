@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SetAllOverrideVisitor" Id="{3a260527-c935-473e-9804-23158d399a94}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SetAllOverrideVisitor IMPLEMENTS I_ModuleVisitor, I_ComponentVisitor
+VAR
+	ipOverride : I_Override;
+	_Override  : LREAL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Set" Id="{3fa54dce-4562-41a3-9198-926dbe041fe1}">
+      <Declaration><![CDATA[METHOD Set
+VAR_INPUT
+	Module	 : I_Module;
+	Override : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Override := Override;
+Module.Accept(THIS^);
+IF __QUERYINTERFACE(Module, ipOverride) THEN
+	ipOverride.Override := _Override;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{5c4322d3-4089-451e-9e28-f45e18e4b32b}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, ipOverride) THEN
+	ipOverride.Override := _Override;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{86465fc1-b94b-47ca-a1b4-7683efffc6f1}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Module.Components.Accept(THIS^);
+Module.Modules.Accept(THIS^);
+IF __QUERYINTERFACE(Module, ipOverride) THEN
+	ipOverride.Override := _Override;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

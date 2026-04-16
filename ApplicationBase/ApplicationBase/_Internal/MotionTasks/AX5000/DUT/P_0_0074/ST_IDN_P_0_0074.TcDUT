@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_IDN_P_0_0074" Id="{d5c1f8ab-a6fe-4db8-9ed4-bc2de4d91bd5}">
+    <Declaration><![CDATA[TYPE ST_IDN_P_0_0074 :
+	STRUCT
+		Iq : ARRAY[0..9] OF UDINT; // Amps ( units := A x 100 )
+		M  : ARRAY[0..9] OF UDINT; // Newton Meters ( units := Nm x 100 )
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_ContainModules" Id="{c14c7da0-b6c9-4ae1-b029-af7adfe80c60}">
+    <Declaration><![CDATA[INTERFACE I_ContainModules]]></Declaration>
+    <Method Name="DeregisterCyclic" Id="{dc661aae-00ab-44cc-852c-bc30e0d16315}">
+      <Declaration><![CDATA[METHOD DeregisterCyclic : RegistrationResult
+VAR_INPUT
+	Cyclic : I_Cyclic;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="DeregisterInitialize" Id="{0f2dbb57-83a4-46ec-8357-7d426099c550}">
+      <Declaration><![CDATA[METHOD DeregisterInitialize : RegistrationResult
+VAR_INPUT
+	Initializable : I_Initializable;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="DeregisterModule" Id="{08e0ee68-a6e4-4b09-8b7e-29d755ea3584}">
+      <Declaration><![CDATA[METHOD DeregisterModule : RegistrationResult
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Modules" Id="{ae884636-2441-4698-8484-af07377b9085}">
+      <Declaration><![CDATA[PROPERTY Modules : I_ModuleCollection]]></Declaration>
+      <Get Name="Get" Id="{5f40a626-59fb-4998-9608-4f2df4af4b70}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="RegisterCyclic" Id="{ac88bc75-086a-46cd-8466-5ef365758e65}">
+      <Declaration><![CDATA[METHOD RegisterCyclic  : RegistrationResult
+VAR_INPUT
+	Cyclic : I_Cyclic;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="RegisterInitialize" Id="{490bed12-8da5-4fed-a7bc-b1907cf06592}">
+      <Declaration><![CDATA[METHOD RegisterInitialize  : RegistrationResult
+VAR_INPUT
+	Initializable : I_Initializable;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="RegisterModule" Id="{2782642e-e5eb-495c-91f3-7fbac14f41b9}">
+      <Declaration><![CDATA[METHOD RegisterModule  : RegistrationResult
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DisableAllComponentsVisitor" Id="{ef764682-9bc8-4f54-b748-2052670f038c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DisableAllComponentsVisitor IMPLEMENTS I_ComponentVisitor
+VAR
+	Enablable : I_Enablable;
+	_Enabled  : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Disable" Id="{03e020e0-e181-4942-acf8-c3db1eade5e8}">
+      <Declaration><![CDATA[METHOD Disable
+VAR_INPUT
+	Components : I_ComponentCollection;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Enabled := FALSE;
+Components.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Enabled" Id="{15fda2d7-913e-4794-bd9c-8bc9b08635f9}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Enabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{dbf2afbe-3425-4b81-9465-1ab0a61054d2}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Enabled := _Enabled;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="VisitComponent" Id="{3266137d-7ebe-439a-839f-6f100fb8006e}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, Enablable) THEN
+	Enablable.Disable();
+	IF Enablable.Enabled THEN
+		_Enabled := TRUE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

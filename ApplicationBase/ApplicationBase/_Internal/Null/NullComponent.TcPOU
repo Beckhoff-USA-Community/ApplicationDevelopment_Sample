@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="NullComponent" Id="{f1488b7e-691f-4cf3-84f5-5f81b0dae446}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK NullComponent EXTENDS Component
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

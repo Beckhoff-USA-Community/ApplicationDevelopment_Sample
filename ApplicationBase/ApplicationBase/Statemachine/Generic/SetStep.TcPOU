@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SetStep" Id="{7dec2b68-458b-4321-b4f9-5e7d9493075d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION SetStep : UDINT
+VAR_IN_OUT
+	StateVar : UDINT;
+END_VAR
+
+VAR_INPUT
+	Step : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SetStep := StateVar := Step;]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

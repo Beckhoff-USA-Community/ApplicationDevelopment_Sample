@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="State_Mockup" Id="{40f03ece-c10d-4dae-a4a6-33689633f203}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK State_Mockup EXTENDS State
+VAR
+	_IsExecuting : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Executing" Id="{d6c45f4c-4622-43f9-894c-25a4eb7ffec9}">
+      <Declaration><![CDATA[METHOD Executing : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_IsExecuting := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsExecuting" Id="{58e32660-0e87-469a-9b53-a3f745ad9b8e}">
+      <Declaration><![CDATA[PROPERTY IsExecuting : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1cc2c7e6-f010-4e9e-ad36-5e1eee546f33}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsExecuting := _IsExecuting;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

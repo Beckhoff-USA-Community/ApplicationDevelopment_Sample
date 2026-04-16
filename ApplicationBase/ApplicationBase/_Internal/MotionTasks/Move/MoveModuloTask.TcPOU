@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MoveModuloTask" Id="{498b828b-fecf-4de3-8779-49001f9deaea}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK MoveModuloTask EXTENDS MotionTask
+VAR
+	_TargetPosition : LREAL;
+	_Direction		: MC_Direction;
+	McMoveModulo	: ARRAY[0..1] OF MC_MoveModulo;
+	Active			: UDINT;
+    _McBufferMode	: MC_BufferMode;
+	_MoveOptions	: ST_MoveOptions;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="BufferMode" Id="{bc106bac-6533-42fe-8929-0582f9fa6340}">
+      <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO MC_BufferMode]]></Declaration>
+      <Get Name="Get" Id="{05d97c69-6ddc-4821-86ba-e0e6b76c6cf2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[BufferMode REF= _McBufferMode;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Busy" Id="{9dac919a-303b-4478-a5d9-5d51b21e7038}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3eede686-e5ed-468e-93db-f6f1cf2bc254}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := McMoveModulo[Active].Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{1ab634e9-e5e8-4361-aefb-53a4d29daae0}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McMoveModulo[Active](Axis		  := _Axis.Axis,
+					 Position	  := _TargetPosition,
+					 Direction	  := _Direction,
+					 Velocity	  := _Axis.Velocity,
+					 Acceleration := _Axis.Acceleration,
+					 Deceleration := _Axis.Deceleration,
+					 Jerk		  := _Axis.Jerk,
+					 BufferMode	  := _McBufferMode,
+					 Options	  := _MoveOptions);
+
+McMoveModulo[Active].Execute := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Direction" Id="{803ecd2e-14fd-4570-b166-79f035cfd335}">
+      <Declaration><![CDATA[PROPERTY Direction : MC_Direction]]></Declaration>
+      <Set Name="Set" Id="{4636ff88-35d7-4287-be8f-2024276f07f7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Direction := Direction;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Error" Id="{34ab9a64-cdc1-4edb-ac5f-a1171bdab3c9}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3b8b4c4c-3633-4e11-83bf-ac5909581096}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := McMoveModulo[Active].Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{7d6c9fb4-f1eb-4848-8ed7-37ab5b79b6a3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{8b9db3ca-c086-4473-916d-3fd744cfedfd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := McMoveModulo[Active].ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{515a7d5e-031d-4721-b407-8f2103a448b6}">
+      <Declaration><![CDATA[METHOD Execute : BOOL;]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Active = 0 THEN
+	Active := 1;
+	McMoveModulo[Active](Axis		  := _Axis.Axis,
+						 Execute	  := TRUE,
+						 Position	  := _TargetPosition,
+						 Direction	  := _Direction,
+						 Velocity	  := _Axis.Velocity,
+						 Acceleration := _Axis.Acceleration,
+						 Deceleration := _Axis.Deceleration,
+						 Jerk		  := _Axis.Jerk,
+						 BufferMode	  := _McBufferMode,
+						 Options	  := _MoveOptions);
+ELSE
+	Active := 0;
+	McMoveModulo[Active](Axis		  := _Axis.Axis,
+						 Execute	  := TRUE,
+						 Position	  := _TargetPosition,
+						 Direction	  := _Direction,
+						 Velocity	  := _Axis.Velocity,
+						 Acceleration := _Axis.Acceleration,
+						 Deceleration := _Axis.Deceleration,
+						 Jerk		  := _Axis.Jerk,
+						 BufferMode	  := _McBufferMode,
+						 Options	  := _MoveOptions);
+END_IF
+
+Execute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="MoveOptions" Id="{02a55eeb-d353-4af9-8ad8-d9033bd3cd98}">
+      <Declaration><![CDATA[PROPERTY MoveOptions : REFERENCE TO ST_MoveOptions]]></Declaration>
+      <Get Name="Get" Id="{012df2dc-61c8-4ea5-a775-e36b9d036936}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveOptions REF= _MoveOptions;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="TargetPosition" Id="{b70d736f-6e4f-4075-9f07-03367a17ef37}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY TargetPosition : LREAL]]></Declaration>
+      <Set Name="Set" Id="{efe7885d-bfd6-4042-a44b-45779d17c4c3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TargetPosition := TargetPosition;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

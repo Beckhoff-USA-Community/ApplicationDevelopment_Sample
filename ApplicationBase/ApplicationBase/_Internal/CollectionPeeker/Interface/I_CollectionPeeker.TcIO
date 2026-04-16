@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_CollectionPeeker" Id="{5347da5d-d8b2-411b-850b-ae5f1c1ed1ca}">
+    <Declaration><![CDATA[INTERFACE I_CollectionPeeker EXTENDS I_Base]]></Declaration>
+    <Property Name="CollectionName" Id="{fa0e3c5c-1cb9-4542-930f-7c472d3591c8}">
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY CollectionName : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{53b24b99-501b-4c08-86ef-10e3da0cefe4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{5744869b-0d43-4522-9ced-69cbc585e2bc}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="FirstItem" Id="{d303839d-a580-47b7-9ce2-026df4c9b117}">
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY FirstItem : UDINT]]></Declaration>
+      <Get Name="Get" Id="{05c6f3e4-97ff-420a-8a1a-886be0967741}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="LastItem" Id="{2ee49a93-6eaa-4436-ab19-496a1666b5e6}">
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY LastItem : UDINT]]></Declaration>
+      <Get Name="Get" Id="{085e90f8-6f0f-456f-9433-f4c5e5af09c4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="MoveDownOne" Id="{786d654f-0081-4f16-bdde-570b4343a5d2}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY MoveDownOne : BOOL]]></Declaration>
+      <Set Name="Set" Id="{abdfaf05-3046-4875-90d2-b6138a95fc9a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="MoveUpOne" Id="{1aed667d-25d3-4675-ac86-d34563b0dd38}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY MoveUpOne : BOOL]]></Declaration>
+      <Set Name="Set" Id="{5c32cff2-348b-4436-ad16-97298ed4402c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="PageDown" Id="{bde299fc-da3c-44ba-a9b5-3cf1750aff2c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PageDown : BOOL]]></Declaration>
+      <Set Name="Set" Id="{9d34eba9-b6fb-40f1-83a7-40d5d7d0db1d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="PageUp" Id="{794abe50-fdda-41e6-9704-021edfbb6417}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PageUp : BOOL]]></Declaration>
+      <Set Name="Set" Id="{3f581c46-a7d8-4f1c-9465-6c648b1c8491}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="PeekAt" Id="{60c55075-5591-4f70-8930-31b4e70520d6}">
+      <Declaration><![CDATA[METHOD PeekAt
+VAR_INPUT
+	Peekable : I_Peekable;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Refresh" Id="{b43e2d3d-3e9b-438f-87cb-54cb4e46f93c}">
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY Refresh : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7e527fd8-1db4-4038-b5fe-eafb8fa85fd3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{2a77ebac-0099-4284-97ca-ac2ac59ebb32}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

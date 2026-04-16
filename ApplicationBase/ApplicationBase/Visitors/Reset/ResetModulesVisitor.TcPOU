@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ResetModulesVisitor" Id="{8c953db4-d0e2-4d22-a0d1-e5952b5fa103}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ResetModulesVisitor IMPLEMENTS I_ModuleVisitor, I_TaskResult
+VAR
+	{attribute 'hide'}
+	Resettable : I_Resettable;
+	{attribute 'hide'}
+	Result : I_TaskResult;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_ErrorId	: UDINT;
+	ErrorModule : I_Module;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{1ce68cf0-e1e6-4615-9e75-a858f8adc8a6}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2e1e558c-deef-4a14-87e2-6f52372e3d1b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Error" Id="{fb26592a-22e0-4cca-a7f9-d0d9b07ff04b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{974bbad7-243b-49ae-9cad-bd592799f33f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{5350401d-0546-43aa-bf99-f04868e92255}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{a21dda1f-d5e4-4323-b539-6ec98f3738f6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Reset" Id="{422a6468-493a-4978-a0b0-414f0b6d5a1b}">
+      <Declaration><![CDATA[METHOD Reset
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error	 := FALSE;
+_ErrorId := 0;
+_Busy	 := FALSE;
+Module.Modules.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{07ceb6be-b5c1-4353-9504-37404fa187e2}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Module, Resettable) THEN
+	Resettable.Reset();
+END_IF
+
+IF __QUERYINTERFACE(Module, Result) THEN
+	IF Result.Error THEN
+		ErrorModule := Module;
+		_Error		:= TRUE;
+		_ErrorId	:= Result.ErrorId;
+	END_IF
+
+	IF Result.Busy THEN
+		_Busy := TRUE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

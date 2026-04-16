@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <GVL Name="TcpIpConnectionParameter" Id="{9320a2b0-9cf4-4d7a-bcc0-0c4494c6ac89}" ParameterList="True">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+	PayloadSize : UDINT := 1460; // Payload in Bytes
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

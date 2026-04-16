@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_FileHandler" Id="{55011597-79d0-4949-85e2-2be0ab2b934d}">
+    <Declaration><![CDATA[INTERFACE I_FileHandler EXTENDS I_Component, I_Cyclic, I_TaskResult, I_TaskResult, I_Resettable]]></Declaration>
+    <Method Name="ClearDocument" Id="{8fb4a3e4-6d56-0aae-1c44-81e342d914a2}">
+      <Declaration><![CDATA[METHOD ClearDocument
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Datatype" Id="{a0521760-68d0-4d0f-a9e5-f3f3fe686ce0}">
+      <Declaration><![CDATA[PROPERTY Datatype : T_MaxString]]></Declaration>
+      <Set Name="Set" Id="{2475b506-8cb8-4f10-8139-f57c90ea8e01}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="LoadFile" Id="{3ab11060-e413-4c53-a193-f19323c61c38}">
+      <Declaration><![CDATA[METHOD LoadFile]]></Declaration>
+    </Method>
+    <Property Name="nData" Id="{4ef7b631-7d6c-4586-bd16-b2a5d96207f6}">
+      <Declaration><![CDATA[PROPERTY nData : UDINT]]></Declaration>
+      <Set Name="Set" Id="{5674a16e-4cf0-4f05-97d1-7f124fa057f6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Path" Id="{493c8d8b-b87e-478e-a1a6-c7ad2156433a}">
+      <Declaration><![CDATA[PROPERTY PUBLIC Path : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{a6759574-5ef5-45a1-b11f-c3268fd3a4ae}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{b38783df-9042-493c-873b-9f9bdd19f7e6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="pData" Id="{630e1e7d-adf3-4054-9b32-3935a30b990a}">
+      <Declaration><![CDATA[PROPERTY pData : PVOID]]></Declaration>
+      <Set Name="Set" Id="{9ac28e23-ffe4-4a98-ba1c-f05319aa474c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="ReadSymbol" Id="{02f0cf69-dcff-4c9a-8129-b397d230c959}">
+      <Declaration><![CDATA[METHOD ReadSymbol]]></Declaration>
+    </Method>
+    <Method Name="SaveFile" Id="{99ad8ae3-4840-423d-afaf-d359726ad74f}">
+      <Declaration><![CDATA[METHOD SaveFile]]></Declaration>
+    </Method>
+    <Property Name="SymbolName" Id="{1128767d-b7e7-4468-8549-49cc2ac2a464}">
+      <Declaration><![CDATA[PROPERTY SymbolName : T_MaxString]]></Declaration>
+      <Set Name="Set" Id="{ba00c0e0-f437-40a1-a4d5-41439f1a9b07}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Timeout" Id="{d36ed3da-17f1-0c1f-01c1-ab686683753c}">
+      <Declaration><![CDATA[PROPERTY Timeout : TIME]]></Declaration>
+      <Set Name="Set" Id="{34384024-0a9b-0303-3c3b-8ca68d115331}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="UpdateSymbol" Id="{d8d2a82b-5421-44b8-9fab-ead5518be454}">
+      <Declaration><![CDATA[METHOD UpdateSymbol]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

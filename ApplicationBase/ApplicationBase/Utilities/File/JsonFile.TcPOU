@@ -1,0 +1,422 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="JsonFile" Id="{7937c316-0af6-4e57-9872-74b9f77a29f5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK JsonFile
+VAR_GENERIC CONSTANT
+	FileSize : UDINT := 10000;
+END_VAR
+EXTENDS CyclicComponent IMPLEMENTS I_FileHandler
+VAR
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_ErrorId : UDINT;
+
+	//
+	_Path	   : STRING;
+	TonTimeout : TON;
+	_Timeout   : TIME := T#1S;
+	SeqLoad	   : UDINT;
+	SeqSave	   : UDINT;
+
+	// Folder Management
+	CreateDir	 : FB_CreateDir;
+	StringHelper : StringHelper;
+
+	// Symbol
+	JsonReadWriteDataType : FB_JsonReadWriteDatatype;
+	ValueJson			  : STRING(FileSize);
+	hr					  : HRESULT;
+	_Datatype			  : T_MaxString;
+	_SymbolName			  : T_MaxString;
+	_nData				  : UDINT;
+	_pData				  : PVOID;
+
+	// Json Management 
+	FileRead			  : BOOL;
+	FileSave			  : BOOL;
+	FileLoadOK			  : BOOL;
+	FileSaveOK			  : BOOL;
+	JsonFileMachineConfig : FB_JsonDomParser;
+	JsonDoc				  : SJsonValue;
+	JsonProp			  : SJsonValue;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{1322cbb2-c27d-449e-b8c2-29c4edf9acf7}" />
+    <Folder Name="FileHandler" Id="{05f50402-acfc-4c10-8515-7e364b7444fe}" />
+    <Folder Name="Methods" Id="{3717aae5-c14c-490d-8371-16d1e9df4214}" />
+    <Folder Name="Resettable" Id="{b058d25f-b759-418c-ae4c-e08597bee021}" />
+    <Folder Name="TaskResult" Id="{e317f48b-cefa-4a90-8b0c-9349af2032eb}" />
+    <Property Name="Busy" Id="{f2f3884a-c9d6-42ad-a746-c74700720ae3}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{aafbca45-5c07-43cb-bc37-faaa6feb7618}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := SeqSave <> 0 OR SeqLoad <> 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ClearDocument" Id="{d5be9337-3ec4-4556-9888-82570f63a678}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[METHOD ClearDocument
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[JsonDoc := JsonFileMachineConfig.NewDocument();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CyclicLogic" Id="{9f6a14ee-7327-456f-8a49-887f07bd6f24}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Path <> '' THEN
+	FileLoadOK := JsonFileMachineConfig.LoadDocumentFromFile(sFile := _Path, bExec := FileRead);
+	FileSaveOK := JsonFileMachineConfig.SaveDocumentToFile(sFile := _Path, bExec := FileSave);
+END_IF
+
+TonTimeout(IN := Busy, PT := _Timeout);
+IF TonTimeout.Q THEN
+	_Error := TRUE;
+END_IF
+
+SaveFileSequence();
+LoadFileSequence();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Datatype" Id="{f77ea89f-1308-45ac-8d35-c872e205b62d}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[PROPERTY Datatype : T_MaxString]]></Declaration>
+      <Set Name="Set" Id="{9585f636-8768-4b28-95d1-ae68963b0c7b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Datatype := Datatype;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Error" Id="{3d3e9af8-0ef1-4bb5-a71f-5cab8566681d}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e9ef3443-4ef5-482d-999c-5b4c2d63cd65}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{1f94ebcb-1f24-4f9d-8ce6-59f9ee8b2c95}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{e5369d3d-e622-4d0c-a8da-969033a3c181}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="LoadFile" Id="{45f95d41-371e-4047-8d3e-453be267c61f}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[METHOD LoadFile]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Path = '' THEN
+	_Error := TRUE;
+	Trace.LogMessage(Name, 'File Path not set!');
+	RETURN;
+END_IF
+
+IF Busy THEN
+	RETURN;
+END_IF
+
+FileRead := TRUE;
+SeqLoad	 := 10;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="LoadFileSequence" Id="{c78b4523-c2d2-4f47-81c2-229ec2c1f34e}" FolderPath="Methods\">
+      <Declaration><![CDATA[METHOD PRIVATE LoadFileSequence
+VAR_INST
+	dirPath	 : T_MaxString;
+	tryAgain : BOOL;
+END_VAR
+
+VAR
+	msg : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SeqLoad OF
+	0:										// Attempt to Load File -> Command started in LoadFile()
+	10:										// Load File Done
+		IF NOT FileRead AND FileLoadOK THEN // File Found
+			JsonDoc := JsonFileMachineConfig.GetDocumentRoot();
+			SeqLoad := 0;
+		END_IF
+
+		IF (NOT FileRead AND NOT FileLoadOK) OR TonTimeout.Q THEN // File not Found
+			tryAgain := FALSE;
+			FileRead := FALSE;
+			SeqLoad	 := 20;
+		END_IF
+
+	20:								  (*File Not Found - Create Directory if not exists*) ;
+		CreateDir(bExecute := FALSE); //Prepare for rising edge in next step
+		IF NOT tryAgain THEN
+			dirPath := StringHelper.GetPath(_Path);
+		ELSE
+			dirPath := StringHelper.GetPath(dirPath);
+		END_IF
+
+		SeqLoad := 30;
+
+	30:
+		CreateDir(sNetId	:= '',
+				  sPathName := dirPath,
+				  ePath		:= PATH_GENERIC,
+				  bExecute	:= TRUE);
+
+		IF NOT CreateDir.bBusy THEN
+			IF NOT CreateDir.bError THEN
+				IF NOT tryAgain THEN
+					SeqLoad := 40;
+				ELSE
+					tryAgain := FALSE;
+					SeqLoad	 := 20;
+				END_IF
+			ELSE
+				IF (CreateDir.nErrId = 1827) OR (CreateDir.nErrId = 1807) THEN
+					//0x723 Folder is already existing or invalid sPathName or ePath parameter.
+					msg := CONCAT(_Path, ' File not found, but folder is existing. File will be created');
+					Trace.LogMessage(Name, msg);
+					SeqLoad := 40;
+				ELSIF CreateDir.nErrId = 1804 THEN
+					//0x70C Folder not found.
+					msg := CONCAT('Folder is not found: ', dirPath);
+					msg := CONCAT(msg, ' Reducing Path and trying again.');
+					Trace.LogMessage(Name, msg);
+					tryagain := TRUE;
+
+					// SeqLoad	 := 20; TwinCat Bug - Ticket BTS-168764 Germany
+					SeqLoad := 40;
+				ELSE
+					msg := CONCAT('Create Directory Error: ', UDINT_TO_STRING(CreateDir.nErrId));
+					Trace.LogMessage(Name, msg);
+					SeqLoad := 999;
+				END_IF
+			END_IF
+		END_IF
+
+	40: // File not found -> Create file
+		JsonDoc	 := JsonFileMachineConfig.NewDocument();
+		FileSave := TRUE;
+		SeqLoad	 := 50;
+
+	50: // New Document Saved
+		IF NOT FileSave AND FileSaveOk THEN
+			_Error	:= FALSE;
+			SeqLoad := 0;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="nData" Id="{a5d754dd-4603-449d-a2ea-3570e085a3a4}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[PROPERTY nData : UDINT]]></Declaration>
+      <Set Name="Set" Id="{1a68d51e-6867-4541-b45b-35dd4c066627}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_nData := nData;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Path" Id="{1394e3da-836c-43ff-a056-f2f292b4018c}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[PROPERTY PUBLIC Path : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{d04cd1b8-8337-4f6f-a63f-6e1bb1b4ff7a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Path := _Path;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{cf2f0044-5dfa-4a13-84ba-9d339b405848}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[//Prevent the path from have a space at the end
+_Path := Path;
+WHILE RIGHT(_Path, 1) = ' ' DO
+	_Path := DELETE(_Path, 1, LEN(_Path));
+END_WHILE]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="pData" Id="{8fd57914-cf81-4448-a402-46d6de00055c}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[PROPERTY pData : PVOID]]></Declaration>
+      <Set Name="Set" Id="{5b55774e-2eeb-45ec-ab6c-7fdf764812c0}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_pData := pData;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="ReadSymbol" Id="{8230aabd-8166-4597-b1ca-bb840fa2a12a}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[METHOD ReadSymbol]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF JsonDoc = 0 THEN
+	Trace.LogMessage(Name, 'Document File not loaded!');
+	RETURN;
+END_IF
+
+IF _Datatype = '' THEN
+	Trace.LogMessage(Name, 'No Datatype specified!');
+	RETURN;
+END_IF
+
+IF _nData = 0 THEN
+	Trace.LogMessage(Name, 'No nData specified!');
+	RETURN;
+END_IF
+
+IF _pData = 0 THEN
+	Trace.LogMessage(Name, 'No pData specified!');
+	RETURN;
+END_IF
+
+IF _SymbolName = '' THEN
+	Trace.LogMessage(Name, 'No PropertyName specified!');
+	RETURN;
+END_IF
+
+IF Busy THEN
+	RETURN;
+END_IF
+
+JsonProp := JsonFileMachineConfig.FindMemberPath(JsonDoc, _SymbolName);
+JsonFileMachineConfig.CopyJson(v := JsonProp, pDoc := ValueJson, nDoc := SIZEOF(ValueJson));
+IF JsonProp <> 0 THEN
+	JsonReadWriteDataType.SetSymbolFromJson(sJson		:= ValueJson,
+											sDataType	:= _Datatype,
+											nData		:= _nData,
+											pData		:= _pData,
+											hrErrorCode => hr);
+ELSE
+	THIS^.UpdateSymbol();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{0a24db10-20aa-4048-a484-85d2f9f8d963}" FolderPath="Resettable\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error		  := FALSE;
+_ErrorId	  := 0;
+SeqSave		  := 0;
+SeqLoad		  := 0;
+TonTimeout.IN := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SaveFile" Id="{ff71cf87-bc31-4371-9759-868c96102ff7}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[METHOD SaveFile]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Path = '' THEN
+	_Error := TRUE;
+	Trace.LogMessage(Name, 'File Path not set!');
+	RETURN;
+END_IF
+
+IF Busy THEN
+	RETURN;
+END_IF
+
+FileSave := TRUE;
+SeqSave	 := 10;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SaveFileSequence" Id="{e56dd5f6-01ec-4231-9d92-2ace82fabb77}" FolderPath="Methods\">
+      <Declaration><![CDATA[METHOD PRIVATE SaveFileSequence]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SeqSave OF
+	0:	// Attempt to save File -> Command started in UpdateXYZ()
+	10: // New Document Saved
+		IF NOT FileSave AND FileSaveOk THEN
+			SeqSave := 0;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SymbolName" Id="{a5716b2c-7105-4de5-9f99-b39c0f5e1d3a}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[PROPERTY SymbolName : T_MaxString]]></Declaration>
+      <Set Name="Set" Id="{43989922-7a27-41e2-92da-2e5d303baa9e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SymbolName := SymbolName;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Timeout" Id="{24f7b011-213c-4296-8352-56a4a55ee305}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[PROPERTY Timeout : TIME]]></Declaration>
+      <Set Name="Set" Id="{d2d35691-94cd-4d31-b6f7-b3886122349f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Timeout := Timeout;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="UpdateSymbol" Id="{77d3aaa6-83e5-4886-8bd4-72899defab33}" FolderPath="FileHandler\">
+      <Declaration><![CDATA[METHOD UpdateSymbol]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF JsonDoc = 0 THEN
+	Trace.LogMessage(Name, 'Document File not loaded!');
+	RETURN;
+END_IF
+
+IF _Datatype = '' THEN
+	Trace.LogMessage(Name, 'No Datatype specified!');
+	RETURN;
+END_IF
+
+IF _nData = 0 THEN
+	Trace.LogMessage(Name, 'No nData specified!');
+	RETURN;
+END_IF
+
+IF _pData = 0 THEN
+	Trace.LogMessage(Name, 'No pData specified!');
+	RETURN;
+END_IF
+
+IF _SymbolName = '' THEN
+	Trace.LogMessage(Name, 'No PropertyName specified!');
+	RETURN;
+END_IF
+
+IF Busy THEN
+	RETURN;
+END_IF
+
+// Create Json
+JsonReadWriteDataType.CopyJsonStringFromSymbol(sDatatype   := _Datatype,
+											   nData	   := _nData,
+											   pData	   := _pData,
+											   pDoc		   := ValueJson,
+											   nDoc		   := SIZEOF(ValueJson),
+											   hrErrorCode => hr);
+
+// Attempt to find Member
+jsonProp := JsonFileMachineConfig.FindMemberPath(JsonDoc, _SymbolName);
+IF JsonProp <> 0 THEN
+	JsonFileMachineConfig.SetJson(JsonProp, ValueJson);
+ELSE
+	JsonFileMachineConfig.AddJsonMember(JsonDoc, _SymbolName, ValueJson);
+END_IF
+
+// Save the update to file
+FileSave := TRUE;
+SeqSave	 := 10;
+JsonProp := 0;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="StateMachineVisitor_Mockup" Id="{f0911104-906c-4d2b-ab9e-8ff1fbc70401}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK StateMachineVisitor_Mockup IMPLEMENTS I_ComponentVisitor
+VAR
+	_StatemachineName : T_MaxString;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="StatemachineName" Id="{9b49a54f-c2c9-45ca-9ca2-e319cfc86e53}">
+      <Declaration><![CDATA[PROPERTY StatemachineName : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{112992f8-f5e4-4fe7-b1fa-165020a3fe83}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StatemachineName := _StatemachineName;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="VisitComponent" Id="{72bbc9c1-a6bf-40d6-8a45-4816eca45c04}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR
+
+VAR
+	Statemachine : I_Statemachine;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, Statemachine) THEN
+	_StatemachineName := Statemachine.Name;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

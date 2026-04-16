@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_ForceState" Id="{9167dc4a-34c2-4230-829d-5c80c6fd87cc}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE E_ForceState : (
+		Unforced := 0,
+		ForceOn	 := 1,
+		ForceOff := 2
+	) DINT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

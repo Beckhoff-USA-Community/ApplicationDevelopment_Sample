@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AnalogScalable" Id="{62c21804-74ca-483e-b7ff-e9198c37548f}">
+    <Declaration><![CDATA[INTERFACE I_AnalogScalable EXTENDS I_Base]]></Declaration>
+    <Property Name="Scale" Id="{09264835-234c-4f51-aa87-d67af919eab0}">
+      <Declaration><![CDATA[PROPERTY Scale : I_AnalogScale]]></Declaration>
+      <Get Name="Get" Id="{a087bf11-d4fd-49f8-8c08-35b444c8ec03}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{38f8c6cf-4c01-4b06-a56c-92475cb2c7ff}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

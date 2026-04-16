@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Module_Mockup" Id="{7a19c327-6901-4f31-9929-3e5451c7fded}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Module_Mockup EXTENDS Module
+VAR
+	_WasCalled : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="GetComponentByName" Id="{990722a9-e6ba-42d8-a534-ad8a1a576b42}">
+      <Declaration><![CDATA[METHOD GetComponentByName : I_Component
+VAR_INPUT
+	Name : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetComponentByName := ComponentCollection.GetComponentByName(Name);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetModuleByName" Id="{05f0c2db-c3ab-4ec2-811c-8f7d2cab20c6}">
+      <Declaration><![CDATA[METHOD GetModuleByName : I_Module
+VAR_INPUT
+	Module : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetModuleByName := ModuleCollection.GetModuleByName(Module);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initializing" Id="{bc232e85-fa48-4c06-a04a-c2ed6effeb30}">
+      <Declaration><![CDATA[(* This Module will be done initializeing when ModuleInitialized := TRUE;, subequently all subitems will be called to be initialized*)
+METHOD Initializing]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ModuleInitialized := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCyclicCall" Id="{6289fb49-0027-4053-924c-aef8e019c7f1}">
+      <Declaration><![CDATA[METHOD OnCyclicCall]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="WasCalled" Id="{91085036-5c6f-4b58-9a52-0384d5935b37}">
+      <Declaration><![CDATA[PROPERTY WasCalled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ab795f9e-581c-453c-9d38-d018af0dfa2d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[WasCalled := _WasCalled;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

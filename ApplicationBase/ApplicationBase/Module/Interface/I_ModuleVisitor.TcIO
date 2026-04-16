@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_ModuleVisitor" Id="{29cfaac4-cb70-4621-aea3-46f80b6492ae}">
+    <Declaration><![CDATA[INTERFACE I_ModuleVisitor]]></Declaration>
+    <Method Name="VisitModule" Id="{69b6bab8-d3f2-4279-a3cb-16c43b5fe2c2}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

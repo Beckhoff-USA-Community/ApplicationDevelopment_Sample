@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SafetyOkVisitor" Id="{fb66a7e7-6422-4f74-a738-89af8bbbdcdb}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SafetyOkVisitor IMPLEMENTS I_ComponentVisitor
+VAR
+	{attribute 'hide'}
+	_OK				: BOOL;
+	SafetyComponent : I_SafetyBase;
+	ErrorComponent	: I_Component;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Check" Id="{5c980e43-1276-4f1c-a8c8-9c7272ab30b3}">
+      <Declaration><![CDATA[METHOD Check
+VAR_INPUT
+	Components : I_ComponentCollection;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_OK := TRUE;
+Components.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="OK" Id="{1340a3f4-d616-4d71-ad45-b35527c94ce3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY OK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{93e58e58-de31-4f90-b314-89893d0ca755}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OK := _OK;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="VisitComponent" Id="{162ccdde-fdb2-4cb6-91bd-31788e7ad38b}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, SafetyComponent) THEN
+	IF NOT SafetyComponent.OK THEN
+		ErrorComponent := Component;
+		_OK			   := FALSE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

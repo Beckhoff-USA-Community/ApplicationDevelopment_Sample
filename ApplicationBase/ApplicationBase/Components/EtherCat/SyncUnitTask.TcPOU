@@ -1,0 +1,358 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SyncUnitTask" Id="{c7a74bd5-89aa-04ee-11e8-939f4b4902b2}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'no_explicit_call' := 'do not call this POU directly'}
+FUNCTION_BLOCK FINAL SyncUnitTask EXTENDS CyclicComponent IMPLEMENTS I_SyncUnitTask, I_Initializable, I_TaskResult, I_Simulatable
+VAR
+	SyncUnitTaskInfo AT %I* : ST_EtherCatSyncUnitTaskInfo;
+	_SlaveCount				: UINT;
+	_IsHotConnect			: BOOL;
+	EcMaster				: I_EtherCatMasterDiagnostic;
+	ConfiguredSlaveInfo		: REFERENCE TO ARRAY[0..MAX_EC_SLAVES] OF ST_EcSlaveConfigData;
+	SlaveTopologyInfo		: REFERENCE TO ARRAY[0..MAX_EC_SLAVES] OF ST_TopologyDataEx;
+	SyncUnitSlaveAddresses	: ARRAY[0..MAX_EC_SLAVES] OF UINT;
+	SyncUnitSlaveNames		: ARRAY[0..MAX_EC_SLAVES] OF STRING(31);
+END_VAR
+
+VAR
+	{attribute 'hide'}
+	_Initialized : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_ErrorId : UDINT;
+	{attribute 'hide'}
+	_Simulated : BOOL;
+END_VAR
+
+VAR
+	SyncUnitState			  : UDINT := READ_SLAVES;
+	i						  : UINT;
+	j						  : UINT;
+	_EventProvider			  : I_EtherCatDiagnosticEventProvider;
+	EcGetAllSyncUnitSlaveAddr : FB_EcGetAllSyncUnitSlaveAddr;
+END_VAR
+
+VAR CONSTANT
+	ERROR_READ_SLAVE_NAMES	   : UDINT := 1;
+	ERROR_REGISTER_SYNC_UNIT   : UDINT := 2;
+	ERROR_VALID_DATA_SYNC_UNIT : UDINT := 3;
+	STRING_LEN				   : INT   := 80;
+	SYNC_UNIT_ALARM_MAX		   : UINT  := 3;
+
+	//
+	READ_SLAVES			  : UDINT := 0;
+	READ_SLAVES_DONE	  : UDINT := 1;
+	SYNC_UNIT_OK		  : UDINT := 2;
+	POPULATE_SLAVE_NAMES  : UDINT := 3;
+	WORKING_COUNTER_ERROR : UDINT := 4;
+	READ_ERROR			  : UDINT := 5;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Initialize" Id="{e2c06de2-8913-0bc2-3171-b18ce4f50a67}" />
+    <Folder Name="SyncUnitTask" Id="{9ecda84e-6ec3-04ab-3827-af113ad3e658}" />
+    <Folder Name="TaskResult" Id="{408e4c43-c95b-43fa-b009-f6e408f68e00}" />
+    <Property Name="Busy" Id="{781d128d-30d4-4fb1-b0a7-ba9b7b332088}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1497cb35-6d83-4303-bf83-f234ce6dbff5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{61b2331c-0631-0abf-1495-53eeaf453480}">
+      <Declaration><![CDATA[METHOD PUBLIC CyclicLogic
+VAR_INST
+	TempSlaveMessage  : STRING;
+	SlaveMessagePartA : STRING;
+	SlaveMessagePartB : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT Initialized THEN
+	Initialize();
+	RETURN;
+END_IF
+
+IF Simulated THEN
+	RETURN;
+END_IF
+
+EcGetAllSyncUnitSlaveAddr(sNetId	:= '',
+						  nObjectId := SyncUnitTaskInfo.ObjectId,
+						  pAddrBuf	:= ADR(SyncUnitSlaveAddresses),
+						  cbBufLen	:= (SIZEOF(UINT) * MAX_EC_SLAVES),
+						  tTimeout	:= T#5S,
+						  nSlaves	=> _SlaveCount);
+
+EcGetAllSyncUnitSlaveAddr.bExecute := FALSE;
+CASE SyncUnitState OF
+	READ_SLAVES:
+		EcGetAllSyncUnitSlaveAddr.bExecute := TRUE;
+		SyncUnitState					   := READ_SLAVES_DONE;
+
+	READ_SLAVES_DONE:
+		IF NOT EcGetAllSyncUnitSlaveAddr.bBusy AND NOT EcGetAllSyncUnitSlaveAddr.bError AND (_SlaveCount > 0) THEN
+			SyncUnitState := POPULATE_SLAVE_NAMES;
+		END_IF
+
+		IF (EcGetAllSyncUnitSlaveAddr.bError OR (_SlaveCount = 0)) AND NOT EcGetAllSyncUnitSlaveAddr.bBusy THEN
+			SyncUnitState := READ_ERROR;
+		END_IF
+
+	POPULATE_SLAVE_NAMES:
+		FOR i := 0 TO (_SlaveCount - 1) DO
+			FOR j := 0 TO (EcMaster.ConfiguredSlaveCount - 1) DO
+				IF SyncUnitSlaveAddresses[i] <> 0 THEN
+					IF SyncUnitSlaveAddresses[i] = ConfiguredSlaveInfo[j].nAddr THEN
+						_IsHotConnect		  := SlaveTopologyInfo[j].nStatusBits.4 OR SlaveTopologyInfo[j].nStatusBits.5;
+						SyncUnitSlaveNames[i] := ConfiguredSlaveInfo[j].sName;
+					END_IF
+				END_IF
+			END_FOR
+		END_FOR
+
+		TempSlaveMessage  := '';
+		SlaveMessagePartA := '';
+		SlaveMessagePartB := '';
+		FOR j := 0 TO (_SlaveCount - 1) DO
+			IF LEN(SyncUnitSlaveNames[j]) > 0 THEN
+				TempSlaveMessage := CONCAT(SyncUnitSlaveNames[j], ', ');
+				IF (LEN(TempSlaveMessage) + LEN(SlaveMessagePartA)) <= STRING_LEN THEN
+					SlaveMessagePartA := CONCAT(SlaveMessagePartA, TempSlaveMessage);
+				ELSIF (LEN(TempSlaveMessage) + LEN(SlaveMessagePartB)) <= STRING_LEN THEN
+					SlaveMessagePartB := CONCAT(SlaveMessagePartB, TempSlaveMessage);
+				END_IF
+			END_IF
+		END_FOR
+
+		SyncUnitState := SYNC_UNIT_OK;
+
+	SYNC_UNIT_OK:
+		IF SyncUnitTaskInfo.WcState THEN
+			SyncUnitState := WORKING_COUNTER_ERROR;
+			_Busy		  := TRUE;
+		ELSE
+			_Error	 := FALSE;
+			_ErrorID := 0;
+			_Busy	 := FALSE;
+		END_IF
+
+	WORKING_COUNTER_ERROR:
+		_Busy	 := FALSE;
+		_Error	 := TRUE;
+		_ErrorID := ERROR_VALID_DATA_SYNC_UNIT;
+		IF _EventProvider <> 0 THEN
+			IF _IsHotConnect THEN
+				_EventProvider.RaiseSyncUnitEvent(E_SyncUnit.SyncUnitWarning,
+												  _Name,
+												  SlaveMessagePartA,
+												  SlaveMessagePartB);
+			ELSIF NOT _IsHotConnect THEN
+				_EventProvider.RaiseSyncUnitEvent(E_SyncUnit.SyncUnitError,
+												  _Name,
+												  SlaveMessagePartA,
+												  SlaveMessagePartB);
+			END_IF
+		END_IF
+
+		IF NOT SyncUnitTaskInfo.WcState THEN
+			IF _EventProvider <> 0 THEN
+				_EventProvider.Reset();
+			END_IF
+
+			SyncUnitState := READ_SLAVES;
+		END_IF
+
+	READ_ERROR:
+		Trace.LogMessage(Name, CONCAT('Sync Unit Slave Names could not be read! Error ID: ', TO_STRING(EcGetAllSyncUnitSlaveAddr.nErrId)));
+		_Error		  := TRUE;
+		_ErrorID	  := ERROR_READ_SLAVE_NAMES;
+		SyncUnitState := READ_SLAVES;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{d5ac5e36-0c3d-42f5-a469-dde715ad6684}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3335df65-f613-4928-b7b9-292f91e8d8ae}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{b5bba318-c537-4ad2-a824-92e6feb9beca}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{7111fec5-ee06-46aa-9769-9d986bc93833}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := _ErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="EventProvider" Id="{82545f18-ec96-4985-b85d-367c717520bc}">
+      <Declaration><![CDATA[PROPERTY EventProvider : I_EtherCatDiagnosticEventProvider]]></Declaration>
+      <Set Name="Set" Id="{8810f062-61df-4822-9605-4ea64505714f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_EventProvider := EventProvider;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_Init" Id="{d6d2cead-fe48-43a4-9be6-f6b4dc3d00c6}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode			: BOOL;
+	Name				: T_MaxString;
+	EcMaster			: I_EtherCatMasterDiagnostic;
+	ConfiguredSlaveInfo : REFERENCE TO ARRAY[0..MAX_EC_SLAVES] OF ST_EcSlaveConfigData;
+	SlaveTopologyInfo	: REFERENCE TO ARRAY[0..MAX_EC_SLAVES] OF ST_TopologyDataEx;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.EcMaster			  := EcMaster;
+THIS^.ConfiguredSlaveInfo REF= ConfiguredSlaveInfo;
+THIS^.SlaveTopologyInfo	  REF= SlaveTopologyInfo;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize" Id="{c396d1a2-ac47-0c27-2331-87a75aa82632}" FolderPath="Initialize\">
+      <Declaration><![CDATA[METHOD Initialize
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _Error AND NOT (F_GetMappingStatus(ADR(SyncUnitTaskInfo.ObjectId), SIZEOF(SyncUnitTaskInfo.ObjectId)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
+	_Error := TRUE;
+	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.ObjectId mapped to SyncUnit Diagnostic!');
+END_IF
+
+IF NOT _Error AND NOT (F_GetMappingStatus(ADR(SyncUnitTaskInfo.SlaveCount), SIZEOF(SyncUnitTaskInfo.SlaveCount)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
+	_Error := TRUE;
+	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.SlaveCount mapped to SyncUnit Diagnostic!');
+END_IF
+
+IF NOT _Error AND NOT (F_GetMappingStatus(ADR(SyncUnitTaskInfo.State), SIZEOF(SyncUnitTaskInfo.State)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
+	_Error := TRUE;
+	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.State mapped to SyncUnit Diagnostic!');
+END_IF
+
+IF NOT _Error AND NOT (F_GetMappingStatus(ADR(SyncUnitTaskInfo.WcState), SIZEOF(SyncUnitTaskInfo.WcState)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
+	_Error := TRUE;
+	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.WcState mapped to SyncUnit Diagnostic!');
+END_IF
+
+IF _Error THEN
+	RETURN;
+END_IF
+
+IF Simulated THEN
+	_Initialized := TRUE;
+	RETURN;
+END_IF
+
+F_EcGetSyncUnitName(SyncUnitTaskInfo.ObjectId, sSyncUnitName => _Name);
+_Initialized := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Initialized" Id="{f865ce62-ae08-4bf8-b0dc-ea02273b2c97}" FolderPath="Initialize\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Initialized : BOOL]]></Declaration>
+      <Get Name="Get" Id="{57a1f872-f645-4ec7-8ae5-9da0776a42d7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Initialized := _Initialized;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{fb9d4752-358a-4e38-82dd-5341dc60f16c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Initialized := Initialized;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="IoDataValid" Id="{6c231f20-53a4-4778-903c-ae0d353408df}" FolderPath="SyncUnitTask\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IoDataValid : BOOL]]></Declaration>
+      <Get Name="Get" Id="{591c4e27-ab51-4f4d-956a-1fcfd680cedc}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IoDataValid := NOT SyncUnitTaskInfo.WcState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsHotConnect" Id="{293d2159-e010-034c-07aa-3ccb3cd64192}" FolderPath="SyncUnitTask\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IsHotConnect : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1ff3282e-a7b2-0f15-1b5c-4f7ccb374a97}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsHotConnect := _IsHotConnect;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="IsTerminalPartOfSyncUnit" Id="{04f70e98-80b6-4853-9fa9-735db194cd89}" FolderPath="SyncUnitTask\">
+      <Declaration><![CDATA[METHOD IsTerminalPartOfSyncUnit : BOOL
+VAR_INPUT
+	Addr : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO (_SlaveCount - 1) DO
+	IF SyncUnitSlaveAddresses[i] = Addr THEN
+		IsTerminalPartOfSyncUnit := TRUE;
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Simulated" Id="{28507140-3303-4f90-8c85-ee2f70eef988}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Simulated : BOOL]]></Declaration>
+      <Get Name="Get" Id="{0642729d-4d21-4868-897c-017028e95ea2}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Simulated := _Simulated;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9f5cb5d0-12b6-4d54-9042-4f2e711edbda}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Simulated := Simulated;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="SlaveCount" Id="{ed198b01-8178-08bb-18c7-2d8c6088f441}" FolderPath="SyncUnitTask\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PUBLIC SlaveCount : UINT]]></Declaration>
+      <Get Name="Get" Id="{b3c50076-5bd6-02e1-0543-7f3bb0682e6e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SlaveCount := _SlaveCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

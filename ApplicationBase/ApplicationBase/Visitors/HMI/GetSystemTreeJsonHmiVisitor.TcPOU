@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="GetSystemTreeJsonHmiVisitor" Id="{62a14dea-4267-4d0d-b3c4-322268680415}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK GetSystemTreeJsonHmiVisitor
+VAR_GENERIC CONSTANT
+	TreeMax : UDINT := 10000;
+END_VAR IMPLEMENTS I_ModuleVisitor, I_ComponentVisitor
+VAR
+	{ attribute 'TcHmiSymbol.AddSymbol' }
+	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators,Admin' }
+	SystemHmiTree : STRING(TreeMax);
+	{attribute 'hide'}
+	Module : I_Module;
+	{attribute 'hide'}
+	HmiFunction : I_HmiFunction;
+	{attribute 'hide'}
+	Json : FB_JsonSaxWriter;
+	{attribute 'hide'}
+	Entry	 : T_MaxString;
+	LinkRoot : STRING;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Clear" Id="{f9c8a81b-df7c-44a9-b7b5-d979d6237633}">
+      <Declaration><![CDATA[METHOD PRIVATE Clear
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MEMSET(ADR(SystemHmiTree), 0, SIZEOF(SystemHmiTree));
+Json.ResetDocument();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{5cfa7cc5-08a7-4dea-b90f-0f00f4233c21}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	LinkRoot	 : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.LinkRoot := LinkRoot;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetTree" Id="{b9c19493-5b3f-453e-9a44-532ff0683c1b}">
+      <Declaration><![CDATA[METHOD GetTree
+VAR_INPUT
+	EntryModule : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF EntryModule = 0 THEN
+	RETURN;
+END_IF
+
+Module := EntryModule;
+Clear();
+Json.StartObject();
+Entry := Module.Name;
+Json.AddKey(Entry);
+Json.StartArray();
+Module.Components.Accept(THIS^);
+Json.EndArray();
+Module.Modules.Accept(THIS^);
+Json.EndObject();
+Json.CopyDocument(pDoc := SystemHmiTree, nDoc := SIZEOF(SystemHmiTree));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{5c5ef694-d3dc-44cf-a631-27a0417eb6b8}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, HmiFunction) THEN
+	Json.StartObject();
+	Entry := HmiFunction.ControlType;
+	Json.AddKeyString('ControlType', Entry);
+	Entry := RIGHT(HmiFunction.InstancePath, (LEN(HmiFunction.InstancePath) - FIND(HmiFunction.InstancePath, LinkRoot)) + 1);
+	Entry := CONCAT(CONCAT(Entry, '.'), HmiFunction.LinkObject);
+	Json.AddKeyString('LinkPath', Entry);
+	Json.EndObject();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{06b01b6c-a633-46ed-8571-16139dd8552b}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Entry := Module.Name;
+IF Entry <> '' THEN
+	Json.AddKey(Entry);
+	Json.StartArray();
+	Module.Components.Accept(THIS^);
+	Json.EndArray();
+	Module.Modules.Accept(THIS^);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

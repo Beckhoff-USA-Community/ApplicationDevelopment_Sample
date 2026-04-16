@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Calibrate" Id="{01948038-b423-45e4-b511-93be38eed1bf}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Calibrate IMPLEMENTS I_CalibrateLinear
+VAR
+	_Gain	: LREAL := 1;
+	_Offset : LREAL := 0;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Gain" Id="{417c60eb-3c44-47c8-9d43-5599bf08b98d}">
+      <Declaration><![CDATA[PROPERTY Gain : LREAL]]></Declaration>
+      <Set Name="Set" Id="{c2874b69-f815-4023-b824-20feee542447}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Gain := Gain;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Offset" Id="{88bef42c-e99f-4246-8b80-fad72c6ad77d}">
+      <Declaration><![CDATA[PROPERTY Offset : LREAL]]></Declaration>
+      <Set Name="Set" Id="{e3763bf3-38e4-44a5-a6bf-390e968de54f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Offset := Offset;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Transform" Id="{e24311cc-16f0-41d2-8de5-6f59f19959ff}">
+      <Declaration><![CDATA[METHOD Transform : LREAL
+VAR_INPUT
+	Value	: LREAL;
+	Reverse : BOOL := FALSE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Reverse THEN
+	Transform := (Value - _Offset) / _Gain;
+ELSE
+	Transform := Value * _Gain + _Offset;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

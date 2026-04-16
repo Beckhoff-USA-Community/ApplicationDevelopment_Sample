@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_SafetyDeviceInfo" Id="{2b1f911c-e856-43d0-8689-f79bc1558498}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '2'}
+TYPE ST_SafetyDeviceInfo : // Parameter 16#F9C0:0
+	STRUCT
+		DeviceName			 : STRING;
+		SoftwareVersion		 : STRING;
+		BootloaderVersion	 : STRING;
+		SoftwareChecksum	 : DINT;
+		BootmanagerChecksum	 : DINT;
+		BootloaderChecksum	 : DINT;
+		TwinSAFELogicVersion : DINT;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

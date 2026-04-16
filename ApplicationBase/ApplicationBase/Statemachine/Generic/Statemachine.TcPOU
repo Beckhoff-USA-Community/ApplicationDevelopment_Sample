@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Statemachine" Id="{9adab40b-4cd8-47d2-a2ba-b0f6c6e8d79d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Statemachine
+VAR_GENERIC CONSTANT
+	InitialState : DINT := 1;
+END_VAR
+EXTENDS CyclicComponent IMPLEMENTS I_Statemachine
+VAR
+	StateList	  : StateList<TO_DINT(ApplicationBaseParameter.MaxCountInCollections)>;
+	_CurrentState : DINT := InitialState;
+	{attribute 'hide'}
+	DefaultModeController : ModeControl;
+	_Mode				  : I_Mode := DefaultModeController;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Mode" Id="{35d9878a-6bc8-4598-9a54-a733dc519b77}" />
+    <Folder Name="States" Id="{f4b84b64-c58e-4358-a5cb-108f57756bf1}" />
+    <Method Name="ChangeState" Id="{5d8ef2da-507d-47f9-a382-27d867875dc0}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD ChangeState
+VAR_INPUT
+	StateCommand : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF StateList.NumberOfStates = 0 THEN
+	Trace.LogMessage('Statemachine', 'No states defined!');
+	RETURN;
+END_IF
+
+_CurrentState := StateCommand;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="CurrentState" Id="{e4d68294-e153-4e27-bdd0-4ec1c82d47bd}" FolderPath="States\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentState : DINT]]></Declaration>
+      <Get Name="Get" Id="{201a4213-5fad-480a-83b4-05e9a417bd11}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentState := _CurrentState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{ee8229c4-a2fb-4ff1-afc9-ded25d8d5683}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR
+	i	  : DINT;
+	State : I_State;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF StateList.NumberOfStates = 0 THEN
+	RETURN;
+END_IF
+
+FOR i := 0 TO (StateList.NumberOfStates - 1) DO
+	State := StateList.GetStateAtIndex(i);
+	IF State <> 0 THEN
+		IF (i = _CurrentState) THEN
+			State.Executing();
+		ELSE
+			State.Inactive();
+		END_IF
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Mode" Id="{b6bdeabc-9f34-4357-9184-b6f7d27e5632}" FolderPath="Mode\">
+      <Declaration><![CDATA[PROPERTY Mode : I_Mode]]></Declaration>
+      <Get Name="Get" Id="{c7ad581d-4430-4b54-babf-d141954f8675}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Mode := _Mode;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{87d2cd40-af30-4548-ad69-4442b2f42088}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Mode := Mode;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="States" Id="{5298f55c-c826-4e79-a899-a9be8c3e64ea}" FolderPath="States\">
+      <Declaration><![CDATA[PROPERTY States : I_StateList]]></Declaration>
+      <Get Name="Get" Id="{9fe6feac-f8d8-42ce-9854-6b20c7ab2244}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[States := StateList;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

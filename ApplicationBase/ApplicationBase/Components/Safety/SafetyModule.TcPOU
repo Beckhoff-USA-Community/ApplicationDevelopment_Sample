@@ -1,0 +1,272 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SafetyModule" Id="{1cc953a6-bf43-4bbb-a475-b0a5baac31f8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SafetyModule EXTENDS Module IMPLEMENTS I_SafetyModule
+VAR
+	SequenceState			 : UDINT;
+	TwinSAFEResetDelay		 : TON;
+	SafetyPLC_WcState AT %I* : BOOL;
+	SafetyPLC_AmsAddr AT %I* : AMSADDR;
+	_SafetyPlcCoE			 : CoeDevice('Safety PLC') := (AdsAddr := SafetyPLC_AmsAddr);
+	_SafetyAddressInfo		 : ST_SafetyAddressInfo;
+END_VAR
+
+VAR
+	GetComponentsTaskResultVisitor : GetComponentsTaskResultVisitor;
+	SetSafetySimulationVisitor	   : SetSafetySimulationVisitor;
+	SafetyOkVisitor				   : SafetyOkVisitor;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{c0d6a1ef-2da3-4b99-8fea-087ccfad0af9}" />
+    <Folder Name="Initialize" Id="{6d5af7d0-62c6-4169-850f-bd724baed4d1}" />
+    <Folder Name="Safety Simulation" Id="{a111a2c3-b108-4406-abdb-7dc536eba1b5}" />
+    <Folder Name="Task Result" Id="{78e742c9-683d-46dd-9109-8e1cca89f14c}" />
+    <Method Name="AddSafetyComponent" Id="{315a3e35-02f8-4038-a83e-8559fb0c282c}">
+      <Declaration><![CDATA[METHOD AddSafetyComponent
+VAR_INPUT
+	Component : I_SafetyBase;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Component.RegisterWithParent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Busy" Id="{6e50ddf1-36f1-424c-b8c0-b3de7809d002}" FolderPath="Task Result\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f38af481-c8fa-4b56-9f59-acbeef2a31a4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := SequenceState <> 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Error" Id="{d63da2b3-a3b3-462b-8efa-6c9d66507f85}" FolderPath="Task Result\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{67ff506a-b0d1-4cc9-98ba-a986b9fc8f95}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := GetComponentsTaskResultVisitor.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{b010b629-240a-47a6-a958-23fddcc188ff}" FolderPath="Task Result\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{80a0c5e1-ea54-4931-a7a4-d9d81ecad48a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := GetComponentsTaskResultVisitor.ErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Init" Id="{078d27df-2311-4911-939b-f79b787791f0}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SafetyPlcCoE.RegisterWithParent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initializing" Id="{3b163022-1b14-4452-8618-d5f3ee9cb107}" FolderPath="Initialize\">
+      <Declaration><![CDATA[(* This Module will be done initialize when ModuleInitialized := TRUE;, subequently all subitems will be called to be initialized *)
+METHOD Initializing]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_SafetyPlcCoE.CyclicLogic();
+CASE SequenceState OF
+	0:
+		IF F_GetMappingStatus(ADR(SafetyPLC_WcState), SIZEOF(SafetyPLC_WcState)) = EplcMappingStatus.MS_Unmapped OR F_GetMappingStatus(ADR(SafetyPLC_AmsAddr), SIZEOF(SafetyPLC_AmsAddr)) = EplcMappingStatus.MS_Unmapped THEN
+			SequenceState := 100;
+			Trace.LogMessage(Name, 'Safety PLC not mapped, info will not be read!');
+		ELSE
+			SequenceState := SequenceState + 10;
+		END_IF
+
+	10:
+		IF NOT SafetyPLC_WcState THEN
+			SequenceState := SequenceState + 10;
+		END_IF
+
+	20:
+		SafetyPlcCoE.Read(16#F980,
+						  1,
+						  ADR(_SafetyAddressInfo.FSoEAddress),
+						  SIZEOF(_SafetyAddressInfo.FSoEAddress));
+
+		SequenceState := SequenceState + 1;
+
+	21:
+		IF NOT SafetyPlcCoE.Error AND NOT SafetyPlcCoE.Busy THEN
+			SequenceState := SequenceState + 1;
+		END_IF
+
+	22:
+		SafetyPlcCoE.Read(16#F980,
+						  2,
+						  ADR(_SafetyAddressInfo.SerialNumber),
+						  SIZEOF(_SafetyAddressInfo.SerialNumber));
+
+		SequenceState := SequenceState + 1;
+
+	23:
+		IF NOT SafetyPlcCoE.Error AND NOT SafetyPlcCoE.Busy THEN
+			SequenceState := SequenceState + 1;
+		END_IF
+
+	24:
+		SafetyPlcCoE.Read(16#F980,
+						  3,
+						  ADR(_SafetyAddressInfo.ProjectCRC),
+						  SIZEOF(_SafetyAddressInfo.ProjectCRC));
+
+		SequenceState := SequenceState + 1;
+
+	25:
+		IF NOT SafetyPlcCoE.Error AND NOT SafetyPlcCoE.Busy THEN
+			SequenceState := SequenceState + 1;
+		END_IF
+
+	26:
+		SafetyPlcCoE.Read(16#F980,
+						  4,
+						  ADR(_SafetyAddressInfo.DefaultProjectCRC),
+						  SIZEOF(_SafetyAddressInfo.DefaultProjectCRC));
+
+		SequenceState := SequenceState + 1;
+
+	27:
+		IF NOT SafetyPlcCoE.Error AND NOT SafetyPlcCoE.Busy THEN
+			SequenceState := 100;
+		END_IF
+
+	100:
+		SequenceState	  := 0;
+		ModuleInitialized := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="OK" Id="{c41da4a9-26c2-45fe-9be5-5f0d1280fe2b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY OK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{38c41a29-29b9-4492-b380-c9fa933ba2d0}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OK := SafetyOkVisitor.OK;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="OnCyclicCall" Id="{50b95709-2139-45ff-9a75-cf17ac99eb24}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD OnCyclicCall]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT Initialized THEN
+	Initialize();
+	RETURN;
+END_IF
+
+TwinSAFEResetDelay(PT := T#250MS);
+CASE SequenceState OF
+	0:
+		TwinSAFEResetDelay.IN := FALSE;
+
+	10:
+		ResetComponents();
+		SequenceState := 20;
+
+	20:
+		TwinSAFEResetDelay.IN := TRUE;
+		IF TwinSAFEResetDelay.Q THEN
+			SequenceState := 0;
+		END_IF
+END_CASE
+
+GetComponentsTaskResultVisitor.Update(THIS^);
+SafetyOkVisitor.Check(Components);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{bac45c0a-62e1-4841-ae21-4a6a041a17ca}">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Busy THEN
+	RETURN;
+END_IF
+
+SequenceState := 10;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SafetyAddressInfo" Id="{1ea51f96-15c8-4af8-a79c-ef78e42ebe6d}">
+      <Declaration><![CDATA[PROPERTY SafetyAddressInfo : REFERENCE TO ST_SafetyAddressInfo]]></Declaration>
+      <Get Name="Get" Id="{b89f9385-9553-407c-8953-4848eacee658}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SafetyAddressInfo REF= _SafetyAddressInfo;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="SafetyPlcCoE" Id="{8aa21f8e-1155-4aa6-8381-a884efc0e2a0}">
+      <Declaration><![CDATA[PROPERTY SafetyPlcCoE : I_CoeDevice]]></Declaration>
+      <Get Name="Get" Id="{4ad8b943-1bb2-4e48-8b09-1677858e970d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SafetyPlcCoE := _SafetyPlcCoE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Simulated" Id="{72c9e5c6-9a77-4770-be37-32042ad6c45c}" FolderPath="Safety Simulation\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Simulated : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6529046a-d950-489e-864e-a03c8abaf993}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Simulated := SetSafetySimulationVisitor.Simulated;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{a20567dd-e4fa-425b-9b27-6e3e17a38af6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SetSafetySimulationVisitor.Simulated := Simulated;
+Components.Accept(SetSafetySimulationVisitor);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="SimulateSafetyDiag" Id="{fb407649-aeac-4270-9ec4-8ec0220c371d}" FolderPath="Safety Simulation\">
+      <Declaration><![CDATA[METHOD SimulateSafetyDiag
+VAR_INPUT
+	SimulationValueDiag : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetSafetySimulationVisitor.Diag := SimulationValueDiag;
+Components.Accept(SetSafetySimulationVisitor);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SimulateSafetyState" Id="{5cba82a3-2193-4146-931b-954e6c5b8587}" FolderPath="Safety Simulation\">
+      <Declaration><![CDATA[METHOD SimulateSafetyState
+VAR_INPUT
+	SimulationValueState : USINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetSafetySimulationVisitor.State := SimulationValueState;
+Components.Accept(SetSafetySimulationVisitor);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

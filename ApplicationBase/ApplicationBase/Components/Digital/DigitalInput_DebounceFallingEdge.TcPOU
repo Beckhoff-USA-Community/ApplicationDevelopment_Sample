@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DigitalInput_DebounceFallingEdge" Id="{083cf1be-1e7e-46ce-bfd5-ad7ee3eb164b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DigitalInput_DebounceFallingEdge EXTENDS CyclicComponent IMPLEMENTS I_DigitalInput
+VAR
+	Input : I_DigitalInput;
+	{attribute 'hide'}
+	_DebounceTime		: TIME;
+	DebounceFallingEdge : TOF;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CyclicLogic" Id="{ae2942a5-4ed7-42cf-a4cb-e042cd871c00}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DebounceFallingEdge(IN := Input.IsActive, PT := _DebounceTime);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="DebounceTime" Id="{d155dacc-cab3-40eb-b482-dad21e9c6f3c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY DebounceTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{7972a916-6c45-4472-ae12-a9a3950d5fb8}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DebounceTime := _DebounceTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5c3281f8-a39d-418c-9c3a-0e6800aa1523}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DebounceTime := DebounceTime;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_Init" Id="{1e8097b5-11f4-4040-bd2b-e892d00d9ccc}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	Input		: I_DigitalInput;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Input := Input;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Force" Id="{59c1549a-25dc-4145-a4d5-e3681b484a1f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Force : E_ForceState]]></Declaration>
+      <Get Name="Get" Id="{d93ff538-c535-4e54-b785-26bc0890559a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Force := Input.Force;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2c07069c-f60d-4ee0-b5ce-6bb6f350ab78}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Input.Force := Force;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="IsActive" Id="{79f07904-9f38-4600-8964-2ee70ac3658a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IsActive : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8ee02001-ba05-4051-b35a-909370dad754}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsActive := DebounceFallingEdge.Q;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

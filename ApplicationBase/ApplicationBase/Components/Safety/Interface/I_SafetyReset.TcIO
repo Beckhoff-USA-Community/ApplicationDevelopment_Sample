@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_SafetyReset" Id="{a612b79d-f306-0613-09d3-a0c4a88a34df}">
+    <Declaration><![CDATA[INTERFACE I_SafetyReset EXTENDS I_Cyclic, I_TaskResult]]></Declaration>
+    <Method Name="Execute" Id="{21d8f55e-7780-0461-1032-0df0931d5389}">
+      <Declaration><![CDATA[METHOD Execute
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="PulseDuration" Id="{2601110d-2d60-0d2d-16e5-23efbcee66d8}">
+      <Declaration><![CDATA[PROPERTY PulseDuration : TIME]]></Declaration>
+      <Set Name="Set" Id="{f48fed6a-3775-0ceb-020d-ba08c5d8aabe}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

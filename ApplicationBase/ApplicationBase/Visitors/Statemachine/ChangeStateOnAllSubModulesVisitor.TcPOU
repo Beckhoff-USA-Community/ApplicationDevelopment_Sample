@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ChangeStateOnAllSubModulesVisitor" Id="{4a98c906-89ab-4ded-9b4a-f332427ad88c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ChangeStateOnAllSubModulesVisitor IMPLEMENTS I_ModuleVisitor
+VAR
+	TargetState	 : DINT;
+	Statemachine : I_ContainStatemachine;
+	StateChanged : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ChangeState" Id="{58395232-282f-49f5-a704-9f23a84e1ba0}">
+      <Declaration><![CDATA[METHOD ChangeState : BOOL
+VAR_INPUT
+	TargetState : DINT;
+	Module		: I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StateChanged	  := TRUE;
+THIS^.TargetState := TargetState;
+Module.Modules.Accept(THIS^);
+ChangeState := StateChanged;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{f3134011-b0d9-4668-9f86-743f2d10dd1a}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR
+
+VAR_INST
+	ReturnModule : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Module, Statemachine) THEN
+	IF Statemachine.Statemachine = 0 THEN
+		ReturnModule := Module;
+		RETURN;
+	END_IF
+
+	Statemachine.Statemachine.ChangeState(THIS^.TargetState);
+	IF Statemachine.Statemachine.CurrentState <> THIS^.TargetState THEN
+		StateChanged := FALSE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

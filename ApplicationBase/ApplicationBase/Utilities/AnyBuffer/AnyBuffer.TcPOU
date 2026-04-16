@@ -1,0 +1,1629 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="AnyBuffer" Id="{f1ef0e4c-2dc2-4ddd-a967-9838bc22bd31}" SpecialFunc="None">
+    <Declaration><![CDATA[// the AnyBuffer block behaves as a double ended que
+
+// elements can be appended / popped left and right
+FUNCTION_BLOCK AnyBuffer IMPLEMENTS I_AnyBuffer
+VAR
+	bufferConfiguration : ST_BufferConfiguration;
+	isInitialized		: BOOL := FALSE;
+	pBuffer				: ANYTYPE;
+	{attribute 'hide'}
+	pBufferTemp : POINTER TO BYTE;
+END_VAR
+
+VAR PERSISTENT
+	bufferMetadata : ST_BufferMetadata;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="buffer" Id="{b3814993-a085-49df-b9a4-2cec2594c13f}">
+      <Declaration><![CDATA[PROPERTY buffer : ANYTYPE]]></Declaration>
+      <Get Name="Get" Id="{b5cfd488-70f6-48b9-a555-f95206507469}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[buffer := pBuffer;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Clear" Id="{ed909ced-56e1-4fdd-a062-9cf8b0b458cb}">
+      <Declaration><![CDATA[// Clears all buffer data and resets metadata to initial state
+METHOD Clear : BOOL
+
+(*
+## Detailed Description
+
+Clears all data from the buffer and resets the metadata to its initial state. This method
+performs a complete buffer reset by zeroing out both the buffer contents and all tracking
+metadata, effectively returning the buffer to an empty, initialized state.
+
+### Operation Sequence
+1. Validates that the buffer has been properly initialized via FB_init/Initialize
+2. Clears all buffer data using memset (sets all bytes to 0x00)
+3. Clears all metadata (elementCount, capacity, etc.) using memset
+4. Logs success or failure via Trace system
+
+### Key Features
+- **Complete reset**: Zeros out both buffer data and metadata structures
+- **Initialization check**: Validates buffer is initialized before attempting clear
+- **Safe operation**: Cannot corrupt uninitialized or invalid buffers
+- **Comprehensive logging**: Traces verbose success or error failure messages
+- **Fast execution**: Uses memset for efficient memory clearing
+
+### Usage Example
+```iecst
+VAR
+    buffer : AnyBuffer(pBuffer := myArray, bufferBoundLower := 0, bufferBoundUpper := 9, isBufferPersistent := FALSE);
+    success : BOOL;
+END_VAR
+
+// Add some data
+buffer.PushRight(value1);
+buffer.PushRight(value2);
+
+// Clear all data
+success := buffer.Clear();
+IF success THEN
+    // Buffer is now empty, elementCount = 0
+    // All buffer positions are zeroed
+END_IF
+```
+
+### Return Value
+- **TRUE**: Buffer was successfully cleared (both data and metadata)
+- **FALSE**: Clear operation failed (buffer not initialized)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer was not properly initialized
+- This prevents clearing invalid or uninitialized memory regions
+
+### Side Effects
+- Sets all buffer element positions to zero (0x00)
+- Resets elementCount to 0
+- Resets all other metadata fields to 0
+- Buffer can be immediately reused after successful clear
+
+### Dependencies
+- Requires buffer to be initialized via FB_init or Initialize method
+- Uses memset for memory clearing operations
+- Uses Trace for logging (Verbose for success, Error for failure)
+
+### Performance Considerations
+- Time complexity: O(n) where n = total buffer size in bytes
+- Memory operations: Two memset calls (buffer data + metadata structure)
+- Fast operation: memset is highly optimized for bulk memory operations
+
+### Unittests
+ - ClearsAllElements : verify all buffer positions are zeroed after Clear
+ - ResetsElementCount : verify elementCount is reset to 0 after Clear
+ - ResetsAllMetadata : verify all metadata fields (elementCount, capacity, etc.) are zeroed
+ - ReturnsTrue : verify Clear returns TRUE when buffer is initialized
+ - ClearEmptyBuffer : verify clearing an already-empty buffer returns TRUE
+ - ClearAfterPush : verify Clear works correctly after pushing elements
+ - ClearAfterPop : verify Clear works correctly after popping elements
+ - MultipleClearCalls : verify consecutive Clear calls all return TRUE
+ - ClearFullBuffer : verify Clear works when buffer is at capacity
+ - ClearPartialBuffer : verify Clear works when buffer is partially filled
+ - PreservesConfiguration : verify buffer configuration (capacity, elementSize) unchanged after Clear
+ - CanReuseAfterClear : verify buffer can be reused (push/pop) immediately after Clear
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Clear := FALSE;
+IF isInitialized THEN
+	// Clear the local buffer
+	memset(pBuffer.pValue, 16#0, TO_UDINT(pBuffer.diSize));
+	memset(ADR(BufferMetadata), 16#0, SIZEOF(BufferMetadata));
+
+	// after bufferMetadata clear re-set capacity
+	bufferMetadata.capacity := bufferConfiguration.capacity;
+	Clear					:= TRUE;
+ELSE
+	Trace.Error(__POUNAME(), 'Buffer was not properly initialized before clearing buffer');
+END_IF
+
+IF Clear THEN
+	Trace.Verbose(__POUNAME(), 'executed');
+ELSE
+	Trace.Error(__POUNAME(), 'FAILED');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Configuration" Id="{a2a63d12-ce96-4e44-a009-144b6c43e428}">
+      <Declaration><![CDATA[PROPERTY Configuration : REFERENCE TO ST_BufferConfiguration]]></Declaration>
+      <Get Name="Get" Id="{25e018b9-2096-447f-806f-0de4dab75523}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Configuration REF= bufferConfiguration;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CountDecrement" Id="{353ded9d-5937-40d7-85e3-95f8c3defe3a}">
+      <Declaration><![CDATA[METHOD PRIVATE CountDecrement]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Decrement element count, increment capacity
+bufferMetadata.elementCount := bufferMetadata.elementCount - 1;
+bufferMetadata.capacity		:= bufferMetadata.capacity + 1;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CountIncrement" Id="{96ef2b50-6072-48cb-9216-3a8e58bae483}">
+      <Declaration><![CDATA[METHOD PRIVATE CountIncrement]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Increment element count, decrement capacity
+bufferMetadata.elementCount := bufferMetadata.elementCount + 1;
+bufferMetadata.capacity		:= bufferMetadata.capacity - 1;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeleteAtIndex" Id="{ce7384fd-40cf-4f37-bd08-673e9b954982}">
+      <Declaration><![CDATA[// Deletes element at specified index position, BUT DOES NOT SHIFT
+METHOD DeleteAtIndex : BOOL
+VAR_INPUT
+	index : DINT;
+END_VAR
+
+VAR
+	offset		 : DINT;
+	destAddr	 : PVOID;
+	srcAddr		 : PVOID;
+	nBytes		 : UDINT;
+	rebasedIndex : DINT;
+END_VAR
+
+(*
+## Detailed Description
+
+Deletes the element at the specified index position by zeroing out its memory location.
+This is a low-level primitive operation that clears data in place without shifting other
+elements or modifying metadata counters. The caller is responsible for managing element
+count and buffer state if needed.
+
+### Operation Sequence
+1. Validates that index is within valid range [0, capacity)
+2. Calculates byte offset to the target element position
+3. Clears the element data using memset (sets all bytes to 0x00)
+4. Returns TRUE on successful deletion
+
+### Key Features
+- **Low-level primitive**: Does NOT modify metadata counters - caller's responsibility
+- **No state checking**: Does NOT validate if position is filled or if buffer is empty
+- **Direct deletion**: Clears data at specific index WITHOUT shifting elements
+- **Bounds checking**: Validates index against capacity only (not elementCount)
+- **Memory safety**: Prevents deletion at invalid indices
+- **Error logging**: Traces error with index value when deletion fails
+
+### Usage Example
+```iecst
+VAR
+    buffer : AnyBuffer(pBuffer := myArray, bufferBoundLower := 0, bufferBoundUpper := 9, isBufferPersistent := FALSE);
+    success : BOOL;
+END_VAR
+
+// Delete element at index 3 (caller must manage elementCount)
+success := buffer.DeleteAtIndex(3);
+IF success THEN
+    // Element at index 3 is now zeroed
+    // NOTE: elementCount is NOT changed - caller must decrement if needed
+END_IF
+```
+
+### Important Notes
+- **No metadata changes**: Does NOT modify elementCount or any other metadata
+- **Caller responsibility**: Calling code must manage element count if required
+- **No shifting**: Does NOT shift remaining elements to fill the gap
+- **No state checking**: Works regardless of whether position is filled or buffer is empty
+- **Index range**: Valid indices are [0, capacity-1], not [0, elementCount-1]
+- **Internal use**: Primarily used internally by PopLeft, PopRight, and PopAtIndex
+
+### Return Value
+- **TRUE**: Element was successfully deleted (zeroed at specified index)
+- **FALSE**: Deletion failed due to invalid index (out of bounds)
+
+### Error Conditions
+- Returns FALSE and logs error if index < 0
+- Returns FALSE and logs error if index >= capacity
+- Error message includes the invalid index value for debugging
+
+### Side Effects
+- Zeros out all bytes of the element at the specified index
+- **Does NOT** modify bufferMetadata.elementCount
+- **Does NOT** modify any other element positions
+- **Does NOT** shift elements to maintain contiguity
+- **Does NOT** check if position was filled before deletion
+
+### Dependencies
+- Uses memset for memory clearing operation
+- Uses Trace for error logging
+- Requires valid buffer configuration (capacity, elementSize)
+
+### Performance Considerations
+- Time complexity: O(1) - constant time operation
+- Memory operations: Single memset call for one element
+- Fast operation: No element shifting, no metadata updates, no state checking
+
+### Comparison with Other Methods
+- **DeleteAtIndex**: Clears in place, no metadata change (O(1))
+- **PopAtIndex**: Clears, shifts elements, updates count (O(n))
+- **PopLeft/PopRight**: Specialized pop with shifting and count update (O(n))
+
+### Unittests
+ - DeletesAtValidIndex : verify element at valid index is zeroed after deletion
+ - ReturnsTrueOnSuccess : verify method returns TRUE when deletion succeeds
+ - ReturnsFalseOnInvalidIndex : verify method returns FALSE for out-of-bounds index
+ - RejectsNegativeIndex : verify index < 0 is rejected with error log
+ - RejectsIndexAtCapacity : verify index == capacity is rejected with error log
+ - RejectsIndexAboveCapacity : verify index > capacity is rejected with error log
+ - ExtremeBounds : verify rejection of extreme values like -10000 and very large positive indices
+ - DeleteAtZero : verify deletion at first position (index 0) works correctly
+ - DeleteAtCapacityMinusOne : verify deletion at last position (capacity-1) works correctly
+ - DeleteAllPositions : verify deletion works correctly at all valid indices (0 through capacity-1)
+ - PreservesOtherData : verify deletion at one index does not affect data at other indices
+ - DeleteAlreadyEmpty : verify deleting an already-cleared position returns TRUE and remains zero
+ - DeleteDoesNotShift : verify elements after deleted index remain at their original positions
+ - DeleteWhenEmpty : verify deletion succeeds even when elementCount is 0 (clears position only)
+ - MetadataUnchanged : verify elementCount and all metadata remain unchanged after deletion
+ - ConsecutiveDeletesSamePosition : verify multiple deletes at same position succeed without metadata changes
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DeleteAtIndex := FALSE;
+// check index
+IF index < bufferConfiguration.bufferBoundLower OR index > bufferConfiguration.bufferBoundUpper THEN
+	Trace.Error(__POUNAME(), CONCAT('Delete attempt at invalid index ', TO_STRING(index)));
+	RETURN;
+END_IF;
+
+// rebasedIndex necessary if LL <> 0
+rebasedIndex := index - bufferConfiguration.bufferBoundLower;
+
+// Delete index element data
+offset	 := rebasedIndex * bufferConfiguration.elementSize;
+destAddr := ADR(pBuffer.pValue[offset]);
+nBytes	 := TO_UDINT(bufferConfiguration.elementSize);
+memset(destAddr, 16#0, nBytes);
+DeleteAtIndex := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Exit" Id="{6f12449c-c59d-409c-aee8-7aae80fdf05c}">
+      <Declaration><![CDATA[//FB_Exit must be implemented explicitly. If there is an implementation, then the
+
+//method is called before the controller removes the code of the function block instance
+
+//(implicit call). The return value is not evaluated.
+METHOD FB_Exit : BOOL
+VAR_INPUT
+	bInCopyCode : BOOL; // TRUE: the exit method is called in order to leave the instance which will be copied afterwards (online change).  
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[__DELETE(pBufferTemp); // Delete if any exist
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{5dddb23f-7209-4a20-a603-8f181843db1c}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains	   : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode		   : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	pBuffer			   : ANY;  // ANY to the buffer	
+	bufferBoundLower   : DINT; // Lower boundary of the buffer
+	bufferBoundUpper   : DINT; // Upper boundary of the buffer
+	isBufferPersistent : BOOL; // Does the buffer need to be in persistent data?
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.bufferConfiguration.isPersistent := isBufferPersistent;
+// use the initialization method
+
+// Valid pointer & strategy
+IF pBuffer.pValue <> 0 THEN // AND_THEN
+	//	bufferBoundLower = 0 			THEN
+	THIS^.pBuffer						 := pBuffer;
+	bufferConfiguration.bufferBoundLower := bufferBoundLower;
+	bufferConfiguration.bufferBoundUpper := bufferBoundUpper;
+	bufferConfiguration.capacity		 := bufferBoundUpper - bufferBoundLower + 1;
+	IF NOT isBufferPersistent THEN
+		// Clear the local buffer
+		//memset(pBuffer.pValue, 16#0, TO_UDINT(pBuffer.diSize));
+		memset(ADR(BufferMetadata), 16#0, SIZEOF(BufferMetadata));
+	END_IF
+
+	// At least 1 element? Is it an array?   	
+	IF bufferConfiguration.capacity < 1 THEN
+		// DO NOT USE TRACE IN THE FB_INIT METHODS
+		// Trace.Error(__POUNAME(), 'Number of buffer elements < 1');
+		bufferConfiguration.capacity := 0;
+		isInitialized				 := FALSE;
+	ELSE
+		bufferConfiguration.elementSize := pBuffer.diSize / bufferConfiguration.capacity;
+		bufferConfiguration.bufferSize	:= bufferConfiguration.capacity * bufferConfiguration.elementSize;
+		IF NOT isBufferPersistent THEN
+			// after bufferMetadata clear re-set capacity
+			bufferMetadata.capacity := bufferConfiguration.capacity;
+		END_IF
+
+		// Temp buffer for the element
+		pBufferTemp	  := __NEW(BYTE, TO_UDINT(bufferConfiguration.elementSize));
+		isInitialized := TRUE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Reinit" Id="{ee8295e7-5b28-46df-8744-29b62ad6cf77}">
+      <Declaration><![CDATA[METHOD FB_Reinit : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bufferConfiguration.elementSize > 0 THEN
+	pBufferTemp := __NEW(BYTE, TO_UDINT(bufferConfiguration.elementSize));
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="isEmpty" Id="{fc6f645b-738a-4935-b0f1-17f7265d1282}">
+      <Declaration><![CDATA[PROPERTY isEmpty : BOOL]]></Declaration>
+      <Get Name="Get" Id="{0e85a882-b8e8-4684-a171-b7fe51499538}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isEmpty := (metaData.capacity >= bufferConfiguration.capacity);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="isFull" Id="{34dec43d-b30e-4181-9fe0-4248eb65c76e}">
+      <Declaration><![CDATA[PROPERTY isFull : BOOL]]></Declaration>
+      <Get Name="Get" Id="{aa88a3d0-c9e0-4c41-bfc6-9f5f55a4988a}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isFull := (metaData.capacity <= 0);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Metadata" Id="{1311757b-1bc5-40f1-bdcd-5b1b1e0e21d4}">
+      <Declaration><![CDATA[PROPERTY Metadata : REFERENCE TO ST_BufferMetadata]]></Declaration>
+      <Get Name="Get" Id="{0db6ee86-5288-4fa3-946c-f8bdd9648f78}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Metadata REF= bufferMetadata;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="PeekAtIndex" Id="{be6ffd14-1beb-4ac5-bfbc-8aee7700d364}">
+      <Declaration><![CDATA[// Retrieve an element at a specific index without removing it from the buffer
+METHOD PeekAtIndex : BOOL
+VAR_INPUT
+	index	: DINT;
+	element : ANY;
+END_VAR
+
+VAR
+	offset		 : DINT;
+	destAddr	 : PVOID;
+	srcAddr		 : PVOID;
+	nBytes		 : UDINT;
+	rebasedIndex : DINT;
+END_VAR
+
+(*
+## Detailed Description
+
+Retrieves an element at the specified index from the buffer without removing it or
+modifying the buffer in any way. This is a read-only operation that provides random-access
+read capability for the buffer. The buffer remains unchanged after this operation - no
+elements are removed, shifted, or modified, and the element count stays the same.
+
+### Operation Sequence
+1. Validates that index is within valid range (0 to elementCount-1)
+2. Validates that element size matches buffer element size (if element.diSize > 0)
+3. Copies the element at the specified index to the output parameter
+4. Returns without modifying the buffer
+
+### Use Cases
+```iecst
+VAR
+    buffer : AnyBuffer;
+    value : DINT;
+END_VAR
+
+// Peek at elements without removing them
+buffer.PushRight(100);  // [100]
+buffer.PushRight(200);  // [100, 200]
+buffer.PushRight(300);  // [100, 200, 300]
+
+buffer.PeekAtIndex(0, value);  // value = 100, buffer still [100, 200, 300]
+buffer.PeekAtIndex(1, value);  // value = 200, buffer still [100, 200, 300]
+buffer.PeekAtIndex(2, value);  // value = 300, buffer still [100, 200, 300]
+
+// Buffer unchanged - still contains all 3 elements
+```
+
+### Performance Considerations
+- **Time complexity**: O(1) - constant time operation (direct indexed access)
+- **Memory operations**: Single memcpy for element retrieval only
+- **No buffer modifications**: No shifting, clearing, or count changes
+- **Read-only**: Safe to call multiple times on same index
+- Optimal for inspecting buffer contents without consumption
+- Use for lookahead, validation, or monitoring buffer state
+
+### Return Value
+- **TRUE**: Element was successfully retrieved from the specified index
+- **FALSE**: Peek operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if index is out of bounds (< 0 or >= elementCount)
+- Returns FALSE and logs error if buffer is empty (elementCount = 0)
+- Returns FALSE and logs error if element size doesn't match buffer element size (when element.diSize > 0)
+- Element parameter can have diSize = 0 to skip copying (returns TRUE if index valid)
+
+### Side Effects
+- **None** - This is a read-only operation with no side effects
+- Buffer contents remain unchanged
+- Element count remains unchanged
+- No elements are moved, cleared, or modified
+
+### Dependencies
+- Uses memcpy for element retrieval
+- Uses Trace for error logging
+
+### Comparison with Other Methods
+- **PeekAtIndex**: Read element at any index - O(1), no modifications
+- **PopAtIndex**: Read and remove element at any index - O(n), modifies buffer
+- **PopLeft**: Read and remove first element - O(n), modifies buffer
+- **PopRight**: Read and remove last element - O(1), modifies buffer
+- **GetAtIndex** (if exists): Similar read-only operation
+
+### Unittests
+ - PeekFromBeginning : verify peeking at index 0 retrieves first element without modification
+ - PeekFromMiddle : verify peeking from middle index retrieves correct element
+ - PeekFromEnd : verify peeking at last index retrieves last element
+ - ReturnsTrueOnSuccess : verify method returns TRUE when peek succeeds
+ - ReturnsFalseOnNegativeIndex : verify FALSE returned for negative index
+ - ReturnsFalseOnIndexOutOfBounds : verify FALSE returned when index >= elementCount
+ - ReturnsFalseOnEmptyBuffer : verify FALSE returned when buffer is empty (elementCount = 0)
+ - WrongElementSize : verify FALSE returned when element size doesn't match
+ - EmptyElement : verify behavior when element.diSize is 0 (validation only, no copy)
+ - BufferUnchangedAfterPeek : verify buffer contents unchanged after peek
+ - ElementCountUnchanged : verify elementCount remains same after peek
+ - MultiplePeeksOnSameIndex : verify can peek same index multiple times with consistent results
+ - PeekAllPositions : verify can peek all valid positions in sequence
+ - ElementOrderUnchanged : verify element order unchanged after multiple peeks
+ - ConsecutivePeeks : verify multiple consecutive peeks at different indices work correctly
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PeekAtIndex := FALSE;
+// Check index bounds, can peek every position even when not filled in
+IF index < bufferConfiguration.bufferBoundLower OR index > bufferConfiguration.bufferBoundUpper THEN
+	Trace.Error(__POUNAME(), CONCAT('Peek attempt at invalid index ', TO_STRING(index)));
+	RETURN;
+END_IF
+
+// Check if buffer is empty
+IF isEmpty THEN
+	Trace.Error(__POUNAME(), 'Peek attempt on empty buffer');
+	RETURN;
+END_IF
+
+// Check element size if copy is requested (element.diSize > 0)
+IF element.diSize <> bufferConfiguration.elementSize THEN
+	Trace.Error(__POUNAME(), CONCAT('Element size mismatch: expected ', CONCAT(TO_STRING(bufferConfiguration.elementSize), CONCAT(', got ', TO_STRING(element.diSize)))));
+	RETURN;
+END_IF
+
+// rebasedIndex necessary if LL <> 0
+rebasedIndex := index - bufferConfiguration.bufferBoundLower;
+
+// Copy element at index to output parameter (if element.diSize > 0)
+offset	 := rebasedIndex * bufferConfiguration.elementSize;
+destAddr := element.pValue;
+srcAddr	 := ADR(pBuffer.pValue[offset]);
+nBytes	 := TO_UDINT(element.diSize);
+memcpy(destAddr, srcAddr, nBytes);
+
+// No buffer modifications - read-only operation
+PeekAtIndex := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopAtIndex" Id="{8639b57f-f129-4783-abe4-de95c5191158}">
+      <Declaration><![CDATA[// Remove and retrieve an element at a specific index, decrement the element counter and shift remaining elements left
+METHOD PopAtIndex : BOOL
+VAR_INPUT
+	index	   : DINT;
+	element	   : ANY;
+	popDiscard : BOOL := FALSE; // When TRUE, element is removed but not copied (type checking skipped)
+END_VAR
+
+VAR
+	offset			: DINT;
+	destAddr		: PVOID;
+	srcAddr			: PVOID;
+	nBytes			: UDINT;
+	elementsToShift : DINT;
+	rebasedIndex	: DINT;
+END_VAR
+
+(*
+## Detailed Description
+
+Removes an element at the specified index from the buffer and optionally copies it to
+the provided element parameter. All elements after the removed index are shifted one
+position to the left to maintain contiguous storage. This provides random-access pop
+capability for the buffer, allowing removal from any position.
+
+### Operation Sequence
+1. Validates that index is within valid range (0 to elementCount-1)
+2. Validates that element size matches buffer element size (if element.diSize > 0)
+3. Copies the element at the specified index to the output parameter
+4. Shifts all elements after the index one position to the left using MEMMOVE
+5. Clears the last position (now empty after the shift)
+6. Decrements the element count
+
+### Use Cases
+```iecst
+VAR
+    buffer : AnyBuffer;
+    value : DINT;
+END_VAR
+
+// Remove element from middle of buffer
+buffer.PushRight(100);  // [100]
+buffer.PushRight(200);  // [100, 200]
+buffer.PushRight(300);  // [100, 200, 300]
+buffer.PopAtIndex(1, value);  // value = 200, buffer = [100, 300]
+```
+
+### Performance Considerations
+- **Time complexity**: O(n) - requires shifting elements after the index
+- **Memory operations**: One memcpy for retrieval, one MEMMOVE for shifting, one memset for clearing
+- **Cost varies by index**:
+  - PopAtIndex(0) is equivalent to PopLeft - shifts all remaining elements
+  - PopAtIndex(elementCount-1) is equivalent to PopRight - no shifting needed
+  - Middle indices require partial shifting
+- Use PopRight for O(1) removal when index doesn't matter
+- Use for priority queues or sorted list maintenance
+
+### Return Value
+- **TRUE**: Element was successfully popped from the specified index
+- **FALSE**: Pop operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if index is out of bounds (< 0 or >= elementCount)
+- Returns FALSE and logs error if buffer is empty (elementCount = 0)
+- Returns FALSE and logs error if element size doesn't match buffer element size (when element.diSize > 0)
+- Element parameter can have diSize = 0 to discard the value without copying
+
+### Side Effects
+- Shifts all elements after the index one position to the left
+- Clears the last element position (sets to zero)
+- Decrements bufferMetadata.elementCount by 1
+
+### Dependencies
+- Uses memcpy for element retrieval
+- Uses MEMMOVE for shifting elements (handles overlapping memory)
+- Uses memset for clearing the last position
+- Uses Trace for error logging
+
+### Comparison with Other Methods
+- **PopAtIndex(0)**: Same as PopLeft - removes from front, shifts all - O(n)
+- **PopAtIndex(elementCount-1)**: Same as PopRight - removes from back, no shift - O(1)
+- **PopAtIndex(middle)**: Removes from middle, shifts elements after index - O(n)
+- **DeleteAtIndex**: Removes without retrieving value - O(1) for last index, O(n) otherwise
+
+### Unittests
+ - PopFromBeginning : verify popping at index 0 retrieves first element and shifts all
+ - PopFromMiddle : verify popping from middle index retrieves correct element and shifts remaining
+ - PopFromEnd : verify popping at last index (elementCount-1) retrieves last element
+ - ReturnsTrueOnSuccess : verify method returns TRUE when pop succeeds
+ - ReturnsFalseOnNegativeIndex : verify FALSE returned for negative index
+ - ReturnsFalseOnIndexOutOfBounds : verify FALSE returned when index >= elementCount
+ - ReturnsFalseOnEmptyBuffer : verify FALSE returned when buffer is empty (elementCount = 0)
+ - WrongElementSize : verify FALSE returned when element size doesn't match
+ - EmptyElement : verify behavior when element.diSize is 0 (discard mode)
+ - ShiftsElementsCorrectly : verify all elements after index shift left by one position
+ - ClearsLastPosition : verify the last position is cleared to zero after shift
+ - DecrementsElementCount : verify elementCount decreases by 1 after pop
+ - ConsecutivePops : verify multiple consecutive PopAtIndex calls maintain correct state
+ - PopAllElements : verify can pop all elements sequentially using index 0
+ - ElementOrderPreserved : verify element order is preserved after pop (except removed element)
+ - PopAtIndexEquivalentToPopLeft : verify PopAtIndex(0) behaves same as PopLeft
+ - PopAtIndexEquivalentToPopRight : verify PopAtIndex(elementCount-1) behaves same as PopRight
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PopAtIndex := FALSE;
+// Check index bounds, cannot pop what is not filled in
+IF index < bufferConfiguration.bufferBoundLower OR index >= bufferConfiguration.bufferBoundLower + bufferMetadata.elementCount THEN
+	Trace.Error(__POUNAME(), CONCAT('Pop attempt at invalid index ', TO_STRING(index)));
+	RETURN;
+END_IF
+
+// Check if buffer is empty
+IF isEmpty THEN
+	Trace.Error(__POUNAME(), 'Pop attempt on empty buffer');
+	RETURN;
+END_IF
+
+// rebasedIndex necessary if LL <> 0
+rebasedIndex := index - bufferConfiguration.bufferBoundLower;
+// TRUE: passed type is not checked, element is discarded and not returned
+IF NOT popDiscard THEN
+	// Check element size if copy is requested (element.diSize > 0)
+	IF element.diSize <> bufferConfiguration.elementSize THEN
+		Trace.Error(__POUNAME(), CONCAT('Element size mismatch: expected ', CONCAT(TO_STRING(bufferConfiguration.elementSize), CONCAT(', got ', TO_STRING(element.diSize)))));
+		RETURN;
+	END_IF
+
+	offset	 := rebasedIndex * bufferConfiguration.elementSize;
+	destAddr := element.pValue;
+	srcAddr	 := ADR(pBuffer.pValue[offset]);
+	nBytes	 := TO_UDINT(element.diSize);
+	memcpy(destAddr, srcAddr, nBytes);
+END_IF
+
+// Calculate how many elements need to be shifted
+elementsToShift := bufferMetadata.elementCount - rebasedIndex - 1;
+// Shift elements after the index one position to the left (if any)
+IF elementsToShift > 0 THEN
+	offset	 := rebasedIndex * bufferConfiguration.elementSize;
+	destAddr := ADR(pBuffer.pValue[offset]);								   // destination: current index
+	srcAddr	 := ADR(pBuffer.pValue[offset + bufferConfiguration.elementSize]); // source: next index
+	nBytes	 := TO_UDINT(elementsToShift * bufferConfiguration.elementSize);
+	MEMMOVE(destAddr, srcAddr, nBytes);
+END_IF
+
+// Delete last element data 
+DeleteAtIndex(bufferMetadata.elementCount + bufferConfiguration.bufferBoundLower - 1);
+
+// Update internal element counters 
+CountDecrement();
+PopAtIndex := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopLeft" Id="{5592c3af-850e-46c3-b9a8-3acb661fbaae}">
+      <Declaration><![CDATA[// Removes and retrieves the first element from the buffer (FIFO/queue operation)
+METHOD PopLeft : BOOL
+VAR_INPUT
+	element	   : ANY;			// Variable to receive the popped element
+	popDiscard : BOOL := FALSE; // When TRUE, element is removed but not copied (type checking skipped)
+END_VAR
+
+VAR
+	offset	 : DINT;
+	destAddr : PVOID;
+	srcAddr	 : PVOID;
+	nBytes	 : UDINT;
+END_VAR
+
+(*
+## Detailed Description
+
+Removes the first element from the left side of the buffer and optionally copies it to
+the provided element parameter. This implements a standard FIFO (First-In-First-Out)
+queue operation where elements are dequeued from the front.
+
+The `popDiscard` parameter controls whether the removed element is copied to the output
+parameter or simply discarded. This is useful for circular buffer scenarios where you need
+to remove elements to make space without retrieving their values.
+
+### Operation Sequence
+
+**When popDiscard = FALSE (default - retrieve element):**
+1. Validates that the buffer contains at least one element
+2. Validates that element size matches the buffer's configured element size
+3. Copies the first element to the output parameter
+4. Shifts all remaining elements one position to the left
+5. Clears the last position (now empty after the shift)
+6. Decrements the element count
+
+**When popDiscard = TRUE (discard element):**
+1. Validates that the buffer contains at least one element
+2. **Skips element size validation** (type checking bypassed)
+3. **Skips copying element** to output parameter
+4. Shifts all remaining elements one position to the left
+5. Clears the last position (now empty after the shift)
+6. Decrements the element count
+
+### Parameters
+- **element**: Variable to receive the popped element
+  - When popDiscard=FALSE: Must match buffer's element size, receives the popped value
+  - When popDiscard=TRUE: Can be any type/size, value is not copied (ignored)
+- **popDiscard**: Controls whether to copy element or discard it
+  - **FALSE (default)**: Element is validated and copied to output parameter
+  - **TRUE**: Element validation is skipped, value is discarded (not copied)
+  - Use TRUE for circular buffer overwrite scenarios where you don't need the old value
+
+### Key Features
+- **FIFO behavior**: Elements are removed in the order they were added (when combined with PushRight)
+- **Optional discard mode**: Can remove element without retrieving it (popDiscard=TRUE)
+- **Automatic shifting**: Maintains contiguous element storage after removal
+- **Size validation**: Ensures the output element size matches buffer element size (when popDiscard=FALSE)
+- **Type safety bypass**: popDiscard=TRUE skips type checking for performance in discard scenarios
+- **Safe empty check**: Returns FALSE and logs error if buffer is empty
+
+### Usage Example
+```iecst
+VAR
+    queue : AnyBuffer(pBuffer := myBuffer, bufferBoundLower := 0, bufferBoundUpper := 9, isBufferPersistent := FALSE);
+    value : DINT;
+    discardBuffer : BYTE;  // Can be any type when using popDiscard=TRUE
+    success : BOOL;
+END_VAR
+
+// Standard: Pop and retrieve the first element
+success := queue.PopLeft(value, FALSE);  // or just queue.PopLeft(value)
+IF success THEN
+    // Process the retrieved value
+END_IF
+
+// Discard mode: Pop without retrieving (e.g., circular buffer overwrite)
+success := queue.PopLeft(discardBuffer, TRUE);  // Element removed, value not copied
+// OR with temporary pointer-based buffer:
+pTemp := __NEW(BYTE, elementSize);
+success := queue.PopLeft(pTemp^, TRUE);  // Element removed, discarded to temp buffer
+__DELETE(pTemp);
+```
+
+### Performance Considerations
+- **Time complexity**: O(n) due to element shifting (n = elementCount)
+- **Memory operations**: Uses MEMMOVE for efficient bulk memory shifting
+- **popDiscard=TRUE**: Slightly faster than popDiscard=FALSE (skips size check and memcpy)
+- For frequent left-side operations, consider if a circular buffer would be more efficient
+
+### Return Value
+- **TRUE**: Element was successfully popped (and copied if popDiscard=FALSE)
+- **FALSE**: Pop operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer is empty (elementCount <= 0)
+- Returns FALSE and logs error if element size doesn't match buffer element size **when popDiscard=FALSE**
+- When popDiscard=TRUE, element size validation is skipped (no error for size mismatch)
+
+### Dependencies
+- Calls DeleteAtIndex to decrement element count and clear the vacated position
+- Uses memcpy for element retrieval
+- Uses MEMMOVE for shifting elements (handles overlapping memory correctly)
+- Uses Trace for error logging
+
+### Unittests
+ - RetrievesFirstElement : verify the first element value is copied to output element when popDiscard=FALSE
+ - ShiftsElements : verify all elements shift left by one position after pop
+ - ClearsLastElement : verify the last position is cleared to zero after shift
+ - DecrementsElementCount : verify elementCount decreases by 1 after pop
+ - ReturnsTrueOnSuccess : verify method returns TRUE when pop succeeds
+ - WrongSize : verify FALSE returned when element size differs from buffer element size (popDiscard=FALSE)
+ - EmptyElement : verify behavior when element.diSize is 0 (discard mode, shift only)
+ - PopFromEmptyBuffer : verify behavior when buffer has no elements (elementCount = 0)
+ - PopSingleElement : verify popping when buffer contains exactly one element
+ - ConsecutivePops : verify multiple sequential pops maintain correct order and state
+ - PopAfterPushLeft : verify LIFO behavior with PushLeft and PopLeft
+ - PopAfterPushRight : verify FIFO behavior with PushRight and PopLeft
+ - PopUntilEmpty : verify popping all elements until buffer is empty
+ - ElementOrderPreserved : verify remaining elements shift correctly and maintain relative order
+ - PopDiscardTrue : verify element is removed but not copied when popDiscard=TRUE
+ - PopDiscardTrueSkipsTypeCheck : verify no error when element size is wrong and popDiscard=TRUE
+ - PopDiscardTrueShiftsElements : verify elements still shift correctly when popDiscard=TRUE
+ - PopDiscardTrueDecrementsCount : verify elementCount decreases when popDiscard=TRUE
+ - PopDiscardFalseRetrievesValue : verify element value is copied when popDiscard=FALSE (default)
+ - PopDiscardFalseValidatesType : verify type checking occurs when popDiscard=FALSE
+ - PopDiscardWithWrongTypeSucceeds : verify PopLeft with wrong type succeeds when popDiscard=TRUE
+ - PopDiscardReturnsTrueOnSuccess : verify method returns TRUE when popDiscard=TRUE succeeds
+*)
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PopLeft := FALSE;
+// Check if buffer has elements to pop
+IF bufferMetadata.elementCount <= 0 THEN
+	Trace.Error(__POUNAME(), 'Cannot pop from empty buffer');
+	RETURN;
+END_IF
+
+// TRUE: passed type is not checked, element is discarded and not returned
+IF NOT popDiscard THEN
+	// Check element size if copy is requested (element.diSize > 0)
+	IF element.diSize <> bufferConfiguration.elementSize THEN
+		Trace.Error(__POUNAME(), CONCAT('Element size mismatch: expected ', CONCAT(TO_STRING(bufferConfiguration.elementSize), CONCAT(', got ', TO_STRING(element.diSize)))));
+		RETURN;
+	END_IF
+
+	destAddr := element.pValue;
+	srcAddr	 := pBuffer.pValue;
+	nBytes	 := TO_UDINT(element.diSize);
+	memcpy(destAddr, srcAddr, nBytes);
+END_IF
+
+// Shift elements to the left
+offset	 := bufferConfiguration.elementSize;
+destAddr := pBuffer.pValue;
+srcAddr	 := ADR(pBuffer.pValue[offset]);
+nBytes	 := TO_UDINT((bufferMetadata.elementCount - 1) * bufferConfiguration.elementSize);
+MEMMOVE(destAddr, srcAddr, nBytes);
+
+// Delete last element data 
+DeleteAtIndex(bufferConfiguration.bufferBoundLower + bufferMetadata.elementCount - 1);
+
+// Update internal element counters 
+CountDecrement();
+PopLeft := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PopRight" Id="{9a2bb24e-ba3f-4e0d-b7fc-180484900e9c}">
+      <Declaration><![CDATA[// Removes and retrieves the last element from the buffer (stack pop operation)
+METHOD PopRight : BOOL
+VAR_INPUT
+	element	   : ANY;			// Variable to receive the popped element
+	popDiscard : BOOL := FALSE; // When TRUE, element is removed but not copied (type checking skipped)
+END_VAR
+
+VAR
+	offset	 : DINT;
+	destAddr : PVOID;
+	srcAddr	 : PVOID;
+	nBytes	 : UDINT;
+END_VAR
+
+(*
+## Detailed Description
+
+Removes the last element from the right side (back) of the buffer and optionally copies it to
+the provided element parameter. This implements a standard stack pop operation where elements
+are removed from the back, which can be combined with PushRight for LIFO (Last-In-First-Out)
+behavior.
+
+The `popDiscard` parameter controls whether the removed element is copied to the output
+parameter or simply discarded. This is useful for circular buffer scenarios where you need
+to remove elements to make space without retrieving their values.
+
+### Operation Sequence
+
+**When popDiscard = FALSE (default - retrieve element):**
+1. Validates that the buffer contains at least one element
+2. Validates that element size matches the buffer's configured element size
+3. Copies the last element (at index elementCount-1) to the output parameter
+4. Clears the last element position using DeleteAtIndex
+5. Decrements the element count
+6. No shifting of other elements required
+
+**When popDiscard = TRUE (discard element):**
+1. Validates that the buffer contains at least one element
+2. **Skips element size validation** (type checking bypassed)
+3. **Skips copying element** to output parameter
+4. Clears the last element position using DeleteAtIndex
+5. Decrements the element count
+6. No shifting of other elements required
+
+### Parameters
+- **element**: Variable to receive the popped element
+  - When popDiscard=FALSE: Must match buffer's element size, receives the popped value
+  - When popDiscard=TRUE: Can be any type/size, value is not copied (ignored)
+- **popDiscard**: Controls whether to copy element or discard it
+  - **FALSE (default)**: Element is validated and copied to output parameter
+  - **TRUE**: Element validation is skipped, value is discarded (not copied)
+  - Use TRUE for circular buffer overwrite scenarios where you don't need the old value
+
+### Key Features
+- **LIFO behavior**: When combined with PushRight, provides stack behavior (last appended is first popped)
+- **FIFO behavior**: When combined with PushLeft, provides queue behavior (first appended is last popped)
+- **No shifting required**: Direct removal from the end without moving other elements
+- **O(1) time complexity**: Constant time operation (much faster than PopLeft)
+- **Optional discard mode**: Can remove element without retrieving it (popDiscard=TRUE)
+- **Size validation**: Ensures the output element size matches buffer element size (when popDiscard=FALSE)
+- **Type safety bypass**: popDiscard=TRUE skips type checking for performance in discard scenarios
+- **Safe empty check**: Returns FALSE and logs error if buffer is empty
+
+### Usage Example
+```iecst
+VAR
+    stack : AnyBuffer(pBuffer := myBuffer, bufferBoundLower := 0, bufferBoundUpper := 9, isBufferPersistent := FALSE);
+    value : DINT;
+    discardBuffer : BYTE;  // Can be any type when using popDiscard=TRUE
+    success : BOOL;
+END_VAR
+
+// Standard: Pop and retrieve the last element
+success := stack.PopRight(value, FALSE);  // or just stack.PopRight(value)
+IF success THEN
+    // Process the retrieved value
+END_IF
+
+// Discard mode: Pop without retrieving (e.g., circular buffer overwrite)
+success := stack.PopRight(discardBuffer, TRUE);  // Element removed, value not copied
+
+// LIFO pattern: Last appended is first popped
+stack.PushRight(1);  // [1]
+stack.PushRight(2);  // [1, 2]
+stack.PushRight(3);  // [1, 2, 3]
+stack.PopRight(value); // value = 3, buffer = [1, 2]
+```
+
+### Performance Considerations
+- **Time complexity**: O(1) - constant time operation (no shifting required)
+- **Memory operations**: Single memcpy for element retrieval (when popDiscard=FALSE), memset for clearing
+- **popDiscard=TRUE**: Slightly faster than popDiscard=FALSE (skips size check and memcpy)
+- **Optimal for stack operations**: Use PushRight + PopRight for efficient LIFO stack
+- Much faster than PopLeft since no element shifting is needed
+- Preferred method for stack-based data structures
+
+### Return Value
+- **TRUE**: Element was successfully popped (and copied if popDiscard=FALSE)
+- **FALSE**: Pop operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer is empty (elementCount <= 0)
+- Returns FALSE and logs error if element size doesn't match buffer element size **when popDiscard=FALSE**
+- When popDiscard=TRUE, element size validation is skipped (no error for size mismatch)
+
+### Side Effects
+- Clears the last element position (sets to zero)
+- Decrements bufferMetadata.elementCount by 1
+- No other elements are moved or modified
+
+### Dependencies
+- Calls DeleteAtIndex to decrement element count and clear the position
+- Uses memcpy for element retrieval
+- Uses Trace for error logging
+
+### Comparison with Other Methods
+- **PopRight**: Removes from back (index elementCount-1), no shifting - O(1)
+- **PopLeft**: Removes from front (index 0), shifts left - O(n)
+- **PushRight**: Adds at back, no shifting - O(1)
+- **PushLeft**: Adds at front, shifts right - O(n)
+
+### Unittests
+ - RetrievesLastElement : verify the last element value is copied to output element when popDiscard=FALSE
+ - DoesNotShiftElements : verify no elements are shifted after pop
+ - ClearsLastElement : verify the last position is cleared to zero after pop
+ - DecrementsElementCount : verify elementCount decreases by 1 after pop
+ - ReturnsTrueOnSuccess : verify method returns TRUE when pop succeeds
+ - WrongSize : verify FALSE returned when element size differs from buffer element size (popDiscard=FALSE)
+ - EmptyElement : verify behavior when element.diSize is 0 (discard mode, no copy)
+ - PopFromEmptyBuffer : verify behavior when buffer has no elements (elementCount = 0)
+ - PopSingleElement : verify popping when buffer contains exactly one element
+ - ConsecutivePops : verify multiple sequential pops maintain correct order and state
+ - PopAfterPushRight : verify LIFO behavior with PushRight and PopRight
+ - PopAfterPushLeft : verify FIFO behavior with PushLeft and PopRight
+ - PopUntilEmpty : verify popping all elements until buffer is empty
+ - ElementOrderPreserved : verify remaining elements stay in their original positions
+ - PopDiscardTrue : verify element is removed but not copied when popDiscard=TRUE
+ - PopDiscardTrueSkipsTypeCheck : verify no error when element size is wrong and popDiscard=TRUE
+ - PopDiscardTrueNoShift : verify no element shifting occurs when popDiscard=TRUE (same as default)
+ - PopDiscardTrueDecrementsCount : verify elementCount decreases when popDiscard=TRUE
+ - PopDiscardFalseRetrievesValue : verify element value is copied when popDiscard=FALSE (default)
+ - PopDiscardFalseValidatesType : verify type checking occurs when popDiscard=FALSE
+ - PopDiscardWithWrongTypeSucceeds : verify PopRight with wrong type succeeds when popDiscard=TRUE
+ - PopDiscardReturnsTrueOnSuccess : verify method returns TRUE when popDiscard=TRUE succeeds
+*)
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PopRight := FALSE;
+// Check if buffer has elements to pop
+IF bufferMetadata.elementCount <= 0 THEN
+	Trace.Error(__POUNAME(), 'Cannot pop from empty buffer');
+	RETURN;
+END_IF
+
+// TRUE: passed type is not checked, element is discarded and not returned
+IF NOT popDiscard THEN
+	// Check element size if copy is requested (element.diSize > 0)
+	IF element.diSize <> bufferConfiguration.elementSize THEN
+		Trace.Error(__POUNAME(), CONCAT('Element size mismatch: expected ', CONCAT(TO_STRING(bufferConfiguration.elementSize), CONCAT(', got ', TO_STRING(element.diSize)))));
+		RETURN;
+	END_IF
+
+	// Calculate offset to last element (elementCount - 1)
+	offset	 := (bufferMetadata.elementCount - 1) * bufferConfiguration.elementSize;
+	destAddr := element.pValue;
+	srcAddr	 := ADR(pBuffer.pValue[offset]);
+	nBytes	 := TO_UDINT(element.diSize);
+	memcpy(destAddr, srcAddr, nBytes);
+END_IF
+
+// Delete last element data 
+DeleteAtIndex(bufferConfiguration.bufferBoundLower + bufferMetadata.elementCount - 1);
+
+// Update internal element counters 
+CountDecrement();
+PopRight := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PushAtIndex" Id="{70549ccc-a97c-4e9e-8106-b07f7c95b7d9}">
+      <Declaration><![CDATA[// Insert an element at a specific index, shifting remaining elements right
+METHOD PushAtIndex : BOOL
+VAR_INPUT
+	index	: DINT;
+	element : ANY;
+END_VAR
+
+VAR
+	offset			: DINT;
+	destAddr		: PVOID;
+	srcAddr			: PVOID;
+	nBytes			: UDINT;
+	elementsToShift : DINT;
+	rebasedIndex	: DINT;
+END_VAR
+
+(*
+## Detailed Description
+
+Inserts a new element at the specified index by shifting all elements from that index onward
+one position to the right, then placing the new element at the specified position. This provides
+random-access insertion capability, allowing elements to be added at any position in the buffer
+while maintaining contiguous storage.
+
+### Operation Sequence
+1. Validates that the buffer has been properly initialized
+2. Checks that the buffer has space available (elementCount < capacity)
+3. Validates that index is within valid range (0 to elementCount, inclusive)
+4. Validates that the element size matches the buffer's configured element size
+5. Shifts all elements from index onward one position to the right using MEMMOVE
+6. Copies the new element to the specified index position
+7. Increments the element count
+
+### Use Cases
+```iecst
+VAR
+    buffer : AnyBuffer;
+    value : DINT;
+END_VAR
+
+// Insert at various positions
+buffer.PushRight(100);  // [100]
+buffer.PushRight(300);  // [100, 300]
+
+value := 200;
+buffer.PushAtIndex(1, value);  // [100, 200, 300] - inserted 200 between 100 and 300
+
+value := 50;
+buffer.PushAtIndex(0, value);  // [50, 100, 200, 300] - inserted 50 at beginning
+
+value := 400;
+buffer.PushAtIndex(4, value);  // [50, 100, 200, 300, 400] - inserted 400 at end
+```
+
+### Performance Considerations
+- **Time complexity**: O(n) - requires shifting elements after the index
+- **Memory operations**: One MEMMOVE for shifting, one memcpy for insertion
+- **Cost varies by index**:
+  - PushAtIndex(0) is equivalent to PushLeft - shifts all elements
+  - PushAtIndex(elementCount) is equivalent to PushRight - no shifting needed
+  - Middle indices require partial shifting
+- Use PushRight for O(1) insertion when order doesn't matter
+- Use for maintaining sorted order or priority queue operations
+
+### Return Value
+- **TRUE**: Element was successfully inserted at the specified index
+- **FALSE**: Insert operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer is not initialized
+- Returns FALSE and logs error if buffer is full (elementCount >= capacity)
+- Returns FALSE and logs error if index is out of bounds (< 0 or > elementCount)
+- Returns FALSE and logs error if element size doesn't match buffer element size
+- Note: index = elementCount is valid (append at end)
+
+### Side Effects
+- Shifts all elements from index onward one position to the right
+- Increments bufferMetadata.elementCount by 1
+- New element is placed at the specified index
+- All elements at index and beyond move to index+1, index+2, etc.
+
+### Dependencies
+- Requires buffer to be initialized via FB_init or Initialize method
+- Uses memcpy for element copying
+- Uses MEMMOVE for shifting elements (handles overlapping memory correctly)
+- Uses Trace for error logging
+
+### Comparison with Other Methods
+- **PushAtIndex(0)**: Same as PushLeft - shifts all, adds at front - O(n)
+- **PushAtIndex(elementCount)**: Same as PushRight - no shift, adds at end - O(1)
+- **PushAtIndex(middle)**: Inserts at middle, shifts elements after index - O(n)
+- **PushLeft**: Always inserts at 0 - O(n)
+- **PushRight**: Always inserts at end - O(1)
+
+### Unittests
+ - InsertAtBeginning : verify inserting at index 0 shifts all elements and inserts at front
+ - InsertInMiddle : verify inserting at middle index shifts remaining elements correctly
+ - InsertAtEnd : verify inserting at index elementCount appends at end (like PushRight)
+ - InsertIntoEmptyBuffer : verify inserting at index 0 in empty buffer works
+ - ReturnsTrueOnSuccess : verify method returns TRUE when insert succeeds
+ - ReturnsFalseOnNegativeIndex : verify FALSE returned for negative index
+ - ReturnsFalseOnIndexOutOfBounds : verify FALSE returned when index > elementCount
+ - ReturnsFalseOnFullBuffer : verify FALSE returned when buffer is at capacity
+ - WrongElementSize : verify FALSE returned when element size doesn't match
+ - IncrementsElementCount : verify elementCount increases by 1 after insert
+ - ShiftsElementsCorrectly : verify all elements from index onward shift right by one
+ - PreservesElementOrder : verify element order is preserved after insert
+ - MultipleInsertions : verify sequential insertions at different indices work correctly
+ - InsertAllValidPositions : verify can insert at every valid position (0 to elementCount)
+ - PushAtIndexEquivalentToPushLeft : verify PushAtIndex(0) behaves same as PushLeft
+ - PushAtIndexEquivalentToPushRight : verify PushAtIndex(elementCount) behaves same as PushRight
+*)
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PushAtIndex := FALSE;
+// Check if buffer has space available
+IF isFull THEN
+	Trace.Error(__POUNAME(), 'Cannot insert into full buffer');
+	RETURN;
+END_IF
+
+// Check index bounds (0 to elementCount is valid - can insert at end)
+IF index < bufferConfiguration.bufferBoundLower OR index > bufferConfiguration.bufferBoundLower + bufferMetadata.elementCount THEN
+	Trace.Error(__POUNAME(), CONCAT('Insert attempt at invalid index ', TO_STRING(index)));
+	RETURN;
+END_IF
+
+// Check if buffer is initialized
+IF NOT isInitialized THEN
+	Trace.Error(__POUNAME(), 'Buffer was not properly initialized before inserting');
+	RETURN;
+END_IF
+
+// Validate element size matches buffer element size
+IF element.diSize <> bufferConfiguration.elementSize THEN
+	Trace.Error(__POUNAME(), 'Passed element to insert is of improper size');
+	RETURN;
+END_IF
+
+// rebasedIndex necessary if LL <> 0
+rebasedIndex := index - bufferConfiguration.bufferBoundLower;
+
+// Calculate how many elements need to be shifted
+elementsToShift := bufferMetadata.elementCount - rebasedIndex;
+// Shift elements from index onward one position to the right (if any)
+IF elementsToShift > 0 THEN
+	offset	 := rebasedIndex * bufferConfiguration.elementSize;
+	destAddr := ADR(pBuffer.pValue[offset + bufferConfiguration.elementSize]); // destination: index+1
+	srcAddr	 := ADR(pBuffer.pValue[offset]);								   // source: current index
+	nBytes	 := TO_UDINT(elementsToShift * bufferConfiguration.elementSize);
+	MEMMOVE(destAddr, srcAddr, nBytes);
+END_IF
+
+// Copy the new element to the specified index position
+offset	 := rebasedIndex * bufferConfiguration.elementSize;
+destAddr := ADR(pBuffer.pValue[offset]);
+srcAddr	 := element.pValue;
+nBytes	 := TO_UDINT(element.diSize);
+memcpy(destAddr, srcAddr, nBytes);
+
+// Update internal element counters 
+CountIncrement();
+PushAtIndex := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PushLeft" Id="{761e1950-e81a-4d90-a6a0-082b085560b8}">
+      <Declaration><![CDATA[// Appends a new element to the left side of the buffer (LIFO/stack push operation)
+METHOD PushLeft : BOOL
+VAR_INPUT
+	element : ANY;
+END_VAR
+
+VAR
+	offset	 : DINT;
+	destAddr : PVOID;
+	srcAddr	 : PVOID;
+	nBytes	 : UDINT;
+END_VAR
+
+(*
+## Detailed Description
+
+Appends a new element to the left side (front) of the buffer by shifting all existing
+elements one position to the right and inserting the new element at position 0. This
+implements a stack-like push operation at the front, which can be combined with PopLeft
+for LIFO (Last-In-First-Out) behavior.
+
+### Operation Sequence
+1. Validates that the buffer has been properly initialized
+2. Checks that the buffer has space available (elementCount < capacity)
+3. Validates that the element size matches the buffer's configured element size
+4. Shifts all existing elements one position to the right using MEMMOVE
+5. Copies the new element to position 0 (leftmost position)
+6. Increments the element count
+
+### Key Features
+- **LIFO capability**: When combined with PopLeft, provides stack behavior (last appended is first popped)
+- **FIFO capability**: When combined with PopRight, provides queue behavior (first appended is last popped)
+- **Automatic shifting**: Maintains element contiguity by shifting existing elements right
+- **Size validation**: Ensures the input element size matches buffer element size
+- **Capacity checking**: Prevents buffer overflow by validating available space
+- **Safe operation**: Validates initialization and capacity before modification
+
+### Usage Example
+```iecst
+VAR
+    stack : AnyBuffer(pBuffer := myBuffer, bufferBoundLower := 0, bufferBoundUpper := 9, isBufferPersistent := FALSE);
+    value : DINT := 42;
+    success : BOOL;
+END_VAR
+
+// Append element to the left (front)
+success := stack.PushLeft(value);
+IF success THEN
+    // Element is now at position 0
+    // All previous elements shifted right by one position
+END_IF
+
+// LIFO pattern: Last appended is first popped
+stack.PushLeft(1);  // [1]
+stack.PushLeft(2);  // [2, 1]
+stack.PushLeft(3);  // [3, 2, 1]
+stack.PopLeft(value); // value = 3, buffer = [2, 1]
+```
+
+### Performance Considerations
+- **Time complexity**: O(n) due to element shifting (n = elementCount)
+- **Memory operations**: Uses MEMMOVE for efficient bulk memory shifting
+- **Shift overhead**: Every append requires shifting all existing elements
+- For frequent left-side operations, consider if a circular buffer would be more efficient
+- Use PopLeft with PushLeft for stack behavior (LIFO)
+- Use PopRight with PushLeft for queue behavior (FIFO from right)
+
+### Return Value
+- **TRUE**: Element was successfully appended to the left side
+- **FALSE**: Append operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer is not initialized
+- Returns FALSE and logs error if buffer is full (elementCount >= capacity)
+- Returns FALSE and logs error if element size doesn't match buffer element size
+- All errors are traced via the Trace system for debugging
+
+### Side Effects
+- Shifts all existing elements one position to the right
+- Increments bufferMetadata.elementCount by 1
+- New element is placed at index 0 (leftmost position)
+- Previous element at index 0 moves to index 1, etc.
+
+### Dependencies
+- Requires buffer to be initialized via FB_init or Initialize method
+- Uses memcpy for element copying
+- Uses MEMMOVE for shifting elements (handles overlapping memory correctly)
+- Uses Trace for error logging
+
+### Comparison with Other Methods
+- **PushLeft**: Adds at front (index 0), shifts right - O(n)
+- **PopLeft**: Removes from front, shifts left - O(n)
+- **PopRight**: Removes from back, no shifting - O(1)
+- **PushAtIndex**: Adds at specific position - O(n)
+
+### Unittests
+ - AppendsToEmptyBuffer : verify element is inserted at position 0 in empty buffer
+ - AppendsToNonEmptyBuffer : verify element is inserted at position 0 and existing elements shift right
+ - IncrementsElementCount : verify elementCount increases by 1 after append
+ - ShiftsExistingElements : verify all existing elements shift right by one position
+ - ReturnsTrueOnSuccess : verify method returns TRUE when append succeeds
+ - ReturnsFalseOnFullBuffer : verify method returns FALSE when buffer is at capacity
+ - ReturnsFalseOnWrongSize : verify FALSE returned when element size doesn't match buffer element size
+ - PreservesExistingData : verify existing element values remain unchanged after shift
+ - AppendMultipleElements : verify consecutive appends work correctly (LIFO order)
+ - AppendToFullBufferMinus1 : verify append succeeds when buffer has exactly 1 space remaining
+ - AppendWhenFullCapacity : verify append fails when elementCount equals capacity
+ - AppendZeroSizedElement : verify behavior when element.diSize is 0
+ - AppendWithDifferentDataTypes : verify append works with various data types (DINT, REAL, struct)
+ - ConsecutivePushAndPopLeft : verify LIFO behavior with alternating PushLeft and PopLeft calls
+ - ConsecutivePushAndPopRight : verify FIFO behavior with alternating PushLeft and PopRight calls
+ - ElementOrderAfterMultipleAppends : verify element order is correct after multiple appends
+ - FillBufferCompletely : verify filling buffer to full capacity works correctly
+*)
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PushLeft := FALSE;
+// Check if buffer has space available
+IF isFull THEN
+	Trace.Error(__POUNAME(), 'Cannot append to full buffer');
+	RETURN;
+END_IF
+
+// Check if buffer is initialized
+IF NOT isInitialized THEN
+	Trace.Error(__POUNAME(), 'Buffer was not properly initialized before appending');
+	RETURN;
+END_IF
+
+// Check element size if copy is requested (element.diSize > 0)
+IF element.diSize <> bufferConfiguration.elementSize THEN
+	Trace.Error(__POUNAME(), CONCAT('Element size mismatch: expected ', CONCAT(TO_STRING(bufferConfiguration.elementSize), CONCAT(', got ', TO_STRING(element.diSize)))));
+	RETURN;
+END_IF
+
+// Shift all existing elements to the right to make room at position 0
+destAddr := ADR(pBuffer.pValue[bufferConfiguration.elementSize]); // Start at position 1
+srcAddr	 := pBuffer.pValue;										  // Start at position 0
+nBytes	 := TO_UDINT(bufferMetadata.elementCount * bufferConfiguration.elementSize);
+MEMMOVE(destAddr, srcAddr, nBytes);
+
+// Copy the new element to position 0 (leftmost position)
+destAddr := pBuffer.pValue;
+srcAddr	 := element.pValue;
+nBytes	 := TO_UDINT(element.diSize);
+memcpy(destAddr, srcAddr, nBytes);
+
+// Update internal element counters 
+CountIncrement();
+PushLeft := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PushRight" Id="{c31c3da2-4fc1-4c8b-902e-b45986cdf0f7}">
+      <Declaration><![CDATA[// Appends a new element to the right side of the buffer (FIFO/queue enqueue operation)
+METHOD PushRight : BOOL
+VAR_INPUT
+	element : ANY;
+END_VAR
+
+VAR
+	offset	 : DINT;
+	destAddr : PVOID;
+	srcAddr	 : PVOID;
+	nBytes	 : UDINT;
+END_VAR
+
+(*
+## Detailed Description
+
+Appends a new element to the right side (back) of the buffer by placing the element at
+the next available position (index = elementCount). This implements a standard queue
+enqueue operation where elements are added to the back, which can be combined with PopLeft
+for FIFO (First-In-First-Out) behavior.
+
+### Operation Sequence
+1. Validates that the buffer has been properly initialized
+2. Checks that the buffer has space available (elementCount < capacity)
+3. Validates that the element size matches the buffer's configured element size
+4. Copies the new element to position elementCount (rightmost available position)
+5. Increments the element count
+
+### Key Features
+- **FIFO capability**: When combined with PopLeft, provides queue behavior (first appended is first popped)
+- **LIFO capability**: When combined with PopRight, provides stack behavior (last appended is first popped)
+- **No shifting required**: Direct placement at the end without moving existing elements
+- **Size validation**: Ensures the input element size matches buffer element size
+- **Capacity checking**: Prevents buffer overflow by validating available space
+- **Safe operation**: Validates initialization and capacity before modification
+
+### Usage Example
+```iecst
+VAR
+    queue : AnyBuffer(pBuffer := myBuffer, bufferBoundLower := 0, bufferBoundUpper := 9, isBufferPersistent := FALSE);
+    value : DINT := 42;
+    success : BOOL;
+END_VAR
+
+// Append element to the right (back)
+success := queue.PushRight(value);
+IF success THEN
+    // Element is now at position elementCount-1
+    // No existing elements are moved
+END_IF
+
+// FIFO pattern: First appended is first popped
+queue.PushRight(1);  // [1]
+queue.PushRight(2);  // [1, 2]
+queue.PushRight(3);  // [1, 2, 3]
+queue.PopLeft(value);  // value = 1, buffer = [2, 3]
+```
+
+### Performance Considerations
+- **Time complexity**: O(1) - constant time operation (no shifting required)
+- **Memory operations**: Single memcpy for the new element
+- **Optimal for queue operations**: Use PushRight + PopLeft for efficient FIFO queue
+- Much faster than PushLeft since no element shifting is needed
+- Preferred method for building up a buffer sequentially
+
+### Return Value
+- **TRUE**: Element was successfully appended to the right side
+- **FALSE**: Append operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer is not initialized
+- Returns FALSE and logs error if buffer is full (elementCount >= capacity)
+- Returns FALSE and logs error if element size doesn't match buffer element size
+- All errors are traced via the Trace system for debugging
+
+### Side Effects
+- New element is placed at index elementCount (rightmost available position)
+- Increments bufferMetadata.elementCount by 1
+- No existing elements are moved or modified
+
+### Dependencies
+- Requires buffer to be initialized via FB_init or Initialize method
+- Uses memcpy for element copying
+- Uses Trace for error logging
+
+### Comparison with Other Methods
+- **PushRight**: Adds at back (index elementCount), no shifting - O(1)
+- **PushLeft**: Adds at front (index 0), shifts right - O(n)
+- **PopLeft**: Removes from front, shifts left - O(n)
+- **PopRight**: Removes from back, no shifting - O(1)
+
+### Unittests
+ - AppendsToEmptyBuffer : verify element is inserted at position 0 in empty buffer
+ - AppendsToNonEmptyBuffer : verify element is inserted at position elementCount and no elements shift
+ - IncrementsElementCount : verify elementCount increases by 1 after append
+ - DoesNotShiftElements : verify no existing elements are moved after append
+ - ReturnsTrueOnSuccess : verify method returns TRUE when append succeeds
+ - ReturnsFalseOnFullBuffer : verify method returns FALSE when buffer is at capacity
+ - ReturnsFalseOnWrongSize : verify FALSE returned when element size doesn't match buffer element size
+ - PreservesExistingData : verify existing element values remain unchanged
+ - AppendMultipleElements : verify consecutive appends work correctly (FIFO order with PopLeft)
+ - AppendToFullBufferMinus1 : verify append succeeds when buffer has exactly 1 space remaining
+ - AppendWhenFullCapacity : verify append fails when elementCount equals capacity
+ - AppendZeroSizedElement : verify behavior when element.diSize is 0
+ - AppendWithDifferentDataTypes : verify append works with various data types (DINT, REAL, struct)
+ - ConsecutivePushAndPopLeft : verify FIFO behavior with PushRight and PopLeft calls
+ - ConsecutivePushAndPopRight : verify LIFO behavior with PushRight and PopRight calls
+ - ElementOrderAfterMultipleAppends : verify element order is correct after multiple appends
+ - FillBufferCompletely : verify filling buffer to full capacity works correctly
+*)
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PushRight := FALSE;
+// Check if buffer has space available
+IF isFull THEN
+	Trace.Error(__POUNAME(), 'Cannot append to full buffer');
+	RETURN;
+END_IF
+
+// Check if buffer is initialized
+IF NOT isInitialized THEN
+	Trace.Error(__POUNAME(), 'Buffer was not properly initialized before appending');
+	RETURN;
+END_IF
+
+// Check element size if copy is requested (element.diSize > 0)
+IF element.diSize <> bufferConfiguration.elementSize THEN
+	Trace.Error(__POUNAME(), CONCAT('Element size mismatch: expected ', CONCAT(TO_STRING(bufferConfiguration.elementSize), CONCAT(', got ', TO_STRING(element.diSize)))));
+	RETURN;
+END_IF
+
+// Copy the new element to position elementCount (rightmost available position)
+offset	 := bufferMetadata.elementCount * bufferConfiguration.elementSize;
+destAddr := ADR(pBuffer.pValue[offset]);
+srcAddr	 := element.pValue;
+nBytes	 := TO_UDINT(element.diSize);
+memcpy(destAddr, srcAddr, nBytes);
+
+// Update internal element counters 
+CountIncrement();
+PushRight := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReplaceAtIndex" Id="{f2d5437a-3b87-465e-8396-32c91882351f}">
+      <Declaration><![CDATA[// Overwrite an element at a specific index without changing buffer structure or the buffer counters
+METHOD ReplaceAtIndex : BOOL
+VAR_INPUT
+	index	: DINT;
+	element : ANY;
+END_VAR
+
+VAR
+	offset		 : DINT;
+	destAddr	 : PVOID;
+	srcAddr		 : PVOID;
+	nBytes		 : UDINT;
+	rebasedIndex : DINT;
+END_VAR
+
+(*
+## Detailed Description
+
+Overwrites the element at the specified index with a new value without modifying the buffer
+metadata or structure. This is a low-level primitive operation that replaces data in-place
+without any shifting, insertion, deletion, or metadata updates. The caller is responsible
+for validating buffer state if needed.
+
+### Operation Sequence
+1. Validates that index is within valid range (0 to capacity-1)
+2. Validates that element size matches buffer element size (if element.diSize > 0)
+3. Overwrites the element at the specified index with the new value
+4. Returns without modifying element count or other elements
+
+### Use Cases
+```iecst
+VAR
+    buffer : AnyBuffer;
+    value : DINT;
+END_VAR
+
+// Update specific positions (regardless of whether they're "filled")
+value := 999;
+buffer.ReplaceAtIndex(2, value);  // Overwrites position 2 with 999
+// Works even if position 2 was not previously "filled" in logical sense
+```
+
+### Performance Considerations
+- **Time complexity**: O(1) - constant time operation (direct indexed access)
+- **Memory operations**: Single memcpy to overwrite element
+- **No buffer modifications**: No shifting, no count changes, no state checking
+- **In-place update**: Efficient for updating data at any buffer position
+- Optimal for direct memory updates without overhead
+- Use for low-level buffer manipulation or custom buffer management
+
+### Return Value
+- **TRUE**: Element was successfully replaced at the specified index
+- **FALSE**: Replace operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if index is out of bounds (< 0 or >= capacity)
+- Returns FALSE and logs error if element size doesn't match buffer element size (when element.diSize > 0)
+- Element parameter can have diSize = 0 to skip replacement (returns TRUE if index valid)
+
+### Side Effects
+- **Minimal** - Only the element at the specified index is modified
+- **Does NOT** modify elementCount or any other metadata
+- **Does NOT** check if position is logically "filled" or if buffer is empty
+- All other elements remain in their original positions with original values
+- No memory allocation or deallocation
+
+### Important Notes
+- **No metadata changes**: Does NOT modify elementCount or validate buffer state
+- **Caller responsibility**: Calling code must validate buffer state if needed
+- **No state checking**: Works at any index within capacity, regardless of elementCount
+- **Index range**: Valid indices are [0, capacity-1], not [0, elementCount-1]
+- **Low-level primitive**: Designed for internal use or custom buffer management
+
+### Dependencies
+- Uses memcpy for element overwriting
+- Uses Trace for error logging
+
+### Comparison with Other Methods
+- **ReplaceAtIndex**: Updates element at index - O(1), no metadata change
+- **PopAtIndex**: Removes element at index - O(n), shifts and updates count
+- **PeekAtIndex**: Reads element at index - O(1), validates elementCount
+- **DeleteAtIndex**: Clears element - O(1), no metadata change
+
+### Unittests
+ - ReplaceAtBeginning : verify replacing at index 0 updates first element correctly
+ - ReplaceInMiddle : verify replacing at middle index updates correct element
+ - ReplaceAtEnd : verify replacing at last capacity index updates last element
+ - ReturnsTrueOnSuccess : verify method returns TRUE when replace succeeds
+ - ReturnsFalseOnNegativeIndex : verify FALSE returned for negative index
+ - ReturnsFalseOnIndexAtCapacity : verify FALSE returned when index == capacity
+ - ReturnsFalseOnIndexAboveCapacity : verify FALSE returned when index > capacity
+ - WrongElementSize : verify FALSE returned when element size doesn't match
+ - BufferUnchangedExceptIndex : verify all other elements remain unchanged after replace
+ - MetadataUnchanged : verify elementCount and all metadata remain unchanged after replace
+ - MultipleReplacements : verify sequential replacements at different indices work correctly
+ - ReplaceAllCapacityPositions : verify can replace every capacity position (0 to capacity-1)
+ - ReplaceWithDifferentValues : verify replace works with various data values
+ - ReplaceSameIndexMultipleTimes : verify can overwrite same position repeatedly
+ - ReplaceEmptyPosition : verify can replace position that was never filled (elementCount < index < capacity)
+ - ReplaceWhenBufferEmpty : verify replace succeeds even when elementCount = 0 (if index < capacity)
+*)
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ReplaceAtIndex := FALSE;
+// Check index bounds against capacity (caller manages state validation)
+IF index < bufferConfiguration.bufferBoundLower OR index > bufferConfiguration.bufferBoundUpper THEN
+	Trace.Error(__POUNAME(), CONCAT('Replace attempt at invalid index ', TO_STRING(index)));
+	RETURN;
+END_IF
+
+// Check element size if copy is requested (element.diSize > 0)
+IF element.diSize <> bufferConfiguration.elementSize THEN
+	Trace.Error(__POUNAME(), CONCAT('Element size mismatch: expected ', CONCAT(TO_STRING(bufferConfiguration.elementSize), CONCAT(', got ', TO_STRING(element.diSize)))));
+	RETURN;
+END_IF
+
+// rebasedIndex necessary if LL <> 0
+rebasedIndex := index - bufferConfiguration.bufferBoundLower;
+
+// Copy element at index to output parameter (if element.diSize > 0)
+offset	 := rebasedIndex * bufferConfiguration.elementSize;
+destAddr := ADR(pBuffer.pValue[offset]);
+srcAddr	 := element.pValue;
+nBytes	 := TO_UDINT(element.diSize);
+memcpy(destAddr, srcAddr, nBytes);
+
+// No buffer modifications - overwrite-only operation
+ReplaceAtIndex := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

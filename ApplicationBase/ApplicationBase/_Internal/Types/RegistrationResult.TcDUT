@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="RegistrationResult" Id="{dc08df08-390d-4152-a136-76d90d328812}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE RegistrationResult :
+(
+	Succeeded := 0,
+	NullReference := -1,
+	TooManyComponents := -2,
+	AlreadyAdded := -3,
+	CollectionEmpty := -4,
+	NotFoundInCollection := -5
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

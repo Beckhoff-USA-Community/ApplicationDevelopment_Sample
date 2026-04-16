@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="HmiFunction" Id="{697ccf64-b10d-4781-bd30-b5ead327a0b4}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'reflection'}
+FUNCTION_BLOCK ABSTRACT HmiFunction EXTENDS CyclicComponent IMPLEMENTS I_HmiFunction
+VAR
+	{attribute 'instance-path'}
+	{attribute 'noinit'}
+	{attribute 'hide'}
+	_InstancePath : STRING;
+	{attribute 'hide'}
+	_Enabled : BOOL := TRUE;
+	{attribute 'hide'}
+	_ControlType : STRING := 'Default';
+	{attribute 'hide'}
+	_LinkObject : STRING := 'DefaultFunction_HMI';
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ControlObject" Id="{0f95bf7f-f01d-467e-849f-499a779aa19e}">
+      <Declaration><![CDATA[PROPERTY ABSTRACT ControlObject : I_Base]]></Declaration>
+      <Set Name="Set" Id="{878878fb-8af4-4ea7-ac96-7bd7c21d2671}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ControlType" Id="{77ff7cd9-b54e-46ea-807a-e67282a6c5e7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ControlType : STRING]]></Declaration>
+      <Get Name="Get" Id="{45d21831-40a2-4864-9a31-569a10ed734b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ControlType := _ControlType;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{20fb0eea-4e80-4678-a637-89ec0dbd058a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ControlType := ControlType;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{19083ff2-6cba-40d5-b290-f0b910b9728c}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Disable" Id="{addc4d4a-52a1-4238-9d50-c8eb5d4a1fde}">
+      <Declaration><![CDATA[METHOD Disable]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Enabled := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Enable" Id="{861a72bc-57ae-4fe0-bd19-2190f2215cfd}">
+      <Declaration><![CDATA[METHOD Enable]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Enabled := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Enabled" Id="{180388bb-9c0d-48bf-a27a-840c862561d7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Enabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f6dc17ae-fcd8-4cde-9154-8a1e7d9caffb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Enabled := _Enabled;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="InstancePath" Id="{c2c255d6-ef36-445e-9c81-df65a7ec19d3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InstancePath : STRING]]></Declaration>
+      <Get Name="Get" Id="{0c816d00-1eb8-4948-9590-6d0349356a86}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InstancePath := _InstancePath;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="LinkObject" Id="{3ede90da-cffa-4f8e-82ce-df48fef853c2}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY LinkObject : STRING]]></Declaration>
+      <Get Name="Get" Id="{d436a3ba-ddda-47a1-abf1-3698d08a9483}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LinkObject := _LinkObject;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{3e0964cb-1574-4398-bf96-ee63f0edaa16}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_LinkObject := LinkObject;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="GetActiveEventSeverityVisitor" Id="{59d8ff27-851f-4243-a9a1-03ff29c8c3d5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK GetActiveEventSeverityVisitor IMPLEMENTS I_ModuleVisitor, I_ComponentVisitor
+VAR
+	EntryModule			 : I_Module;
+	HighestEventSeverity : TcEventSeverity;
+	TcEventClass		 : I_EventClassTcEvents;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ActiveEventSeverity" Id="{5c4146e8-bd2b-40c1-b088-d87e188ef467}">
+      <Declaration><![CDATA[PROPERTY ActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Get Name="Get" Id="{b867ff87-f1d2-4597-9a88-0c60fa9e5303}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HighestEventSeverity := Global.TcEventSeverity.Verbose;
+EntryModule.Accept(THIS^);
+ActiveEventSeverity := HighestEventSeverity;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Init" Id="{23e3d1ba-488f-4b40-b57d-919e7ba57e94}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	EntryModule : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.EntryModule := EntryModule;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{a0040647-3bae-429c-8ae0-b78bacb10c72}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR
+
+VAR
+	Severity : TcEventSeverity;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, TcEventClass) THEN
+	Severity := TcEventClass.GetHighestActiveEventSeverity();
+	IF Severity > HighestEventSeverity THEN
+		HighestEventSeverity := Severity;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{ee6bd58f-fdd9-466f-ba20-32bd39952a87}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR
+
+VAR
+	Severity : TcEventSeverity;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Module.Components.Accept(THIS^);
+Module.Modules.Accept(THIS^);
+IF __QUERYINTERFACE(Module, TcEventClass) THEN
+	Severity := TcEventClass.GetHighestActiveEventSeverity();
+	IF Severity > HighestEventSeverity THEN
+		HighestEventSeverity := Severity;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

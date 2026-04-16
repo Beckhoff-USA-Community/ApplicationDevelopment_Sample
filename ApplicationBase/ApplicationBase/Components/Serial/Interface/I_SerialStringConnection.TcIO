@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_SerialStringConnection" Id="{1e09ce32-5a86-46f0-a97b-02cce45fc2ea}">
+    <Declaration><![CDATA[INTERFACE I_SerialStringConnection]]></Declaration>
+    <Method Name="SendAString" Id="{ef48dad5-a949-41e6-8bb6-9bf9caeeab0d}">
+      <Declaration><![CDATA[METHOD SendAString : HRESULT
+VAR_INPUT
+	DataToSend : T_MaxString;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="StringData" Id="{46fda22b-74df-452a-9922-b8fc9ccf1355}">
+      <Declaration><![CDATA[PROPERTY StringData : t_maxstring]]></Declaration>
+      <Get Name="Get" Id="{361ae061-d393-4966-b332-c33c94b0dea2}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="StringRecieved" Id="{54f5aed4-f3c5-4c01-b01d-4a28d2df247c}">
+      <Declaration><![CDATA[PROPERTY StringRecieved : BOOL]]></Declaration>
+      <Get Name="Get" Id="{a8cfb7c3-b9a7-4606-828d-0daa1a33ffd5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="NullCoeDevice" Id="{cc51e621-3816-4ad7-9cb7-05ab19309e13}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK NullCoeDevice EXTENDS CyclicComponent IMPLEMENTS I_CoeDevice
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="AdsAddr" Id="{ceaec292-550a-4193-a150-cd2c4f832603}">
+      <Declaration><![CDATA[PROPERTY AdsAddr : REFERENCE TO AMSADDR]]></Declaration>
+      <Get Name="Get" Id="{c2a6b1c7-30a3-4fa1-ba85-66af66662f12}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{963be93b-3880-4750-9cb6-559d2e63c047}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Busy" Id="{f1b6a8a3-071d-4baa-a1f9-a072e8db17b0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{a7953960-2a08-4346-9ab7-415cb2392be5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{bb2b467e-e8db-4aa6-ab4e-f0c8e4749e79}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{0ec2ecc3-3e82-469a-8366-e49550b7ca40}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6339ce2b-154e-40da-823f-06898841d16d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{dea5f65f-b3ed-4838-b89c-05989f95cf9e}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{2d022af6-c5c6-48e6-b473-7be263f3ec03}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Read" Id="{ff6fa20a-815f-4927-bc2c-5640028c35e0}">
+      <Declaration><![CDATA[METHOD Read
+VAR_INPUT
+	Index	 : WORD;
+	SubIndex : BYTE;
+	pDstBuf	 : PVOID;
+	BufLen	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Write" Id="{e0d6c901-56a2-4d7f-b7d9-b39556a02436}">
+      <Declaration><![CDATA[METHOD Write
+VAR_INPUT
+	Index	 : WORD;
+	SubIndex : BYTE;
+	pDstBuf	 : PVOID;
+	BufLen	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

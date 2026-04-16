@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_File_HMI" Id="{8bcf2aa1-1d4e-434f-8043-0c2505d37472}">
+    <Declaration><![CDATA[TYPE ST_File_HMI EXTENDS ST_HmiFunction :
+	STRUCT
+		Path	: STRING;
+		Load	: Button;
+		Save	: Button;
+		NewPath : BOOL;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SafetyMonFB_TcEvents" Id="{67adfd40-9596-4cff-9ae8-120b3bef74c1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SafetyMonFB_TcEvents EXTENDS SafetyBase IMPLEMENTS I_EventReactionTcEvents, I_InSafetyGroup
+VAR
+	{attribute 'hide'}
+	_ActiveAlarm : BOOL := TRUE;
+	{attribute 'hide'}
+	_ActiveName	 : STRING := 'pressed!';
+	Events		 : TcEventClass('Safety MonFB Events');
+	_SafetyGroup : I_TaskResult;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{78c651f7-e687-4f22-bfc4-094037c59675}" />
+    <Folder Name="Events" Id="{146a2dd2-8c83-4226-9a84-8ac6e48836a8}" />
+    <Property Name="ActiveAlarm" Id="{5113c18b-ebe0-00f4-3202-4c1830b7105d}">
+      <Declaration><![CDATA[PROPERTY ActiveAlarm : BOOL]]></Declaration>
+      <Set Name="Set" Id="{773800b8-ff2d-055f-1908-63b0aa36c0b5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ActiveAlarm := ActiveAlarm;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ActiveName" Id="{edba08d8-6c67-0382-2f69-477f60bcff69}">
+      <Declaration><![CDATA[PROPERTY ActiveName : STRING]]></Declaration>
+      <Set Name="Set" Id="{a4917e4b-797e-0eeb-390a-59efcf21fb43}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ActiveName := ActiveName;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{65730a53-ecec-4366-ba15-e31222aa9cae}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.CyclicLogic();
+_OK	   := SUPER^.InfoData.State = E_SafetyMon_State.Run;
+_Error := GetHighestActiveEventReaction() >= TcEventSeverity.Error;
+IF _SafetyGroup <> 0 THEN
+	IF _SafetyGroup.Error THEN
+		Events.Reset();
+		RETURN;
+	END_IF
+END_IF
+
+IF _ResetFunction <> 0 AND_THEN _ResetFunction.Busy THEN
+	RETURN;
+END_IF
+
+IF NOT SUPER^.OK AND _ActiveAlarm THEN
+	Events.Arguments(E_SafetyMon.Active).Clear().AddString(_ActiveName);
+	Events.RaiseEvent(E_SafetyMon.Active);
+END_IF
+
+IF SUPER^.InfoData.Diag.0 THEN
+	Events.RaiseEvent(E_SafetyMon.Disc1);
+END_IF
+
+IF SUPER^.InfoData.Diag.1 THEN
+	Events.RaiseEvent(E_SafetyMon.Disc2);
+END_IF
+
+IF SUPER^.InfoData.Diag.2 THEN
+	Events.RaiseEvent(E_SafetyMon.DiscInput);
+END_IF
+
+IF SUPER^.InfoData.Diag.4 THEN
+	Events.RaiseEvent(E_SafetyMon.Edm1);
+END_IF
+
+IF SUPER^.InfoData.Diag.5 THEN
+	Events.RaiseEvent(E_SafetyMon.Edm2);
+END_IF
+
+IF SUPER^.InfoData.Diag.8 THEN
+	Events.RaiseEvent(E_SafetyMon.Disc1Safe);
+END_IF
+
+IF SUPER^.InfoData.Diag.9 THEN
+	Events.RaiseEvent(E_SafetyMon.Disc2Safe);
+END_IF
+
+IF SUPER^.InfoData.Diag.10 THEN
+	Events.RaiseEvent(E_SafetyMon.DiscInputSafe);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{fb7afd79-b20b-4503-ac65-cef031c9c063}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.GenerateTcEvents(Name, ADR(TC_events.SafetyMon), SIZEOF(ST_SafetyMon));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventReaction" Id="{7c7c2702-eecf-4e0b-9c82-5bb8333599b9}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventReaction := Events.GetHighestActiveEventReaction();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{7eafac5e-b51d-4382-bd58-4f520dbba2ee}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventSeverity := Events.GetHighestActiveEventSeverity();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{893ecc6b-83ee-4eff-a2d7-ab383932f614}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.Reset();
+Events.Reset();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SafetyGroup" Id="{419ee011-d34a-495e-9034-1bb438cb9f42}">
+      <Declaration><![CDATA[PROPERTY SafetyGroup : I_TaskResult]]></Declaration>
+      <Set Name="Set" Id="{4acfbcff-26c3-40aa-8574-2a08711f5cbb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SafetyGroup := SafetyGroup;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="SetEventReactions" Id="{10bb5c42-2cc5-4bd0-977b-b09f2f24c084}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.SetEventReactions(Verbose,
+						 Info,
+						 Warning,
+						 Error,
+						 Critical);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

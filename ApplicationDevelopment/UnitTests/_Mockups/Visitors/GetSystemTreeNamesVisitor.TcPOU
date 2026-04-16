@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="GetSystemTreeNamesVisitor" Id="{29b0f717-f058-4559-b716-9838ef5c10da}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK GetSystemTreeNamesVisitor IMPLEMENTS I_ModuleVisitor, I_ComponentVisitor
+VAR
+	StringCollection : I_StringCollection;
+	Module			 : I_Module;
+	Layer			 : STRING;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Clear" Id="{2b8f235a-ae84-4a4d-8bce-0174b07fc6d5}">
+      <Declaration><![CDATA[METHOD Clear
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StringCollection.Clear();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{2d02f6df-6771-42b3-bf41-dcdec67ec290}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains	 : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode		 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	StringCollection : I_StringCollection;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.StringCollection := StringCollection;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetTree" Id="{aeb69ed3-0a09-4412-bff7-6370a29344ef}">
+      <Declaration><![CDATA[METHOD GetTree
+VAR_INPUT
+	EntryModule : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF EntryModule = 0 THEN
+	RETURN;
+END_IF
+
+Module := EntryModule;
+Clear();
+StringCollection.AddString(Module.Name);
+Layer := Module.Name;
+Module.Components.Accept(THIS^);
+Module.Modules.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{e75c4dc9-d048-46f3-aa2e-6769b964187c}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StringCollection.AddString(CONCAT(Layer, CONCAT(' - ', Component.Name)));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{c7cd8075-5d65-400b-bd99-54ca2862514f}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StringCollection.AddString(Module.Name);
+Layer := CONCAT(Layer, CONCAT(' - ', Module.Name));
+Module.Components.Accept(THIS^);
+Module.Modules.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

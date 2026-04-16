@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_EventClassTcEvents" Id="{b1626f73-6e4a-453a-aba5-43d31b4c8f41}">
+    <Declaration><![CDATA[INTERFACE I_EventClassTcEvents EXTENDS I_EventClass]]></Declaration>
+    <Method Name="GenerateTcEvents" Id="{fdae98a9-2ddb-447b-a0ee-e87315a7268c}">
+      <Declaration><![CDATA[METHOD PUBLIC GenerateTcEvents
+VAR_INPUT
+	Name   : T_MaxString;
+	pClass : PVOID; // ADR(TC_Events.XY) - TC Event Class in TypeSystem
+	nSize  : UDINT; // SIZEOF(ST_XY) - TC Event Class in TypeSystem
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{a428494d-84f6-46ac-a4c6-dec37b3bee7a}">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

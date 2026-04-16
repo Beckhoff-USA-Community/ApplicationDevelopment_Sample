@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Cylinder_HMI" Id="{6f4e5c8c-2f0e-4cab-87bf-94252f464e9f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Cylinder_HMI EXTENDS HmiFunction
+VAR
+	Cylinder : I_Cylinder;
+	{ attribute 'TcHmiSymbol.AddSymbol' }
+	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators,Admin' }
+	Cylinder_HMI : ST_Cylinder_HMI;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Button Permissives" Id="{760c285b-50a9-49c1-af64-55d65672f33b}" />
+    <Property Name="ControlObject" Id="{1d893142-6b36-4c3d-a7d7-6cd1f2fd0c3e}">
+      <Declaration><![CDATA[PROPERTY ControlObject : I_Base]]></Declaration>
+      <Set Name="Set" Id="{36aa9e7f-f64a-41b3-b4ee-449aabf6ca5b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[__QueryInterface(ControlObject,Cylinder);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{7457079c-a9cc-4393-a2d7-6086aed72d13}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	ExtendRT  : R_TRIG;
+	RetractRT : R_TRIG;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Cylinder = 0 THEN
+	RETURN;
+END_IF
+
+Cylinder_HMI.HmiEnabled := Enabled;
+Cylinder_HMI.Name		:= Cylinder.Name;
+Cylinder_HMI.Busy		:= Cylinder.Busy;
+Cylinder_HMI.Error		:= Cylinder.Error;
+Cylinder_HMI.ErrorId	:= Cylinder.ErrorId;
+Cylinder_HMI.Extended	:= Cylinder.Extended;
+Cylinder_HMI.Retracted	:= Cylinder.Retracted;
+// HMI Commands
+IF Enabled THEN
+	ExtendRT(CLK := Cylinder_HMI.Extend.Active);
+	IF ExtendRT.Q THEN
+		IF Cylinder_HMI.Extend.Permissive.OK THEN
+			Cylinder.Extend();
+		END_IF
+	END_IF
+
+	RetractRT(CLK := Cylinder_HMI.Retract.Active);
+	IF RetractRT.Q THEN
+		IF Cylinder_HMI.Retract.Permissive.OK THEN
+			Cylinder.Retract();
+		END_IF
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ExtendCommandName" Id="{6fd5f1ed-d37d-44e1-b048-fb3732604176}">
+      <Declaration><![CDATA[PROPERTY ExtendCommandName : STRING]]></Declaration>
+      <Get Name="Get" Id="{9f4564cf-de84-4329-a926-f92e63242fc2}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ExtendCommandName := Cylinder_HMI.Extend.Name;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b117a83b-ba21-414e-bce3-23959b81a60f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Cylinder_HMI.Extend.Name := ExtendCommandName;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ExtendedName" Id="{ae88ae9f-7e11-44c7-a102-1d365fb1f88f}">
+      <Declaration><![CDATA[PROPERTY ExtendedName : STRING]]></Declaration>
+      <Get Name="Get" Id="{ba053021-4989-4c61-8c81-6e28de2c2f5d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ExtendedName := Cylinder_HMI.ExtendedName;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c65a8f5e-aa92-4fd5-a9e1-ada0d76df7bf}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Cylinder_HMI.ExtendedName := ExtendedName;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ExtendPermissive" Id="{72fa0ff8-8c7e-49eb-9437-984275adf80f}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY ExtendPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{0299f654-97d5-4cc0-82e5-940c4411c909}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ExtendPermissive := Cylinder_HMI.Extend.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Init" Id="{b264d6ae-7861-4255-a61d-c7e5488a1778}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	Cylinder	: I_Cylinder;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Cylinder := Cylinder;
+ControlType	   := 'Cylinder';
+LinkObject	   := 'Cylinder_HMI';]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="RetractCommandName" Id="{b9adeeda-081d-4c2f-b990-607719db1a4f}">
+      <Declaration><![CDATA[PROPERTY RetractCommandName : STRING]]></Declaration>
+      <Get Name="Get" Id="{9e2b4588-67ae-4e9f-802f-89895c171934}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RetractCommandName := Cylinder_HMI.Retract.Name;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{66764b4a-265b-4438-a54c-22fc2e0fcad4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Cylinder_HMI.Retract.Name := RetractCommandName;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="RetractedName" Id="{468547e6-cf11-4213-8e45-38a5a914c2ee}">
+      <Declaration><![CDATA[PROPERTY RetractedName : STRING]]></Declaration>
+      <Get Name="Get" Id="{6780d5eb-d4f1-4ae4-8f11-e86b19a7b973}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RetractedName := Cylinder_HMI.RetractedName;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{153ebc16-dc52-4647-a97c-48c020394938}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Cylinder_HMI.RetractedName := RetractedName;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="RetractPermissive" Id="{3578c6a6-0926-4564-ac29-38f18e5d58af}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY RetractPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{710f0339-6290-4741-9393-e644f9ec53d4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RetractPermissive := Cylinder_HMI.Retract.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

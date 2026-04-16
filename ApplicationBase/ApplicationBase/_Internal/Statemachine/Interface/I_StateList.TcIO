@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_StateList" Id="{60804661-a2c8-4da3-98f9-b20e61cb1ed4}">
+    <Declaration><![CDATA[INTERFACE I_StateList]]></Declaration>
+    <Method Name="AddStateAtIndex" Id="{90d469bb-6b8d-4455-8cf4-5e391435322d}">
+      <Declaration><![CDATA[METHOD AddStateAtIndex
+VAR_INPUT
+	Index : DINT;
+	State : I_State;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="GetStateAtIndex" Id="{8aa82c5b-d67f-49f6-9ab0-14175bede0d0}">
+      <Declaration><![CDATA[METHOD GetStateAtIndex : I_State
+VAR_INPUT
+	Index : DINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="NumberOfStates" Id="{e3baf465-ff88-4c73-b9d9-3325dbcbdf9f}">
+      <Declaration><![CDATA[PROPERTY NumberOfStates : DINT]]></Declaration>
+      <Get Name="Get" Id="{3879470a-1b4e-4083-a471-79c21b07cf07}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

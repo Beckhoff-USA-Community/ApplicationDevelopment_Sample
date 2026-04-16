@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<TcModuleClass>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{8E3A5ABF-5BF3-4791-9530-85C4FBFC920C}">Cylinder</Name>
+			<DisplayName TxtId=""><![CDATA[Cylinder Events]]></DisplayName>
+			<EventId>
+				<Name Id="1">ExtendTimeout</Name>
+				<DisplayName TxtId=""><![CDATA[Extend Timeout!]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="2">RetractTimeout</Name>
+				<DisplayName TxtId=""><![CDATA[Retract Timeout!]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="3">ExtendedPlausibility</Name>
+				<DisplayName TxtId=""><![CDATA[Uncommanded falling edge of extended sensor!]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="4">RetractedPlausibility</Name>
+				<DisplayName TxtId=""><![CDATA[Uncommanded falling edge of extended sensor!]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="5">BothSensorsActive</Name>
+				<DisplayName TxtId=""><![CDATA[Both Sensors on feedback from extended & retracted sensors!]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{4EB44813-D3D9-4720-AAF9-D540DC9E7EE9}"/>
+				<Hide GUID="{714EB672-8EE4-44DD-AB1C-B4E03894DCCB}"/>
+				<Hide GUID="{E323167A-A5FE-4137-9156-F5C69BE4CFDB}"/>
+				<Hide GUID="{02103735-9625-44D2-98DD-BFC1B0AA03A0}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+</TcModuleClass>

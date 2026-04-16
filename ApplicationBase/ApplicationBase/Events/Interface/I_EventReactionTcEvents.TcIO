@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_EventReactionTcEvents" Id="{9ba85094-bdcc-4410-92fb-9d3383e4ff12}">
+    <Declaration><![CDATA[INTERFACE I_EventReactionTcEvents EXTENDS I_EventReaction]]></Declaration>
+    <Method Name="GetHighestActiveEventSeverity" Id="{472bb527-7b81-40a7-b14e-172cd6ea18e1}">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Initializer_TEST" Id="{bcfb7350-00b9-40d8-88cb-39a7f2fd97a3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Initializer_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CollectionAddsInitSucessfully();
+CollectionRejectsAddingInitDuplicate();
+CollectionRejectsAddingNullInit();
+CollectionRejectsAddingTooManyInits();
+CollectionRejectsRemoveWhenEmpty();
+CollectionRejectsRemoveWhenNotFound();
+CollectionRejectsRemovingNullInit();
+CollectionRemovesInitSuccessfully();
+FeedbackAllSubItemsInitializedFalse();
+FeedbackAllSubItemsInitializedTrue();]]></ST>
+    </Implementation>
+    <Method Name="CollectionAddsInitSucessfully" Id="{97a68ef1-f4b7-4bd5-af79-b65d6765a214}">
+      <Declaration><![CDATA[METHOD CollectionAddsInitSucessfully
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	CyclicRunner : CyclicRunner<ApplicationBaseParameter.MaxCountInCollections>;
+	Cyclic	 : CyclicComponent_Mockup(Name := 'Cyclic 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := CyclicRunner.AddCallee(Cyclic) = RegistrationResult.Succeeded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingInitDuplicate" Id="{0486c3d6-f23d-48c3-ad65-520ba30ae566}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingInitDuplicate
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	Initializer : Initializer<ApplicationBaseParameter.MaxCountInCollections>;
+	Init	: InitializableComponent_Mockup(Name := 'Component 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Initializer.AddInitialize(Init);
+	Actual := Initializer.AddInitialize(Init) = RegistrationResult.AlreadyAdded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingNullInit" Id="{9387e619-bd83-474a-9e0d-919fbec39a0d}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingNullInit
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	Initializer : Initializer<ApplicationBaseParameter.MaxCountInCollections>;
+	Init	: InitializableComponent_Mockup(Name := 'Component 1');
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := Initializer.AddInitialize(16#0) = RegistrationResult.NullReference;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingTooManyInits" Id="{2a55466b-d5e5-4d34-96a4-dffa630a70db}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingTooManyInits
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	Initializer : Initializer<1>;
+	Init1	: InitializableComponent_Mockup(Name := 'Component 1');
+	Init2	: InitializableComponent_Mockup(Name := 'Component 1');
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Initializer.AddInitialize(Init1);
+	Actual := Initializer.AddInitialize(Init2) = RegistrationResult.TooManyComponents;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemoveWhenEmpty" Id="{c656a8e1-01a5-4c18-a14f-8bf6811f560e}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemoveWhenEmpty
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	Initializer : Initializer<ApplicationBaseParameter.MaxCountInCollections>;
+	Init	: InitializableComponent_Mockup(Name := 'Component 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := Initializer.RemoveInitialize(Init) = RegistrationResult.CollectionEmpty;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemoveWhenNotFound" Id="{82de7a12-e380-4f7f-b0f9-9985eb956640}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemoveWhenNotFound
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	Initializer : Initializer<ApplicationBaseParameter.MaxCountInCollections>;
+	Init1	: InitializableComponent_Mockup(Name := 'Component 1');
+	Init2	: InitializableComponent_Mockup(Name := 'Component 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Initializer.AddInitialize(Init1);
+	Actual := Initializer.RemoveInitialize(Init2) = RegistrationResult.NotFoundInCollection;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemovingNullInit" Id="{d56b7982-2db3-4218-bb42-283f414ad2f4}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemovingNullInit
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	Initializer : Initializer<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := Initializer.RemoveInitialize(16#0) = RegistrationResult.NullReference;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRemovesInitSuccessfully" Id="{426ee53c-1a02-4333-b8c8-d70e4d40d469}">
+      <Declaration><![CDATA[METHOD CollectionRemovesInitSuccessfully
+VAR
+	Expected : BOOL := TRUE;
+	Actual	 : BOOL;
+	Initializer : Initializer<ApplicationBaseParameter.MaxCountInCollections>;
+	Init	: InitializableComponent_Mockup(Name := 'Component 1');
+	AddedCyclic : I_Initializable := Init;
+	CollectionInit : I_Initializable;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Initializer.AddInitialize(Init);
+	Actual := Initializer.RemoveInitialize(Init) = RegistrationResult.Succeeded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FeedbackAllSubItemsInitializedFalse" Id="{d16733bb-4444-4e05-8113-aa0b3de4e340}">
+      <Declaration><![CDATA[METHOD FeedbackAllSubItemsInitializedFalse
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR
+VAR
+	Initializer : Initializer<ApplicationBaseParameter.MaxCountInCollections>;
+	Component1	: InitializableComponent_Mockup(Name := 'Component 1');
+	Component2	: InitializableComponent_Mockup(Name := 'Component 1');
+	Component3	: InitializableComponent_Mockup(Name := 'Component 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Initializer.AddInitialize(Component1);
+	Initializer.AddInitialize(Component2);
+	Initializer.AddInitialize(Component3);
+	Initializer.Initializing();
+	Actual := Component1.InitializeWasCalled AND Component2.InitializeWasCalled AND Component3.InitializeWasCalled AND NOT Initializer.Initialized;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FeedbackAllSubItemsInitializedTrue" Id="{d1fefb95-ee37-4014-a523-ff9b40ccb173}">
+      <Declaration><![CDATA[METHOD FeedbackAllSubItemsInitializedTrue
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR
+VAR
+	Initializer : Initializer<ApplicationBaseParameter.MaxCountInCollections>;
+	Component1	: InitializableComponent_Mockup(Name := 'Component 1');
+	Component2	: InitializableComponent_Mockup(Name := 'Component 1');
+	Component3	: InitializableComponent_Mockup(Name := 'Component 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			   := TRUE;
+	Initializer.AddInitialize(Component1);
+	Initializer.AddInitialize(Component2);
+	Initializer.AddInitialize(Component3);
+	Component1.Initialized := TRUE;
+	Component2.Initialized := TRUE;
+	Component3.Initialized := TRUE;
+	Initializer.Initializing();
+	Actual := Component1.InitializeWasCalled AND Component2.InitializeWasCalled AND Component3.InitializeWasCalled AND Initializer.Initialized;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<TcModuleClass>
+	<Translations>
+		<Text TxtId="AxisError">
+			<Text LcId="1033"><![CDATA[Axis Error - {0} - Error ID: {1}!]]></Text>
+		</Text>
+		<Text TxtId="AxisWarning">
+			<Text LcId="1033"><![CDATA[Axis Warning - {0} - Error ID: {1}!]]></Text>
+		</Text>
+	</Translations>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{670BED62-70D8-4757-89AF-53283251429E}">Nc2Axis</Name>
+			<DisplayName TxtId=""><![CDATA[EventClass1_DisplayText]]></DisplayName>
+			<EventId>
+				<Name Id="1">AxisError</Name>
+				<DisplayName TxtId=""><![CDATA[AxisError]]></DisplayName>
+				<Severity>Critical</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="2">AxisWarning</Name>
+				<DisplayName TxtId=""><![CDATA[AxisWarning]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{51417159-46C6-4D27-A36F-6810A06DC684}"/>
+				<Hide GUID="{A5B0650F-5329-4FC4-BA59-ED654CC7A041}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+</TcModuleClass>

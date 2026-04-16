@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_HmiFunction" Id="{e18d74d9-00b5-42e1-9a3d-7cdb4ab88f8a}">
+    <Declaration><![CDATA[TYPE ST_HmiFunction :
+	STRUCT
+		Name	   : STRING;
+		HmiEnabled : BOOL := TRUE;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

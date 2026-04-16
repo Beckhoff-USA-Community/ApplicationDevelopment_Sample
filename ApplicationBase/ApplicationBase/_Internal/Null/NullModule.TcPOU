@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="NullModule" Id="{5e954080-3380-430d-9bee-054bfe0825ba}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK NullModule IMPLEMENTS I_Module
+VAR
+    _Name : T_MaxString;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Accept" Id="{6157646f-f79b-45a2-bfb5-c19674848211}">
+      <Declaration><![CDATA[METHOD Accept
+VAR_INPUT
+	Visitor	: I_ModuleVisitor;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Components" Id="{cbf4788e-2a17-419b-8f1c-f47363ef1687}">
+      <Declaration><![CDATA[PROPERTY Components : I_ComponentCollection
+]]></Declaration>
+      <Get Name="Get" Id="{57ad59aa-f6dd-49ba-8c8b-8297050da063}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="DeregisterComponent" Id="{92c51079-3551-4aba-baee-2576eaca2244}">
+      <Declaration><![CDATA[METHOD DeregisterComponent : RegistrationResult
+VAR_INPUT
+	Component	: I_Component;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterCyclic" Id="{097c3cff-16cf-430b-91d8-40f72ce62edf}">
+      <Declaration><![CDATA[METHOD DeregisterCyclic : RegistrationResult
+VAR_INPUT
+	Cyclic	: I_Cyclic;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterInitialize" Id="{e7f320e9-1780-45da-8701-b8f6ca8368d5}">
+      <Declaration><![CDATA[METHOD DeregisterInitialize : RegistrationResult
+VAR_INPUT
+	Initializable	: I_Initializable;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterModule" Id="{c899dae4-317f-4d11-8e40-701c11ce0940}">
+      <Declaration><![CDATA[METHOD DeregisterModule : RegistrationResult
+VAR_INPUT
+	Module	: I_Module;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterWithParent" Id="{e26583fc-0a27-431a-9af4-f68ed243c6d4}">
+      <Declaration><![CDATA[METHOD DeregisterWithParent
+VAR_INPUT
+	Parent	: I_ContainModules;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{96389581-d168-4811-82e6-6852acd5541f}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	Name		 : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Name := Name;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Modules" Id="{f8bf73c7-eb77-4ebb-a309-2277864feae0}">
+      <Declaration><![CDATA[PROPERTY Modules : I_ModuleCollection
+]]></Declaration>
+      <Get Name="Get" Id="{689dda91-0935-4241-8068-ec7eb1f55068}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Name" Id="{56cf5aff-17ae-4776-a1ea-ef1653454fa3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Name : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{a7533b37-7bb1-426c-98e6-3b4d726dd9e5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Name := _Name;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6283b81d-44ab-408d-a396-236ae165d32b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Name := Name;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="RegisterComponent" Id="{37f8b88b-093c-41ed-b287-afd2f5ec0b0f}">
+      <Declaration><![CDATA[METHOD RegisterComponent : RegistrationResult
+VAR_INPUT
+	Component	: I_Component;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterCyclic" Id="{08ecaf90-cdd3-4de7-a719-4d71a06b49c5}">
+      <Declaration><![CDATA[METHOD RegisterCyclic : RegistrationResult
+VAR_INPUT
+	Cyclic	: I_Cyclic;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterInitialize" Id="{6a90d278-04b8-4e9d-a7a2-d015df27e4b1}">
+      <Declaration><![CDATA[METHOD RegisterInitialize : RegistrationResult
+VAR_INPUT
+	Initializable	: I_Initializable;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterModule" Id="{a573e878-ade6-49dc-a380-a358fb350673}">
+      <Declaration><![CDATA[METHOD RegisterModule : RegistrationResult
+VAR_INPUT
+	Module	: I_Module;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterWithParent" Id="{e09053af-c3f9-4936-8529-13d288aa0dfe}">
+      <Declaration><![CDATA[METHOD RegisterWithParent
+VAR_INPUT
+	Parent	: I_ContainModules;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetComponents" Id="{ecd7a48b-1700-4e6a-b5e9-5d05ee79f425}">
+      <Declaration><![CDATA[METHOD ResetComponents : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetModules" Id="{b4a498ee-b9bb-4303-88e2-647e21e4ed52}">
+      <Declaration><![CDATA[METHOD ResetModules : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

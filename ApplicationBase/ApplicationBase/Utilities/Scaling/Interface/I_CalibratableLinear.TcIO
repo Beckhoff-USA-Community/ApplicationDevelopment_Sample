@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_CalibratableLinear" Id="{f8b48c81-d24c-4471-baf3-a0312f9c1f93}">
+    <Declaration><![CDATA[INTERFACE I_CalibratableLinear EXTENDS I_Base]]></Declaration>
+    <Property Name="CalibrateLinear" Id="{1132c595-aafb-477a-9959-f8a5a0ea0cf5}">
+      <Declaration><![CDATA[PROPERTY CalibrateLinear : I_CalibrateLinear]]></Declaration>
+      <Get Name="Get" Id="{55d18c31-281d-4099-9a33-d60c826670f0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{925796c2-b8a0-4f7e-b9eb-00d673331c40}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

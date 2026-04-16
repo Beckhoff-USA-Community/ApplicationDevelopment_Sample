@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AnalogChannel_Generic" Id="{3656135b-315a-480b-9f57-b0fff3207f46}">
+    <Declaration><![CDATA[INTERFACE I_AnalogChannel_Generic EXTENDS I_AnalogInput]]></Declaration>
+    <Property Name="DataValid" Id="{83ea3dff-a24f-4e8d-b6fe-5980ea38e47b}">
+      <Declaration><![CDATA[PROPERTY DataValid : BOOL]]></Declaration>
+      <Get Name="Get" Id="{dfd5256d-ad37-43f7-8270-d125378f4d63}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Error" Id="{5e185c79-e5ac-4ec2-b173-68e2e75abc95}">
+      <Declaration><![CDATA[PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{d2dc1505-7983-4e27-8ab0-240f9c20e3b0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Overrange" Id="{bdbb0d52-b356-4799-b726-57d62d463ce3}">
+      <Declaration><![CDATA[PROPERTY Overrange : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b48499c3-f836-4c3d-aa3c-ab99db7e1e04}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Underrange" Id="{0bfc5a5c-1961-4e63-87ff-fe009a832bb7}">
+      <Declaration><![CDATA[PROPERTY Underrange : BOOL]]></Declaration>
+      <Get Name="Get" Id="{fc8c6ce8-be0d-49db-bbbc-38e8ca7e20a0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

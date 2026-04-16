@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Axis" Id="{347e2aef-5611-452f-9ffc-b6ad926a510a}">
+    <Declaration><![CDATA[INTERFACE I_Axis EXTENDS I_Component, I_AxisEnable, I_AxisRef, I_Resettable, I_Stoppable, I_AxisDynamics, I_AxisStatus, I_AxisJog, I_AxisHome]]></Declaration>
+    <Property Name="ErrorId" Id="{d56d1c5d-53c1-4373-b824-480679d3561e}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{88d502ca-e062-4cb1-99bc-c31a0f99aa8c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="MotionTasks" Id="{6914240b-1882-4d81-a55f-46a091800bfd}">
+      <Declaration><![CDATA[PROPERTY MotionTasks : I_MotionTaskCollection]]></Declaration>
+      <Get Name="Get" Id="{526ff234-4916-45a3-8e29-4a9ed0e2f45f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

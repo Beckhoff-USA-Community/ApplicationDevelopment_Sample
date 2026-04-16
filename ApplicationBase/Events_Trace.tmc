@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<TcModuleClass>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{837E2E4A-6EE5-4EEE-B5E9-3468343CBE31}">Trace</Name>
+			<DisplayName TxtId=""><![CDATA[Trace]]></DisplayName>
+			<EventId>
+				<Name Id="1">TraceMessage</Name>
+				<DisplayName TxtId=""><![CDATA[{0}]]></DisplayName>
+				<Severity>Verbose</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{10B71207-17C9-4F2C-93A2-6048F0E866C6}"/>
+				<Hide GUID="{DF1183ED-CEC8-471C-B0C7-BA1DD25807DC}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{884421B5-118B-45E3-A7BD-818159468DE2}">NullEvents</Name>
+			<DisplayName TxtId=""><![CDATA[EventClass1_DisplayText]]></DisplayName>
+			<EventId>
+				<Name Id="1">NullEvent</Name>
+				<DisplayName TxtId=""><![CDATA[Null Event - No event class provider found!]]></DisplayName>
+				<Severity>Critical</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{928053FD-BD5A-42D9-B588-D1E6F70F96AB}"/>
+				<Hide GUID="{B6184532-1A4E-4BC3-8239-BA0E651C8E35}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+</TcModuleClass>

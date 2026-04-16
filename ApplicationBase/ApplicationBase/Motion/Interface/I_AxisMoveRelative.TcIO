@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AxisMoveRelative" Id="{f7b139cd-e112-494e-acc8-6435afdcacf5}">
+    <Declaration><![CDATA[INTERFACE I_AxisMoveRelative EXTENDS I_Base]]></Declaration>
+    <Method Name="MoveRelative" Id="{b528c3a7-3a1c-443e-bb1b-694bf2d690ed}">
+      <Declaration><![CDATA[METHOD MoveRelative : BOOL
+VAR_INPUT
+	Distance	  : LREAL;
+	AbortPrevious : BOOL := TRUE;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

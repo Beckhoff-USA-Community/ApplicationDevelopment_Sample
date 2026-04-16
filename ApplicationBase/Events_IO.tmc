@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<TcModuleClass>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{445997D7-DF6C-40BF-A668-4695BBE122A2}">IO</Name>
+			<DisplayName TxtId=""><![CDATA[I/O Events]]></DisplayName>
+			<EventId>
+				<Name Id="1">ForceActive</Name>
+				<DisplayName TxtId=""><![CDATA[*** I/O FORCE ACTIVE *** {0} - {1}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{01DA429F-BDFC-43BF-B11B-8DC44B6A3102}"/>
+				<Hide GUID="{FA0FC235-5B8F-4175-8E22-7E4258631EB8}"/>
+				<Hide GUID="{38596556-976B-4682-B13F-2CCAB5AC2DBE}"/>
+				<Hide GUID="{5531B990-3138-4EA7-81AF-8D03025C5259}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+</TcModuleClass>

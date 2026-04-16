@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_List" Id="{a3d0ac39-e19a-4abd-b1d7-93dc5722d224}">
+    <Declaration><![CDATA[INTERFACE I_List EXTENDS I_Collection]]></Declaration>
+    <Method Name="ContainsItem" Id="{f5a3daa3-5ef0-42ce-ae0d-e533b8a99909}">
+      <Declaration><![CDATA[METHOD ContainsItem : BOOL
+VAR_INPUT
+	Item : I_Base;
+	;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="GetAtIndex" Id="{8b0f05d3-25f9-41d3-8e44-1199a3feaa2d}">
+      <Declaration><![CDATA[METHOD GetAtIndex : I_Base
+VAR_INPUT
+	Index : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="InsertAtIndex" Id="{a5ef1ea2-1b7d-43de-89e1-6ecd528c5efb}">
+      <Declaration><![CDATA[METHOD InsertAtIndex : BOOL
+VAR_INPUT
+	Item  : I_Base;
+	Index : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="RemoveAtIndex" Id="{13f8cdc1-f493-4a25-9e9d-1b738fda6930}">
+      <Declaration><![CDATA[METHOD RemoveAtIndex
+VAR_INPUT
+	Index : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

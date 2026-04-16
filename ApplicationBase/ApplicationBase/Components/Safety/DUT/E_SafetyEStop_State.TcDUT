@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_SafetyEStop_State" Id="{3ea362e4-2fdf-0745-3d46-382078ce9be3}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+TYPE E_SafetyEStop_State : (
+		Invalid	 := 0,
+		Run		 := 1,
+		Stop	 := 2,
+		Safe	 := 3,
+		Error	 := 4,
+		Reset	 := 5,
+		Start	 := 6,
+		DelayOut := 7
+	) USINT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

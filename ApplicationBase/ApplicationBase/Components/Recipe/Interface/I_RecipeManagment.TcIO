@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_RecipeManagment" Id="{aba03838-8842-45de-a315-eb954587180b}">
+    <Declaration><![CDATA[INTERFACE I_RecipeManagment EXTENDS I_Component]]></Declaration>
+    <Property Name="AutoLoadChangesToActive" Id="{2c157dc0-d485-43f8-af78-3fdecff89fd7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY AutoLoadChangesToActive : BOOL]]></Declaration>
+      <Set Name="Set" Id="{d83a91fb-e1f3-4641-ac72-d95566d2bc71}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="ChangesPending" Id="{1d47bcf0-d076-4f47-b143-84642a87977b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ChangesPending : BOOL]]></Declaration>
+      <Get Name="Get" Id="{fce04d95-e0f7-4d9d-a396-fee135bbcfe9}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="LoadChangesToActive" Id="{f42c7b8c-41c9-4027-95f4-d77ffc93688e}">
+      <Declaration><![CDATA[METHOD LoadChangesToActive
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

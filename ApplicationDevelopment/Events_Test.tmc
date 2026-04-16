@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<TcModuleClass>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{9FC3212A-F526-4B4A-9AAA-6B450F73DA88}">TestComponent</Name>
+			<DisplayName TxtId=""><![CDATA[EventClass1_DisplayText]]></DisplayName>
+			<EventId>
+				<Name Id="1">CriticalEvent</Name>
+				<DisplayName TxtId=""><![CDATA[Test Critical Event - {0}]]></DisplayName>
+				<Severity>Critical</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="2">ErrorEvent</Name>
+				<DisplayName TxtId=""><![CDATA[Test Error Event - {0}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="3">WarningEvent</Name>
+				<DisplayName TxtId=""><![CDATA[Test Warning Event - {0}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="4">InfoEvent</Name>
+				<DisplayName TxtId=""><![CDATA[Test Info Event - {0}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="5">VerboseEvent</Name>
+				<DisplayName TxtId=""><![CDATA[Test Verbose Event - {0}]]></DisplayName>
+				<Severity>Verbose</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="6">SetEvent</Name>
+				<DisplayName TxtId=""><![CDATA[SetEvent]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{524BF86A-AED3-4390-8E83-0C339CFCBBD8}"/>
+				<Hide GUID="{B8031071-45BC-4C01-A6ED-8DC21279AD1B}"/>
+				<Hide GUID="{779F43B1-9F24-490F-A6B3-2B57A1AF7CE8}"/>
+				<Hide GUID="{F7C4F757-D831-4233-AC81-E768F648ACDF}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+</TcModuleClass>

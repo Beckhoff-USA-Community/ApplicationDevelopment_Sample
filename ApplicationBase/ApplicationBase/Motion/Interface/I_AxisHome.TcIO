@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AxisHome" Id="{049b3ba0-b295-43f0-be24-e10097b70ce7}">
+    <Declaration><![CDATA[INTERFACE I_AxisHome EXTENDS I_Base]]></Declaration>
+    <Method Name="Home" Id="{94d26bc7-8fa6-4697-9008-21ad5a0d0f62}">
+      <Declaration><![CDATA[METHOD Home
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

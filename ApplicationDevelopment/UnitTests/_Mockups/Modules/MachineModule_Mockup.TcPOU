@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MachineModule_Mockup" Id="{c9fb802f-f96f-4645-8e3e-585b462bd449}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK MachineModule_Mockup EXTENDS Module
+VAR
+	SubModule				  : I_Module;
+	TestComponent1			  : I_Component;
+	TestComponent2			  : I_Component;
+	StringCollection		  : StringCollection<100>;
+	MachineModuleVisitor	  : GetSystemTreeNamesVisitor(StringCollection);
+	QueryInterfaceResettables : QueryInterfaceResettables();
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_Init" Id="{6da1b976-1bde-40e0-ad51-e5631e94a41e}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains   : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	   : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	Name		   : T_MaxString;
+	SubModule	   : I_Module;
+	TestComponent1 : I_Component;
+	TestComponent2 : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.SubModule		 := SubModule;
+THIS^.TestComponent1 := TestComponent1;
+THIS^.TestComponent2 := TestComponent2;
+SubModule.RegisterWithParent(THIS^);
+TestComponent1.RegisterWithParent(THIS^);
+TestComponent2.RegisterWithParent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetModuleByName" Id="{c3fef4f8-b9ee-45b0-949c-ec978cb2ca2f}">
+      <Declaration><![CDATA[METHOD GetModuleByName : I_Module
+VAR_INPUT
+	Module : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetModuleByName := ModuleCollection.GetModuleByName(Module);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initializing" Id="{4718c86b-5cad-4a9f-b628-426818582eac}">
+      <Declaration><![CDATA[(* This Module will be done initializeing when ModuleInitialized := TRUE;, subequently all subitems will be called to be initialized*)
+METHOD Initializing]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ModuleInitialized := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCyclicCall" Id="{197043af-ad27-4398-ab36-cf4d36e1940f}">
+      <Declaration><![CDATA[METHOD OnCyclicCall]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MachineModuleVisitor.GetTree(THIS^);
+QueryInterfaceResettables.GetAllResetComponents(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

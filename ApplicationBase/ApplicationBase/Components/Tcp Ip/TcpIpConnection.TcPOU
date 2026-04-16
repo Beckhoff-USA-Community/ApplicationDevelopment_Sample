@@ -1,0 +1,384 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TcpIpConnection" Id="{b1a3122f-5ede-4a48-b6dc-1cfa2cce2b3a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK TcpIpConnection EXTENDS CyclicComponent IMPLEMENTS I_TcpIpConnection, I_Initializable
+VAR
+	_Initialized   : BOOL;
+	_IP			   : T_IPv4Addr := '127.0.0.1';
+	_Port		   : UDINT;
+	SocketCloseAll : FB_SocketCloseAll;
+
+	// Send Port
+	ReconnectTimer		   : TON;
+	ClientServerConnection : FB_ClientServerConnection;
+	_ServerConnectionState : E_SocketConnectionState;
+	SocketSend			   : FB_SocketSend;
+	SendMessage			   : ST_TcpIpPayload;
+	_Socket				   : T_HSOCKET;
+	SendDelay			   : TON;
+	PollTimer			   : TON;
+	ResponseTimer		   : TON;
+	SocketReceive		   : FB_SocketReceive;
+	ReceiveMessage		   : ST_TcpIpPayload;
+
+	//
+	_ReconnectionTime : TIME := T#10S;
+	_PollTime		  : TIME := T#100MS;
+	_ReceiveTimeout	  : TIME := T#50S;
+	_SendInterval	  : TIME := T#100MS;
+END_VAR
+
+VAR
+	Commands		   : ARRAY[0..COMMAND_BUFFER] OF I_TcpIpSubscription;
+	SendBuffer		   : ARRAY[0..COMMAND_BUFFER] OF ST_TcpIpPayload;
+	PrioritySendBuffer : ARRAY[0..COMMAND_BUFFER] OF ST_TcpIpPayload;
+END_VAR
+
+VAR CONSTANT
+	COMMAND_BUFFER : DINT := 99;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{970a1acd-4462-4133-a362-04981756bb4e}" />
+    <Folder Name="Initialize" Id="{afe115e3-8c76-4bf2-aa2a-b4c2e4090464}" />
+    <Folder Name="Protected" Id="{833ca4ba-4e9b-4359-9019-a25f997bedef}" />
+    <Property Name="ConnectionState" Id="{186725ee-3266-41ef-99c3-9d84b8ff8c46}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ConnectionState : E_SocketConnectionState]]></Declaration>
+      <Get Name="Get" Id="{423598c7-00d5-4850-b04a-65ded3d7856c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ConnectionState := _ServerConnectionState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{68e775cc-d02d-4598-8424-d58492e213ce}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _Initialized THEN
+	Initialize();
+	RETURN;
+END_IF
+
+SendReceiveSequence();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EvaluateResponse" Id="{503d0b5f-9afc-43cd-a9d6-4140fc9c50d6}" FolderPath="Protected\">
+      <Declaration><![CDATA[METHOD PROTECTED EvaluateResponse
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO COMMAND_BUFFER DO
+	IF Commands[i] = 0 THEN
+		EXIT;
+	END_IF
+
+	Commands[i].UpdateCommandResult(ADR(ReceiveMessage));
+END_FOR
+
+MEMSET(ADR(ReceiveMessage), 0, SIZEOF(ReceiveMessage));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetNextCommand" Id="{da83caaa-1db5-4167-b245-d510dddf2b72}" FolderPath="Protected\">
+      <Declaration><![CDATA[METHOD PROTECTED GetNextCommand
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF SendBuffer[0].Size <> 0 THEN
+	MEMCPY(ADR(SendMessage), ADR(SendBuffer[0]), SIZEOF(SendBuffer[0]));
+	FOR i := 0 TO (COMMAND_BUFFER - 1) DO
+		MEMCPY(ADR(SendBuffer[i]), ADR(SendBuffer[i + 1]), SIZEOF(SendBuffer[i]));
+	END_FOR
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetNextPriorityCommand" Id="{6d002078-ba64-484d-89e2-ddc764c01c02}" FolderPath="Protected\">
+      <Declaration><![CDATA[METHOD PROTECTED GetNextPriorityCommand
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF PrioritySendBuffer[0].Size <> 0 THEN
+	MEMCPY(ADR(SendMessage), ADR(PrioritySendBuffer[0]), SIZEOF(PrioritySendBuffer[0]));
+	FOR i := 0 TO (COMMAND_BUFFER - 1) DO
+		MEMCPY(ADR(PrioritySendBuffer[i]), ADR(PrioritySendBuffer[i + 1]), SIZEOF(PrioritySendBuffer[i]));
+	END_FOR
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize" Id="{60efe5ce-4332-4f1a-832a-6ce4c8f1dc8a}" FolderPath="Initialize\">
+      <Declaration><![CDATA[METHOD Initialize]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SocketCloseAll(sSrvNetId := '', bExecute := TRUE);
+IF NOT SocketCloseAll.bBusy AND NOT SocketCloseAll.bError THEN
+	_Initialized := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Initialized" Id="{c037b38f-bac6-4526-89a6-0075edc6dc9b}" FolderPath="Initialize\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Initialized : BOOL]]></Declaration>
+      <Get Name="Get" Id="{fdff3c81-11f1-4c7b-8e1c-a48777544992}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Initialized := _Initialized;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{72d54468-d904-44da-873f-36352cdb72dc}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Initialized := Initialized;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="IP" Id="{205a845e-e605-42f8-b0bd-91656a02b56a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IP : T_IPv4Addr]]></Declaration>
+      <Set Name="Set" Id="{dbc87d39-e55c-4efa-baff-2af80a50f23f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IP := IP;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="PollTime" Id="{66ad43bb-7e79-4fb0-a0a1-e1e8187064b1}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PollTime : TIME]]></Declaration>
+      <Set Name="Set" Id="{3a4ab4a9-f916-41c8-9674-7a75958d7e09}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_PollTime := PollTime;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Port" Id="{823626e9-c0b1-4eb9-a19d-dd6e9f8c5c10}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Port : UDINT]]></Declaration>
+      <Set Name="Set" Id="{20188e88-c4d3-4e28-88fe-383940d4e209}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Port := Port;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ReceiveTimeout" Id="{36aaf0c8-ea58-4056-8047-8640a2536dab}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ReceiveTimeout : TIME]]></Declaration>
+      <Set Name="Set" Id="{48893327-b0b9-4562-9b84-ebb4e68f7b35}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReceiveTimeout := ReceiveTimeout;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ReconnectionTime" Id="{f11a4531-e6dc-4b7f-8df4-2f5b793c8646}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ReconnectionTime : TIME]]></Declaration>
+      <Set Name="Set" Id="{a8b68293-85c8-4229-a273-d82ce63e2b69}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReconnectionTime := ReconnectionTime;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="RegisterCommand" Id="{b56b8796-0d62-4df7-bc0f-cccc1da562bf}">
+      <Declaration><![CDATA[METHOD RegisterCommand
+VAR_INPUT
+	Command : I_TcpIpSubscription;
+END_VAR
+
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO COMMAND_BUFFER DO
+	IF Commands[i] = 0 THEN
+		Commands[i] := Command;
+		RETURN;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendCommand" Id="{5510a947-4be1-47cf-a558-7bb4b90879cf}">
+      <Declaration><![CDATA[METHOD SendCommand
+VAR_INPUT
+	Command : POINTER TO ST_TcpIpPayload;
+END_VAR
+
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO COMMAND_BUFFER DO
+	IF SendBuffer[i].Size = 0 THEN
+		MEMCPY(ADR(SendBuffer[i]), Command, SIZEOF(SendBuffer[i]));
+		RETURN;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SendInterval" Id="{61287e3c-e0e9-4e49-8e2b-3fb8129b8b04}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY SendInterval : TIME]]></Declaration>
+      <Set Name="Set" Id="{b8f96504-85ee-4954-938e-d5a6edb0ae06}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SendInterval := SendInterval;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="SendPriorityCommand" Id="{84f33cc6-1777-4aa6-bfd1-1e42faa5ec9e}">
+      <Declaration><![CDATA[METHOD SendPriorityCommand
+VAR_INPUT
+	Command : POINTER TO ST_TcpIpPayload;
+END_VAR
+
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO COMMAND_BUFFER DO
+	IF PrioritySendBuffer[i].Size = 0 THEN
+		MEMCPY(ADR(PrioritySendBuffer[i]), Command, SIZEOF(PrioritySendBuffer[i]));
+		RETURN;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendReceiveSequence" Id="{7ee58811-71c6-42cb-b65f-c1c1c911a15c}" FolderPath="Protected\">
+      <Declaration><![CDATA[METHOD PROTECTED SendReceiveSequence
+VAR_INST
+	SequenceState : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ClientServerConnection(sSrvNetID   := '',
+					   sRemoteHost := _IP,
+					   nRemotePort := _Port,
+					   hSocket	   => _Socket,
+					   eState	   => _ServerConnectionState);
+
+SocketSend(sSrvNetId := '',
+		   hSocket	 := _Socket,
+		   cbLen	 := SendMessage.Size,
+		   pSrc		 := ADR(SendMessage.Data),
+		   tTimeout	 := T#5S);
+
+SocketReceive(sSrvNetId := '',
+			  hSocket	:= _Socket,
+			  cbLen		:= SIZEOF(ReceiveMessage.Data),
+			  pDest		:= ADR(ReceiveMessage.Data),
+			  tTimeout	:= _ReceiveTimeout);
+
+ReceiveMessage.Size := SIZEOF(ReceiveMessage.Data);
+
+//
+ReconnectTimer(PT := _ReconnectionTime);
+PollTimer(PT := _PollTime);
+ResponseTimer(PT := _ReceiveTimeout);
+CASE SequenceState OF
+	0:
+		ClientServerConnection.bEnable := TRUE;
+		IF _ServerConnectionState = eSOCKET_CONNECTED THEN
+			SequenceState := SequenceState + 10;
+		END_IF
+
+		IF ClientServerConnection.bError THEN
+			Trace.Error(_Name, CONCAT('ClientServerConnection.bError: ', TO_STRING(ClientServerConnection.nErrId)));
+			SequenceState := 200;
+		END_IF
+
+	10:
+		// SENDING -----------------------------------------------------------------------------------
+		SendDelay(IN := NOT SendDelay.Q, PT := _SendInterval);
+		IF SendMessage.Size = 0 THEN
+			GetNextPriorityCommand();
+		END_IF
+
+		IF SendMessage.Size = 0 THEN
+			GetNextCommand();
+		END_IF
+
+		IF SocketSend.bExecute AND NOT SocketSend.bBusy AND NOT SocketSend.bError THEN
+			Trace.Info(_Name, 'Client sent');
+			MEMSET(ADR(SendMessage), 0, SIZEOF(SendMessage));
+			SocketSend.bExecute := FALSE;
+		END_IF
+
+		IF SendMessage.Size <> 0 AND NOT SocketSend.bExecute AND SendDelay.Q THEN
+			SocketSend.bExecute := TRUE;
+		END_IF
+
+		IF SocketSend.bError THEN
+			Trace.Error(_Name, CONCAT('SocketSend.bError: ', TO_STRING(SocketSend.nErrId)));
+			SequenceState := 200;
+		END_IF
+
+		// RECEIVING -----------------------------------------------------------------------------------
+		PollTimer.IN		   := TRUE;
+		SocketReceive.bExecute := TRUE;
+		IF PollTimer.Q AND NOT SocketReceive.bError AND NOT SocketReceive.bBusy THEN
+			IF SocketReceive.nRecBytes > 0 THEN
+				ResponseTimer.IN := FALSE;
+				Trace.Info(_Name, 'Client recieved');
+				EvaluateResponse();
+			END_IF
+
+			SequenceState := 11;
+			// Stale connection, disconnected while socket was open
+			IF SocketReceive.nRecBytes = 0 THEN
+				ResponseTimer.IN := TRUE;
+				IF ResponseTimer.Q THEN
+					Trace.Error(_Name, 'Receive Connection stale - re-connect!');
+					SequenceState := 200;
+				END_IF
+			END_IF
+		END_IF
+
+		IF SocketReceive.bError THEN
+			Trace.Error(_Name, CONCAT('SocketReceive.bError: ', TO_STRING(SocketReceive.nErrId)));
+			SequenceState := 200;
+		END_IF
+
+	11:
+		PollTimer.IN		   := FALSE;
+		SocketReceive.bExecute := FALSE;
+		SequenceState		   := 10;
+
+	200:
+		ReconnectTimer.IN			   := TRUE;
+		ResponseTimer.IN			   := FALSE;
+		ClientServerConnection.bEnable := FALSE;
+		SocketReceive.bExecute		   := FALSE;
+		SocketSend.bExecute			   := FALSE;
+		IF _ServerConnectionState = eSOCKET_DISCONNECTED AND ReconnectTimer.Q THEN
+			ReconnectTimer.IN := FALSE;
+			SequenceState	  := 0;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Socket" Id="{47a2ce11-778a-429f-85c7-54e661f9530d}">
+      <Declaration><![CDATA[PROPERTY Socket : T_HSOCKET]]></Declaration>
+      <Get Name="Get" Id="{af4dcea2-fcf5-49ad-a29d-80a2e9bb6d7e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Socket := _Socket;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Enablable" Id="{30dac2a0-3727-432e-9194-a136d2a3adb1}">
+    <Declaration><![CDATA[INTERFACE I_Enablable EXTENDS I_Base]]></Declaration>
+    <Method Name="Disable" Id="{a3bfae26-51d5-4c76-8cc5-0002149fcd5d}">
+      <Declaration><![CDATA[METHOD Disable
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="Enable" Id="{53da13cd-3792-4478-b0f3-a241954ca654}">
+      <Declaration><![CDATA[METHOD Enable
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Enabled" Id="{be153cdf-28f3-4091-a3c0-53a071f3041a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Enabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e5f85cb6-404e-4661-87f1-a314c8a52af3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CyclicComponent" Id="{b2391d7a-f629-4dac-b0d6-c1bfe2964c84}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT CyclicComponent EXTENDS Component IMPLEMENTS I_Cyclic
+VAR
+	RegisteredAsCyclicResult : RegistrationResult;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CyclicLogic" Id="{e5abf98f-c2f8-44a5-a44b-6de6071ca988}">
+      <Declaration><![CDATA[METHOD ABSTRACT CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterWithParent" Id="{0ae9503f-d100-416f-9b08-0992249eb176}">
+      <Declaration><![CDATA[METHOD DeregisterWithParent
+VAR_INPUT
+	Parent : I_ContainComponents;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Parent.DeregisterComponent(THIS^);
+Parent.DeregisterCyclic(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterWithParent" Id="{cbbbdde3-bad0-41d7-80fd-7b4457cdaea6}">
+      <Declaration><![CDATA[METHOD RegisterWithParent
+VAR_INPUT
+	Parent : I_ContainComponents;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisteredAsComponentResult := Parent.RegisterComponent(THIS^);
+RegisteredAsCyclicResult := Parent.RegisterCyclic(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

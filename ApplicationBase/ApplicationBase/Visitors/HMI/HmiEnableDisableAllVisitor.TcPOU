@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="HmiEnableDisableAllVisitor" Id="{cfb5fe83-b725-45b3-9067-bf9c9aa81124}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK HmiEnableDisableAllVisitor IMPLEMENTS I_ComponentVisitor, I_ModuleVisitor
+VAR
+	{attribute 'hide'}
+	HmiFunction : I_HmiFunction;
+	{attribute 'hide'}
+	Enable : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="DisableHmi" Id="{5f27f88f-92fc-4b4b-96b5-8d1cd4d91220}">
+      <Declaration><![CDATA[METHOD DisableHmi
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Enable := FALSE;
+Module.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EnableHmi" Id="{3d907a07-a549-418e-9c97-c3b4a2dd5177}">
+      <Declaration><![CDATA[METHOD EnableHmi
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Enable := TRUE;
+Module.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{4ab272de-4b42-4f91-8d46-a400c7576a86}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, HmiFunction) THEN
+	IF Enable THEN
+		HmiFunction.Enable();
+	ELSE
+		HmiFunction.Disable();
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{2883ee86-0aac-4f37-bfe5-dcdf254a93bf}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Module.Components.Accept(THIS^);
+Module.Modules.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

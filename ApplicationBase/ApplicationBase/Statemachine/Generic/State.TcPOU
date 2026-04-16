@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="State" Id="{3127ea51-d658-44d1-bf81-1b17ab25ecab}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT State IMPLEMENTS I_State
+VAR
+	Statemachine  : I_Statemachine;
+	SequenceState : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Executing" Id="{5e5ffb47-d0d5-4f8e-8975-38462d4e88f4}">
+      <Declaration><![CDATA[METHOD Executing : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Executing := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{4e5c572e-0408-42ec-bfce-db8e2aa436cf}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)  
+	State		 : DINT;
+	Statemachine : I_Statemachine;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Statemachine := Statemachine;
+IF THIS^.Statemachine <> 0 THEN
+	THIS^.Statemachine.States.AddStateAtIndex(State, THIS^);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Inactive" Id="{54d11290-0b1f-4dd3-992c-06c2860361d2}">
+      <Declaration><![CDATA[METHOD Inactive]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SequenceState := 0;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Component" Id="{10547978-b502-4eff-be4f-753213a82870}">
+    <Declaration><![CDATA[INTERFACE I_Component EXTENDS I_Base]]></Declaration>
+    <Method Name="Accept" Id="{36a8d3c7-7340-416d-a0b4-669afb30e1f4}">
+      <Declaration><![CDATA[METHOD Accept
+VAR_INPUT
+	ComponentVisitor : I_ComponentVisitor;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="DeregisterWithParent" Id="{7e9cd826-4c6e-4ffd-827b-e2e856690f75}">
+      <Declaration><![CDATA[METHOD DeregisterWithParent
+VAR_INPUT
+	Parent : I_ContainComponents;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Name" Id="{cdc8512f-f17f-43fa-a89f-1cf233d832b2}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Name : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{8b62bfe2-6f79-4e0d-8061-9f86ed612e0f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{e3081b5d-2401-42af-9fa8-188d7aa8aa07}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="RegisterWithParent" Id="{3793a07f-c8e9-4833-b9d3-db0bbf855509}">
+      <Declaration><![CDATA[METHOD RegisterWithParent
+VAR_INPUT
+	Parent : I_ContainComponents;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

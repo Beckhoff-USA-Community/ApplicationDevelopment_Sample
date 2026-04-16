@@ -1,0 +1,310 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CollectionPeeker" Id="{b9cbe565-c4c0-490d-886c-b847e1cc3cfc}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK CollectionPeeker
+VAR_GENERIC CONSTANT
+	Peek_Size : UDINT := 5;
+END_VAR IMPLEMENTS I_CollectionPeeker, I_Peeker
+VAR
+	_CurrentItem	: UDINT;
+	_EndItem		: UDINT;
+	_CollectionName : T_MaxString;
+	_Collection		: I_Collection;
+	_Items			: ARRAY[1..Peek_Size] OF I_Base;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Private" Id="{8a58c9bf-7332-439d-9148-5e7c115b5aab}" />
+    <Property Name="CollectionName" Id="{006f2b72-2474-4bdd-ad6d-65a58968ed48}">
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY CollectionName : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{beabd1ee-613b-4fb5-b5ff-e70d255a13c2}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CollectionName := _CollectionName;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{20b8aee4-a8e3-47c4-9fd7-0e30bb3f7bd5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_CollectionName := CollectionName;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FirstItem" Id="{4e109d88-dd89-4191-8f2e-2b98c6aa7e77}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY FirstItem : UDINT]]></Declaration>
+      <Get Name="Get" Id="{b457afb3-df88-4b15-9c70-591e973b9e4f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FirstItem := _CurrentItem;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c0f4a692-54af-4ae4-8f6b-254ed7263db9}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _Collection = 0 THEN
+	RETURN;
+END_IF
+
+IF FirstItem > _Collection.Count OR FirstItem < 1 THEN
+	RETURN;
+END_IF
+
+_CurrentItem := FirstItem;
+UpdateEndItem();
+RefreshItems();]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Items" Id="{b15a51c0-a393-47d2-80f2-0a14be72ca2d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Items : REFERENCE TO ARRAY[1..Peek_Size] OF I_Base]]></Declaration>
+      <Get Name="Get" Id="{4660b1f3-a70b-45c4-be4a-b5cfbe74a68a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Items REF= _Items;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="LastItem" Id="{48167227-d99a-4a2e-8747-5fe1121cf950}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY LastItem : UDINT]]></Declaration>
+      <Get Name="Get" Id="{ff118a97-76b9-4d86-a141-7889801d8f9d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LastItem := _EndItem;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="MoveDownOne" Id="{bc2fd36a-5cdc-4988-993a-b175f508c15d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY MoveDownOne : BOOL]]></Declaration>
+      <Get Name="Get" Id="{839c2370-76fa-4076-9182-859fed270096}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{310d7055-4df8-4867-85ab-a7655fb5cbf5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _Collection = 0 OR NOT MoveDownOne THEN
+	RETURN;
+END_IF
+
+IF _Collection.Count <= Peek_Size THEN
+	RETURN;
+END_IF
+
+_CurrentItem := _CurrentItem + 1;
+IF _CurrentItem > _Collection.Count THEN
+	_CurrentItem := 1;
+END_IF
+
+UpdateEndItem();
+RefreshItems();]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="MoveUpOne" Id="{b41d2baf-8dbe-4a99-8d65-a638daca4c48}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY MoveUpOne : BOOL]]></Declaration>
+      <Get Name="Get" Id="{9dfd6321-e0e4-4684-99f4-e4455265bea8}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c7db23b6-e729-4815-86b6-60b2afd4cda6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _Collection = 0 THEN
+	RETURN;
+END_IF
+
+IF _Collection.Count <= Peek_Size THEN
+	RETURN;
+END_IF
+
+_CurrentItem := _CurrentItem - 1;
+IF _CurrentItem < 1 THEN
+	_CurrentItem := _Collection.Count;
+END_IF
+
+UpdateEndItem();
+RefreshItems();]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="PageDown" Id="{b4b9cdfe-e34f-45bf-a6f5-bd2027e155c0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PageDown : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f9d8f67a-bc96-488c-a957-24ec6cca8395}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{14a5781f-46cf-41d2-b821-f1cd3e290943}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _Collection = 0 OR NOT PageDown THEN
+	RETURN;
+END_IF
+
+IF _Collection.Count <= Peek_Size THEN
+	RETURN;
+END_IF
+
+IF _CurrentItem > (_Collection.Count - Peek_Size) THEN
+	_CurrentItem := (Peek_Size - (_Collection.Count - _CurrentItem));
+ELSE
+	_CurrentItem := _CurrentItem + Peek_Size;
+END_IF
+
+UpdateEndItem();
+RefreshItems();]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="PageUp" Id="{e65fa602-5939-42ed-8715-a14c014bbe25}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PageUp : BOOL]]></Declaration>
+      <Get Name="Get" Id="{856b1766-2d17-494e-805e-3c6670b5ffea}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{787bd5e1-d257-41cd-818d-d546eab644c0}">
+        <Declaration><![CDATA[VAR
+	tmp : UDINT;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _Collection = 0 OR NOT PageUp THEN
+	RETURN;
+END_IF
+
+IF _Collection.Count <= Peek_Size THEN
+	RETURN;
+END_IF
+
+IF _CurrentItem < Peek_Size THEN
+	_CurrentItem := (_Collection.Count - (Peek_Size - _CurrentItem));
+ELSE
+	_CurrentItem := _CurrentItem - Peek_Size;
+END_IF
+
+UpdateEndItem();
+RefreshItems();]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="PeekAt" Id="{da2d691b-3d52-4ee1-9048-aff697e7537c}">
+      <Declaration><![CDATA[METHOD PeekAt
+VAR_INPUT
+	Peekable : I_Peekable;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Peekable.AcceptPeeker(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PeekCollection" Id="{acb62584-dc9f-42cb-8e97-7f006b359a37}">
+      <Declaration><![CDATA[METHOD PeekCollection
+VAR_INPUT
+	Collection : I_Collection;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Collection	 := Collection;
+_CurrentItem := 1;
+_EndItem	 := Peek_Size;
+RefreshItems();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Refresh" Id="{1010c6f7-f2bc-4fc5-ba75-a8dd5ef827e8}">
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY Refresh : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8b01799c-a69e-4ff9-a72d-3b4969a31e12}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{dce5f88c-4806-4b08-a64e-1570a307a1f3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _Collection <> 0 AND Refresh THEN
+	RefreshItems();
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="RefreshItems" Id="{78412524-a286-4a51-8939-5a13455a28df}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PRIVATE RefreshItems
+VAR
+	startItem  : UDINT;
+	endItem	   : UDINT;
+	i		   : UDINT := 1;
+	wrapAround : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MEMSET(ADR(_Items), 0, SIZEOF(_Items));
+IF _CurrentItem > _EndItem THEN //we're wrapped around
+	i		   := 1 + ((_Collection.Count - _CurrentItem) + 1);
+	wrapAround := TRUE;
+END_IF
+
+_Collection.ResetIterator();
+WHILE _Collection.MoveToNext DO
+	IF _Collection.CurrentItem >= _CurrentItem AND _Collection.CurrentItem <= _EndItem THEN
+		_Items[i] := _Collection.Current;
+		i		  := i + 1;
+	ELSIF wrapAround AND (_Collection.CurrentItem >= _CurrentItem OR _Collection.CurrentItem <= _EndItem) THEN
+		_Items[i] := _Collection.Current;
+		i		  := i + 1;
+		IF i > Peek_Size THEN
+			i := 1;
+		END_IF
+	END_IF
+END_WHILE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UpdateEndItem" Id="{cc798dbd-7b89-4386-90b4-42af2dde6935}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PRIVATE UpdateEndItem
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_EndItem := _CurrentItem + Peek_Size - 1;
+IF _EndItem > _Collection.Count THEN
+	_EndItem := _EndItem - _Collection.Count;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UpdateFirstItem" Id="{f121c7f1-c023-4b8e-a9bd-ad769e486dda}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PRIVATE UpdateFirstItem
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

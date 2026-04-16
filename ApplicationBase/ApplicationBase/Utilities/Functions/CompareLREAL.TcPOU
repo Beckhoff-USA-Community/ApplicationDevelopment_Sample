@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CompareLREAL" Id="{b8b6fa72-2450-4aa6-a814-e21f6d849f6d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION CompareLREAL : BOOL
+VAR_INPUT
+	Var1	: LREAL;
+	Var2	: LREAL;
+	Epsilon : LREAL := 1E-6;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CompareLREAL := ABS(Var1 - Var2) < Epsilon;]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="PermissiveInterlock" Id="{3331978e-2c7e-4f0c-a7ff-432b8a75e3a8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PermissiveInterlock IMPLEMENTS I_Permissive
+VAR
+	_OK				 : BOOL				   := TRUE;
+	Permissive		 : ARRAY[0..9] OF BOOL := [TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE];
+	PermissiveReason : ARRAY[0..9] OF STRING;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Check" Id="{560987c4-f537-4ed7-ba95-bf7164c34026}">
+      <Declaration><![CDATA[METHOD PROTECTED Check : BOOL
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_OK := TRUE;
+FOR i := 0 TO 9 DO
+	IF NOT Permissive[i] THEN
+		_OK := FALSE;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="OK" Id="{b0b6552a-3a71-4f94-8697-8d20014ae9f0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY OK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{4aea581a-fafb-4338-aea1-31b2ae2fd29e}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OK := _OK;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Set" Id="{ed65028d-a4f6-4770-b45a-73143a209f97}">
+      <Declaration><![CDATA[METHOD Set
+VAR_INPUT
+	Index  : UDINT(0..9);
+	Reason : STRING;
+	Value  : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Permissive[Index]		:= Value;
+PermissiveReason[Index] := Reason;
+Check();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

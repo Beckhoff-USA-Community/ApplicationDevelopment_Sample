@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Mode" Id="{ad5f09ad-4b02-4231-b384-ecccdfe8b047}">
+    <Declaration><![CDATA[INTERFACE I_Mode EXTENDS I_Base]]></Declaration>
+    <Method Name="ChangeMode" Id="{dd8950ac-e277-45b6-b2ac-81910436f365}">
+      <Declaration><![CDATA[METHOD ChangeMode
+VAR_INPUT
+	RequestedMode : DINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="CurrentMode" Id="{9ebe5251-c461-45ef-843d-121783cb5fc7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentMode : DINT]]></Declaration>
+      <Get Name="Get" Id="{d643b70e-3ae4-45a6-8188-c439efe9f686}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

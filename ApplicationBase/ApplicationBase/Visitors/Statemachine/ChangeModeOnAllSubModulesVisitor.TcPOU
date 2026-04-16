@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ChangeModeOnAllSubModulesVisitor" Id="{06c2fc4a-1392-454e-868a-04379af90dab}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ChangeModeOnAllSubModulesVisitor IMPLEMENTS I_ModuleVisitor
+VAR
+	TargetMode	 : DINT;
+	Statemachine : I_ContainStatemachine;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ChangeMode" Id="{0690df9b-48d7-4c8f-b3e9-ccacd6e7ded7}">
+      <Declaration><![CDATA[METHOD ChangeMode
+VAR_INPUT
+	TargetMode : DINT;
+	Module	   : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.TargetMode := TargetMode;
+Module.Modules.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{440d1907-7f96-441d-bb6f-0b8b66e4a51d}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Module, Statemachine) THEN
+	Statemachine.Statemachine.Mode.ChangeMode(THIS^.TargetMode);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

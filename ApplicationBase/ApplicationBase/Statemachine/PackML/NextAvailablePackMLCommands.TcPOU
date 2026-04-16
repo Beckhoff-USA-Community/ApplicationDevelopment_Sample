@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="NextAvailablePackMLCommands" Id="{d4e1fcfd-3b97-4c2f-88a4-b4c0d8261296}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK NextAvailablePackMLCommands
+VAR
+	NextAvailableCommands : ARRAY[0..MAX_AVAILABLE_COMMANDS] OF E_PMLCommand;
+	i					  : UDINT;
+END_VAR
+
+VAR CONSTANT
+	MAX_AVAILABLE_COMMANDS : UDINT := 9;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="GetCommands" Id="{f7875ee5-c50d-4380-8472-0beeef73602d}">
+      <Declaration><![CDATA[METHOD PUBLIC GetCommands : ARRAY[0..MAX_AVAILABLE_COMMANDS] OF E_PMLCommand
+VAR_INPUT
+	CurrentMode	 : DINT(0..31);
+	CurrentState : E_PMLState;
+END_VAR
+
+VAR
+	ModeConfiguration : Tc3_PackML_V3.ST_PMLUnitModeConfiguration;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO MAX_AVAILABLE_COMMANDS DO
+	NextAvailableCommands[i] := E_PMLCommand.Undefined;
+END_FOR
+
+i				  := 0;
+ModeConfiguration := Tc3_PackML_V3.GlobalVariables.stPMLUnitModeConfiguration[CurrentMode];
+// Generate next possible Commands
+CASE CurrentState OF
+	E_PMLState.Undefined:
+		;
+
+	E_PMLState.Aborting:
+		;
+
+	E_PMLState.Aborted:
+		NextAvailableCommands[i] := E_PMLCommand.Clear;
+
+	E_PMLState.Clearing:
+		;
+
+	E_PMLState.Stopping:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+
+	E_PMLState.Stopped:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		IF NOT ModeConfiguration.aStateDisabled[E_PMLState.Resetting] AND NOT ModeConfiguration.aStateDisabled[E_PMLState.Idle] THEN
+			NextAvailableCommands[i] := E_PMLCommand.Reset;
+		ELSE
+			NextAvailableCommands[i] := E_PMLCommand.Start;
+		END_IF
+
+	E_PMLState.Resetting:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+
+	E_PMLState.Idle:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Start;
+
+	E_PMLState.Starting:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+
+	E_PMLState.Execute:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+		i						 := i + 1;
+		IF (NOT ModeConfiguration.aStateDisabled[E_PMLState.Held] AND NOT ModeConfiguration.aStateDisabled[E_PMLState.Holding]) OR (NOT ModeConfiguration.aStateDisabled[E_PMLState.Held] AND NOT ModeConfiguration.aStateDisabled[E_PMLState.Unholding]) THEN
+			NextAvailableCommands[i] := E_PMLCommand.Hold;
+			i						 := i + 1;
+		END_IF
+
+		IF (NOT ModeConfiguration.aStateDisabled[E_PMLState.Suspended] AND NOT ModeConfiguration.aStateDisabled[E_PMLState.Suspending]) OR (NOT ModeConfiguration.aStateDisabled[E_PMLState.Suspended] AND NOT ModeConfiguration.aStateDisabled[E_PMLState.Unsuspending]) THEN
+			NextAvailableCommands[i] := E_PMLCommand.Suspend;
+			i						 := i + 1;
+		END_IF
+
+		IF NOT ModeConfiguration.aStateDisabled[E_PMLState.Completed] AND NOT ModeConfiguration.aStateDisabled[E_PMLState.Completing] THEN
+			NextAvailableCommands[i] := E_PMLCommand.Complete;
+			i						 := i + 1;
+		ELSIF NOT ModeConfiguration.aStateDisabled[E_PMLState.Resetting] THEN
+			NextAvailableCommands[i] := E_PMLCommand.Reset;
+			i						 := i + 1;
+		END_IF
+
+	E_PMLState.Completing:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+
+	E_PMLState.Completed:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+		i						 := i + 1;
+		IF NOT ModeConfiguration.aStateDisabled[E_PMLState.Resetting] AND NOT ModeConfiguration.aStateDisabled[E_PMLState.Idle] THEN
+			NextAvailableCommands[i] := E_PMLCommand.Reset;
+		ELSE
+			NextAvailableCommands[i] := E_PMLCommand.Start;
+		END_IF
+
+	E_PMLState.Holding:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+
+	E_PMLState.Held:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Unhold;
+
+	E_PMLState.Unholding:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+
+	E_PMLState.Suspending:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+
+	E_PMLState.Suspended:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Unsuspend;
+
+	E_PMLState.Unsuspending:
+		NextAvailableCommands[i] := E_PMLCommand.Abort;
+		i						 := i + 1;
+		NextAvailableCommands[i] := E_PMLCommand.Stop;
+END_CASE
+
+GetCommands := NextAvailableCommands;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

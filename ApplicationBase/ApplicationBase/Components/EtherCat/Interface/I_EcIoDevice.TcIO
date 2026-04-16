@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_EcIoDevice" Id="{e9cac253-276d-4f50-b6e9-56f97e598d10}">
+    <Declaration><![CDATA[INTERFACE I_EcIoDevice EXTENDS I_IoDevice, I_CoeAccess]]></Declaration>
+    <Property Name="Bootstrap" Id="{31afd5dc-11b2-486c-9f37-0da12d67b283}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Bootstrap : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6a4c5c39-383f-451d-98c3-f227db2bd67e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Configuration" Id="{b9316c67-a6f6-480f-9ad6-74125e3bf52c}">
+      <Declaration><![CDATA[PROPERTY Configuration : REFERENCE TO ST_EcSlaveConfigData]]></Declaration>
+      <Get Name="Get" Id="{bd40129e-0e06-4e63-82f9-fddeec328974}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{b7e6db12-f360-4d4c-8ad9-4f914b5390bc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="DeviceError" Id="{3bded88e-74e2-413a-b817-bd735fda5a4e}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY DeviceError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ed17566f-c15a-4093-9ed9-bc49860a61a3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Disabled" Id="{8b993be5-36de-4bd9-aaf1-99d21cb5e943}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Disabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{18aa7747-d0ae-45ed-950d-ef3c6af791b5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Init" Id="{344169c7-67db-4545-84d2-94cdef887487}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Init : BOOL]]></Declaration>
+      <Get Name="Get" Id="{0ee01973-4998-4a65-a064-efd7da3d57e3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="InitCmdError" Id="{39f5ec60-0478-4562-b72d-1e123ad05666}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InitCmdError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{19a13bf1-53a4-45d8-aed9-657128317077}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="InvalidVPRS" Id="{81669af3-a66e-4650-bb97-0354060b882f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InvalidVPRS : BOOL]]></Declaration>
+      <Get Name="Get" Id="{da77786f-dcd5-437c-ab8e-7b013ca403d8}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="OP" Id="{e158ed56-a281-4515-99d4-450ac53e8a4f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY OP : BOOL]]></Declaration>
+      <Get Name="Get" Id="{d24cec8d-dab1-443b-b40f-ece3845060ac}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="PreOp" Id="{721ce8c0-3083-41ca-9594-c0b5b538d57a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PreOp : BOOL]]></Declaration>
+      <Get Name="Get" Id="{959fe205-ee1a-4c48-940b-06859d915a61}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="SafeOp" Id="{0c6cdca4-5443-4bfe-a7ef-b66228e33755}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY SafeOp : BOOL]]></Declaration>
+      <Get Name="Get" Id="{64fedff0-b7f3-4c5b-a105-4227e9c02cb7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="State" Id="{9f6965dc-9595-4f6a-b35b-67be233266ed}">
+      <Declaration><![CDATA[PROPERTY State : REFERENCE TO ST_EcSlaveState]]></Declaration>
+      <Get Name="Get" Id="{ded39fa3-4664-412b-ba55-c5c5986cbdd7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{725212f6-8fcb-4601-aa73-db828e95db79}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

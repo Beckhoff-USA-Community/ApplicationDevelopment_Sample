@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ModuleCollection" Id="{53b68e61-0174-4949-a2b4-aadf4b8bad92}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ModuleCollection
+VAR_GENERIC CONSTANT
+	MaxCount : UDINT := 10;
+END_VAR IMPLEMENTS I_ModuleCollection
+VAR
+	Modules		: ARRAY[0..MaxCount] OF I_Module;
+	ModuleCount : UDINT;
+	NullModule	: NullModule('Null Module');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Accept" Id="{bb666cf2-9175-4400-8493-4003f88978b0}">
+      <Declaration><![CDATA[METHOD Accept
+VAR_INPUT
+	Visitor : I_ModuleVisitor;
+END_VAR
+
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO MaxCount DO
+	IF Modules[i] = 0 THEN
+		EXIT;
+	END_IF
+
+	Modules[i].Accept(Visitor);
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AddModule" Id="{a784f79c-ce6a-494e-aedd-0aba88742e2d}">
+      <Declaration><![CDATA[METHOD AddModule : RegistrationResult
+VAR_INPUT
+	Module : I_Module;
+END_VAR
+
+VAR
+	i : UDINT;
+	Registered : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Module = 0 THEN
+	AddModule := RegistrationResult.NullReference;
+	RETURN;
+END_IF
+
+IF ModuleCount >= MaxCount THEN
+	AddModule := RegistrationResult.TooManyComponents;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Modules[i] = Module THEN
+		Registered := TRUE;
+	END_IF
+END_FOR
+
+IF Registered THEN
+	AddModule := RegistrationResult.AlreadyAdded;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Modules[i] = 0 THEN
+		Modules[i] := Module;
+		ModuleCount := ModuleCount + 1;
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Count" Id="{ef192ef0-7da2-4d51-b94a-26169da03978}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Count : UDINT]]></Declaration>
+      <Get Name="Get" Id="{ca31cf81-fdc7-472a-8ed7-4f86117bf1f6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Count := TO_UDINT(ModuleCount);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="GetAtIndex" Id="{6f7751cd-6e62-4d42-aa35-7ba3458ccf51}">
+      <Declaration><![CDATA[METHOD GetAtIndex : I_Module
+VAR_INPUT
+	Index : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Index > Count THEN
+	GetAtIndex := NullModule;
+	RETURN;
+END_IF
+
+IF Index < 0 THEN
+	GetAtIndex := NullModule;
+	RETURN;
+END_IF
+
+IF Modules[Index] <> 0 THEN
+	GetAtIndex := Modules[Index];
+ELSE
+	GetAtIndex := NullModule;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetModuleByName" Id="{cf27eb5f-7689-42da-9e1f-0476be037a83}">
+      <Declaration><![CDATA[METHOD GetModuleByName : I_Module
+VAR_INPUT
+	Name : T_MaxString;
+END_VAR
+
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO MaxCount DO
+	IF Modules[i] = 0 THEN
+		EXIT;
+	END_IF
+
+	IF Modules[i].Name = Name THEN
+		GetModuleByName := Modules[i];
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveModule" Id="{ac446e0a-aad4-4e4c-abac-a2e99a11cefe}">
+      <Declaration><![CDATA[METHOD RemoveModule : RegistrationResult
+VAR_INPUT
+	Module : I_Module;
+END_VAR
+
+VAR
+	i : UDINT;
+	PresentInCollection : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Module = 0 THEN
+	RemoveModule := RegistrationResult.NullReference;
+	RETURN;
+END_IF
+
+IF ModuleCount = 0 THEN
+	RemoveModule := RegistrationResult.CollectionEmpty;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Modules[i] = Module THEN
+		PresentInCollection := TRUE;
+	END_IF
+END_FOR
+
+IF NOT PresentInCollection THEN
+	RemoveModule := RegistrationResult.NotFoundInCollection;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Modules[i] = Module THEN
+		IF i < MaxCount THEN
+			MEMMOVE(ADR(Modules[i]), ADR(Modules[i + 1]), (MaxCount - i) * SIZEOF(Module));
+		ELSE
+			Modules[MaxCount] := 0;
+		END_IF
+
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

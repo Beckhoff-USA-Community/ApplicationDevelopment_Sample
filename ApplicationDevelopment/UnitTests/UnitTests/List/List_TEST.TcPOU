@@ -1,0 +1,357 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="List_TEST" Id="{a848f4ac-0118-45a2-9c47-c6777ed9c090}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK List_TEST
+VAR
+	List  : List;
+	Item1 : Item_Mockup;
+	Item2 : Item_Mockup;
+	Item3 : Item_Mockup;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[InsertByIndex();
+InsertByIndexFail();
+InsertByIndexShift();
+GetByIndex();
+ContainsItemTrue();
+ContainsItemFalse();
+RemoveItemByIndex();
+Clear();
+AddTwoItems();
+RemoveFirstItem();
+RemoveLastItem();
+RemoveToEmpty();
+ContainsAfterItemRemoval();
+RemoveDuplicateItems();
+ContainsOnEmptyList();
+Test();
+InsertIndex0Shift();]]></ST>
+    </Implementation>
+    <Method Name="AddTwoItems" Id="{6b8278f7-507e-4816-8aa2-6e0605d211be}">
+      <Declaration><![CDATA[METHOD AddTwoItems
+VAR_INST
+	Expected : UDINT;
+	Actual	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 2;
+	List.Clear();
+	List.AddItem(Item1);
+	List.AddItem(Item2);
+	Actual := List.Count;
+	List.AddItem(Item3);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Clear" Id="{afebee15-fb3d-4322-a9d8-5ea7b0c92591}">
+      <Declaration><![CDATA[METHOD Clear
+VAR
+	Expected : UDINT;
+	Actual	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 0;
+	List.Clear();
+	Actual := List.Count;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ContainsAfterItemRemoval" Id="{1a680b26-74e2-4ded-82c9-dd0d331ec684}">
+      <Declaration><![CDATA[METHOD ContainsAfterItemRemoval
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	ExpectedItem : I_Base;
+	ActualItem	 : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected	 := TRUE;
+	ExpectedItem := Item2;
+	List.Clear();
+	ExpectedItem := Item2;
+	List.AddItem(Item1);
+	List.AddItem(Item2);
+	List.RemoveItem(Item1);
+	ActualItem := List.GetAtIndex(0);
+	Actual	   := ExpectedItem = ActualItem;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+
+	//cleanup
+	List.Clear();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ContainsItemFalse" Id="{f9bbecf9-ba00-4638-80f2-4044955d76fe}">
+      <Declaration><![CDATA[METHOD ContainsItemFalse
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	Actual	 := List.ContainsItem(Item3);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ContainsItemTrue" Id="{76c58a44-02b6-43d6-a77c-d722386ec806}">
+      <Declaration><![CDATA[METHOD ContainsItemTrue
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Actual	 := List.ContainsItem(Item2);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ContainsOnEmptyList" Id="{eefb6ace-2f99-4090-90a0-410ba8def1b9}">
+      <Declaration><![CDATA[METHOD ContainsOnEmptyList
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	List.Clear();
+	Actual := List.ContainsItem(Item1);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetByIndex" Id="{698dd518-d288-414e-837b-4d9b16dd76b7}">
+      <Declaration><![CDATA[METHOD GetByIndex
+VAR
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := Item2;
+	ActualItem := List.GetAtIndex(1);
+	Actual	   := TargetItem = ActualItem;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertByIndex" Id="{7c1691d2-d493-4c25-a470-a513230c65a0}">
+      <Declaration><![CDATA[METHOD InsertByIndex
+VAR
+	Expected   : UDINT;
+	Actual	   : UDINT;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	List.InsertAtIndex(Item2, 0);
+	Actual := List.Count;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertByIndexFail" Id="{b07346ce-10f2-4261-b88f-d36496b782fc}">
+      <Declaration><![CDATA[METHOD InsertByIndexFail
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := FALSE;
+	Actual	 := List.InsertAtIndex(Item2, 2);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertByIndexShift" Id="{d05a2f82-0fbd-4668-954f-a7a6551b722f}">
+      <Declaration><![CDATA[METHOD InsertByIndexShift
+VAR
+	Expected   : UDINT;
+	Actual	   : UDINT;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 2;
+	List.InsertAtIndex(Item1, 0);
+	Actual := List.Count;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertIndex0Shift" Id="{f7906ceb-2488-4ada-927d-cf7e357086ea}">
+      <Declaration><![CDATA[METHOD InsertIndex0Shift
+VAR
+	Expected	  : BOOL;
+	Actual		  : BOOL;
+	ExpectedItems : ARRAY[0..4] OF I_Base;
+	ActualItems	  : ARRAY[0..4] OF I_Base;
+	Item4		  : Item_Mockup;
+	Item5		  : Item_Mockup;
+	i			  : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		 := TRUE;
+	ExpectedItems[0] := Item5;
+	ExpectedItems[1] := Item1;
+	ExpectedItems[2] := Item2;
+	ExpectedItems[3] := Item3;
+	ExpectedItems[4] := Item4;
+	List.Clear();
+	FOR i := 1 TO 4 DO
+		List.AddItem(ExpectedItems[i]);
+	END_FOR
+
+	List.InsertAtIndex(Item5, 0);
+	Actual := TRUE;
+	FOR i := 0 TO 4 DO
+		ActualItems[i] := List.GetAtIndex(i);
+		Actual		   := Actual AND ExpectedItems[i] = ActualItems[i];
+	END_FOR
+
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+
+	//cleanup
+	List.Clear();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveDuplicateItems" Id="{a123a4c7-ff61-43a7-a23a-86ec6413621f}">
+      <Declaration><![CDATA[METHOD RemoveDuplicateItems
+VAR
+	Expected   : UDINT;
+	Actual	   : UDINT;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := 1;
+	TargetItem := Item2;
+	List.Clear();
+	List.AddItem(Item1);
+	List.AddItem(Item1);
+	List.AddItem(Item2);
+	List.RemoveItem(Item1);
+	Actual := List.Count;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+
+	//cleanup
+	List.Clear();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveFirstItem" Id="{d7314714-9304-44df-b9d3-4b51cffff581}">
+      <Declaration><![CDATA[METHOD RemoveFirstItem
+VAR_INST
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := Item2;
+	List.RemoveItem(Item1);
+	ActualItem := List.GetAtIndex(0);
+	Actual	   := (TargetItem = ActualItem) AND (List.Count = 2);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveItemByIndex" Id="{ee4600d1-f3f2-4c1f-8370-8828504de452}">
+      <Declaration><![CDATA[METHOD RemoveItemByIndex
+VAR
+	Expected   : UDINT;
+	Actual	   : UDINT;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	List.RemoveAtIndex(1);
+	Actual := List.Count;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveLastItem" Id="{22bd23f1-8a23-4f8d-a592-21bf3e4ff4f1}">
+      <Declaration><![CDATA[METHOD RemoveLastItem
+VAR_INST
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := 0;
+	List.RemoveItem(Item3);
+	ActualItem := List.GetAtIndex(2);
+	Actual	   := (TargetItem = ActualItem) AND (List.Count = 1);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveToEmpty" Id="{75a8aa59-d684-4ca1-a48d-66ef396bdc81}">
+      <Declaration><![CDATA[METHOD RemoveToEmpty
+VAR_INST
+	Expected : UDINT;
+	Actual	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 0;
+	List.RemoveItem(Item2);
+	Actual := List.Count;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Test" Id="{0d174a6b-9247-4470-8884-0326d34f7a4a}">
+      <Declaration><![CDATA[METHOD Test
+VAR
+	Expected	 : BOOL;
+	Actual		 : BOOL;
+	ExpectedItem : I_Base;
+	ActualItem	 : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected	 := TRUE;
+	ExpectedItem := Item2;
+	List.Clear();
+	List.AddItem(Item1);
+	List.AddItem(Item2);
+	List.RemoveAtIndex(0);
+	ActualItem := List.GetAtIndex(0);
+	Actual	   := ActualItem = ExpectedItem;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+
+	//cleanup
+	List.Clear();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

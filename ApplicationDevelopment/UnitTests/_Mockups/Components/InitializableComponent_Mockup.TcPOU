@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="InitializableComponent_Mockup" Id="{0237d679-3fbe-430d-ab9d-4b5eace52461}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK InitializableComponent_Mockup EXTENDS CyclicComponent IMPLEMENTS I_Initializable
+VAR
+	_Initialized		 : BOOL;
+	_WasCalled			 : BOOL;
+	_InitializeWasCalled : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CyclicLogic" Id="{e17420a8-da52-4418-a33e-8a620976bf99}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_WasCalled := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize" Id="{ea814110-96a1-4b70-be99-de90aab3cac0}">
+      <Declaration><![CDATA[METHOD Initialize]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_InitializeWasCalled := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Initialized" Id="{659c2ca7-5371-45b7-8a37-97a800f80ce9}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Initialized : BOOL]]></Declaration>
+      <Get Name="Get" Id="{0d59e794-595c-4564-bcc3-3b6c39e07e8a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Initialized := _Initialized;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{75b7efef-09c4-4669-9af2-37eb657b7bed}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Initialized := Initialized;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="InitializeWasCalled" Id="{0ce6dcf3-3f21-4912-9b52-248db5b25acb}">
+      <Declaration><![CDATA[PROPERTY InitializeWasCalled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ad23f689-a61a-40ae-b413-959f283e2896}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InitializeWasCalled := _InitializeWasCalled;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="WasCalled" Id="{34d7e35b-df19-429e-b4a5-2c9fc9b2f868}">
+      <Declaration><![CDATA[PROPERTY WasCalled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f6135d86-2384-4926-9c68-f5e1d3003fe0}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[WasCalled := _WasCalled;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

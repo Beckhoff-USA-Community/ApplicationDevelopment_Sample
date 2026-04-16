@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TcpIpCommandResultFilter" Id="{0507e34a-38d9-48bf-841d-7b0c2a63d377}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT TcpIpCommandResultFilter EXTENDS CyclicComponent IMPLEMENTS I_TcpIpSubscription
+VAR
+	TcpIpConnection : I_TcpIpConnection;
+	{attribute 'hide'}
+	_Initialized   : BOOL := FALSE;
+	CommandActive  : BOOL;
+	CommandTimeout : TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{3a8db91a-3fc2-4025-83c4-293aa3706bf3}" />
+    <Method Name="CyclicLogic" Id="{71766dd8-3a13-4718-9375-c127d4d01761}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CommandTimeout(IN := CommandActive, PT := T#10S);
+IF CommandTimeout.Q THEN
+	CommandActive := FALSE;
+	Trace.Info(_Name, CONCAT('Command response not recieved! ', Name));
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{af31e07e-2ed9-435e-8b11-c49b3d0a30e1}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode		: BOOL;
+	Name			: T_MaxString;
+	TcpIpConnection : I_TcpIpConnection;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.TcpIpConnection := TcpIpConnection;
+TcpIpConnection.RegisterCommand(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UpdateCommandResult" Id="{520a46f5-d946-4402-9d98-1e203fef5177}">
+      <Declaration><![CDATA[METHOD ABSTRACT UpdateCommandResult
+VAR_INPUT
+	Response : POINTER TO ST_TcpIpPayload;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Filter incoming TcpIp traffic here!]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Cylinder_TcEvents" Id="{5f57b7b2-2b65-46c8-83f6-18f24964ca56}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Cylinder_TcEvents EXTENDS CyclicComponent IMPLEMENTS I_EventReactionTcEvents
+VAR
+	Cylinder : I_Cylinder;
+	Events	 : TcEventClass(CONCAT(Name, ' Events'));
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Events" Id="{93a86838-21da-48a3-8a43-69587f71619c}" />
+    <Method Name="CyclicLogic" Id="{a8fa025d-6472-49f7-8d70-1d0e2d1879ba}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Cylinder.Error THEN
+	CASE Cylinder.ErrorId OF
+		E_CylinderErrorId.NoError:
+			;
+
+		E_CylinderErrorId.BothSensorsActive:
+			Events.RaiseEvent(E_cylinder.BothSensorsActive);
+
+		E_CylinderErrorId.ExtendedPlausibility:
+			Events.RaiseEvent(E_cylinder.ExtendedPlausibility);
+
+		E_CylinderErrorId.ExtendTimeout:
+			Events.RaiseEvent(E_cylinder.ExtendTimeout);
+
+		E_CylinderErrorId.RetractedPlausibility:
+			Events.RaiseEvent(E_cylinder.RetractedPlausibility);
+
+		E_CylinderErrorId.RetractTimeout:
+			Events.RaiseEvent(E_cylinder.RetractTimeout);
+	END_CASE
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{936c04eb-d4fa-4b24-8ee9-822ea6179af7}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	Cylinder	: I_Cylinder;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Cylinder := Cylinder;
+Events.GenerateTcEvents(Cylinder.Name, ADR(TC_events.Cylinder), SIZEOF(ST_Cylinder));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventReaction" Id="{16270eef-2b63-47cc-8658-af5dee659974}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventReaction := Events.GetHighestActiveEventReaction();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{79c7f74a-2f48-413b-9bba-c8edcb6d03db}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventSeverity := Events.GetHighestActiveEventSeverity();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{d7c03942-f091-4aaf-bfee-3845a5bafe0c}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.Reset();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEventReactions" Id="{ca107468-7b48-425a-9d75-24182497ddfd}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.SetEventReactions(Verbose,
+						 Info,
+						 Warning,
+						 Error,
+						 Critical);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

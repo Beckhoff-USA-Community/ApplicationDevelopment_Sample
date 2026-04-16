@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_TerminalProductInfo" Id="{eefb6112-08f2-4fd3-a42a-06f2752b0325}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '2'}
+TYPE ST_TerminalProductInfo : // Parameter 16#1018:0
+	STRUCT
+		Identity	 : WORD;
+		VendorId	 : DINT;
+		ProductCode	 : DINT;
+		Revision	 : DINT;
+		SerialNumber : DINT;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

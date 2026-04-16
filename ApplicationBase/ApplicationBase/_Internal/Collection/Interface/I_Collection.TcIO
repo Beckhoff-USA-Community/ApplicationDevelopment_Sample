@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Collection" Id="{c757555d-4a1d-49bf-8710-866778da8742}">
+    <Declaration><![CDATA[INTERFACE I_Collection EXTENDS I_Enumerator]]></Declaration>
+    <Method Name="AddItem" Id="{2d6767a3-2140-4c48-ba5d-63344ac016a3}">
+      <Declaration><![CDATA[METHOD AddItem
+VAR_INPUT
+	Item : I_Base;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="Clear" Id="{79dae6dc-2d10-437d-b5eb-68284dbb1438}">
+      <Declaration><![CDATA[METHOD Clear
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Count" Id="{4e1decf6-5bbb-40a6-a343-dc1340df0ca0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Count : UDINT]]></Declaration>
+      <Get Name="Get" Id="{5cfc5a90-3f7e-45f2-88fc-a0096cdd3872}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="IsEmpty" Id="{fc97bf38-a655-4efe-9740-40b141064c1b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IsEmpty : BOOL]]></Declaration>
+      <Get Name="Get" Id="{87db1896-9e25-4dbd-a403-90045b330513}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="RemoveItem" Id="{89e998f2-649f-4e35-9265-7b42ca0dddf7}">
+      <Declaration><![CDATA[METHOD RemoveItem
+VAR_INPUT
+	Item : I_Base;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

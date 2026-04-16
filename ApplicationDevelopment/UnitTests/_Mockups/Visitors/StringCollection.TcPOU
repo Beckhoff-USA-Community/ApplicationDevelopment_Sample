@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="StringCollection" Id="{654120d4-4e4d-4c4e-9a4a-7fb914e0ce56}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK StringCollection
+VAR_GENERIC CONSTANT
+	StringMax : UDINT := 100;
+END_VAR IMPLEMENTS I_StringCollection;
+VAR
+	Collection : ARRAY[0..StringMax] OF T_MaxString;
+	_Entries   : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AddString" Id="{9423c335-26ef-452a-8c25-4ab78a9f7556}">
+      <Declaration><![CDATA[METHOD AddString
+VAR_INPUT
+	StringToAdd : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Entries > StringMax THEN
+	RETURN;
+END_IF
+
+Collection[_Entries] := StringToAdd;
+_Entries			 := _Entries + 1;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Clear" Id="{cdb772fe-7b7c-42e9-b7ad-a0678639c90b}">
+      <Declaration><![CDATA[METHOD Clear : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MEMSET(ADR(Collection), 0, SIZEOF(Collection));
+_Entries := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Entries" Id="{a685181b-f362-41a4-87b0-1c7a17f5860c}">
+      <Declaration><![CDATA[PROPERTY Entries : UDINT]]></Declaration>
+      <Get Name="Get" Id="{9e10d42a-6c3d-4147-ade7-296104871311}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Entries := _Entries;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

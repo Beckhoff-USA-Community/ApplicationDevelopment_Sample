@@ -1,0 +1,671 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ListBuffer" Id="{035aeb58-d2b0-41bd-9654-fb44a8d66373}" SpecialFunc="None">
+    <Declaration><![CDATA[// Provides a directional FIFO list with automatic shift-and-overwrite when full
+FUNCTION_BLOCK ListBuffer IMPLEMENTS I_AnyBufferStrategy
+VAR
+	anyBuffer	  : I_AnyBuffer;
+	isInitialized : BOOL := FALSE;
+	_reversed	  : BOOL := FALSE; // TRUE: add at left, FALSE: add at right (end)
+END_VAR
+
+(*
+## Detailed Description
+
+List is an adapter that wraps an AnyBuffer instance to provide a configurable-direction
+FIFO (First-In-First-Out) list with automatic shift-and-overwrite capability. Unlike a
+simple ring buffer, this implementation physically shifts elements when the buffer is full
+to maintain contiguous storage and consistent indexing.
+
+### Design Rationale
+This adapter is called "List" because it provides list-like semantics:
+- Elements are stored contiguously in memory
+- Insertion direction can be configured (prepend vs append)
+- Automatic capacity management with shift-on-overwrite
+- Maintains FIFO ordering regardless of fill direction
+
+### Design Pattern
+This implements the **Adapter Pattern** with directional configuration:
+- Wraps the AnyBuffer interface with configurable list semantics
+- Delegates all operations to the underlying AnyBuffer instance
+- Provides automatic shift-and-overwrite when buffer reaches capacity
+- Uses private helper methods for clean code organization
+
+### Directional Fill Semantics
+
+**Fill From Left (fillFromLeft = TRUE)**:
+- Push adds at index 0 (AppendLeft) - newest at front
+- Pop removes from highest index (PopRight) - oldest at end
+- When full: Remove oldest (PopRight), add new (AppendLeft)
+- Visual: [newest] ← [older] ← [oldest]
+
+**Fill From Right (fillFromLeft = FALSE)**:
+- Push adds at end (AppendRight) - newest at end
+- Pop removes from index 0 (PopLeft) - oldest at front
+- When full: Remove oldest (PopLeft), add new (AppendRight)
+- Visual: [oldest] → [older] → [newest]
+
+### Operation Mapping
+
+**When fillFromLeft = TRUE:**
+```
+Push() not full  -> AppendLeft()          // Add to front
+Push() full      -> PopRight() + AppendLeft()  // Remove oldest (end), add new (front)
+Pop()            -> PopRight()            // Remove oldest (end)
+```
+
+**When fillFromLeft = FALSE:**
+```
+Push() not full  -> AppendRight()         // Add to end
+Push() full      -> PopLeft() + AppendRight()  // Remove oldest (front), add new (end)
+Pop()            -> PopLeft()             // Remove oldest (front)
+```
+
+### Usage Example - Fill From Left
+
+```iecst
+VAR
+    rawBuffer : ARRAY[0..2] OF DINT;  // 3-element buffer
+    buffer : AnyBuffer(pBuffer := rawBuffer,
+                       bufferBoundLower := 0,
+                       bufferBoundUpper := 2,
+                       isBufferPersistent := FALSE);
+    list : List(anyBuffer := buffer, fillFromLeft := TRUE);
+    value : DINT;
+END_VAR
+
+// Fill from left (prepend)
+value := 100; list.Push(value);  // Buffer: [100]
+value := 200; list.Push(value);  // Buffer: [200, 100]
+value := 300; list.Push(value);  // Buffer: [300, 200, 100] - Full
+
+// Push to full buffer - oldest (100) removed, new prepended
+value := 400; list.Push(value);  // Buffer: [400, 300, 200]
+value := 500; list.Push(value);  // Buffer: [500, 400, 300]
+
+// Pop removes oldest (from end)
+list.Pop(value);  // value = 300, Buffer: [500, 400]
+list.Pop(value);  // value = 400, Buffer: [500]
+```
+
+### Usage Example - Fill From Right
+
+```iecst
+VAR
+    rawBuffer : ARRAY[0..2] OF DINT;  // 3-element buffer
+    buffer : AnyBuffer(pBuffer := rawBuffer,
+                       bufferBoundLower := 0,
+                       bufferBoundUpper := 2,
+                       isBufferPersistent := FALSE);
+    list : List(anyBuffer := buffer, fillFromLeft := FALSE);
+    value : DINT;
+END_VAR
+
+// Fill from right (append)
+value := 100; list.Push(value);  // Buffer: [100]
+value := 200; list.Push(value);  // Buffer: [100, 200]
+value := 300; list.Push(value);  // Buffer: [100, 200, 300] - Full
+
+// Push to full buffer - oldest (100) removed, new appended
+value := 400; list.Push(value);  // Buffer: [200, 300, 400]
+value := 500; list.Push(value);  // Buffer: [300, 400, 500]
+
+// Pop removes oldest (from front)
+list.Pop(value);  // value = 300, Buffer: [400, 500]
+list.Pop(value);  // value = 400, Buffer: [500]
+```
+
+### Shift-and-Overwrite Visualization (fillFromLeft = FALSE)
+
+```
+Initial state (capacity 3):
+[ ][ ][ ]
+
+After pushing 100, 200, 300:
+[100][200][300]  <- Full
+ ↑           ↑
+oldest    newest
+
+After pushing 400 (shifts and overwrites):
+Step 1: PopLeft removes 100
+[200][300][ ]
+
+Step 2: AppendRight adds 400
+[200][300][400]
+ ↑           ↑
+oldest    newest
+
+After pushing 500:
+[300][400][500]
+ ↑           ↑
+oldest    newest
+```
+
+### Advantages
+- **Consistent indexing**: Elements always occupy contiguous indices starting from 0
+- **Configurable direction**: Can optimize for prepend or append patterns
+- **Automatic capacity management**: Always maintains most recent N elements
+- **Predictable memory layout**: No internal index tracking, uses actual array positions
+- **Clean implementation**: Private helper methods separate concerns
+
+### Use Cases
+- **Directional data streams**: Logs that grow in specific direction
+- **Time-series data**: Keep most recent N samples with natural ordering
+- **Event history**: Maintain fixed-size event list with temporal ordering
+- **Undo/redo buffers**: Limited-size command history
+- **Message queues**: Fixed-size message buffers with FIFO ordering
+
+### Comparison with Other Adapters
+
+| Feature | FifoBuffer | RingBuffer | List |
+|---------|-----------|------------|------|
+| Overwrite when full | No (fails) | Yes | Yes |
+| Fill direction | Fixed | Fixed | Configurable |
+| Physical shifting | Always | On overwrite | On overwrite |
+| Index stability | No | No | Yes (contiguous) |
+| Use case | Queue | Circular log | Directional list |
+
+### Performance Considerations
+
+**Fill From Left (fillFromLeft = TRUE)**:
+- **Push (not full)**: O(n) - AppendLeft shifts all elements
+- **Push (full)**: O(n) - PopRight + AppendLeft, double shift
+- **Pop**: O(1) - PopRight removes last element
+
+**Fill From Right (fillFromLeft = FALSE)**:
+- **Push (not full)**: O(1) - AppendRight adds to end
+- **Push (full)**: O(n) - PopLeft shifts + AppendRight
+- **Pop**: O(n) - PopLeft shifts remaining elements
+
+**Recommendation**: Set fillFromLeft based on your access pattern:
+- Frequent pushes, infrequent pops: fillFromLeft = FALSE (O(1) push)
+- Frequent pops, infrequent pushes: fillFromLeft = TRUE (O(1) pop)
+
+### Private Helper Methods
+
+The implementation uses private helper methods for code organization:
+- `pushInternal()`: Encapsulates push logic with direction handling
+- `popInternal()`: Encapsulates pop logic with direction handling
+- `removeOldest()`: Removes oldest element based on fill direction
+
+This separation improves:
+- Code readability and maintainability
+- Testability of individual operations
+- Reusability of common logic
+
+### Dependencies
+- Requires I_AnyBuffer implementation (e.g., AnyBuffer)
+- Uses Trace for error logging and verbose diagnostics
+- Implements I_AnyBufferStrategy interface
+
+### Related Patterns
+- **FifoBuffer**: FIFO without overwrite, fixed left-to-right fill
+- **RingBuffer**: Circular buffer with overwrite, fixed fill direction
+- **LifoBuffer**: Stack (Last-In-First-Out) semantics
+*)
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Clear" Id="{fa333a0f-dfce-409d-83ec-9b28b57f79f1}">
+      <Declaration><![CDATA[// Removes all elements from the list and resets to empty state
+METHOD Clear : BOOL
+
+(*
+## Detailed Description
+
+Clears all elements from the underlying buffer, resetting it to an empty state.
+After calling Clear, isEmpty will return TRUE and elementCount will be 0.
+
+This operation delegates directly to the underlying anyBuffer.Clear() method.
+
+### Return Value
+- **TRUE**: List was successfully cleared
+- **FALSE**: Clear operation failed (e.g., anyBuffer is not initialized)
+
+### Side Effects
+- All elements are removed from the buffer
+- Element count is reset to 0
+- Buffer capacity is restored to maximum
+- Logs verbose trace message on success
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Clear := FALSE;
+IF anyBuffer <> 0 THEN
+	Clear := anyBuffer.Clear();
+END_IF
+
+Trace.Verbose(__POUNAME(), 'executed');]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{83462b9f-5de2-49c5-b255-d1249675cfda}">
+      <Declaration><![CDATA[// Initializes the list by injecting the underlying buffer dependency
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL;		  // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL;		  // TRUE: the instance will be copied to the copy code afterward (online change)
+	anyBuffer	 : I_AnyBuffer;	  // The underlying buffer implementation to wrap
+	fillFromLeft : BOOL := FALSE; // TRUE: fill from left (prepend), FALSE: fill from right (append)
+END_VAR
+
+(*
+## Detailed Description
+
+Initializes the List by injecting the underlying AnyBuffer dependency and configuring
+the fill direction. This follows the dependency injection pattern where the buffer
+implementation and behavior are provided during construction.
+
+### Initialization Sequence
+1. Validates that a valid anyBuffer reference is provided (non-zero pointer)
+2. Stores the buffer reference for use by Push, Pop, and other operations
+3. Stores the fillFromLeft flag to control insertion direction
+4. Sets isInitialized flag to TRUE to enable operations
+
+### Parameters
+- **anyBuffer**: Reference to an I_AnyBuffer implementation (e.g., AnyBuffer instance)
+  - Must be a valid, initialized buffer
+  - This List will delegate all operations to this buffer
+- **fillFromLeft**: Controls insertion direction and FIFO ordering
+  - **FALSE** (default): Fill from right - AppendRight for push, PopLeft for pop
+    - Newest elements at high indices, oldest at index 0
+    - Optimized for frequent pushes (O(1))
+  - **TRUE**: Fill from left - AppendLeft for push, PopRight for pop
+    - Newest elements at index 0, oldest at high indices
+    - Optimized for frequent pops (O(1))
+
+### Return Value
+Returns BOOL but value is not evaluated by the runtime. Always call with valid anyBuffer.
+
+### Usage Example - Append Mode (fillFromLeft = FALSE)
+```iecst
+VAR
+    rawBuffer : ARRAY[0..9] OF DINT;
+    buffer : AnyBuffer(pBuffer := rawBuffer,
+                       bufferBoundLower := 0,
+                       bufferBoundUpper := 9,
+                       isBufferPersistent := FALSE);
+    list : List(anyBuffer := buffer,
+                fillFromLeft := FALSE);  // Append mode (default)
+END_VAR
+// Push is O(1), Pop is O(n)
+```
+
+### Usage Example - Prepend Mode (fillFromLeft = TRUE)
+```iecst
+VAR
+    rawBuffer : ARRAY[0..9] OF DINT;
+    buffer : AnyBuffer(pBuffer := rawBuffer,
+                       bufferBoundLower := 0,
+                       bufferBoundUpper := 9,
+                       isBufferPersistent := FALSE);
+    list : List(anyBuffer := buffer,
+                fillFromLeft := TRUE);  // Prepend mode
+END_VAR
+// Push is O(n), Pop is O(1)
+```
+
+### Important Notes
+- Must provide a valid anyBuffer reference, otherwise Push/Pop will fail
+- The underlying buffer must already be initialized before passing to FB_Init
+- Choose fillFromLeft based on your access pattern for optimal performance
+- The fill direction cannot be changed after initialization
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF anyBuffer <> 0 THEN
+	THIS^.anyBuffer := anyBuffer;
+	THIS^._reversed := fillFromLeft;
+	isInitialized	:= TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="isEmpty" Id="{1546d14a-9d84-433b-b38f-10e25d7e2f67}">
+      <Declaration><![CDATA[// Returns TRUE if the list contains no elements
+PROPERTY isEmpty : BOOL
+
+(*
+## Detailed Description
+
+Returns TRUE if the list is empty (contains no elements), FALSE otherwise.
+This property delegates directly to the underlying anyBuffer.isEmpty property.
+
+Use this property to check if Pop operation would succeed before attempting to
+remove an element.
+
+### Return Value
+- **TRUE**: List is empty (elementCount = 0)
+- **FALSE**: List contains one or more elements
+
+### Usage Example
+```iecst
+IF NOT list.isEmpty THEN
+    list.Pop(value);  // Safe to pop
+END_IF
+```
+*)
+]]></Declaration>
+      <Get Name="Get" Id="{5d99d15d-b604-4b07-a847-948033d3255f}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isEmpty := anyBuffer.isEmpty;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="isFull" Id="{e3e76755-6837-4c71-b951-d839fc5464da}">
+      <Declaration><![CDATA[// Returns TRUE if the list is at maximum capacity
+PROPERTY isFull : BOOL
+
+(*
+## Detailed Description
+
+Returns TRUE if the list is full (at maximum capacity), FALSE otherwise.
+This property delegates directly to the underlying anyBuffer.isFull property.
+
+Note: Push will still succeed when isFull is TRUE by automatically removing the
+oldest element and shifting remaining elements. This property is informational
+and indicates when the next Push will trigger shift-and-overwrite behavior.
+
+### Return Value
+- **TRUE**: List is full (elementCount = capacity)
+- **FALSE**: List has space for more elements
+
+### Usage Example
+```iecst
+IF list.isFull THEN
+    // Next Push will remove oldest element and shift
+    Trace.Info('List', 'Next push will overwrite oldest element');
+END_IF
+
+value := 100;
+success := list.Push(value);  // Will succeed even if full
+```
+*)
+]]></Declaration>
+      <Get Name="Get" Id="{f50c4197-03f3-40ff-8cf7-e834bf1be49f}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isFull := anyBuffer.isFull;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Pop" Id="{97a570d6-a61f-46fe-a6fa-0b4b5c4633ea}">
+      <Declaration><![CDATA[// Removes and retrieves the oldest element from the list (FIFO dequeue)
+{attribute 'hasanytype'}
+METHOD Pop : BOOL
+VAR_INPUT
+	element : ANY; // Variable to receive the popped element
+END_VAR
+
+(*
+## Detailed Description
+
+Removes and retrieves the oldest element from the list following FIFO (First-In-First-Out)
+semantics. The location of the oldest element depends on the fillFromLeft configuration:
+- fillFromLeft = TRUE: Oldest at end (highest index), uses PopRight
+- fillFromLeft = FALSE: Oldest at front (index 0), uses PopLeft
+
+This method delegates to the private popInternal() helper method for implementation.
+
+### Operation by Fill Direction
+
+**Fill From Left (fillFromLeft = TRUE)**:
+- Oldest element is at highest index (end of list)
+- Uses PopRight to remove (O(1) operation)
+- No shifting required
+
+**Fill From Right (fillFromLeft = FALSE)**:
+- Oldest element is at index 0 (front of list)
+- Uses PopLeft to remove (O(n) operation)
+- All remaining elements shift one position left
+
+### Return Value
+- **TRUE**: Element was successfully popped and copied to element parameter
+- **FALSE**: Pop operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer was not initialized
+- Returns FALSE and logs error if element size doesn't match buffer element size
+- Returns FALSE and logs error if list is empty (no elements to pop)
+- Returns FALSE and logs error if underlying pop operation fails
+
+### Parameters
+- **element**: Must be a writable variable (not a literal) of the correct size
+  - Must match the buffer's configured element size
+  - Will receive the popped element value on success
+
+### Side Effects
+- Removes one element from the list
+- May shift remaining elements (fillFromLeft = FALSE)
+- Decrements element count by 1
+- Increases available capacity by 1
+- Logs verbose trace message on success
+- Logs error trace message on failure
+
+### Performance
+- **fillFromLeft = TRUE**: O(1) - removes from end, no shifting
+- **fillFromLeft = FALSE**: O(n) - removes from front, shifts all remaining elements
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Pop := FALSE;
+IF NOT isInitialized THEN
+	Trace.Error(__POUNAME(), 'Buffer was not initialized yet, execute method .init() at least once');
+	RETURN;
+END_IF
+
+// Valid sized element?
+IF element.diSize <> anyBuffer.Configuration.elementSize THEN
+	Trace.Error(__POUNAME(), 'Passed element to pop to is of improper size');
+	RETURN;
+END_IF
+
+// Check if empty
+IF isEmpty THEN
+	Trace.Error(__POUNAME(), 'Attempt to pop from empty buffer');
+	RETURN;
+END_IF
+
+// pop element based on fill direction
+IF _reversed THEN
+	// Fill from left: oldest element is at the end (highest index)
+	Pop := anyBuffer.PopRight(element);
+ELSE
+	// Fill from right: oldest element is at the front (index 0)
+	Pop := anyBuffer.PopLeft(element);
+END_IF
+
+// Trace result
+IF Pop THEN
+	Trace.Verbose(__POUNAME(), 'executed');
+ELSE
+	Trace.Error(__POUNAME(), 'FAILED');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Push" Id="{863b8d3a-61d1-4d2e-bdfb-6c52d1123b9b}">
+      <Declaration><![CDATA[// Adds a new element to the list with automatic shift-and-overwrite when full
+{attribute 'hasanytype'}
+METHOD Push : BOOL
+VAR_INPUT
+	element : ANY; // Element to add to the list
+END_VAR
+
+(*
+## Detailed Description
+
+Adds a new element to the list. The insertion location depends on the fillFromLeft
+configuration:
+- fillFromLeft = TRUE: Adds at front (index 0) using AppendLeft
+- fillFromLeft = FALSE: Adds at end using AppendRight
+
+When the list is full, the oldest element is automatically removed and remaining
+elements are shifted to make space for the new element.
+
+### Operation Sequence (Not Full)
+1. Validates that the buffer has been initialized
+2. Validates that element size matches the buffer's configured element size
+3. Adds element based on fill direction:
+   - fillFromLeft = TRUE: AppendLeft (insert at index 0, shift existing right)
+   - fillFromLeft = FALSE: AppendRight (insert at end)
+4. Logs verbose trace on success or error trace on failure
+
+### Operation Sequence (Full)
+1. Validates that the buffer has been initialized
+2. Validates that element size matches the buffer's configured element size
+3. Removes oldest element based on fill direction:
+   - fillFromLeft = TRUE: PopRight removes from end
+   - fillFromLeft = FALSE: PopLeft removes from front and shifts
+4. Adds new element based on fill direction:
+   - fillFromLeft = TRUE: AppendLeft adds at front and shifts
+   - fillFromLeft = FALSE: AppendRight adds at end
+5. Logs verbose trace on success or error trace on failure
+
+### Fill From Left Example (fillFromLeft = TRUE)
+```iecst
+// Buffer capacity = 3
+value := 100; list.Push(value);  // [100]
+value := 200; list.Push(value);  // [200, 100]
+value := 300; list.Push(value);  // [300, 200, 100] - Full
+
+// Push to full: Remove 100 (end), add 400 (front)
+value := 400; list.Push(value);  // [400, 300, 200]
+
+// Visual: [newest=400, 300, oldest=200]
+list.Pop(value);  // Returns 200 (oldest from end)
+```
+
+### Fill From Right Example (fillFromLeft = FALSE)
+```iecst
+// Buffer capacity = 3
+value := 100; list.Push(value);  // [100]
+value := 200; list.Push(value);  // [100, 200]
+value := 300; list.Push(value);  // [100, 200, 300] - Full
+
+// Push to full: Remove 100 (front), add 400 (end)
+value := 400; list.Push(value);  // [200, 300, 400]
+
+// Visual: [oldest=200, 300, newest=400]
+list.Pop(value);  // Returns 200 (oldest from front)
+```
+
+### Return Value
+- **TRUE**: Element was successfully pushed to the list
+- **FALSE**: Push operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer was not initialized
+- Returns FALSE and logs error if element size doesn't match buffer element size
+- Returns FALSE and logs error if underlying append operation fails
+
+### Parameters
+- **element**: Must be a writable variable (not a literal) of the correct size
+  - Must match the buffer's configured element size
+  - Value will be copied into the list
+
+### Side Effects (Not Full)
+- Adds one element to the list
+- May shift existing elements (fillFromLeft = TRUE shifts right)
+- Increments element count by 1
+- Decrements available capacity by 1
+
+### Side Effects (Full)
+- Removes oldest element
+- Shifts remaining elements (direction depends on fillFromLeft)
+- Adds new element
+- Element count remains at maximum capacity
+
+### Performance
+**fillFromLeft = TRUE (prepend mode)**:
+- Not full: O(n) - AppendLeft shifts all existing elements right
+- Full: O(n) - PopRight (O(1)) + AppendLeft (O(n))
+
+**fillFromLeft = FALSE (append mode)**:
+- Not full: O(1) - AppendRight adds to end
+- Full: O(n) - PopLeft (O(n)) + AppendRight (O(1))
+
+Choose fillFromLeft based on your access pattern for optimal performance.
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Push := FALSE;
+IF NOT isInitialized THEN
+	Trace.Error(__POUNAME(), 'Buffer was not initialized yet, execute method .init() at least once');
+	RETURN;
+END_IF
+
+// Valid sized element?
+IF element.diSize <> anyBuffer.Configuration.elementSize THEN
+	Trace.Error(__POUNAME(), 'Pushed element is of improper size');
+	RETURN;
+END_IF
+
+// If buffer is full, remove oldest element first
+IF isFull THEN
+	IF NOT removeOldest() THEN
+		Trace.Error(__POUNAME(), 'Failed to remove oldest element');
+		RETURN;
+	END_IF
+END_IF
+
+// push element based on fill direction
+IF _reversed THEN
+	// Fill from left: add new element at front (index 0)
+	Push := anyBuffer.PushLeft(element);
+ELSE
+	// Fill from right: add new element at end
+	Push := anyBuffer.PushRight(element);
+END_IF
+
+// Trace result
+IF Push THEN
+	Trace.Verbose(__POUNAME(), 'executed');
+ELSE
+	Trace.Error(__POUNAME(), 'FAILED');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="removeOldest" Id="{9b9a6968-0181-48be-aba0-9e9c8d4bd84e}">
+      <Declaration><![CDATA[// Private helper method to remove the oldest element based on fill direction
+METHOD PRIVATE removeOldest : BOOL
+VAR
+	dummyElement : ANYTYPE; // For discarding oldest element
+END_VAR
+
+(*
+## Detailed Description
+
+Private helper method that removes the oldest element from the list based on the
+fill direction. This method is called by Push() when the buffer is full to make
+space for a new element.
+
+### Operation
+- fillFromLeft = TRUE: Oldest at end (high index), uses PopRight
+- fillFromLeft = FALSE: Oldest at front (index 0), uses PopLeft
+
+The removed element is discarded as we only care about making space.
+
+### Return Value
+- **TRUE**: Oldest element was successfully removed
+- **FALSE**: Remove operation failed
+
+### Side Effects
+- Removes one element from the list
+- May shift remaining elements (fillFromLeft = FALSE)
+- Decrements element count by 1
+- Increases available capacity by 1
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[removeOldest := FALSE;
+IF _reversed THEN
+	// Fill from left: oldest element is at the end (highest index)
+	removeOldest := anyBuffer.PopRight(dummyElement, TRUE);
+ELSE
+	// Fill from right: oldest element is at the front (index 0)
+	removeOldest := anyBuffer.PopLeft(dummyElement, TRUE);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ModuleVisitor_Mockup" Id="{4c92a9f0-6f24-4187-a338-e0b5508fbebf}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ModuleVisitor_Mockup IMPLEMENTS I_ModuleVisitor
+VAR
+	StringCollection : I_StringCollection;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_Init" Id="{4cd894c9-5569-4eff-ae49-bc645506739d}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains	 : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode		 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	StringCollection : I_StringCollection;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.StringCollection := StringCollection;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{177db973-76fd-4df5-adc9-9685c1b80c66}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StringCollection.AddString(Module.Name);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

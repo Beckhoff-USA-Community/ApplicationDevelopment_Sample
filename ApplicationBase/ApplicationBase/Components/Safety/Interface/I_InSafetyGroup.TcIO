@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_InSafetyGroup" Id="{103af291-27bd-4f2e-84a7-37f9e3654eff}">
+    <Declaration><![CDATA[INTERFACE I_InSafetyGroup EXTENDS I_Base]]></Declaration>
+    <Property Name="SafetyGroup" Id="{0b114d3b-7457-419e-850b-91910b1e8c2e}">
+      <Declaration><![CDATA[PROPERTY SafetyGroup : I_TaskResult]]></Declaration>
+      <Set Name="Set" Id="{4f569d64-cc5b-453b-87fc-c8cef5482f49}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

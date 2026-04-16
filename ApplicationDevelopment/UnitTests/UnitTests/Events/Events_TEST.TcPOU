@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Events_TEST" Id="{f8edee66-00b8-4c98-8cf2-362c013d99e2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Events_TEST
+VAR
+	CyclicComponent_Mockup : CyclicComponent_Mockup('UnitTest Component');
+	MockupComponentTcEvent : MockupComponentTcEvent('UnitTest Component Events', CyclicComponent_Mockup);
+	Trigger				   : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[MockupComponentTcEvent.SetEventReactions(10,
+										 20,
+										 30,
+										 40,
+										 50);
+
+RaiseVerboseEventAndCheckReaction();
+RaiseInfoEventAndCheckReaction();
+RaiseWarningEventAndCheckReaction();
+RaiseErrorEventAndCheckReaction();
+RaiseCriticalEventAndCheckReaction();
+ClearEvents();
+SetEventAndRaise();
+CheckIsResettable();
+Reset();]]></ST>
+    </Implementation>
+    <Method Name="CheckIsResettable" Id="{f26b6b2d-26b1-45f3-9100-72231c18fec1}">
+      <Declaration><![CDATA[METHOD CheckIsResettable
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Trigger := FALSE;
+	MockupComponentTcEvent.Events.CyclicLogic();
+	Actual := MockupComponentTcEvent.Events.IsResettable;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearEvents" Id="{06240b37-aaab-4284-8b4e-34d450b8f712}">
+      <Declaration><![CDATA[METHOD ClearEvents
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 10;
+	MockupComponentTcEvent.Reset();
+	Actual := MockupComponentTcEvent.GetHighestActiveEventReaction();
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RaiseCriticalEventAndCheckReaction" Id="{78a88491-f562-44c7-a49c-d5ffc6669318}">
+      <Declaration><![CDATA[METHOD RaiseCriticalEventAndCheckReaction
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 50;
+	MockupComponentTcEvent.RaiseTestEvent(TcEventSeverity.Critical);
+	Actual := MockupComponentTcEvent.GetHighestActiveEventReaction();
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RaiseErrorEventAndCheckReaction" Id="{844f6bdd-c48f-4e23-814a-25c8705d01e4}">
+      <Declaration><![CDATA[METHOD RaiseErrorEventAndCheckReaction
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 40;
+	MockupComponentTcEvent.RaiseTestEvent(TcEventSeverity.Error);
+	Actual := MockupComponentTcEvent.GetHighestActiveEventReaction();
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RaiseInfoEventAndCheckReaction" Id="{45c1b8c2-579b-4b32-868e-c5d7f4384bd1}">
+      <Declaration><![CDATA[METHOD RaiseInfoEventAndCheckReaction
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 20;
+	MockupComponentTcEvent.RaiseTestEvent(TcEventSeverity.Info);
+	Actual := MockupComponentTcEvent.GetHighestActiveEventReaction();
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RaiseVerboseEventAndCheckReaction" Id="{b7ced16b-d116-43f6-91ac-5a50caf004a0}">
+      <Declaration><![CDATA[METHOD RaiseVerboseEventAndCheckReaction
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 10;
+	MockupComponentTcEvent.RaiseTestEvent(TcEventSeverity.Verbose);
+	Actual := MockupComponentTcEvent.GetHighestActiveEventReaction();
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RaiseWarningEventAndCheckReaction" Id="{1ce5c78f-a231-4899-bb88-9c750d5c9959}">
+      <Declaration><![CDATA[METHOD RaiseWarningEventAndCheckReaction
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 30;
+	MockupComponentTcEvent.RaiseTestEvent(TcEventSeverity.Warning);
+	Actual := MockupComponentTcEvent.GetHighestActiveEventReaction();
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{82ec40d6-f9d7-48e5-ac8f-5ec23c9504ef}">
+      <Declaration><![CDATA[METHOD Reset
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 10;
+	MockupComponentTcEvent.Reset();
+	Actual := MockupComponentTcEvent.GetHighestActiveEventReaction();
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEventAndRaise" Id="{c15ea134-b14b-44e4-b548-7b0dcbcbdf6d}">
+      <Declaration><![CDATA[METHOD SetEventAndRaise
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 40;
+	MockupComponentTcEvent.Events.SetEvent(E_TestComponent.SetEvent, ADR(Trigger), FALSE);
+	Trigger := TRUE;
+	MockupComponentTcEvent.Events.CyclicLogic();
+	Actual := MockupComponentTcEvent.GetHighestActiveEventReaction();
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

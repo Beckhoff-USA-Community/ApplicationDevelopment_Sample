@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_CylinderStatus" Id="{15f2325d-e3d5-4145-bf52-c5e16be858f2}">
+    <Declaration><![CDATA[INTERFACE I_CylinderStatus EXTENDS I_Base]]></Declaration>
+    <Property Name="Extended" Id="{12dca8a8-a0f7-4b28-8366-e9d612ccb36a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Extended : BOOL]]></Declaration>
+      <Get Name="Get" Id="{913bfe6f-491f-44e9-b225-6b422bd457fe}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Extending" Id="{53475b55-3d76-43bd-9f20-c86104f0b325}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Extending : BOOL]]></Declaration>
+      <Get Name="Get" Id="{322e4901-4d6a-4890-bb25-1ce5aa0686b4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Retracted" Id="{c74f15fc-9654-4c12-82bd-f48bcc336c52}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Retracted : BOOL]]></Declaration>
+      <Get Name="Get" Id="{aeac2aab-240f-41cd-a28d-f987801061fa}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Retracting" Id="{a3b8b7e1-3452-45a5-8e51-4bebb2cc9089}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Retracting : BOOL]]></Declaration>
+      <Get Name="Get" Id="{399e8f99-8c06-40e7-bee0-031ba1c5df9f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

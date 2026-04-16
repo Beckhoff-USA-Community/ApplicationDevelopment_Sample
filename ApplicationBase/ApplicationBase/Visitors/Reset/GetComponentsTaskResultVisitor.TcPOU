@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="GetComponentsTaskResultVisitor" Id="{81e09bd7-aa71-4399-b8c1-161dd5e96b69}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK GetComponentsTaskResultVisitor IMPLEMENTS I_ComponentVisitor, I_TaskResult
+VAR
+	{attribute 'hide'}
+	Result : I_TaskResult;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_ErrorId : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{8a6e7cab-08ce-4238-8ab8-e67b441ca527}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{baef1af1-4e2e-4242-8562-939ef234108b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Error" Id="{42d4a95e-5ded-486a-b912-b6940e69e8ea}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{fd788870-39ae-4f46-88f2-5471d086ecf5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{1822047d-b94a-4962-84ba-19bb541e9af3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{fe90a54a-addc-47d1-b737-7a7870db260d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Update" Id="{edc5af62-29cb-42a3-8bb7-217c11e1b74a}">
+      <Declaration><![CDATA[METHOD Update
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error	 := FALSE;
+_ErrorId := 0;
+_Busy	 := FALSE;
+Module.Components.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{aef0f30d-a565-4685-be76-551948d6f8a9}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, Result) THEN
+	IF Result.Error THEN
+		_Error	 := TRUE;
+		_ErrorId := Result.ErrorId;
+	END_IF
+
+	IF Result.Busy THEN
+		_Busy := TRUE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

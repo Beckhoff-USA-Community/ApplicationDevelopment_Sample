@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_AxisPTP_HMI" Id="{0bb3d79d-9eeb-438f-8f11-84c0d598cbe1}">
+    <Declaration><![CDATA[TYPE ST_AxisPTP_HMI EXTENDS ST_HmiFunction :
+	STRUCT
+		Unit				 : STRING;
+		Busy				 : BOOL;
+		Error				 : BOOL;
+		ErrorId				 : UDINT;
+		ActualAcceleration	 : LREAL;
+		ActualPosition		 : LREAL;
+		ActualPositionModulo : LREAL;
+		ActualTorque		 : LREAL;
+		ActualVelocity		 : LREAL;
+		Status				 : ST_AxisStatus;
+		Enable				 : Button;
+		Disable				 : Button;
+		Stop				 : Button;
+		JogForwardSlow		 : Button;
+		JogBackwardSlow		 : Button;
+		JogForwardFast		 : Button;
+		JogBackwardFast		 : Button;
+		Home				 : Button;
+		Reset				 : Button;
+		MoveAbsolute		 : Button;
+		TargetPosition		 : LREAL;
+		MoveVelocity		 : Button;
+		TargetVelocity		 : LREAL;
+		MoveRelative		 : Button;
+		TargetDistance		 : LREAL;
+		MoveModulo			 : Button;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

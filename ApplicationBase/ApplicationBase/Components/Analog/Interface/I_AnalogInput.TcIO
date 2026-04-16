@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AnalogInput" Id="{ca0b1ff8-0439-4c6e-8139-d5055573ab0a}">
+    <Declaration><![CDATA[INTERFACE I_AnalogInput EXTENDS I_Component, I_ForcibleInt]]></Declaration>
+    <Property Name="RawValue" Id="{b67cacb0-5c45-4b1e-82d2-17a7d4adead9}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY RawValue : INT]]></Declaration>
+      <Get Name="Get" Id="{f2731e27-7d6c-47d0-a64e-c485228eeaa4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Value" Id="{3350fce4-1a93-4330-9a3e-79984e81f6ee}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Value : LREAL]]></Declaration>
+      <Get Name="Get" Id="{281b6989-3bcd-45cb-accf-8a98952f4483}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

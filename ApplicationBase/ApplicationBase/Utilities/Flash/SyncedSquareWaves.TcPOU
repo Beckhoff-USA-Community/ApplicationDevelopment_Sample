@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SyncedSquareWaves" Id="{35f66174-c5b3-49ca-9765-0f46a12be9be}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SyncedSquareWaves EXTENDS CyclicComponent IMPLEMENTS I_Initializable
+VAR
+	_Initialized  : BOOL;
+	PLC_CycleTime : UDINT;
+	CycleTime_ms  : LREAL;
+
+	//
+	{attribute 'hide'}
+	_Wave_500Hz : BOOL;
+	{attribute 'hide'}
+	_Wave_100Hz : BOOL;
+	{attribute 'hide'}
+	_Wave_50Hz : BOOL;
+	{attribute 'hide'}
+	_Wave_5Hz : BOOL;
+	{attribute 'hide'}
+	_Wave_2Hz : BOOL;
+	{attribute 'hide'}
+	_Wave_1Hz : BOOL;
+	{attribute 'hide'}
+	_Wave_0_5Hz : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Initializable" Id="{d2affa53-c5ae-459e-a173-712d2ffbc097}" />
+    <Method Name="CyclicLogic" Id="{5e3838da-f4d8-4716-ac0d-b7b9f9f0dadb}">
+      <Declaration><![CDATA[//! @summary This method serves as the entry point for all underlying FB logic
+METHOD PUBLIC CyclicLogic
+VAR
+	Counter		   : LREAL;
+	CountsRequired : LREAL;
+	CycleCount	   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _Initialized THEN
+	Initialize();
+	RETURN;
+END_IF
+
+CycleCount := TwinCAT_SystemInfoVarList._TaskInfo[GETCURTASKINDEXEX()].CycleCount;
+IF (CycleTime_ms <= 1) AND (FRAC(1 / CycleTime_ms) = 0) THEN
+	CountsRequired := 1 / CycleTime_ms;
+	Counter		   := LMOD(CycleCount, CountsRequired);
+	IF (Counter + 1) = CountsRequired THEN
+		_Wave_500Hz := NOT _Wave_500Hz;
+	END_IF
+END_IF
+
+IF (CycleTime_ms <= 5) AND (FRAC(5 / CycleTime_ms) = 0) THEN
+	CountsRequired := 5 / CycleTime_ms;
+	Counter		   := LMOD(CycleCount, CountsRequired);
+	IF (Counter + 1) = CountsRequired THEN
+		_Wave_100Hz := NOT _Wave_100Hz;
+	END_IF
+END_IF
+
+IF (CycleTime_ms <= 10) AND (FRAC(10 / CycleTime_ms) = 0) THEN
+	CountsRequired := 10 / CycleTime_ms;
+	Counter		   := LMOD(CycleCount, CountsRequired);
+	IF (Counter + 1) = CountsRequired THEN
+		_Wave_50Hz := NOT _Wave_50Hz;
+	END_IF
+END_IF
+
+IF (CycleTime_ms <= 100) AND (FRAC(100 / CycleTime_ms) = 0) THEN
+	CountsRequired := 100 / CycleTime_ms;
+	Counter		   := LMOD(CycleCount, CountsRequired);
+	IF (Counter + 1) = CountsRequired THEN
+		_Wave_5Hz := NOT _Wave_5Hz;
+	END_IF
+END_IF
+
+IF (CycleTime_ms <= 250) AND (FRAC(250 / CycleTime_ms) = 0) THEN
+	CountsRequired := 250 / CycleTime_ms;
+	Counter		   := LMOD(CycleCount, CountsRequired);
+	IF (Counter + 1) = CountsRequired THEN
+		_Wave_2Hz := NOT _Wave_2Hz;
+	END_IF
+END_IF
+
+IF (CycleTime_ms <= 500) AND (FRAC(500 / CycleTime_ms) = 0) THEN
+	CountsRequired := 500 / CycleTime_ms;
+	Counter		   := LMOD(CycleCount, CountsRequired);
+	IF (Counter + 1) = CountsRequired THEN
+		_Wave_1Hz := NOT _Wave_1Hz;
+	END_IF
+END_IF
+
+IF (CycleTime_ms <= 1000) AND (FRAC(1000 / CycleTime_ms) = 0) THEN
+	CountsRequired := 1000 / CycleTime_ms;
+	Counter		   := LMOD(CycleCount, CountsRequired);
+	IF (Counter + 1) = CountsRequired THEN
+		_Wave_0_5Hz := NOT _Wave_0_5Hz;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize" Id="{b0d4565e-7f87-4a88-8840-de4c795a7bf2}" FolderPath="Initializable\">
+      <Declaration><![CDATA[METHOD Initialize]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//PLC Scan Info
+PLC_CycleTime := TwinCAT_SystemInfoVarList._TaskInfo[GETCURTASKINDEXEX()].CycleTime;
+CycleTime_ms  := TO_LREAL(PLC_CycleTime) / 10000.0;
+
+//
+_Wave_500Hz	 := TRUE;
+_Wave_100Hz	 := TRUE;
+_Wave_50Hz	 := TRUE;
+_Wave_5Hz	 := TRUE;
+_Wave_2Hz	 := TRUE;
+_Wave_1Hz	 := TRUE;
+_Wave_0_5Hz	 := TRUE;
+_Initialized := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Initialized" Id="{7d30abb5-9e0b-4781-ba98-53b2bfac6182}" FolderPath="Initializable\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Initialized : BOOL]]></Declaration>
+      <Get Name="Get" Id="{d08c54b2-51c3-4edc-ad2d-83328c965cc3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Initialized := _Initialized;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9f368cae-4e7a-47a7-820f-08d192fff5b3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Initialized := Initialized;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Wave_0_5Hz" Id="{fd3d835b-3d2a-4fc5-8158-9a11dac255e3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Wave_0_5Hz : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c1d46175-9e18-4011-a083-dbff3549dd73}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Wave_0_5Hz := _Wave_0_5Hz;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Wave_100Hz" Id="{b64fcb53-b055-452e-9663-c4625a169b20}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Wave_100Hz : BOOL]]></Declaration>
+      <Get Name="Get" Id="{9fc00187-6221-4d6d-a1d4-a510f39f14fe}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Wave_100Hz := _Wave_100Hz;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Wave_1Hz" Id="{01d8919c-b328-49b5-a235-50ecde21edf8}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Wave_1Hz : BOOL]]></Declaration>
+      <Get Name="Get" Id="{78e216e5-2c86-447d-bdba-220b6e0ae890}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Wave_1Hz := _Wave_1Hz;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Wave_2Hz" Id="{8d052cca-5f43-4ed2-a3df-764c43e95820}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Wave_2Hz : BOOL]]></Declaration>
+      <Get Name="Get" Id="{31e3ad99-a798-4f3c-8553-59c87de98b80}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Wave_2Hz := _Wave_2Hz;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Wave_500Hz" Id="{ee378a0f-1e3a-4791-99da-444ed1ab3b8f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Wave_500Hz : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2bad6ca2-5441-4f2e-979c-97f31de408cc}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Wave_500Hz := _Wave_500Hz;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Wave_50Hz" Id="{3d42c34c-0bd9-4b99-8a94-4b7443d1ba08}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Wave_50Hz : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e74ab5f7-0350-4d60-94cf-e6771e185218}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Wave_50Hz := _Wave_50Hz;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Wave_5Hz" Id="{7ac74df0-a221-4a97-8491-dfa3c586e258}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Wave_5Hz : BOOL]]></Declaration>
+      <Get Name="Get" Id="{5232fbab-6bcc-418f-abfa-2ccb6cb1a396}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Wave_5Hz := _Wave_5Hz;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

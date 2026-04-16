@@ -1,0 +1,281 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Tracing_TEST" Id="{210e9000-5e40-4b29-9bc5-2638179e3b11}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Tracing_TEST
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[TcTraceLogMessageSent();
+AdsTraceLogSent();
+TraceLogAcceptsCritical();
+TraceLogAcceptsError();
+TraceLogAcceptsWarning();
+TraceLogAcceptsInfo();
+TraceLogAcceptsVerbose();
+TraceLogRejectsCriticalTracingOff();
+TraceLogRejectsErrorTracingLvlHigh();
+TraceLogRejectsErrorTracingOff();
+TraceLogRejectsWarningTracingLvlHigh();
+TraceLogRejectsWarningTracingOff();
+TraceLogRejectsInfoTracingLvlHigh();
+TraceLogRejectsInfoTracingOff();
+TraceLogRejectsVerboseTracingLvlHigh();
+TraceLogRejectsVerboseTracingOff();]]></ST>
+    </Implementation>
+    <Method Name="AdsTraceLogSent" Id="{4da2afde-e3fb-498f-a366-739ea53ecad1}">
+      <Declaration><![CDATA[METHOD AdsTraceLogSent
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 2;
+	Trace.LogMessage('Test', 'Message Ads Logger');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TcTraceLogMessageSent" Id="{48f9f601-ea8a-4d80-ad4a-62186cd7b51f}">
+      <Declaration><![CDATA[METHOD TcTraceLogMessageSent
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	Trace.LogMessage('Test', 'Message TcEvent');
+	Actual := CoreTrace.TcEventLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogAcceptsCritical" Id="{3ad64d67-4275-440b-ab46-0386bc4aa42b}">
+      <Declaration><![CDATA[METHOD TraceLogAcceptsCritical
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Verbose;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan + 1;
+	Trace.Critical('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogAcceptsError" Id="{9afac448-671b-4adb-9fd7-47c1abf8bc0f}">
+      <Declaration><![CDATA[METHOD TraceLogAcceptsError
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Verbose;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan + 1;
+	Trace.Error('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogAcceptsInfo" Id="{00c229c1-bd33-4a61-a535-7fe529c151fa}">
+      <Declaration><![CDATA[METHOD TraceLogAcceptsInfo
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Verbose;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan + 1;
+	Trace.Info('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogAcceptsVerbose" Id="{68b4025d-b3a5-4740-8ac4-1bea1c6b0ed2}">
+      <Declaration><![CDATA[METHOD TraceLogAcceptsVerbose
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Verbose;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan + 1;
+	Trace.Verbose('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogAcceptsWarning" Id="{77d9e585-98f1-44ca-acb9-a5bf144d30c7}">
+      <Declaration><![CDATA[METHOD TraceLogAcceptsWarning
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Verbose;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan + 1;
+	Trace.Warning('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogRejectsCriticalTracingOff" Id="{effe6e4f-6432-4520-8265-42672c979b14}">
+      <Declaration><![CDATA[METHOD TraceLogRejectsCriticalTracingOff
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Off;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan;
+	Trace.Critical('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogRejectsErrorTracingLvlHigh" Id="{9e3e1448-8c03-4155-b224-8d2cc2c92fd7}">
+      <Declaration><![CDATA[METHOD TraceLogRejectsErrorTracingLvlHigh
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Critical;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan;
+	Trace.Error('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogRejectsErrorTracingOff" Id="{a44346df-e72a-4bb7-a693-5f98e16a54f1}">
+      <Declaration><![CDATA[METHOD TraceLogRejectsErrorTracingOff
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Off;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan;
+	Trace.Error('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogRejectsInfoTracingLvlHigh" Id="{033839e6-cee2-44d1-841f-07167c6c26f1}">
+      <Declaration><![CDATA[METHOD TraceLogRejectsInfoTracingLvlHigh
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Warning;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan;
+	Trace.Info('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogRejectsInfoTracingOff" Id="{ced7df3d-ab1e-483e-9552-451704a5b696}">
+      <Declaration><![CDATA[METHOD TraceLogRejectsInfoTracingOff
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Off;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan;
+	Trace.Info('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogRejectsVerboseTracingLvlHigh" Id="{17bcc7a1-19d5-4ea0-9b96-b6c3e38a7905}">
+      <Declaration><![CDATA[METHOD TraceLogRejectsVerboseTracingLvlHigh
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Info;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan;
+	Trace.Verbose('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogRejectsVerboseTracingOff" Id="{aa7c72e9-4118-41f1-8b56-8c8ad2ddda54}">
+      <Declaration><![CDATA[METHOD TraceLogRejectsVerboseTracingOff
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Off;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan;
+	Trace.Verbose('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogRejectsWarningTracingLvlHigh" Id="{e9df54db-ab53-4758-9436-f6853faf9ebe}">
+      <Declaration><![CDATA[METHOD TraceLogRejectsWarningTracingLvlHigh
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Error;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan;
+	Trace.Warning('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TraceLogRejectsWarningTracingOff" Id="{3c536cf9-e46f-43f9-8837-d0daa0e82a10}">
+      <Declaration><![CDATA[METHOD TraceLogRejectsWarningTracingOff
+VAR
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Trace.TraceLevel := TcEventSeverityExt.Off;
+	Expected := CoreTrace.AdsLogger.MessagesThisScan;
+	Trace.Warning('Test', 'Message TcEvent');
+	Actual := CoreTrace.AdsLogger.MessagesThisScan;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ForceVisitor" Id="{6bc183e1-44a2-49b9-ad8c-176834972452}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ForceVisitor IMPLEMENTS I_ComponentVisitor
+VAR
+	Forcible : I_ForcibleBool;
+	{attribute 'hide'}
+	_ForceState : E_ForceState;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Force" Id="{f96c9156-8dff-4e90-b7aa-c568a888d2aa}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Force : E_ForceState]]></Declaration>
+      <Get Name="Get" Id="{dfc9ca4e-cfe5-486c-96ea-f4ca1f197742}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Force := _ForceState;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{70aae4d0-99e6-43dd-a559-7e5e7e982e9f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ForceState := Force;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="VisitComponent" Id="{4dffd71e-c40a-4616-aba2-8f8356b6d317}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, Forcible) THEN
+	Forcible.Force := Force;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

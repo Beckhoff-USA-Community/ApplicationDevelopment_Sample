@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Statemachine" Id="{713d239e-6e4d-45f2-a5b8-5ea7545de62c}">
+    <Declaration><![CDATA[INTERFACE I_Statemachine EXTENDS I_Component]]></Declaration>
+    <Method Name="ChangeState" Id="{392e6d81-5943-4e1b-8c3d-080bcf40649f}">
+      <Declaration><![CDATA[METHOD ChangeState
+VAR_INPUT
+	StateCommand : DINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="CurrentState" Id="{3e9a7ee7-4265-4b86-afc6-b1ddf2b07526}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentState : DINT]]></Declaration>
+      <Get Name="Get" Id="{33a01a45-8da2-43c1-b23f-90eeae3805bb}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Mode" Id="{5c08f552-bd62-478c-9a97-ac0590fd22be}">
+      <Declaration><![CDATA[PROPERTY Mode : I_Mode]]></Declaration>
+      <Get Name="Get" Id="{2586ded4-a03c-4b93-a507-99d77ad8513e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{d32270cc-db78-4ee9-8cd7-3fb607ca681a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="States" Id="{e120a981-b54a-4cc9-b7bf-c85fe0c63b4f}">
+      <Declaration><![CDATA[PROPERTY States : I_StateList]]></Declaration>
+      <Get Name="Get" Id="{6a22d756-50e5-4243-b35f-e5df0f125004}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

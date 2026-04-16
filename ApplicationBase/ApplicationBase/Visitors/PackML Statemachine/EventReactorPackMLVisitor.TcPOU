@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="EventReactorPackMLVisitor" Id="{62aed7ca-0f02-423f-bfcc-5c64afea00ee}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK EventReactorPackMLVisitor EXTENDS CyclicComponent IMPLEMENTS I_ModuleVisitor, I_ComponentVisitor
+VAR
+	EntryModule			 : I_Module;
+	HighestEventReaction : DINT;
+	EventReaction		 : I_EventReaction;
+	ModuleStatemachine	 : I_ContainStatemachine;
+	ReactedName			 : T_MaxString;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CyclicLogic" Id="{e40c8a4e-d298-4284-a1c0-f6f4aef7821d}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ModuleStatemachine = 0 THEN
+	RETURN;
+END_IF
+
+HighestEventReaction := 0;
+EntryModule.Accept(THIS^);
+CASE HighestEventReaction OF
+	0:	  // Verbose
+	1:	  // Info
+	2:	  // Warning
+	3, 4: // Error & Critical
+		IF ModuleStatemachine.Statemachine.CurrentState <> E_PMLState.Aborted AND ModuleStatemachine.Statemachine.CurrentState <> E_PMLState.Aborting AND ModuleStatemachine.Statemachine.CurrentState <> E_PMLState.Clearing THEN
+			Trace.LogMessage('Module or Component leading to reaction', ReactedName);
+			ModuleStatemachine.Statemachine.ChangeState(E_PMLCommand.Abort);
+			ReactedName := '';
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{452032b9-cf07-49bb-be29-77338ff3ddc8}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	EntryModule : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.EntryModule := EntryModule;
+__QUERYINTERFACE(EntryModule, ModuleStatemachine);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{da2a66ea-5bc3-4825-9094-a395c57e610b}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR
+
+VAR
+	Reaction : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, EventReaction) THEN
+	Reaction := EventReaction.GetHighestActiveEventReaction();
+	IF Reaction > HighestEventReaction THEN
+		IF ReactedName = '' THEN
+			ReactedName := Component.Name;
+		END_IF
+
+		HighestEventReaction := Reaction;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{a059bd46-91c1-4e67-834c-87246c8c7421}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR
+
+VAR
+	Reaction : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Module.Components.Accept(THIS^);
+Module.Modules.Accept(THIS^);
+IF __QUERYINTERFACE(Module, EventReaction) THEN
+	Reaction := EventReaction.GetHighestActiveEventReaction();
+	IF Reaction > HighestEventReaction THEN
+		IF ReactedName = '' THEN
+			ReactedName := Module.Name;
+		END_IF
+
+		HighestEventReaction := Reaction;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Stoppable" Id="{a9962047-8cfb-4854-a605-5df427da7e84}">
+    <Declaration><![CDATA[INTERFACE I_Stoppable EXTENDS I_Base]]></Declaration>
+    <Method Name="Stop" Id="{5a2f1397-c7f4-4baf-b67c-e98b024e4f99}">
+      <Declaration><![CDATA[METHOD Stop
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Stopped" Id="{10c93345-0e51-4082-90bd-feabf08dacb5}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Stopped : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ce9c8dbb-92c8-47e0-b477-0958c099cea9}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

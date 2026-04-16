@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_State" Id="{41b16221-ed23-481e-917f-ecd9f8eb4019}">
+    <Declaration><![CDATA[INTERFACE I_State EXTENDS I_Base]]></Declaration>
+    <Method Name="Executing" Id="{25260be4-d9ad-42ad-ba45-7deccc8e3716}">
+      <Declaration><![CDATA[METHOD Executing : BOOL;]]></Declaration>
+    </Method>
+    <Method Name="Inactive" Id="{8ded77ff-6605-4d71-9ab3-b5ce2ff39e5e}">
+      <Declaration><![CDATA[METHOD Inactive
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

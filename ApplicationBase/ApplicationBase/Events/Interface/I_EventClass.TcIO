@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_EventClass" Id="{b8b5b558-fb92-4c5b-8065-2c9822ea8e7b}">
+    <Declaration><![CDATA[INTERFACE I_EventClass EXTENDS I_EventReaction, I_Resettable]]></Declaration>
+    <Method Name="Arguments" Id="{f7d4036e-6f87-46c5-8fd7-b41505895bf7}">
+      <Declaration><![CDATA[METHOD PUBLIC Arguments : I_EventArguments
+VAR_INPUT
+	EventId : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="ClearEventById" Id="{6cce68a7-7026-480c-ab92-25cea26404f2}">
+      <Declaration><![CDATA[METHOD PUBLIC ClearEventById
+VAR_INPUT
+	EventId : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="IsResettable" Id="{757d99f1-2edc-404f-80aa-52259107258c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IsResettable : BOOL]]></Declaration>
+      <Get Name="Get" Id="{aae069f6-0158-49d3-b7a4-405fb7fec8c7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="RaiseEvent" Id="{f8c9a27a-366d-4f94-918d-97101c110d43}">
+      <Declaration><![CDATA[METHOD PUBLIC RaiseEvent
+VAR_INPUT
+	EventId	  : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="ResetBySeverity" Id="{b62e9526-2532-41b5-80ef-9b4ef3dcbdd9}">
+      <Declaration><![CDATA[METHOD ResetBySeverity : BOOL
+VAR_INPUT
+	Severity : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="SetEvent" Id="{7dc2b7aa-a285-4409-bf02-77c1e8ebf326}">
+      <Declaration><![CDATA[METHOD SetEvent
+VAR_INPUT
+	EventId	  : UDINT;
+	Trigger	  : POINTER TO BOOL;
+	AutoReset : BOOL;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

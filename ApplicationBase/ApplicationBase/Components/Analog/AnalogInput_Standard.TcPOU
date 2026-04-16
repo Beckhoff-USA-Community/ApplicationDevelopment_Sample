@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="AnalogInput_Standard" Id="{71805f60-3fa6-4837-90c8-ebd868d11a17}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK AnalogInput_Standard EXTENDS AnalogInput IMPLEMENTS I_AnalogChannel_Standard
+VAR
+	Status : REFERENCE TO ST_AnalogInputStatus_EL30xx;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="DataValid" Id="{c9db11b9-c3d3-49c3-9ee1-33b16d646fe1}">
+      <Declaration><![CDATA[PROPERTY DataValid : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c668b64a-efdd-478e-bd92-5ac1f8eefa15}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DataValid := NOT Status.TxPDOState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Error" Id="{13dc8754-b7ef-4c4f-8726-89334a7e4ddd}">
+      <Declaration><![CDATA[PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{759954c3-60f4-47c6-9804-6581331863eb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := Status.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Init" Id="{da7ffb6f-59a5-4357-8511-56879d963281}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	Input		: REFERENCE TO INT;
+	Status		: REFERENCE TO ST_AnalogInputStatus_EL30xx;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Status REF= Status;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Limit1High" Id="{e68c18bb-9f09-48b4-9a9d-286a6fa63815}">
+      <Declaration><![CDATA[PROPERTY Limit1High : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b4c3c05d-7590-4ed6-b0fe-79488f13ed29}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Limit1High := Status.Limit1H;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Limit1Low" Id="{f50fcef9-2071-493b-a192-2134686ea5ee}">
+      <Declaration><![CDATA[PROPERTY Limit1Low : BOOL]]></Declaration>
+      <Get Name="Get" Id="{82881d7e-67d6-43b0-bbc5-14854e78125e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Limit1Low := Status.Limit1L;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Limit2High" Id="{9ecc57d7-603e-447f-aa1e-4bc207f30ea5}">
+      <Declaration><![CDATA[PROPERTY Limit2High : BOOL]]></Declaration>
+      <Get Name="Get" Id="{82719071-2c7e-449b-9161-2c6d62cb5882}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Limit2High := Status.Limit2H;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Limit2Low" Id="{02101e3a-1ef3-4e7e-8a38-278050a16640}">
+      <Declaration><![CDATA[PROPERTY Limit2Low : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7bb4c7df-1d9f-47dd-8da5-875ca72c29d5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Limit2Low := Status.Limit2L;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Overrange" Id="{3453a052-5e78-41c4-b6e2-7b4479cb77da}">
+      <Declaration><![CDATA[PROPERTY Overrange : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8a53c3f0-6fe1-4492-b624-03d328d0b792}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Overrange := Status.Overrange;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Underrange" Id="{cf676880-ef4a-4f10-91e9-838c4db84b1d}">
+      <Declaration><![CDATA[PROPERTY Underrange : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2c4e6e30-5aef-4444-877a-0d7d4e57f9e4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Underrange := Status.Underrrange;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

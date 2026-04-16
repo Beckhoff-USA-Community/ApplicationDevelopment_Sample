@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SafetyBase" Id="{2e5c85ad-93c6-4cb6-9069-cdd30a70691e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SafetyBase EXTENDS CyclicComponent IMPLEMENTS I_SafetyBase
+VAR
+	InfoData AT %I* : ST_SafetyStateDiag;
+	{attribute 'hide'}
+	_Simulated : BOOL;
+	{attribute 'hide'}
+	_OK : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_ErrorId	   : UDINT;
+	_ResetFunction : I_SafetyReset;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{918e7f9b-ff71-4bdd-8b24-4992fce9dce5}" />
+    <Folder Name="SafetyBase" Id="{ecd4d821-2890-4d7c-a065-5b71784bfbcc}" />
+    <Folder Name="SafetySimulation" Id="{39e14958-67d9-4ca3-95ae-5fe9feb21c8e}" />
+    <Property Name="Busy" Id="{9e131db7-56e8-4da3-9a57-c51982c02cc1}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b6c825b5-85e6-4f18-acb4-a9c5b5472ad6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{e2439ed2-b1db-487e-a7b1-52bc020d523b}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	LinkError : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT LinkError AND NOT Simulated AND (F_GetMappingStatus(ADR(InfoData), SIZEOF(InfoData)) = EplcMappingStatus.MS_Unmapped) THEN
+	LinkError := TRUE;
+	Trace.LogMessage(Name, 'Not mapped to Safety, no diagnostics available!');
+END_IF
+
+IF _ResetFunction <> 0 THEN
+	_ResetFunction.CyclicLogic();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{13d4d8cb-1acb-449a-b9ec-cf42c8d082e4}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7c90c1e5-21b7-4021-9aed-fbc282add19b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{da3d5048-542c-4216-a787-43df40d7deb4}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{7372b85d-c37c-472e-85db-7c65385a525e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := _ErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="OK" Id="{4f18a5f4-bbd5-42c8-93d5-39ba4d200284}" FolderPath="SafetyBase\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY OK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{70b5687b-85a6-4c0a-aaf2-25fcfd2694e1}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OK := _OK;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Reset" Id="{02c83b4d-350e-425e-bc97-d795d8d71e2b}" FolderPath="SafetyBase\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _ResetFunction <> 0 THEN
+	_ResetFunction.Execute();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ResetFunction" Id="{dccd3677-55e4-46a7-ad6e-1a430b301600}" FolderPath="SafetyBase\">
+      <Declaration><![CDATA[PROPERTY ResetFunction : I_SafetyReset]]></Declaration>
+      <Set Name="Set" Id="{50add2a4-aaf9-494e-8406-7a85a4e5efbc}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ResetFunction := ResetFunction;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Simulated" Id="{5b05183d-652b-4cd4-acfd-c6e33a15a066}" FolderPath="SafetySimulation\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Simulated : BOOL]]></Declaration>
+      <Get Name="Get" Id="{20cbdb6a-2676-4159-8872-c95cc40bd94c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Simulated := _Simulated;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{dfa47d6a-73e2-466f-9bbe-c96f508f1126}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Simulated := Simulated;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="SimulateSafetyDiag" Id="{69042629-1484-4a03-9b47-d91930a8856d}" FolderPath="SafetySimulation\">
+      <Declaration><![CDATA[METHOD SimulateSafetyDiag
+VAR_INPUT
+	SimulationValueDiag : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Infodata.Diag := SimulationValueDiag;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SimulateSafetyState" Id="{868aa14c-7a5f-09e0-16e5-e2ddf643aec4}" FolderPath="SafetySimulation\">
+      <Declaration><![CDATA[METHOD SimulateSafetyState
+VAR_INPUT
+	SimulationValueState : USINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Infodata.State := SimulationValueState;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="AnalogInput_Generic" Id="{7006ea13-0319-435d-bd2c-84f4ad6c4b53}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK AnalogInput_Generic EXTENDS AnalogInput IMPLEMENTS I_AnalogChannel_Generic
+VAR
+	Status : REFERENCE TO ST_AnalogInputStatus_Generic;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="DataValid" Id="{85d1b353-1b29-425a-8738-e425d2e44b86}">
+      <Declaration><![CDATA[PROPERTY DataValid : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8579ea41-eea0-4d83-8545-db480a9f4fdd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DataValid := NOT Status.WcState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Error" Id="{bc28f45a-8845-44bb-972d-6e0ce157f873}">
+      <Declaration><![CDATA[PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{dd4bbc4a-5d03-4f8c-9ddc-4eb35196ee7b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := Status.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Init" Id="{84513803-f99a-4713-abd9-20afd4f4c4df}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	Input		: REFERENCE TO INT;
+	Status		: REFERENCE TO ST_AnalogInputStatus_Generic;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Status REF= Status;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Overrange" Id="{81485b52-bd22-41e7-8c93-567074bf9e15}">
+      <Declaration><![CDATA[PROPERTY Overrange : BOOL]]></Declaration>
+      <Get Name="Get" Id="{47797d4a-c625-414b-addc-3b5d8b78adc0}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Overrange := Status.Overrange;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Underrange" Id="{45cca0c6-4763-4441-8500-1cf395e53001}">
+      <Declaration><![CDATA[PROPERTY Underrange : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f3a077e2-abe6-4d43-b57b-5487bbefb4f9}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Underrange := Status.Underrrange;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

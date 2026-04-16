@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <GVL Name="EtherCatParameter" Id="{3c947b34-68f8-4997-8ab5-70b51281d5e8}" ParameterList="True">
+    <Declaration><![CDATA[VAR_GLOBAL CONSTANT
+	MAX_EC_SLAVES : UINT := 49;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

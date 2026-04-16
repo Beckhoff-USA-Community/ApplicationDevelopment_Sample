@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_CoeDevice" Id="{52ac7c54-bac3-4d07-a600-8b63f6b29713}">
+    <Declaration><![CDATA[INTERFACE I_CoeDevice EXTENDS I_Component, I_TaskResult]]></Declaration>
+    <Property Name="AdsAddr" Id="{e4aef1c7-deb0-4192-8a45-3c9cf80c2c77}">
+      <Declaration><![CDATA[PROPERTY AdsAddr : REFERENCE TO AMSADDR]]></Declaration>
+      <Get Name="Get" Id="{609e8025-a4fe-4211-9dbd-0e6ff39c9ff1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{269d1eb7-298b-43ec-a74f-e49be2af61bd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="Read" Id="{ed780fa2-4c1f-4680-ab7e-442d34f266f7}">
+      <Declaration><![CDATA[METHOD Read
+VAR_INPUT
+	Index	 : WORD;
+	SubIndex : BYTE;
+	pDstBuf	 : PVOID;
+	BufLen	 : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="Write" Id="{665c73f9-1118-465d-b85e-5662903bdff4}">
+      <Declaration><![CDATA[METHOD Write
+VAR_INPUT
+	Index	 : WORD;
+	SubIndex : BYTE;
+	pDstBuf	 : PVOID;
+	BufLen	 : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

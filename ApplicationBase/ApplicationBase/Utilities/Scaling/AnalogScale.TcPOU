@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="AnalogScale" Id="{b49aee81-4e3e-4aac-a819-e2a5ea557f7e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK AnalogScale IMPLEMENTS I_AnalogScale
+VAR
+	_InputMinimum  : LREAL := -32768;
+	_InputMaximum  : LREAL := 32767;
+	_OutputMinimum : LREAL := -32768;
+	_OutputMaximum : LREAL := 32767;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="InputMaximum" Id="{0621db1d-8409-4e80-b5fb-43c714bac906}">
+      <Declaration><![CDATA[PROPERTY InputMaximum : LREAL]]></Declaration>
+      <Get Name="Get" Id="{b0ec5b18-9cc8-43a2-b562-2317b3a3a390}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InputMaximum := _InputMaximum;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{16d78e25-4daf-4674-8827-55ff5f74928c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_InputMaximum := InputMaximum;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="InputMinimum" Id="{726bf1aa-2e1e-417f-867f-7328629ffbc4}">
+      <Declaration><![CDATA[PROPERTY InputMinimum : LREAL]]></Declaration>
+      <Get Name="Get" Id="{b699ff75-cf41-4e84-a7a7-f1bab0c0703d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InputMinimum := _InputMinimum;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{cf5739e1-0da0-4464-9051-4687b455cff9}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_InputMinimum := InputMinimum;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="OutputMaximum" Id="{9dcbd475-6678-4053-8f91-27c561f06e8f}">
+      <Declaration><![CDATA[PROPERTY OutputMaximum : LREAL]]></Declaration>
+      <Get Name="Get" Id="{9d9c087a-105a-4c6a-9fc2-e13985896ca3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OutputMaximum := _OutputMaximum;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9363bf24-31e2-49d2-895e-71c1ec1ec641}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_OutputMaximum := OutputMaximum;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="OutputMinimum" Id="{39a384e3-e79e-484a-9ecc-7b1a7c16e183}">
+      <Declaration><![CDATA[PROPERTY OutputMinimum : LREAL]]></Declaration>
+      <Get Name="Get" Id="{801d5dcb-a6bf-4537-888b-1b30c9f38c06}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OutputMinimum := _OutputMinimum;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d6a939bb-7e8f-4469-9c10-3dddc95001ae}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_OutputMinimum := OutputMinimum;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Transform" Id="{eac0b52b-8f4a-4d37-80ff-8217acd044b8}">
+      <Declaration><![CDATA[METHOD Transform : LREAL
+VAR_INPUT
+	Value	: LREAL;
+	Reverse : BOOL := FALSE;
+END_VAR
+
+VAR_INST
+	Slope : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Scale is invalid
+IF _InputMinimum >= _InputMaximum THEN
+	Transform := 0;
+	RETURN;
+ELSIF _OutputMinimum >= _OutputMaximum THEN
+	Transform := 0;
+	RETURN;
+END_IF
+
+//Input is invalid
+IF Value <= _InputMinimum THEN
+	Transform := _OutputMinimum;
+	RETURN;
+ELSIF Value >= _InputMaximum THEN
+	Transform := _OutputMaximum;
+	RETURN;
+END_IF
+
+//I/O ok--scale it
+IF (_InputMaximum - _InputMinimum) <> 0.0 THEN
+	Slope := (_OutputMaximum - _OutputMinimum) / (_InputMaximum - _InputMinimum);
+ELSE
+	Slope := 0.0;
+END_IF
+
+Transform := Slope * (Value - _InputMinimum) + _OutputMinimum;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

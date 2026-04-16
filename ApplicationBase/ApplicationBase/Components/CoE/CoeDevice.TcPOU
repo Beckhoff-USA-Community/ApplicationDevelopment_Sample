@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CoeDevice" Id="{c44fc925-b48d-43e7-9921-59d1275857d3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CoeDevice EXTENDS CyclicComponent IMPLEMENTS I_CoeDevice
+VAR
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_ErrorId : UDINT;
+	_AdsAddr : REFERENCE TO AMSADDR;
+	CoeRead	 : FB_EcCoESdoReadEx;
+	CoeWrite : FB_EcCoESdoReadEx;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="TaskResult" Id="{f08d9870-c876-4e92-a979-edd7606478ba}" />
+    <Property Name="AdsAddr" Id="{809820b6-2843-4b61-8ee7-e554a700fe77}">
+      <Declaration><![CDATA[PROPERTY AdsAddr : REFERENCE TO AMSADDR]]></Declaration>
+      <Get Name="Get" Id="{791cbbcb-db0a-402b-b1c3-3fd5592e95c8}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AdsAddr REF= _AdsAddr;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b5264c88-f20b-45c4-bbe2-a7789a6ce714}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_AdsAddr REF= AdsAddr;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Busy" Id="{662175c3-e675-4259-997a-bb32092b5b95}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7d0a2fa5-2cb6-4a1f-91d9-341a496cb410}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{f7dc4c56-720e-4dcf-a90e-1437f6929992}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT __ISVALIDREF(_AdsAddr) THEN
+	RETURN;
+END_IF
+
+CoeRead(sNetId := F_CreateAmsNetId(AdsAddr.netId), nSlaveAddr := AdsAddr.port, tTimeout := T#1S);
+CoeWrite(sNetId := F_CreateAmsNetId(AdsAddr.netId), nSlaveAddr := AdsAddr.port, tTimeout := T#1S);
+CoeRead.bExecute  := FALSE;
+CoeWrite.bExecute := FALSE;
+_Busy			  := CoeRead.bBusy OR CoeWrite.bBusy;
+_Error			  := CoeRead.bError OR CoeWrite.bError;
+IF CoeRead.bError THEN
+	_ErrorId := CoeRead.nErrId;
+END_IF
+
+IF CoeWrite.bError THEN
+	_ErrorId := CoeWrite.nErrId;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{06a86ac8-f65a-409c-a4f6-bbee7cc5c268}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{bda23b4a-c206-4d73-9042-d2dd16e3532a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{a6c4d22e-d553-43cc-9f33-712949103b8a}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{5bc44fad-a426-4789-b7d0-b9ee3f9a3787}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Read" Id="{d76200df-b7b1-4642-b3bc-ba548d1d54d4}">
+      <Declaration><![CDATA[METHOD Read
+VAR_INPUT
+	Index	 : WORD;
+	SubIndex : BYTE;
+	pDstBuf	 : PVOID;
+	BufLen	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Busy THEN
+	RETURN;
+END_IF
+
+CoeRead.nSubIndex		:= SubIndex;
+CoeRead.nIndex			:= Index;
+CoeRead.pDstBuf			:= pDstBuf;
+CoeRead.cbBufLen		:= BufLen;
+CoeRead.bCompleteAccess := SubIndex = 0;
+_Busy					:= TRUE;
+CoeRead.bExecute		:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Write" Id="{f028f408-1739-4375-a0d7-b0a99ab310d9}">
+      <Declaration><![CDATA[METHOD Write
+VAR_INPUT
+	Index	 : WORD;
+	SubIndex : BYTE;
+	pDstBuf	 : PVOID;
+	BufLen	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Busy THEN
+	RETURN;
+END_IF
+
+CoeWrite.nSubIndex		 := SubIndex;
+CoeWrite.nIndex			 := Index;
+CoeWrite.pDstBuf		 := pDstBuf;
+CoeWrite.cbBufLen		 := BufLen;
+CoeWrite.bCompleteAccess := SubIndex = 0;
+_Busy					 := TRUE;
+CoeWrite.bExecute		 := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

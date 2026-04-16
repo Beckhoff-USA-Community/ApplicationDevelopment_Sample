@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_ContainStatemachine" Id="{6e37caf7-1436-42b5-a1cf-f73ef666f192}">
+    <Declaration><![CDATA[INTERFACE I_ContainStatemachine EXTENDS I_Base]]></Declaration>
+    <Property Name="Statemachine" Id="{c58411a3-c15d-4915-a9cc-24d9901ced1b}">
+      <Declaration><![CDATA[PROPERTY Statemachine : I_Statemachine]]></Declaration>
+      <Get Name="Get" Id="{dd204be9-35ef-45ea-ba65-68c12abe8039}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

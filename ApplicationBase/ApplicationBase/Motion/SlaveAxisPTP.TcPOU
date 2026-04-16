@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SlaveAxisPTP" Id="{f07e3533-8ef2-4fec-9a40-1320077b46e1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SlaveAxisPTP EXTENDS AxisPTP IMPLEMENTS I_SlaveAxis
+VAR
+	// Tasks
+	MotionCoupleTaskGearing : MotionCoupleTask_Gearing := (Name := 'MC GearIn Multimaster');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Component" Id="{fabce388-6807-4b43-b104-1051d8a8e227}" />
+    <Folder Name="Slave" Id="{25d0cdf1-b946-4279-a4a6-74d6affa85f9}" />
+    <Method Name="FB_Init" Id="{81ee8f92-5666-41c1-82e5-7ea311e2c2c2}" FolderPath="Component\">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	Axis		: REFERENCE TO AXIS_REF;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Register all Motion Tasks to Collection
+MotionTaskCollection.AddTask(MotionCoupleTaskGearing);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GearIn" Id="{6eec04e7-904d-4015-8412-c0615dca9a2d}" FolderPath="Slave\">
+      <Declaration><![CDATA[METHOD GearIn
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MotionCoupleTaskGearing.GearIn	   := TRUE;
+MotionCoupleTaskGearing.BufferMode := _McBufferMode;
+MotionCoupleTaskGearing.Execute();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="GearInMultiMasterOptions" Id="{05b52953-d9ca-42e0-a9b5-0e924f3a1eae}" FolderPath="Slave\">
+      <Declaration><![CDATA[PROPERTY GearInMultiMasterOptions : ST_GearInMultiMasterOptions]]></Declaration>
+      <Set Name="Set" Id="{48563318-c5af-405d-98fd-4981d42d027b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MotionCoupleTaskGearing.GearInMultiMasterOptions := GearInMultiMasterOptions;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="GearOut" Id="{5b215a43-e60f-432c-9737-2f7ad236de4f}" FolderPath="Slave\">
+      <Declaration><![CDATA[METHOD GearOut
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MotionCoupleTaskGearing.GearIn := FALSE;
+MotionCoupleTaskGearing.Execute();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="GearRatioMaster1" Id="{d82387a1-8184-4a96-bb06-113ac96fe810}" FolderPath="Slave\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY GearRatioMaster1 : LREAL]]></Declaration>
+      <Set Name="Set" Id="{03549ace-b83d-4a99-a836-dcfa422175fa}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MotionCoupleTaskGearing.GearRatioMaster1 := GearRatioMaster1;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="GearRatioMaster2" Id="{bbef0459-08ad-4663-b5d2-db8a36643387}" FolderPath="Slave\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY GearRatioMaster2 : LREAL]]></Declaration>
+      <Set Name="Set" Id="{ae4f0ce7-bd19-4471-9a61-1e18b7d5b271}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MotionCoupleTaskGearing.GearRatioMaster2 := GearRatioMaster2;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="GearRatioMaster3" Id="{6c0c7a40-0ccf-43a9-b22a-4dcb7208aedb}" FolderPath="Slave\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY GearRatioMaster3 : LREAL]]></Declaration>
+      <Set Name="Set" Id="{d67e7f6b-6de7-4c46-b097-d1057c93b3fe}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MotionCoupleTaskGearing.GearRatioMaster3 := GearRatioMaster3;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="GearRatioMaster4" Id="{3c0a6c64-0a0c-4c0a-afb8-1cb3107914fd}" FolderPath="Slave\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY GearRatioMaster4 : LREAL]]></Declaration>
+      <Set Name="Set" Id="{ab86c7c8-0da9-4ad2-9e94-f37c82d956ae}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MotionCoupleTaskGearing.GearRatioMaster4 := GearRatioMaster4;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Master1" Id="{2bcfddc7-7c86-42ec-9ead-e61cb9da51c4}" FolderPath="Slave\">
+      <Declaration><![CDATA[PROPERTY Master1 : I_Axis]]></Declaration>
+      <Set Name="Set" Id="{f45f559b-448d-4134-b101-f1c4c1bbf216}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MotionCoupleTaskGearing.Master1 := Master1;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Master2" Id="{0b49ac9c-50a2-475e-89d2-711d85e4ec05}" FolderPath="Slave\">
+      <Declaration><![CDATA[PROPERTY Master2 : I_Axis]]></Declaration>
+      <Set Name="Set" Id="{56c94714-3dd4-436d-a21a-e38dc267b7bd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MotionCoupleTaskGearing.Master2 := Master2;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Master3" Id="{4b2cbf9f-3671-4322-95b0-749fb2548772}" FolderPath="Slave\">
+      <Declaration><![CDATA[PROPERTY Master3 : I_Axis]]></Declaration>
+      <Set Name="Set" Id="{3016225c-aed5-41c9-a8bd-e724f583ebc9}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MotionCoupleTaskGearing.Master3 := Master3;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Master4" Id="{3b2c84d9-7c7a-470a-a0f2-c6c2c1a9b2f1}" FolderPath="Slave\">
+      <Declaration><![CDATA[PROPERTY Master4 : I_Axis]]></Declaration>
+      <Set Name="Set" Id="{ab99842d-e79a-488d-bdb9-9ba36f591ec5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MotionCoupleTaskGearing.Master4 := Master4;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

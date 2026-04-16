@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SafetyEdmFB_TcEvents" Id="{eb037da7-9b6d-4759-bb23-de632de8c026}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SafetyEdmFB_TcEvents EXTENDS SafetyBase IMPLEMENTS I_EventReactionTcEvents, I_InSafetyGroup
+VAR
+	Events		 : TcEventClass('Safety EDM Events');
+	_SafetyGroup : I_TaskResult;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{fac8ac78-497f-4516-85dc-67398f34c330}" />
+    <Folder Name="Events" Id="{b9c425e5-3e5d-4ca5-8c35-d9396f3056ce}" />
+    <Method Name="CyclicLogic" Id="{6d392bb4-874f-4d81-8dd4-ce37143e55cc}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.CyclicLogic();
+_OK	   := SUPER^.InfoData.State <> E_SafetyEdm_State.Error;
+_Error := GetHighestActiveEventReaction() >= TcEventSeverity.Error;
+IF _SafetyGroup <> 0 THEN
+	IF _SafetyGroup.Error THEN
+		Events.Reset();
+		RETURN;
+	END_IF
+END_IF
+
+IF _ResetFunction <> 0 AND_THEN _ResetFunction.Busy THEN
+	RETURN;
+END_IF
+
+IF SUPER^.InfoData.Diag.0 THEN
+	Events.RaiseEvent(E_SafetyEdm.SwitchOffTime);
+END_IF
+
+IF SUPER^.InfoData.Diag.1 THEN
+	Events.RaiseEvent(E_SafetyEdm.SwitchOnTime);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{14b07d9b-e0be-46f8-b8da-c826c58dfe64}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.GenerateTcEvents(Name, ADR(TC_events.SafetyEdm), SIZEOF(ST_SafetyEdm));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventReaction" Id="{e4a47435-2966-4293-acb0-4674435e17bc}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventReaction := Events.GetHighestActiveEventReaction();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{92e6e081-969b-49ea-b455-ba48eb8336c9}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventSeverity := Events.GetHighestActiveEventSeverity();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{fac2f6c3-73e7-4ff1-b702-4e6cd273a543}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.Reset();
+Events.Reset();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SafetyGroup" Id="{0fdfe245-cd1e-4567-a135-97e467e06589}">
+      <Declaration><![CDATA[PROPERTY SafetyGroup : I_TaskResult]]></Declaration>
+      <Set Name="Set" Id="{7a908766-49ed-4815-8af5-163ca4e0c747}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SafetyGroup := SafetyGroup;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="SetEventReactions" Id="{96562191-5bc9-42ea-9793-2bbb7f7e8ce8}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.SetEventReactions(Verbose,
+						 Info,
+						 Warning,
+						 Error,
+						 Critical);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

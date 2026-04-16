@@ -1,0 +1,311 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Collection_TEST" Id="{a5cd11b9-abfc-44d7-81e2-86d394e935ab}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Collection_TEST
+VAR
+	Collection : Collection_Mockup;
+	Item1	   : Item_Mockup;
+	Item2	   : Item_Mockup;
+	Item3	   : Item_Mockup;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[AddTwoItems();
+GetFirstItemById();
+GetSecondItemById();
+RemoveLastItem();
+RemoveFirstItem();
+RemoveToEmpty();
+CheckCurrentIndexNull();
+EnumeratorMoveNextFirst();
+CheckCurrentIndex1();
+EnumeratorMoveNextSecond();
+CheckCurrentIndex2();
+EnumeratorMoveNextThird();
+CheckCurrentIndex3();
+EnumeratorMoveNextEmpty();
+EnumeratorReset();
+Clear();]]></ST>
+    </Implementation>
+    <Method Name="AddTwoItems" Id="{78353a0f-5f3f-4637-8951-a1ed52ecba18}">
+      <Declaration><![CDATA[METHOD AddTwoItems
+VAR_INST
+	Expected : UDINT;
+	Actual	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 2;
+	Collection.AddItem(Item1);
+	Collection.AddItem(Item2);
+	Actual := Collection.Count;
+	Collection.AddItem(Item3);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CheckCurrentIndex1" Id="{90b4b72b-6e2f-4d8e-825a-49a7be370788}">
+      <Declaration><![CDATA[METHOD CheckCurrentIndex1
+VAR
+	Expected : UDINT;
+	Actual	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	Actual	 := Collection.CurrentItem;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CheckCurrentIndex2" Id="{5e51c12e-65e7-4bb0-979b-99d93dd889f0}">
+      <Declaration><![CDATA[METHOD CheckCurrentIndex2
+VAR
+	Expected : UDINT;
+	Actual	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 2;
+	Actual	 := Collection.CurrentItem;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CheckCurrentIndex3" Id="{291590bc-9100-43fc-8de2-5665bd50f078}">
+      <Declaration><![CDATA[METHOD CheckCurrentIndex3
+VAR
+	Expected : UDINT;
+	Actual	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 3;
+	Actual	 := Collection.CurrentItem;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CheckCurrentIndexNull" Id="{52196e34-eb71-4d29-bed8-ed196da0fab5}">
+      <Declaration><![CDATA[METHOD CheckCurrentIndexNull
+VAR
+	Expected : UDINT;
+	Actual	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 0;
+	Actual	 := Collection.CurrentItem;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Clear" Id="{1f2e3e7a-d6c3-421a-b6d8-b67751170dc1}">
+      <Declaration><![CDATA[METHOD Clear
+VAR
+	Expected : UDINT;
+	Actual	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 0;
+	Collection.Clear();
+	Actual := Collection.Count;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EnumeratorMoveNextEmpty" Id="{b0564a04-ff37-4158-9d22-02f72071d4a4}">
+      <Declaration><![CDATA[METHOD EnumeratorMoveNextEmpty
+VAR
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	Response   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := Item3;
+	Response   := Collection.MoveToNext;
+	ActualItem := Collection.Current;
+	Actual	   := (ActualItem = TargetItem) AND NOT Response;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EnumeratorMoveNextFirst" Id="{631e9546-1026-43da-96f7-c54e5d184dca}">
+      <Declaration><![CDATA[METHOD EnumeratorMoveNextFirst
+VAR
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	Response   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := Item1;
+	Collection.AddItem(Item1);
+	Collection.AddItem(Item2);
+	Collection.AddItem(Item3);
+	Response   := Collection.MoveToNext;
+	ActualItem := Collection.Current;
+	Actual	   := (ActualItem = TargetItem) AND Response;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EnumeratorMoveNextSecond" Id="{def378b0-aa68-4106-826e-4105d1d12d0d}">
+      <Declaration><![CDATA[METHOD EnumeratorMoveNextSecond
+VAR
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	Response   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := Item2;
+	Response   := Collection.MoveToNext;
+	ActualItem := Collection.Current;
+	Actual	   := (ActualItem = TargetItem) AND Response;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EnumeratorMoveNextThird" Id="{5b6a36a3-373c-46c7-98c3-2eb7c6cdabf0}">
+      <Declaration><![CDATA[METHOD EnumeratorMoveNextThird
+VAR
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	Response   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := Item3;
+	Response   := Collection.MoveToNext;
+	ActualItem := Collection.Current;
+	Actual	   := (ActualItem = TargetItem) AND Response;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EnumeratorReset" Id="{fc619f8f-10a0-4c59-9904-b8e774c745cf}">
+      <Declaration><![CDATA[METHOD EnumeratorReset
+VAR
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	Response   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := Item1;
+	Collection.ResetIterator();
+	Response   := Collection.MoveToNext;
+	ActualItem := Collection.Current;
+	Actual	   := (ActualItem = TargetItem) AND Response;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetFirstItemById" Id="{2e97e8d9-60c6-4662-8b14-4ea202e64cdd}">
+      <Declaration><![CDATA[METHOD GetFirstItemById
+VAR_INST
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := Item1;
+	ActualItem := Collection.GetItemByIndex(0);
+	Actual	   := (TargetItem = ActualItem);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetSecondItemById" Id="{3a003730-da3a-48d6-8420-78c72cade715}">
+      <Declaration><![CDATA[METHOD GetSecondItemById
+VAR_INST
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := Item2;
+	ActualItem := Collection.GetItemByIndex(1);
+	Actual	   := (TargetItem = ActualItem);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveFirstItem" Id="{27a3c331-1beb-4f23-9e74-fee80f2fd072}">
+      <Declaration><![CDATA[METHOD RemoveFirstItem
+VAR_INST
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := Item2;
+	Collection.RemoveItem(Item1);
+	ActualItem := Collection.GetItemByIndex(0);
+	Actual	   := (TargetItem = ActualItem) AND (Collection.Count = 1);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveLastItem" Id="{7ba4a2b0-3623-4b6e-8afa-5bf0d7cd476c}">
+      <Declaration><![CDATA[METHOD RemoveLastItem
+VAR_INST
+	Expected   : BOOL;
+	Actual	   : BOOL;
+	TargetItem : I_Base;
+	ActualItem : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	TargetItem := 0;
+	Collection.RemoveItem(Item3);
+	ActualItem := Collection.GetItemByIndex(2);
+	Actual	   := (TargetItem = ActualItem) AND (Collection.Count = 2);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveToEmpty" Id="{88d5c6b5-2a50-4a6d-a786-ec13b5e40973}">
+      <Declaration><![CDATA[METHOD RemoveToEmpty
+VAR_INST
+	Expected : UDINT;
+	Actual	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 0;
+	Collection.RemoveItem(Item2);
+	Actual := Collection.Count;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

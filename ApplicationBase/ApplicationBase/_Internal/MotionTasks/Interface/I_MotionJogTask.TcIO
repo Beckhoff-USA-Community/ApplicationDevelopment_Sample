@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_MotionJogTask" Id="{e8e42b92-1ac7-4dad-958f-f15ca9216c49}">
+    <Declaration><![CDATA[INTERFACE I_MotionJogTask EXTENDS I_MotionTask]]></Declaration>
+    <Property Name="JogBackwards" Id="{08ee9f05-8c8f-4237-b54e-4bdbfdf91a60}">
+      <Declaration><![CDATA[PROPERTY JogBackwards : BOOL]]></Declaration>
+      <Set Name="Set" Id="{f406ce6f-55fe-4cd6-8718-e969becf6ad1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="JogForward" Id="{d7e1f925-cf09-4f09-8ec7-596affe82a44}">
+      <Declaration><![CDATA[PROPERTY JogForward : BOOL]]></Declaration>
+      <Set Name="Set" Id="{c5ffd81f-04a0-4bbe-9671-4c2c805e41ca}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Mode" Id="{521aea47-3e4b-4b0e-b834-6e6fd99cc11d}">
+      <Declaration><![CDATA[PROPERTY Mode : E_JogMode]]></Declaration>
+      <Set Name="Set" Id="{08520522-9237-4857-af3c-b7eb9f5117e7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Position" Id="{58db24ae-f50c-442a-be74-d8cd20b28d38}">
+      <Declaration><![CDATA[PROPERTY Position : LREAL]]></Declaration>
+      <Set Name="Set" Id="{4ae7819d-a48d-495d-8828-0f07e1484982}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

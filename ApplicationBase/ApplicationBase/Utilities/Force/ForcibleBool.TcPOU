@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ForcibleBool" Id="{75d4decb-7993-4589-8ab0-a13a92edd87b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ForcibleBool
+VAR
+	Name			   : T_MaxString;
+	_CurrentForceState : E_ForceState;
+	ForceEvent		   : FB_TcAlarm;
+	RequestedState	   : BOOL;
+	_Output			   : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Private" Id="{25270b7b-255d-4c0a-a23b-7a8788859e22}" />
+    <Property Name="CurrentForceState" Id="{12fd34e3-5ff5-47e3-9395-ea22c19a7a40}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentForceState : E_ForceState]]></Declaration>
+      <Get Name="Get" Id="{4c4cdcee-1e16-494a-ba23-0eec7b1ecb29}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentForceState := _CurrentForceState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Init" Id="{bb2fdc00-2bfb-44f6-9a5b-9bab7393161e}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change) 
+	Name		 : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Name := Name;
+{analysis -15}
+IF NOT ForceEvent.EqualsToEventEntryEx(TC_EVENTS.IO.ForceActive) THEN
+	ForceEvent.CreateEx(TC_EVENTS.IO.ForceActive, 0);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Input" Id="{d00c1602-e6e1-4a4a-a43b-63cc9a8fd3d0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Input : BOOL]]></Declaration>
+      <Set Name="Set" Id="{75616a99-4260-4b23-a7a4-e8882947fc98}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RequestedState := Input;
+ResolveOutput();]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Output" Id="{917b064a-7516-4b92-b16d-73fb140545f8}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Output : BOOL]]></Declaration>
+      <Get Name="Get" Id="{82a2f85a-2e24-4bff-8ceb-77ebd30c5973}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Output := _Output;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ResolveOutput" Id="{727a71e9-b7e8-46e4-bcf9-6e1546997f30}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PRIVATE ResolveOutput
+VAR
+	ForceString : T_MaxString := TO_STRING(_CurrentForceState);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE _CurrentForceState OF
+	E_ForceState.Unforced:
+		_Output := RequestedState;
+		ForceEvent.Clear();
+
+	E_ForceState.ForceOn:
+		IF NOT ForceEvent.bActive THEN
+			ForceEvent.ipArguments.Clear().AddString(Name).AddString(ForceString);
+			ForceEvent.Raise();
+		END_IF
+
+		_Output := TRUE;
+
+	E_ForceState.ForceOff:
+		IF NOT ForceEvent.bActive THEN
+			ForceEvent.ipArguments.Clear().AddString(Name).AddString(ForceString);
+			ForceEvent.Raise();
+		END_IF
+
+		_Output := FALSE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetForceState" Id="{7d350ed6-92fa-48be-992d-3670fecaf78e}">
+      <Declaration><![CDATA[METHOD SetForceState
+VAR_INPUT
+	ForceState : E_ForceState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ForceState = _CurrentForceState THEN
+	RETURN;
+END_IF
+
+_CurrentForceState := ForceState;
+ResolveOutput();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

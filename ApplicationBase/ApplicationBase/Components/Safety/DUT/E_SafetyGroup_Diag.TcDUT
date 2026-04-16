@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_SafetyGroup_Diag" Id="{cd4fab5e-cd39-0c18-3fe0-daf642f4834c}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+TYPE E_SafetyGroup_Diag : (
+		NoError		  := 0,
+		FbError		  := 1,
+		ComError	  := 2,
+		ModuleError	  := 3,
+		CmpError	  := 4,
+		DeactiveError := 5,
+		RestartError  := 6
+	) UINT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

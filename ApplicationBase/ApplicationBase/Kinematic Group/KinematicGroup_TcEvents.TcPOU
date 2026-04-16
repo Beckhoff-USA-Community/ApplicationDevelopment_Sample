@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="KinematicGroup_TcEvents" Id="{21b161f7-eb7b-49f9-8d98-88b558d342ec}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK KinematicGroup_TcEvents EXTENDS CyclicComponent IMPLEMENTS I_EventReactionTcEvents
+VAR
+	KinematicGroup : I_KinematicGroup;
+	Events		   : TcEventClass('Kinematic Group Events');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Events" Id="{331363c2-64fb-4d3d-b501-2891e295f8b3}" />
+    <Method Name="CyclicLogic" Id="{eb8680de-c9e2-4b02-a42a-cca529595784}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF KinematicGroup = 0 THEN
+	RETURN;
+END_IF
+
+IF KinematicGroup.Error THEN
+	Events.Arguments(E_KinematicGroup.KinematicGroupError).Clear().AddString(TO_STRING(KinematicGroup.ErrorId));
+	Events.RaiseEvent(E_KinematicGroup.KinematicGroupError);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{8c63b2d9-3f3a-49d8-8731-91accf010af6}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode	   : BOOL;
+	Name		   : T_MaxString;
+	KinematicGroup : I_KinematicGroup;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.KinematicGroup := KinematicGroup;
+Events.GenerateTcEvents(KinematicGroup.Name, ADR(TC_Events.KinematicGroup), SIZEOF(ST_KinematicGroup));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventReaction" Id="{771d3874-e818-4177-ab63-55e69664e46a}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventReaction := Events.GetHighestActiveEventReaction();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{697476d1-0abf-4051-b201-fe87218471ff}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventSeverity := Events.GetHighestActiveEventSeverity();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{717622c2-e543-40e8-9070-11913164f5b7}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.Reset();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEventReactions" Id="{b490104d-3824-4f2d-b581-58a0275d0d0a}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.SetEventReactions(Verbose,
+						 Info,
+						 Warning,
+						 Error,
+						 Critical);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

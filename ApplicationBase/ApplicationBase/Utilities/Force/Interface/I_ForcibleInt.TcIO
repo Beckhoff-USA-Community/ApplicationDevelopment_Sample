@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_ForcibleInt" Id="{5cac6e74-4b9d-4f9c-8562-e709b70dd88d}">
+    <Declaration><![CDATA[INTERFACE I_ForcibleInt
+]]></Declaration>
+    <Property Name="Force" Id="{8cbe7289-5ccd-4df2-b1d1-65ae1c15685f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Force : E_ForceState]]></Declaration>
+      <Get Name="Get" Id="{33d20a49-af77-4ee9-a683-a66a914cc182}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{bb97807e-d5c8-4dfa-b10b-5a11e2f4cfdc}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="ForceValue" Id="{aeaf6d33-87ea-4105-bab9-cb9c0d94cf49}">
+      <Declaration><![CDATA[PROPERTY ForceValue : INT]]></Declaration>
+      <Get Name="Get" Id="{8e83cb4f-29e8-4fa1-9c2e-2bfccd67960e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{75be6d6d-1141-44cc-9e6a-34c37db14435}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Command" Id="{3e01d927-b142-422c-9639-5ff2d5ef7a2f}">
+    <Declaration><![CDATA[INTERFACE I_Command EXTENDS I_Base]]></Declaration>
+    <Method Name="Execute" Id="{731b3a30-6f02-445c-bb12-ffbfd0edf610}">
+      <Declaration><![CDATA[METHOD Execute : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

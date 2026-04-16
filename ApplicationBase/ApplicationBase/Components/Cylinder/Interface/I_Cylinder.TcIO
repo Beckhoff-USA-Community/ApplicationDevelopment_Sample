@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Cylinder" Id="{88e118d9-49e1-4dc0-8087-e4cfc085c749}">
+    <Declaration><![CDATA[INTERFACE I_Cylinder EXTENDS I_CylinderCommand, I_CylinderStatus, I_Component, I_TaskResult, I_Resettable]]></Declaration>
+    <Property Name="ExtendTimeout" Id="{941e9be6-201c-4da0-a311-088a51d256e9}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ExtendTimeout : TIME]]></Declaration>
+      <Get Name="Get" Id="{28cc2abc-3e8b-4ec3-8a28-bb0523fcffa4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{2c8551b4-5685-4459-8578-50a791e10694}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="RetractTimeout" Id="{00d4233f-0041-4e77-be78-6dc82595dec7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY RetractTimeout : TIME]]></Declaration>
+      <Get Name="Get" Id="{8fd610f7-8b94-40ff-af29-6a103740d1a7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{36d3d55f-890b-4ed4-90db-6863bbc16195}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

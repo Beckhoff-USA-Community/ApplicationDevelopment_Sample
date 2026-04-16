@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="QueryInterfaceResettables" Id="{e97e9586-170d-4915-83da-922890bb21c7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK QueryInterfaceResettables IMPLEMENTS I_ComponentVisitor
+VAR
+	Reset	   : ARRAY[0..10] OF I_Resettable;
+	ResetCount : DINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="GetAllResetComponents" Id="{89dce528-9d78-41f2-89b1-208848a91f23}">
+      <Declaration><![CDATA[METHOD GetAllResetComponents
+VAR_INPUT
+	EntryModule : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ResetCount := 0;
+EntryModule.Components.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{d878cc57-b009-4d19-a6c0-efec38d1962d}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, Reset[ResetCount]) THEN
+	ResetCount := ResetCount + 1;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,312 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Cylinder" Id="{63fca959-c060-4d6e-b17b-ca34044559a9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Cylinder EXTENDS CyclicComponent IMPLEMENTS I_Cylinder
+VAR
+	ExtendOutput   : I_DigitalOutput;
+	RetractOutput  : I_DigitalOutput;
+	ExtendedInput  : I_DigitalInput;
+	RetractedInput : I_DigitalInput;
+	CylinderState  : E_CylinderState;
+	{attribute 'hide'}
+	_ExtendTimeout : TIME;
+	{attribute 'hide'}
+	_RetractTimeout : TIME;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_ErrorId : UDINT;
+END_VAR
+
+VAR
+	{attribute 'hide'}
+	NullEO : BOOL;
+	{attribute 'hide'}
+	NullExtendOutput : DigitalOutput('Null Digital Output', NullEO);
+	{attribute 'hide'}
+	NullRO : BOOL;
+	{attribute 'hide'}
+	NullRetractOutput : DigitalOutput('Null Digital Output', NullRO);
+	{attribute 'hide'}
+	NullEI : BOOL;
+	{attribute 'hide'}
+	NullExtendedInput : DigitalInput_NO('Null Digital Input', NullEI);
+	{attribute 'hide'}
+	NullRI : BOOL;
+	{attribute 'hide'}
+	NullRetractedInput : DigitalInput_NO('Null Digital Input', NullRI);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{09f42222-895a-43c5-8f90-a8172d920f21}" />
+    <Folder Name="Cylinder" Id="{6d2d72b9-8482-4221-86d0-5a3003be047e}" />
+    <Folder Name="Resettable" Id="{520f8b8e-e18c-40aa-ab99-dd59368cd8c3}" />
+    <Property Name="Busy" Id="{3fd135e0-a70d-4eaa-b6e9-c0b879a146ba}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{5b1df233-0cef-433b-8bf0-a7ba4a306ddf}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{7b2ef387-258c-42f0-b8d5-38e284d8b531}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	TON_RetractTimeout : TON;
+	TON_ExtendTimeout  : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[NullEI := ExtendOutput.On;
+NullRI := RetractOutput.On;
+CASE CylinderState OF
+	E_CylinderState.Undefined:
+		IF ExtendedInput.IsActive THEN
+			CylinderState := E_CylinderState.Extended;
+		ELSIF RetractedInput.IsActive THEN
+			CylinderState := E_CylinderState.Retracted;
+		END_IF
+
+	E_CylinderState.Extending:
+		IF ExtendedInput.IsActive THEN
+			CylinderState := E_CylinderState.Extended;
+		END_IF
+
+	E_CylinderState.Retracting:
+		IF RetractedInput.IsActive THEN
+			CylinderState := E_CylinderState.Retracted;
+		END_IF
+END_CASE
+
+IF ExtendedInput.IsActive AND RetractedInput.IsActive THEN
+	CylinderState := E_CylinderState.Undefined;
+END_IF
+
+// Generate Errors
+IF CylinderState = E_CylinderState.Extending THEN
+	IF _ExtendTimeout > T#0.0S THEN
+		TON_ExtendTimeout(IN := TRUE, PT := _ExtendTimeout);
+		IF TON_ExtendTimeout.Q THEN
+			_Error	 := TRUE;
+			_ErrorId := E_CylinderErrorId.ExtendTimeout;
+		END_IF
+	END_IF
+ELSE
+	TON_ExtendTimeout(IN := FALSE);
+END_IF
+
+IF CylinderState = E_CylinderState.Retracting THEN
+	IF _RetractTimeout > T#0.0S THEN
+		TON_RetractTimeout(IN := TRUE, PT := _RetractTimeout);
+		IF TON_RetractTimeout.Q THEN
+			_Error	 := TRUE;
+			_ErrorId := E_CylinderErrorId.RetractTimeout;
+		END_IF
+	END_IF
+ELSE
+	TON_RetractTimeout(IN := FALSE);
+END_IF
+
+IF CylinderState = E_CylinderState.Extended THEN
+	IF NOT ExtendedInput.IsActive THEN
+		CylinderState := E_CylinderState.Undefined;
+		_Error		  := TRUE;
+		_ErrorId	  := E_CylinderErrorId.ExtendedPlausibility;
+	END_IF
+END_IF
+
+IF CylinderState = E_CylinderState.Retracted THEN
+	IF NOT RetractedInput.IsActive THEN
+		CylinderState := E_CylinderState.Undefined;
+		_Error		  := TRUE;
+		_ErrorId	  := E_CylinderErrorId.RetractedPlausibility;
+	END_IF
+END_IF
+
+IF ExtendedInput.IsActive AND RetractedInput.IsActive THEN
+	CylinderState := E_CylinderState.Undefined;
+	_Error		  := TRUE;
+	_ErrorId	  := E_CylinderErrorId.BothSensorsActive;
+END_IF
+
+_Busy := (CylinderState = E_CylinderState.Extending) OR (CylinderState = E_CylinderState.Retracting);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{856501fd-f7cd-49d0-af8b-9fb5e9931124}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c2cd5431-8c12-4aac-bf03-0bab70b5381c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{0da4cb2a-f941-4e04-9c45-5a61e3ac9e16}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{aff6f7ad-ca39-4cff-9866-2043e5f8b5d4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Extend" Id="{7c6e8466-4304-4e3e-a8fb-07c8dbc215ee}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[METHOD Extend]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF CylinderState <> E_CylinderState.Extended THEN
+	RetractOutput.On := FALSE;
+	ExtendOutput.On	 := TRUE;
+	CylinderState	 := E_CylinderState.Extending;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Extended" Id="{a66391ac-03a3-4d54-af02-c8c690991f30}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Extended : BOOL]]></Declaration>
+      <Get Name="Get" Id="{971d17a8-34fc-45a7-b97e-2161de9d87a9}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Extended := CylinderState = E_CylinderState.Extended;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Extending" Id="{b277b13a-47fb-4fbf-a258-5b0be1d8fec5}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Extending : BOOL]]></Declaration>
+      <Get Name="Get" Id="{0a921130-c9d2-47e3-89b0-68789c225356}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Extending := CylinderState = E_CylinderState.Extending;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ExtendTimeout" Id="{b4f7da86-0171-49fd-8375-b4a4afb71771}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ExtendTimeout : TIME]]></Declaration>
+      <Get Name="Get" Id="{b59fffb5-38a4-4f16-9282-6a41fb065536}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ExtendTimeout := _ExtendTimeout;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{74fdbcce-a338-4ae5-9d06-10cbab8e4eeb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ExtendTimeout := ExtendTimeout;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_Init" Id="{ef20c057-8c4a-4d03-b7fc-407d3f8dd441}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains   : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	   : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)  
+	Name		   : T_MaxString;
+	ExtendOutput   : I_DigitalOutput;
+	RetractOutput  : I_DigitalOutput;
+	ExtendedInput  : I_DigitalInput;
+	RetractedInput : I_DigitalInput;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ExtendOutput = 0 THEN
+	THIS^.ExtendOutput := NullExtendOutput;
+ELSE
+	THIS^.ExtendOutput := ExtendOutput;
+END_IF
+
+IF RetractOutput = 0 THEN
+	THIS^.RetractOutput := NullRetractOutput;
+ELSE
+	THIS^.RetractOutput := RetractOutput;
+END_IF
+
+IF ExtendedInput = 0 THEN
+	THIS^.ExtendedInput := NullExtendedInput;
+ELSE
+	THIS^.ExtendedInput := ExtendedInput;
+END_IF
+
+IF RetractedInput = 0 THEN
+	THIS^.RetractedInput := NullRetractedInput;
+ELSE
+	THIS^.RetractedInput := RetractedInput;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{62478212-4312-471c-b74d-d3370f361e74}" FolderPath="Resettable\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error	 := FALSE;
+_ErrorId := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Retract" Id="{7fd5f0a8-b267-430e-829d-ce85282c13bf}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[METHOD Retract]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF CylinderState <> E_CylinderState.Retracted THEN
+	ExtendOutput.On	 := FALSE;
+	RetractOutput.On := TRUE;
+	CylinderState	 := E_CylinderState.Retracting;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Retracted" Id="{f7e6e1ed-911c-4a1c-9ac9-df46fa3fbcd6}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Retracted : BOOL]]></Declaration>
+      <Get Name="Get" Id="{45287c6b-0cca-46e3-b2bf-fd8df7aa02b6}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Retracted := CylinderState = E_CylinderState.Retracted;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Retracting" Id="{65727b59-8600-49be-b3fe-486d0326226c}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Retracting : BOOL]]></Declaration>
+      <Get Name="Get" Id="{64f497ff-1dd7-4a20-ba3f-e23613a2862a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Retracting := CylinderState = E_CylinderState.Retracting;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RetractTimeout" Id="{d5c5cfce-d8be-4816-a5a6-4c52106c9424}" FolderPath="Cylinder\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY RetractTimeout : TIME]]></Declaration>
+      <Get Name="Get" Id="{1df251fb-9aed-4d7d-8b26-ffdd974d0a28}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RetractTimeout := _RetractTimeout;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{475bcfe7-8ab2-4b0e-8d80-bee5635bf2b7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_RetractTimeout := RetractTimeout;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

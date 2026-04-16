@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AxisDynamics" Id="{18131c95-6df6-45ac-9c87-9c2642fbb3bb}">
+    <Declaration><![CDATA[INTERFACE I_AxisDynamics EXTENDS I_Base]]></Declaration>
+    <Property Name="Acceleration" Id="{f92ddbf9-7628-493c-b205-fa2781fafaf5}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Acceleration : LREAL]]></Declaration>
+      <Get Name="Get" Id="{3d493785-b272-4d83-bd0b-0947c6c735b1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{8ee4375b-d799-4d4c-9b2a-d7cfaf745448}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="BufferMode" Id="{f9cd230e-b9ee-42f9-bcfc-74725d90540c}">
+      <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO MC_BufferMode]]></Declaration>
+      <Get Name="Get" Id="{0473fb52-094a-4a04-b49b-da4c5c0db185}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Deceleration" Id="{45bbf93d-209a-4ec7-9a59-a8ea3de9d573}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Deceleration : LREAL]]></Declaration>
+      <Get Name="Get" Id="{d60516bb-39a3-4a89-97a0-2fd3c0dfff7a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{15c19935-b1a4-4f47-bee7-c8d944e48399}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Jerk" Id="{ef83c49e-16f1-4ef8-ac47-0aad1d56be07}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Jerk : LREAL]]></Declaration>
+      <Get Name="Get" Id="{0327d9a1-d14a-49af-aabf-63701526741f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{c2bfc0d3-60c5-4706-9027-f2f50f34021e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="MoveOptions" Id="{67a6f129-1458-4c62-8a45-ca1066833f2b}">
+      <Declaration><![CDATA[PROPERTY MoveOptions : REFERENCE TO ST_MoveOptions]]></Declaration>
+      <Get Name="Get" Id="{4322c0bb-7fc2-441c-a425-34d56ed57c27}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Velocity" Id="{b7440370-a31f-4944-b6e3-353ff132589a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Velocity : LREAL]]></Declaration>
+      <Get Name="Get" Id="{7cf26086-7e04-46f5-b179-40d32635c4d9}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{17aa3feb-a896-47c6-a417-e30f23acc1cf}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

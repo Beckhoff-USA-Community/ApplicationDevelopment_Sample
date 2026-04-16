@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SerialLineControl_ADS" Id="{ea07a90d-47f5-45b7-afa8-664e72fa7232}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SerialLineControl_ADS IMPLEMENTS I_Cyclic, I_SerialLineControl
+VAR
+	seriallinectrl : SerialLineControlADS := (Timeout := T#5S);
+	txComBuffer	   : Tc2_SerialCom.ComBuffer;
+	rxComBuffer	   : Tc2_SerialCom.ComBuffer;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CyclicLogic" Id="{30bc274c-02c1-4279-8be4-440759f8f3fe}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[seriallinectrl(Connect := TRUE, TxBuffer := txComBuffer, RxBuffer := rxComBuffer);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="rxBuffer" Id="{0cedc798-d265-462e-ad66-e3fa206dacc3}">
+      <Declaration><![CDATA[PROPERTY rxBuffer : REFERENCE TO combuffer]]></Declaration>
+      <Get Name="Get" Id="{82f93b8f-1d00-4bc1-aada-0b3e795b36a0}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[rxBuffer REF= rxComBuffer;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SetConnectionConfig" Id="{d19ae4b0-a9c2-4ce5-8102-ff83535335ab}">
+      <Declaration><![CDATA[METHOD SetConnectionConfig : BOOL
+VAR_INPUT
+	ComportSettings : ComSerialConfig;
+	NetId			: T_AmsNetId := '';
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[seriallinectrl.SerialCfg := ComportSettings;
+seriallinectrl.NetId	 := NetId;
+SetConnectionConfig		 := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="txBuffer" Id="{c09e6bad-f5d8-4750-b6ed-fa9581cc14e1}">
+      <Declaration><![CDATA[PROPERTY txBuffer : REFERENCE TO combuffer]]></Declaration>
+      <Get Name="Get" Id="{b836d6b7-384f-4e8a-b7d1-e66f7771267c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[txBuffer REF= txComBuffer;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

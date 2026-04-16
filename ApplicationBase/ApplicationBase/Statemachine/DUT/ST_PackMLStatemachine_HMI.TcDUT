@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_PackMLStatemachine_HMI" Id="{c97daf9d-68ec-42ee-a3d9-d6b4370984db}">
+    <Declaration><![CDATA[TYPE ST_PackMLStatemachine_HMI EXTENDS ST_HmiFunction :
+	STRUCT
+		// Simplified Control
+		ResetPermissive : BOOL;
+		ResetPressed	: BOOL;
+		Resetted		: BOOL;
+		StartPermissive : BOOL;
+		StartPressed	: BOOL;
+		Started			: BOOL;
+		StopPermissive	: BOOL;
+		StopPressed		: BOOL;
+		Stopped			: BOOL;
+		// Standard Control
+		CurrentMode	 : DINT;
+		ModeCommand	 : DINT;
+		CurrentState : E_PMLState;
+		StateCommand : E_PMLCommand;
+		// Next Available Commands
+		NextAvailableCommands : ARRAY[0..9] OF E_PMLCommand;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

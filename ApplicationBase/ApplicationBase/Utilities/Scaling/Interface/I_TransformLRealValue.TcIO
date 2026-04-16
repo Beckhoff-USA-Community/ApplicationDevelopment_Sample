@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_TransformLRealValue" Id="{22ad0c43-610b-42b6-abb5-16b5dfbb58be}">
+    <Declaration><![CDATA[INTERFACE I_TransformLRealValue EXTENDS I_Base]]></Declaration>
+    <Method Name="Transform" Id="{17374df7-51e7-45a1-87c2-a56139abbfda}">
+      <Declaration><![CDATA[METHOD Transform : LREAL
+VAR_INPUT
+	Value	: LREAL;
+	Reverse : BOOL := FALSE;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

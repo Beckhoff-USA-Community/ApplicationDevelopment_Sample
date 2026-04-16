@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AdsRW" Id="{d9aa18d4-eb01-40f5-a4f4-d7eed26c68d9}">
+    <Declaration><![CDATA[INTERFACE I_AdsRW EXTENDS I_Component, I_TaskResult]]></Declaration>
+    <Property Name="AmsNetId" Id="{a31ac575-5849-4a93-879d-acde219d0a22}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY AmsNetId : T_AmsNetId]]></Declaration>
+      <Get Name="Get" Id="{89cdff9c-c6c0-4ebb-91df-37712933f442}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{c319ab37-9ecb-48ad-904e-983bc99bc235}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="AmsPort" Id="{85438c3a-36ce-4644-92a2-db52ba7c989c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY AmsPort : T_AmsPort]]></Declaration>
+      <Get Name="Get" Id="{115c8295-2ed1-4bd5-96fc-f4b15f03e523}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{da8cba4a-5d64-47a4-83ae-28bb7ff46c2e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="Read" Id="{9d80728c-85ea-4c1d-8679-9e32b12b4701}">
+      <Declaration><![CDATA[METHOD Read
+VAR_INPUT
+	IdxGrp	  : UDINT;
+	IdxOffset : UDINT;
+	pDestAddr : PVOID;
+	Length	  : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="ReadBySymbol" Id="{0c44b531-128e-4416-b728-cec20b5a69cc}">
+      <Declaration><![CDATA[METHOD ReadBySymbol
+VAR_INPUT
+	SymbolName : STRING(255);
+	pDestAddr  : PVOID;
+	Length	   : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="Write" Id="{153567fa-e59c-404d-a88c-d2b7c15415b1}">
+      <Declaration><![CDATA[METHOD Write
+VAR_INPUT
+	IdxGrp		: UDINT;
+	IdxOffset	: UDINT;
+	pSourceAddr : PVOID;
+	Length		: UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="WriteBySymbol" Id="{741e5885-8959-436f-9225-620933a482e4}">
+      <Declaration><![CDATA[METHOD WriteBySymbol
+VAR_INPUT
+	SymbolName	: STRING(255);
+	pSourceAddr : PVOID;
+	Length		: UDINT;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

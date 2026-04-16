@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Component_Mockup" Id="{9389c20d-c061-49ef-9b74-f44986cbfc34}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Component_Mockup EXTENDS Component
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

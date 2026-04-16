@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="EventReactorVisitor" Id="{24f29597-54b3-4fd6-ac19-2ff202393661}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK EventReactorVisitor EXTENDS CyclicComponent IMPLEMENTS I_ModuleVisitor, I_ComponentVisitor
+VAR
+	EntryModule			 : I_Module;
+	HighestEventReaction : DINT;
+	EventReaction		 : I_EventReaction;
+	ModuleStatemachine	 : I_ContainStatemachine;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CyclicLogic" Id="{3ebb1d7c-3033-407d-b394-7720bc7bc184}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ModuleStatemachine = 0 THEN
+	RETURN;
+END_IF
+
+HighestEventReaction := 0;
+EntryModule.Accept(THIS^);
+CASE HighestEventReaction OF
+	0: // Verbose
+	1: // Info
+	2: // Warning
+	3: // Error
+	4: // Critical
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{a7cb8761-6742-4246-8b31-a44ed3c55245}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	EntryModule : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.EntryModule := EntryModule;
+__QUERYINTERFACE(EntryModule, ModuleStatemachine);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{d110bd90-8135-4cd1-b591-bb36d30d1b21}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR
+
+VAR
+	Reaction : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, EventReaction) THEN
+	Reaction := EventReaction.GetHighestActiveEventReaction();
+	IF Reaction > HighestEventReaction THEN
+		HighestEventReaction := Reaction;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{f99af2e4-f980-4d97-b2b3-67be0c5e7689}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR
+
+VAR
+	Reaction : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Module.Components.Accept(THIS^);
+Module.Modules.Accept(THIS^);
+IF __QUERYINTERFACE(Module, EventReaction) THEN
+	Reaction := EventReaction.GetHighestActiveEventReaction();
+	IF Reaction > HighestEventReaction THEN
+		HighestEventReaction := Reaction;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

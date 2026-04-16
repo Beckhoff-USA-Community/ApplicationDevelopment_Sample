@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ModeControl_TEST" Id="{4941de24-5a56-4c27-a9e1-866550f892ab}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ModeControl_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Call test methods
+DefaultMode();
+ChangeValidMode();
+ChangeInvalidMode();
+MultipleModesChange();]]></ST>
+    </Implementation>
+    <Method Name="ChangeInvalidMode" Id="{59f7e558-aa54-45ba-8d89-bda2e586c5d8}">
+      <Declaration><![CDATA[METHOD ChangeInvalidMode
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+	TestMode : DINT;
+END_VAR
+VAR
+	ModeControl : ModeControl_Mockup;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	IF ModeControl._CurrentMode = 1 THEN
+		TestMode := 0;
+		ModeControl.ChangeMode(TestMode);
+		Expected := 1; // Should remain at default
+		Actual	 := ModeControl._CurrentMode;
+		TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	ELSE
+		ModeControl.ChangeMode(1);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeValidMode" Id="{43c135f4-5994-4e5f-83f1-cfc93065b021}">
+      <Declaration><![CDATA[METHOD ChangeValidMode
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+	TestMode : DINT;
+END_VAR
+VAR
+	ModeControl : ModeControl_Mockup;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	TestMode := 5;
+	ModeControl.ChangeMode(TestMode);
+	Expected := TestMode;
+	Actual	 := ModeControl._CurrentMode;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DefaultMode" Id="{aed55929-2abb-4880-abf1-35fe6af634ef}">
+      <Declaration><![CDATA[METHOD DefaultMode
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR
+VAR
+	ModeControl : ModeControl_Mockup;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	Actual	 := ModeControl._CurrentMode;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MultipleModesChange" Id="{9204f1d4-97ec-4efd-8842-a2084412b3b5}">
+      <Declaration><![CDATA[METHOD MultipleModesChange
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+	TestMode : DINT;
+END_VAR
+VAR
+	ModeControl : ModeControl_Mockup;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	TestMode := 3;
+	ModeControl.ChangeMode(TestMode);
+	TestMode := 7;
+	ModeControl.ChangeMode(TestMode);
+	Expected := TestMode;
+	Actual	 := ModeControl._CurrentMode;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

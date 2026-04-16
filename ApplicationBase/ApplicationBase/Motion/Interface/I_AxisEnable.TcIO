@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AxisEnable" Id="{73aa81ef-0a82-4a2d-aafa-259a7a2e1a2b}">
+    <Declaration><![CDATA[INTERFACE I_AxisEnable EXTENDS I_Enablable, I_Override]]></Declaration>
+    <Property Name="InhibitFeedBackward" Id="{f78063d2-25c6-4eb4-8d5b-65b6b29beef9}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InhibitFeedBackward : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7c7a5b76-2daa-4457-8e22-71a2d8b1daaa}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{1dfd0723-275b-4bc3-91bb-eda4def07f23}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="InhibitFeedForward" Id="{87ba04a3-84a0-42af-9c04-cf0266b258df}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InhibitFeedForward : BOOL]]></Declaration>
+      <Get Name="Get" Id="{26d69f0b-ec61-480f-9b86-14ec9c24633d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{c6e71f21-8f66-47d9-9a42-5f83b6c8c59e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

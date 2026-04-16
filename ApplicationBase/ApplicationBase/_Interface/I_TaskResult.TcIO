@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_TaskResult" Id="{186f2bd4-6bc7-4a4f-b036-95512e31b9af}">
+    <Declaration><![CDATA[INTERFACE I_TaskResult EXTENDS I_Base]]></Declaration>
+    <Property Name="Busy" Id="{c7555846-b91b-4b3a-886b-05caafbd388b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{a8e95029-2db7-4c69-b920-5122aafbd46c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Error" Id="{c17c40b8-845c-454b-afd4-b1199d7cca6d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{5d47900b-58e6-491e-ae2a-f1333ec92098}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{f1d5ed68-16e9-4257-a449-e02373e7a542}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{28350e33-acbe-49d3-bfb8-fe4d504025d2}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

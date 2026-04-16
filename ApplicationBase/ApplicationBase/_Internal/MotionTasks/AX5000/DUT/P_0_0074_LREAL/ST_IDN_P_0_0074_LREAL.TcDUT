@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_IDN_P_0_0074_LREAL" Id="{b0cfe197-d2f4-4199-81e1-e48dc8d13966}">
+    <Declaration><![CDATA[TYPE ST_IDN_P_0_0074_LREAL :
+	STRUCT
+		Iq : ARRAY[0..9] OF LREAL;
+		M  : ARRAY[0..9] OF LREAL;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

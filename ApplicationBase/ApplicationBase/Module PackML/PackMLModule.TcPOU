@@ -1,0 +1,263 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="PackMLModule" Id="{25a20bd0-0f0a-4e0a-b97f-d7939b271cdf}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT PackMLModule EXTENDS Module IMPLEMENTS I_Module, I_ContainStatemachine
+VAR
+	_Statemachine : PackMLStatemachine_ModuleIntegrated('Statemachine');
+	SequenceState : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Constructor" Id="{a13ca037-f942-467a-ab9a-88458af13ff4}" />
+    <Folder Name="States" Id="{30dc58e5-9c9d-4518-aef5-bd9689273556}" />
+    <Method Name="Aborted" Id="{51e43f5d-fd8d-494c-8a5f-ea0bc5c40c2a}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Aborted : BOOL;]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Aborted := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Aborting" Id="{c4250865-8cbe-4aac-bcb8-82d7f21aeaa5}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Aborting : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Aborting := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Clearing" Id="{760bbabd-d445-48de-b531-bbeee9be9437}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Clearing : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Clearing := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Completed" Id="{373682f7-a515-4ca4-8760-e2da7bbf8afe}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Completed : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Completed := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Completing" Id="{5b6dc54d-dc43-4eaf-8acf-95ceb1c0e00f}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Completing : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Completing := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CyclicLogic" Id="{216b4710-59af-4382-82b8-ab4bd823dd52}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StateSelect();
+SUPER^.CyclicLogic();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Execute" Id="{86dedc2b-a9d0-42ca-95c3-86d96e011557}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Execute : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Execute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{abcb1884-2b9f-44e1-bb9f-0b5403670a97}" FolderPath="Constructor\">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains	: BOOL;
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode	: BOOL;
+	Name	: T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Statemachine.RegisterWithParent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Held" Id="{c57f029c-75c4-4ea1-a37e-b958c3da9f88}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Held : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Held := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Holding" Id="{34146d9f-8c3e-406e-b106-fa0ea7a05843}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Holding : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Holding := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Idle" Id="{40c63394-b723-48fe-993e-580bdd7b830f}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Idle : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Idle := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Resetting" Id="{bfc50916-07ee-49a4-813e-d83c1d593e36}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Resetting : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Resetting := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Starting" Id="{6cee2754-c5ab-4342-903e-29a875c97e85}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Starting : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Starting := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Statemachine" Id="{1c470240-50cc-47d0-b4e1-938f2e4bae3b}">
+      <Declaration><![CDATA[PROPERTY Statemachine : I_Statemachine]]></Declaration>
+      <Get Name="Get" Id="{fcea9f8e-87e4-4500-b028-2bb2188b6a76}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Statemachine := _Statemachine;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="StateSelect" Id="{13881525-b521-4102-aead-d8a7122bf0de}">
+      <Declaration><![CDATA[METHOD PRIVATE StateSelect
+VAR_INST
+	ClearingTon : TON;
+	LastState	: DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF LastState <> _Statemachine.CurrentState THEN
+	SequenceState := 0;
+	LastState	  := _Statemachine.CurrentState;
+END_IF
+
+CASE _Statemachine.CurrentState OF
+	E_PMLState.Undefined:
+		;
+
+	E_PMLState.Clearing:
+		ClearingTon(IN := TRUE, PT := ApplicationBaseParameter.ClearingTimeout);
+		IF Clearing() THEN
+			ClearingTon(IN := FALSE);
+			_Statemachine.StateComplete();
+		END_IF
+
+		IF ClearingTon.Q THEN
+			ClearingTon(IN := FALSE);
+			Trace.LogMessage('Clearing Timeout exeeded! - ', _Name);
+			_Statemachine.ChangeState(E_PMLCommand.Abort);
+		END_IF
+
+	E_PMLState.Stopped:
+		Stopped();
+
+	E_PMLState.Starting:
+		IF Starting() THEN
+			_Statemachine.StateComplete();
+		END_IF
+
+	E_PMLState.Idle:
+		Idle();
+
+	E_PMLState.Suspended:
+		Suspended();
+
+	E_PMLState.Execute:
+		Execute();
+
+	E_PMLState.Stopping:
+		IF Stopping() THEN
+			_Statemachine.StateComplete();
+		END_IF
+
+	E_PMLState.Aborting:
+		IF Aborting() THEN
+			_Statemachine.StateComplete();
+		END_IF
+
+	E_PMLState.Aborted:
+		Aborted();
+
+	E_PMLState.Holding:
+		IF Holding() THEN
+			_Statemachine.StateComplete();
+		END_IF
+
+	E_PMLState.Held:
+		Held();
+
+	E_PMLState.Unholding:
+		IF Unholding() THEN
+			_Statemachine.StateComplete();
+		END_IF
+
+	E_PMLState.Suspending:
+		IF Suspending() THEN
+			_Statemachine.StateComplete();
+		END_IF
+
+	E_PMLState.Unsuspending:
+		IF Unsuspending() THEN
+			_Statemachine.StateComplete();
+		END_IF
+
+	E_PMLState.Resetting:
+		IF Resetting() THEN
+			_Statemachine.StateComplete();
+		END_IF
+
+	E_PMLState.Completing:
+		IF Completing() THEN
+			_Statemachine.StateComplete();
+		END_IF
+
+	E_PMLState.Completed:
+		Completed();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stopped" Id="{99231bb4-7b08-4edb-b042-bf5687beabf4}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Stopped : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Stopped := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stopping" Id="{f408c09b-22f1-4812-801b-bbd5e5ec9b5e}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Stopping : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Stopping := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Suspended" Id="{770afc9d-016b-4468-9a81-323635dbafe6}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Suspended : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Suspended := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Suspending" Id="{6d800758-6d66-4ce6-ad6f-98ac21133cf4}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Suspending : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Suspending := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Unholding" Id="{8573ee61-26a5-47b0-ae1f-e16547c62787}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Unholding : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Unholding := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Unsuspending" Id="{d5a0cf5b-153b-4f83-b120-76ab413a17e1}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Unsuspending : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Unsuspending := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

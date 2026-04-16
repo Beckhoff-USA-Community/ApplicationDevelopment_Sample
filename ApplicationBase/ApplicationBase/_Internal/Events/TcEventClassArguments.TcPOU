@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TcEventClassArguments" Id="{4da6bc0f-f7b2-48c4-b813-e40d79558b62}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK TcEventClassArguments IMPLEMENTS I_EventArguments
+VAR
+	pArgumentEvent : POINTER TO FB_TcAlarm;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AddString" Id="{8a6fa489-eeec-40ff-b2d2-3feb0d4ce074}">
+      <Declaration><![CDATA[METHOD AddString : I_EventArguments
+VAR_INPUT
+	Argument : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF pArgumentEvent <> 0 THEN
+	pArgumentEvent^.ipArguments.AddString(Argument);
+END_IF
+
+AddString := THIS^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Clear" Id="{506b08da-9af2-47ec-8146-ff18e19be2d9}">
+      <Declaration><![CDATA[METHOD Clear : I_EventArguments]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF pArgumentEvent <> 0 THEN
+	pArgumentEvent^.ipArguments.Clear();
+END_IF
+
+Clear := THIS^;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Event" Id="{e7942ebe-6665-4923-ad58-88e5c7dffa82}">
+      <Declaration><![CDATA[PROPERTY Event : POINTER TO FB_TcAlarm]]></Declaration>
+      <Set Name="Set" Id="{0ff0532c-c9e0-4841-8b6f-67b32221ed3b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[pArgumentEvent := Event;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

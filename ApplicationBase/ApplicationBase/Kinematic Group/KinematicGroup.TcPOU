@@ -1,0 +1,265 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="KinematicGroup" Id="{0feb2048-b1af-4d7f-beb2-a7bcb5baa03d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK KinematicGroup EXTENDS CyclicComponent IMPLEMENTS I_KinematicGroup, I_Initializable
+VAR
+	NcToPlc AT %I* : NCTOPLC_NCICHANNEL_REF;
+	PlcToNc AT %Q* : PLCTONC_NCICHANNEL_REF;
+	KinAxes		   : ST_KinAxes;
+	KinConfigGroup : FB_KinConfigGroup;
+	KinResetGroup  : FB_KinResetGroup;
+	{attribute 'hide'}
+	_Initialized : BOOL;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_ErrorId : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Component" Id="{f8f61494-50b2-4fd1-8dc7-7bca84051a9c}" />
+    <Folder Name="Cyclic" Id="{a39527e3-f9a1-4fcc-8851-75864fd99f3d}" />
+    <Folder Name="Initialize" Id="{0cb0e0c1-ca26-4cae-954c-752a8309db53}" />
+    <Folder Name="Kinematic" Id="{97cb7074-f00a-4b0e-bf78-3b55ba11adf1}" />
+    <Folder Name="Resettable" Id="{966b0f54-a00f-4dd0-bee4-56a66e47817f}" />
+    <Folder Name="Status" Id="{a75d5de8-b03b-4def-bb8e-191d094458b0}" />
+    <Method Name="AddAcsAxis" Id="{cc2b0270-c6d5-497a-b820-1fa54cc5e25c}" FolderPath="Kinematic\">
+      <Declaration><![CDATA[METHOD AddAcsAxis : BOOL
+VAR_INPUT
+	AxisId : UDINT;
+END_VAR
+
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF AxisId = 0 THEN
+	RETURN;
+END_IF
+
+FOR i := 1 TO 8 DO
+	IF KinAxes.nAxisIdsAcs[i] = 0 THEN
+		KinAxes.nAxisIdsAcs[i] := AxisId;
+		AddAcsAxis			   := TRUE;
+		RETURN;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AddMcsAxis" Id="{67a2cc40-40da-4caa-a213-4987e4e4f3c1}" FolderPath="Kinematic\">
+      <Declaration><![CDATA[METHOD AddMcsAxis : BOOL
+VAR_INPUT
+	AxisId : UDINT;
+END_VAR
+
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF AxisId = 0 THEN
+	RETURN;
+END_IF
+
+FOR i := 1 TO 8 DO
+	IF KinAxes.nAxisIdsMcs[i] = 0 THEN
+		KinAxes.nAxisIdsMcs[i] := AxisId;
+		AddMcsAxis			   := TRUE;
+		RETURN;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="BuildGroup" Id="{3b19ee3c-d17f-4972-a839-84ed928228b1}" FolderPath="Kinematic\">
+      <Declaration><![CDATA[METHOD BuildGroup
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Busy THEN
+	RETURN;
+END_IF
+
+KinConfigGroup.bCartesianMode := TRUE;
+KinConfigGroup.bExecute		  := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Busy" Id="{874ccd60-34af-4af9-a690-4499397e711b}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{0565d513-5766-47cc-b18c-7a75051aa61f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{8c14fcb6-12a2-42d4-b6b1-804469751fb1}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT Initialized THEN
+	Initialize();
+	RETURN;
+END_IF
+
+//
+KinConfigGroup(stAxesList := KinAxes, stKinRefIn := NcToPlc);
+IF KinConfigGroup.bError THEN
+	_Error	 := TRUE;
+	_ErrorId := KinConfigGroup.nErrorId;
+END_IF
+
+KinConfigGroup.bExecute := FALSE;
+
+//
+KinResetGroup(nItpChannelId := NcToPlc.ChnId, stKinRefIn := NcToPlc, stAxesList := KinAxes);
+IF KinResetGroup.bError THEN
+	_Error	 := TRUE;
+	_ErrorId := KinResetGroup.nErrorId;
+END_IF
+
+KinResetGroup.bExecute := FALSE;
+
+//
+_Busy := KinConfigGroup.bBusy;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterWithParent" Id="{96ee18d1-dcb0-46a5-98c7-ff9b62519fff}" FolderPath="Component\">
+      <Declaration><![CDATA[METHOD DeregisterWithParent
+VAR_INPUT
+	Parent : I_ContainComponents;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.DeregisterWithParent(Parent);
+Parent.DeregisterInitialize(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DissolveGroup" Id="{802c4671-1871-4788-bba6-46fcd70723b6}" FolderPath="Kinematic\">
+      <Declaration><![CDATA[METHOD DissolveGroup
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Busy THEN
+	RETURN;
+END_IF
+
+KinConfigGroup.bCartesianMode := FALSE;
+KinConfigGroup.bExecute		  := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{964a45c3-1b79-459f-9edf-77294dc15c3b}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{60732910-d5cb-4916-a30d-e6b6acd05796}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{12b458e0-b125-40ac-a25c-52b4b5eec2d0}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{da8b4825-8ee5-4de6-b098-e192b9407080}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := _ErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Initialize" Id="{209404f2-2f62-40ca-bdbc-c70650351aaf}" FolderPath="Initialize\">
+      <Declaration><![CDATA[METHOD Initialize
+VAR
+	i : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT Initialized THEN
+	IF KinAxes.nAxisIdsAcs[1] = 0 THEN
+		Trace.LogMessage(Name, 'Init failed - at least one ACS Axis needs to be added to Kinematic!');
+		RETURN;
+	END_IF
+
+	IF KinAxes.nAxisIdsMcs[1] = 0 THEN
+		Trace.LogMessage(Name, 'Init failed - at least one MCS Axis needs to be added to Kinematic!');
+		RETURN;
+	END_IF
+
+	IF F_GetMappingStatus(ADR(NcToPlc), SIZEOF(NcToPlc)) <> EPlcMappingStatus.MS_Mapped THEN
+		Trace.LogMessage(Name, 'Init failed - NcToPlc not mapped to Kinematic Channel!');
+		RETURN;
+	END_IF
+
+	IF F_GetMappingStatus(ADR(PlcToNc), SIZEOF(PlcToNc)) <> EPlcMappingStatus.MS_Mapped THEN
+		Trace.LogMessage(Name, 'Init failed - PlcToNc not mapped to Kinematic Channel!');
+		RETURN;
+	END_IF
+
+	Initialized := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Initialized" Id="{b89df756-26aa-4681-8a19-2fa7e6ff4304}" FolderPath="Initialize\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Initialized : BOOL]]></Declaration>
+      <Get Name="Get" Id="{62854843-8f14-41d1-bd82-c48d3a1d2c4e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Initialized := _Initialized;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{cea0c859-9268-487e-837e-bf2568cc640a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Initialized := Initialized;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Override" Id="{11206efc-7ff2-4eb4-88aa-fcc121e54cb4}" FolderPath="Kinematic\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Override : LREAL]]></Declaration>
+      <Set Name="Set" Id="{b6a100c6-bbb9-40ff-b885-c47357d6d824}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PlcToNc.ChnAxesOvr	  := TO_UDINT(Override * 10_000);
+PlcToNc.ChnSpindleOvr := TO_UDINT(Override * 10_000);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="RegisterWithParent" Id="{cc1c9d0f-701c-40d2-b5a8-c3469bdb9e79}" FolderPath="Component\">
+      <Declaration><![CDATA[METHOD RegisterWithParent
+VAR_INPUT
+	Parent : I_ContainComponents;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.RegisterWithParent(Parent);
+Parent.RegisterInitialize(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{fc1ae767-6205-4486-bfac-a06bbcde3311}" FolderPath="Resettable\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error				   := FALSE;
+_ErrorId			   := 0;
+KinResetGroup.bExecute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Status" Id="{45cee992-2b43-4a40-956f-10071d79851e}" FolderPath="Kinematic\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Status : E_KinStatus]]></Declaration>
+      <Get Name="Get" Id="{51344671-7838-4a99-835f-15ea4b7037cd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Status := F_KinGetChnOperationState(NcToPlc);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

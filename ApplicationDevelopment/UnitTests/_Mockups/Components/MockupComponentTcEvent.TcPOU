@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MockupComponentTcEvent" Id="{cd867c9e-8731-4cdd-8250-77392e03bedd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK MockupComponentTcEvent EXTENDS Component IMPLEMENTS I_EventReaction
+VAR
+	Events : TcEventClass('');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_Init" Id="{b261b18d-cba7-4f23-8cee-2684a094704a}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change) 
+	Name		 : T_MaxString;
+	Component	 : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.GenerateTcEvents(Component.Name, ADR(TC_Events.TestComponent), SIZEOF(ST_TestComponent));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventReaction" Id="{648f1db0-2054-4aaf-a689-5bf374430fce}">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventReaction := Events.GetHighestActiveEventReaction();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{53b35a3d-241e-4ec4-bb5c-8737abe1105b}">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventSeverity := Events.GetHighestActiveEventSeverity();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RaiseTestEvent" Id="{ebe44f3a-806b-4293-9912-91d080a9a74d}">
+      <Declaration><![CDATA[METHOD RaiseTestEvent
+VAR_INPUT
+	Severity : TcEventSeverity;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Severity OF
+	TcEventSeverity.Critical:
+		Events.RaiseEvent(E_TestComponent.CriticalEvent);
+
+	TcEventSeverity.Error:
+		Events.RaiseEvent(E_TestComponent.ErrorEvent);
+
+	TcEventSeverity.Warning:
+		Events.RaiseEvent(E_TestComponent.WarningEvent);
+
+	TcEventSeverity.Info:
+		Events.RaiseEvent(E_TestComponent.InfoEvent);
+
+	TcEventSeverity.Verbose:
+		Events.RaiseEvent(E_TestComponent.VerboseEvent);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{b234eeeb-2cc1-4e40-9592-5863f04c51a1}">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.Reset();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEventReactions" Id="{7da8f86c-32ad-4805-b73f-7ffeae6f053c}">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.SetEventReactions(Verbose,
+						 Info,
+						 Warning,
+						 Error,
+						 Critical);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

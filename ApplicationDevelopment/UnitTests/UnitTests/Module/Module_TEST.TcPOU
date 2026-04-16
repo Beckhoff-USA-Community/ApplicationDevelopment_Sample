@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Module_TEST" Id="{940b2f7f-194d-4043-8280-c96030c6390b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Module_TEST
+VAR
+	
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[OnCyclicCallCalled();
+RegisterComponentRegistered();
+RegisterCyclicRegistered();
+RegisterModuleRegistered();
+RegisterWithParentRegistered();
+CheckVisitComponentsMechanismAndGetVisitedCount();
+CheckVisitModulesMechanismAndGetVisitedCount();
+RegisterInitializeRegistered();
+CallInitializationMethod();
+NameAssigned();
+DeregisterWithParent();]]></ST>
+    </Implementation>
+    <Method Name="CallInitializationMethod" Id="{605eb26c-5c8f-4a73-9178-a339b9502e22}">
+      <Declaration><![CDATA[METHOD CallInitializationMethod
+VAR_INST
+	Expected			   : BOOL;
+	Actual				   : BOOL;
+END_VAR
+VAR
+	InitializableComponent : InitializableComponent_Mockup('Component 1');
+	Module				   : Module_Mockup('Module');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected						   := TRUE;
+	InitializableComponent.Initialized := TRUE;
+	Module.RegisterInitialize(InitializableComponent);
+	Module.Initialize();
+	Actual := Module.Initialized;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CheckVisitComponentsMechanismAndGetVisitedCount" Id="{bbe9be06-0e85-4247-a2b0-804f1eeb171b}">
+      <Declaration><![CDATA[METHOD CheckVisitComponentsMechanismAndGetVisitedCount
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR
+VAR
+	Component1		 : CyclicComponent_Mockup('Component 1');
+	Component2		 : CyclicComponent_Mockup('Component 2');
+	Module			 : EquipmentModule_Mockup('Module 1', Component1, Component2);
+	StringCollection : StringCollection<100>;
+	ComponentVisitor : ComponentVisitor_Mockup(StringCollection);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 2;
+	Module.CyclicLogic();
+	Module.Components.Accept(ComponentVisitor);
+	Actual := StringCollection.Entries;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CheckVisitModulesMechanismAndGetVisitedCount" Id="{e07e3535-9d6e-4ec9-abac-bb01bb0c2a46}">
+      <Declaration><![CDATA[METHOD CheckVisitModulesMechanismAndGetVisitedCount
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR
+VAR
+	Component1		 : CyclicComponent_Mockup('Component 1');
+	Component2		 : CyclicComponent_Mockup('Component 2');
+	Module			 : EquipmentModule_Mockup('Module 1', Component1, Component2);
+	StringCollection : StringCollection<100>;
+	ComponentVisitor : ComponentVisitor_Mockup(StringCollection);
+
+	//
+	Component3	  : CyclicComponent_Mockup('Component 3');
+	Component4	  : CyclicComponent_Mockup('Component 4');
+	ModuleEm	  : EquipmentModule_Mockup('Module', Component1, Component2);
+	Machine		  : MachineModule_Mockup('Machine', ModuleEm, Component3, Component4);
+	ModuleVisitor : ModuleVisitor_Mockup(StringCollection);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	StringCollection.Clear();
+	Machine.CyclicLogic();
+	Machine.Modules.Accept(ModuleVisitor);
+	Actual := StringCollection.Entries;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterWithParent" Id="{8bb22898-f321-43d0-8555-1973609ef13a}">
+      <Declaration><![CDATA[METHOD DeregisterWithParent
+VAR_INST
+	Expected	   : BOOL;
+	Actual		   : BOOL;
+	ExpectedModule : I_Module;
+	ActualModule   : I_Module;
+END_VAR
+VAR
+	Component1		 : CyclicComponent_Mockup('Component 1');
+	Component2		 : CyclicComponent_Mockup('Component 2');
+	StringCollection : StringCollection<100>;
+	Component3	  : CyclicComponent_Mockup('Component 3');
+	Component4	  : CyclicComponent_Mockup('Component 4');
+	ModuleEm	  : EquipmentModule_Mockup('Module', Component1, Component2);
+	Machine		  : MachineModule_Mockup('Machine', ModuleEm, Component3, Component4);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected	   := TRUE;
+	ExpectedModule := 0;
+	ModuleEm.DeregisterWithParent(Machine);
+	ActualModule := Machine.GetModuleByName('Module');
+	Actual		 := ExpectedModule = ActualModule;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="NameAssigned" Id="{1099ea9c-008d-4235-955a-48f695706e5e}">
+      <Declaration><![CDATA[METHOD NameAssigned
+VAR_INST
+	Expected : STRING;
+	Actual	 : STRING;
+	//Module	 : Module_Mockup('Module');
+END_VAR
+VAR
+	Component1		 : CyclicComponent_Mockup('Component 1');
+	Component2		 : CyclicComponent_Mockup('Component 2');
+	Module			 : EquipmentModule_Mockup('Module 1', Component1, Component2);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 'Module 1';
+	Actual	 := Module.Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCyclicCallCalled" Id="{3fb38bc5-aaa6-4122-a05e-56bf484546d2}">
+      <Declaration><![CDATA[METHOD OnCyclicCallCalled
+VAR_INST
+	Expected		: BOOL;
+	Actual			: BOOL;
+END_VAR
+VAR
+	CyclicComponent : CyclicComponent_Mockup('Component 1');
+	Module			: Module_Mockup('Module');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Module.RegisterCyclic(CyclicComponent);
+	Module.CyclicLogic();
+	Actual := CyclicComponent.WasCalled;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterComponentRegistered" Id="{64e5ba95-8445-4abe-b9ed-2c8e9c3715b5}">
+      <Declaration><![CDATA[METHOD RegisterComponentRegistered
+VAR_INST
+	Expected		: BOOL;
+	Actual			: BOOL;
+END_VAR
+VAR
+	CyclicComponent : CyclicComponent_Mockup('Component 1');
+	Module			: Module_Mockup('Module');
+	BaseComponent	: I_Component;
+	AddedComponent	: I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected	  := TRUE;
+	BaseComponent := CyclicComponent;
+	Module.RegisterComponent(CyclicComponent);
+	Module.CyclicLogic();
+	AddedComponent := Module.GetComponentByName('Component 1');
+	Actual		   := BaseComponent = AddedComponent;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterCyclicRegistered" Id="{a0624626-6885-4134-9d56-b71e65185c5f}">
+      <Declaration><![CDATA[METHOD RegisterCyclicRegistered
+VAR_INST
+	Expected		: BOOL;
+	Actual			: BOOL;
+END_VAR
+VAR
+	CyclicComponent : CyclicComponent_Mockup('Component 1');
+	Module			: Module_Mockup('Module');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Module.RegisterCyclic(CyclicComponent);
+	Module.CyclicLogic();
+	Actual := CyclicComponent.WasCalled;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterInitializeRegistered" Id="{989d9903-3ff2-4d4e-8608-d1d6d28d4b45}">
+      <Declaration><![CDATA[METHOD RegisterInitializeRegistered
+VAR_INST
+	Expected			   : BOOL;
+	Actual				   : BOOL;
+END_VAR
+VAR
+	InitializableComponent : InitializableComponent_Mockup('Component 1');
+	Module				   : Module_Mockup('Module');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		   := TRUE;
+	Module.Initialized := TRUE;
+	Module.RegisterInitialize(InitializableComponent);
+	Module.Initialize();
+	Actual := InitializableComponent.InitializeWasCalled;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterModuleRegistered" Id="{3c12bea3-d778-42ca-b2eb-4d566e328ba5}">
+      <Declaration><![CDATA[METHOD RegisterModuleRegistered
+VAR_INST
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+END_VAR
+VAR
+	BaseModule		 : I_Module;
+	AddedModule		 : I_Module;
+	EquipmentModule	 : Module_Mockup('EquipmentModule');
+	EquipmentModule2 : Module_Mockup('EquipmentModule2');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := TRUE;
+	BaseModule := EquipmentModule;
+	EquipmentModule2.RegisterModule(EquipmentModule);
+	AddedModule := EquipmentModule2.GetModuleByName('EquipmentModule');
+	Actual		:= BaseModule = AddedModule;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterWithParentRegistered" Id="{55f41d43-eb41-43e4-97d2-94de362793a1}">
+      <Declaration><![CDATA[METHOD RegisterWithParentRegistered
+VAR_INST
+	Expected	   : BOOL;
+	Actual		   : BOOL;
+	ExpectedModule : I_Module;
+	ActualModule   : I_Module;
+END_VAR
+VAR
+	Component1		 : CyclicComponent_Mockup('Component 1');
+	Component2		 : CyclicComponent_Mockup('Component 2');
+	Component3	  : CyclicComponent_Mockup('Component 3');
+	Component4	  : CyclicComponent_Mockup('Component 4');
+	ModuleEm	  : EquipmentModule_Mockup('Module', Component1, Component2);
+	Machine		  : MachineModule_Mockup('Machine', ModuleEm, Component3, Component4);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected	   := TRUE;
+	ExpectedModule := ModuleEm;
+	Machine.CyclicLogic();
+	ActualModule := Machine.GetModuleByName('Module');
+	Actual		 := ExpectedModule = ActualModule;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_EtherCatMasterInfo" Id="{dbca05e7-3643-0291-19d5-f27145b3b0c8}">
+    <Declaration><![CDATA[TYPE ST_EtherCatMasterInfo :
+	STRUCT
+		AmsNetID	  : AMSNETID;
+		DevID		  : UINT;
+		DevState	  : UINT;
+		ChangeCount	  : UINT;
+		SlaveCount	  : UINT;
+		CfgSlaveCount : UINT;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

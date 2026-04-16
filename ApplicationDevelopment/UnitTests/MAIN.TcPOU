@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MAIN" Id="{9cddac07-df1f-4e43-80ae-f6917cc2c1c0}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	CyclicRunner_TEST		 : CyclicRunner_TEST;
+	ComponentCollection_TEST : ComponentCollection_TEST;
+	Module_TEST				 : Module_TEST;
+	CyclicComponent_TEST	 : CyclicComponent_TEST;
+	Component_TEST			 : Component_TEST;
+	ModuleCollection_TEST	 : ModuleCollection_TEST;
+	Tracing_TEST			 : Tracing_TEST;
+	Initializer_TEST		 : Initializer_TEST;
+	Events_TEST				 : Events_TEST;
+	Statemachine_TEST		 : Statemachine_TEST;
+	Collection_Test			 : Collection_TEST();
+	List_TEST				 : List_TEST;
+	ModeControl_TEST		 : ModeControl_TEST;
+	CollectionPeeker_Test	 : CollectionPeeker_Test;
+
+	//
+	Component1				  : CyclicComponent_Mockup('Component 1');
+	Component2				  : CyclicComponent_Mockup('Component 2');
+	Component3				  : CyclicComponent_Mockup('Component 3');
+	Component4				  : CyclicComponent_Mockup('Component 4');
+	Em						  : EquipmentModule_Mockup('Em', Component1, Component2);
+	EmEm					  : MachineModule_Mockup('EmEm', Em, Component3, Component4);
+	EmEmEm					  : MachineModule_Mockup('EmEmEm', EmEm, Component3, Component4);
+	Machine					  : MachineModule_Mockup('Machine', EmEmEm, Component3, Component4);
+	StringCollection		  : StringCollection<100>;
+	MachineModuleVisitor	  : GetSystemTreeNamesVisitor(StringCollection);
+	QueryInterfaceResettables : QueryInterfaceResettables();
+	Rerun					  : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[GlobalTestSuite.TestSuite.TestSuiteName := 'Application Base Test Suite';
+Tracing_TEST();
+CyclicRunner_TEST();
+ComponentCollection_TEST();
+Module_TEST();
+Component_TEST();
+CyclicComponent_TEST();
+ModuleCollection_TEST();
+Initializer_TEST();
+Events_TEST();
+Statemachine_TEST();
+Collection_Test();
+List_TEST();
+ModeControl_TEST();
+CollectionPeeker_Test();
+//
+IF NOT Machine.Initialized THEN
+	Machine.Initialize();
+ELSE
+	Machine.CyclicLogic();
+	MachineModuleVisitor.GetTree(Machine);
+	QueryInterfaceResettables.GetAllResetComponents(Em);
+END_IF
+
+IF Rerun THEN
+	Rerun := FALSE;
+	GlobalTestSuite.TestSuite.ReRunTests();
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

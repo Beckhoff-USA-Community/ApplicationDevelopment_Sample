@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_SafetyStateDiag" Id="{980b4eb8-e2ff-41d7-bc94-22020e937c9a}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
+TYPE ST_SafetyStateDiag :
+	STRUCT
+		State : USINT;
+		Diag  : UINT; // **NOT PRESENT ON AND/OR FBs ** For components with USINT as Diag connection, connect first 8 Bit of UINT Diag. Inherited FB is evaluating correct length.
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

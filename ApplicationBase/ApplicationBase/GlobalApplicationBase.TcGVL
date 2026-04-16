@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <GVL Name="GlobalApplicationBase" Id="{0aea3844-71db-46a3-81ec-23dc9ae6ff6d}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	DynamicMemory : FB_DynMem_Manager;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

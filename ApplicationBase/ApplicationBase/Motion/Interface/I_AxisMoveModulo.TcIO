@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AxisMoveModulo" Id="{3c965038-613b-4dbe-8f40-273178be4a6e}">
+    <Declaration><![CDATA[INTERFACE I_AxisMoveModulo EXTENDS I_Base]]></Declaration>
+    <Method Name="MoveModulo" Id="{23992595-2597-4738-bd01-e01eeced0372}">
+      <Declaration><![CDATA[METHOD MoveModulo : BOOL
+VAR_INPUT
+	Position	  : LREAL;
+	Direction	  : MC_Direction := MC_Direction.MC_Shortest_Way;
+	AbortPrevious : BOOL		 := TRUE;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

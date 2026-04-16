@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_SafetyModule" Id="{e89a4c3b-60ba-44ac-aa28-5b87962c2e42}">
+    <Declaration><![CDATA[INTERFACE I_SafetyModule EXTENDS I_SafetySimulation, I_TaskResult, I_Resettable, I_Module]]></Declaration>
+    <Method Name="AddSafetyComponent" Id="{6f62cedb-a078-4e56-bfe8-dff1ec8d1df4}">
+      <Declaration><![CDATA[METHOD AddSafetyComponent
+VAR_INPUT
+	Component : I_SafetyBase;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="OK" Id="{8f3dbf24-d8f0-4aa6-8344-bc73f2eaac26}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY OK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{a31ae7ba-0a3d-4429-a566-0da613cfeaf2}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="SafetyPlcCoE" Id="{dbf4c600-4900-4334-9bd6-3a4628d426d7}">
+      <Declaration><![CDATA[PROPERTY SafetyPlcCoE : I_CoeDevice]]></Declaration>
+      <Get Name="Get" Id="{5d7589e9-f114-4e5d-96d0-8f28c62d4326}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

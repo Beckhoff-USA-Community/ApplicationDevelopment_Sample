@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_KinematicGroup" Id="{1eeda001-fd31-4426-bdfc-22e914c643aa}">
+    <Declaration><![CDATA[INTERFACE I_KinematicGroup EXTENDS I_Component, I_Override, I_TaskResult, I_Resettable]]></Declaration>
+    <Method Name="AddAcsAxis" Id="{3cfd2da9-2840-4f5c-b405-828b67689af0}">
+      <Declaration><![CDATA[METHOD AddAcsAxis : BOOL
+VAR_INPUT
+	AxisId : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="AddMcsAxis" Id="{31e282f7-0944-49e2-b9c2-8411a707a43f}">
+      <Declaration><![CDATA[METHOD AddMcsAxis : BOOL
+VAR_INPUT
+	AxisId : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="BuildGroup" Id="{90626a04-c63b-4c2f-a506-43293e0d366a}">
+      <Declaration><![CDATA[METHOD BuildGroup
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="DissolveGroup" Id="{26601a57-18ad-4890-b1fb-cfc1fe637e52}">
+      <Declaration><![CDATA[METHOD DissolveGroup
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Status" Id="{a64411fc-e106-43e9-9e4e-67cf0a8fc806}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Status : E_KinStatus]]></Declaration>
+      <Get Name="Get" Id="{f0e908cd-d368-4bf7-b6e1-645d9ebc89ee}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

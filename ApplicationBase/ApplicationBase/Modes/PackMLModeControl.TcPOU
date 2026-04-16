@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="PackMLModeControl" Id="{f23dc79b-6100-4431-bae7-0c2f5a4e000f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PackMLModeControl IMPLEMENTS I_Mode, I_Cyclic
+VAR
+	{attribute 'hide'}
+	_CurrentMode : DINT;
+	{attribute 'hide'}
+	ModeManager	  : FB_PMLUnitModeManager;
+	ModeCommand	  : DINT;
+	_StateMachine : I_Statemachine;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ChangeMode" Id="{9f9a492c-3617-4d5c-9edf-64f53d46f8cb}">
+      <Declaration><![CDATA[METHOD ChangeMode
+VAR_INPUT
+	RequestedMode : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF RequestedMode <= 0 OR RequestedMode > 31 THEN
+	Trace.LogMessage('PackML Mode Controller', ' - Requested Mode is not valid 1..31');
+	RETURN;
+END_IF
+
+ModeCommand := RequestedMode;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="CurrentMode" Id="{0165e033-657f-46c0-bb2c-2b22ba5c4c88}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentMode : DINT]]></Declaration>
+      <Get Name="Get" Id="{7345c78b-d44d-459c-a6ed-ac02999b293a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentMode := _CurrentMode;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{e5f5a077-939b-46ec-9a7c-d4ebda347e29}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	LastModeCommand		: DINT;
+	ModeChangeRequested : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _CurrentMode = 0 THEN
+	ModeChangeRequested := TRUE;
+	ModeCommand			:= E_PMLProtectedUnitMode.Production;
+	LastModeCommand		:= ModeCommand;
+ELSIF ModeCommand <> LastModeCommand THEN
+	ModeChangeRequested := TRUE;
+	LastModeCommand		:= ModeCommand;
+END_IF
+
+IF ModeChangeRequested THEN
+	{warning disable C0196}
+	ModeManager(bExecute	 := TRUE,
+				eModeCommand := ModeCommand,
+				eState		 := _StateMachine.CurrentState,
+				eModeStatus	 => _CurrentMode);
+
+	IF ModeManager.bDone THEN
+		ModeManager(bExecute := FALSE);
+		ModeChangeRequested := FALSE;
+	ELSIF ModeManager.bError THEN
+		IF ModeManager.nErrorId = 1 THEN
+			Trace.LogMessage('PackML Mode Controller', 'Requested mode is not defined or Mode change is disabled in this PackML state!');
+		ELSE
+			Trace.LogMessage('PackML Mode Controller', 'Mode change error, check PackML configuration!');
+		END_IF
+
+		ModeManager(bExecute := FALSE);
+		_StateMachine.ChangeState(TO_UDINT(E_PMLCommand.Abort));
+		ModeCommand			:= E_PMLProtectedUnitMode.Production;
+		ModeChangeRequested := FALSE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StateMachine" Id="{f219e0be-d317-4770-b2d8-4354fadb52d6}">
+      <Declaration><![CDATA[PROPERTY StateMachine : I_StateMachine]]></Declaration>
+      <Set Name="Set" Id="{57fe29aa-0b61-492b-95cc-0daed4e47c17}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateMachine := StateMachine;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

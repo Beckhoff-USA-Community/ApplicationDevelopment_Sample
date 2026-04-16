@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_MotionTaskCollection" Id="{5cef30fa-20ec-45a3-9abb-6d3952f0de91}">
+    <Declaration><![CDATA[INTERFACE I_MotionTaskCollection EXTENDS I_TaskResult]]></Declaration>
+    <Method Name="AddTask" Id="{2950274e-7e92-4b87-8014-c41a77a99a45}">
+      <Declaration><![CDATA[METHOD AddTask
+VAR_INPUT
+	Task : I_MotionTask;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="ErrorTask" Id="{a06d0498-a6d5-4bd2-a621-0fd05c9b9e17}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorTask : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{567eac01-b97a-4bff-8aae-681ceb940ee7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="RemoveTaskByInstance" Id="{7678a5bd-5735-492c-a995-a537ca3df1bd}">
+      <Declaration><![CDATA[METHOD RemoveTaskByInstance
+VAR_INPUT
+	Task : I_MotionTask;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

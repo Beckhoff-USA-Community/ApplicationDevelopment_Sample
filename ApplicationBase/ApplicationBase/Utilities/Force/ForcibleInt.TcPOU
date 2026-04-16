@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ForcibleInt" Id="{965958b9-8ef4-4cce-b7b5-2e6e2f5617d2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ForcibleInt
+VAR
+	Name			   : T_MaxString;
+	_CurrentForceState : E_ForceState;
+	ForceEvent		   : FB_TcAlarm;
+	RequestedValue	   : INT;
+	_Output			   : INT;
+	_ForceValue : INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Private" Id="{bc2fb2dd-5f79-4794-ae2c-e0e297dd8380}" />
+    <Property Name="CurrentForceState" Id="{5b61d038-9a17-4d23-9017-38c6ae6ae977}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentForceState : E_ForceState]]></Declaration>
+      <Get Name="Get" Id="{3448b731-8669-4a11-97e5-a19e82a2db37}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentForceState := _CurrentForceState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Init" Id="{2411b5fe-ffe5-40ee-ad9e-f00591b981c1}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change) 
+	Name		 : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Name := Name;
+{analysis -15}
+IF NOT ForceEvent.EqualsToEventEntryEx(TC_EVENTS.IO.ForceActive) THEN
+	ForceEvent.CreateEx(TC_EVENTS.IO.ForceActive, 0);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ForceValue" Id="{79f3d8c5-760b-450e-9cdc-c72be2595b82}">
+      <Declaration><![CDATA[PROPERTY ForceValue : INT]]></Declaration>
+      <Get Name="Get" Id="{85631926-9902-4703-95fd-605b00a6eaba}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ForceValue := _ForceValue;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{3aaa20a3-cfe5-463a-af76-9895b0b68706}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ForceValue := ForceValue;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Input" Id="{64a8dca2-a8bf-49b4-ae05-7c5d2abd35f2}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Input : INT]]></Declaration>
+      <Set Name="Set" Id="{83a066f8-d4e0-4433-96db-27931deb4121}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RequestedValue := Input;
+ResolveOutput();]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Output" Id="{c81e3364-66f4-4896-a266-8d084315cc41}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Output : INT]]></Declaration>
+      <Get Name="Get" Id="{059e9ec7-7d92-4abd-a2c2-1a0fe0a04f51}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Output := _Output;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ResolveOutput" Id="{e02a536a-f904-428f-821d-55aefcb42e05}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PRIVATE ResolveOutput
+VAR
+	ForceString : T_MaxString := TO_STRING(_CurrentForceState);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE _CurrentForceState OF
+	E_ForceState.Unforced:
+		_Output := RequestedValue;
+		ForceEvent.Clear();
+
+	E_ForceState.ForceOn:
+		IF NOT ForceEvent.bActive THEN
+			ForceEvent.ipArguments.Clear().AddString(Name).AddString(ForceString);
+			ForceEvent.Raise();
+		END_IF
+
+		_Output := _ForceValue;
+
+	E_ForceState.ForceOff:
+		IF NOT ForceEvent.bActive THEN
+			ForceEvent.ipArguments.Clear().AddString(Name).AddString(ForceString);
+			ForceEvent.Raise();
+		END_IF
+
+		_Output := 0;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetForceState" Id="{9d847e2a-a8a6-4328-b3de-ba84b0205591}">
+      <Declaration><![CDATA[METHOD SetForceState
+VAR_INPUT
+	ForceState : E_ForceState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ForceState = _CurrentForceState THEN
+	RETURN;
+END_IF
+
+_CurrentForceState := ForceState;
+ResolveOutput();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

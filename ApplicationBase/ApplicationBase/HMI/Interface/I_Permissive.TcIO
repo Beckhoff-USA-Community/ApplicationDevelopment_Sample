@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Permissive" Id="{daa32e67-53c9-4fc3-9c46-e7d7f3b46d9d}">
+    <Declaration><![CDATA[INTERFACE I_Permissive EXTENDS I_Base]]></Declaration>
+    <Property Name="OK" Id="{503d80e9-fff3-4a4c-8e11-2fa6322e7202}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY OK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c3c6fcd1-aae0-4538-a6f9-b43248884bdd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="Set" Id="{f8659583-2db3-4caf-9c65-dd9d214495bb}">
+      <Declaration><![CDATA[METHOD Set
+VAR_INPUT
+	Index  : UDINT(0..9);
+	Reason : STRING;
+	Value  : BOOL;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

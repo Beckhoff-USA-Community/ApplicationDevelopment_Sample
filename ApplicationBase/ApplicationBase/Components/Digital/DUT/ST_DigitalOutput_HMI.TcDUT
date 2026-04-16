@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_DigitalOutput_HMI" Id="{969555c6-3cc1-46f4-95d1-d4ab970c7c13}">
+    <Declaration><![CDATA[TYPE ST_DigitalOutput_HMI EXTENDS ST_HmiFunction :
+	STRUCT
+		On	  : BOOL;
+		Force : E_ForceState;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

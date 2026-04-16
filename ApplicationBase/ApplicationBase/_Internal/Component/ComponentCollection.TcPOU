@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ComponentCollection" Id="{6dddce83-5caf-43fd-bd59-c3d9caf04242}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ComponentCollection
+VAR_GENERIC CONSTANT
+	MaxCount : UDINT := 10;
+END_VAR IMPLEMENTS I_ComponentCollection
+VAR
+	Components	   : ARRAY[0..MaxCount] OF I_Component;
+	ComponentCount : UDINT;
+	NullComponent  : NullComponent('Null Component');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Accept" Id="{38978575-adcc-47e2-b406-30a514db64a8}">
+      <Declaration><![CDATA[METHOD Accept
+VAR_INPUT
+	Visitor : I_ComponentVisitor;
+END_VAR
+
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO MaxCount DO
+	IF Components[i] = 0 THEN
+		EXIT;
+	END_IF
+
+	Components[i].Accept(Visitor);
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AddComponent" Id="{41a87595-33a6-4a02-b114-c27183f804ca}">
+      <Declaration><![CDATA[METHOD AddComponent : RegistrationResult
+VAR_INPUT
+	Component : I_Component;
+END_VAR
+
+VAR
+	i : UDINT;
+	Registered : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Component = 0 THEN
+	AddComponent := RegistrationResult.NullReference;
+	RETURN;
+END_IF
+
+IF ComponentCount >= MaxCount THEN
+	AddComponent := RegistrationResult.TooManyComponents;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Components[i] = Component THEN
+		Registered := TRUE;
+	END_IF
+END_FOR
+
+IF Registered THEN
+	AddComponent := RegistrationResult.AlreadyAdded;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Components[i] = 0 THEN
+		Components[i] := Component;
+		ComponentCount := ComponentCount + 1;
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Count" Id="{34b4c57d-b93d-4355-afd1-823809c278e2}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Count : UDINT]]></Declaration>
+      <Get Name="Get" Id="{f93ba4fd-3be5-4072-a42a-11cd65da1993}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Count := TO_UDINT(ComponentCount);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="GetAtIndex" Id="{b04bcee6-d883-407b-9311-b315e19f27b5}">
+      <Declaration><![CDATA[METHOD GetAtIndex : I_Component
+VAR_INPUT
+	Index : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Index > Count THEN
+	GetAtIndex := NullComponent;
+	RETURN;
+END_IF
+
+IF Index < 0 THEN
+	GetAtIndex := NullComponent;
+	RETURN;
+END_IF
+
+IF Components[Index] <> 0 THEN
+	GetAtIndex := Components[Index];
+ELSE
+	GetAtIndex := NullComponent;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetComponentByName" Id="{2deed29c-03cd-4892-8f38-d7352cc95c45}">
+      <Declaration><![CDATA[METHOD GetComponentByName : I_Component
+VAR_INPUT
+	Name : T_MaxString;
+END_VAR
+
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO MaxCount DO
+	IF Components[i] = 0 THEN
+		EXIT;
+	END_IF
+
+	IF Components[i].Name = Name THEN
+		GetComponentByName := Components[i];
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveComponent" Id="{728186b0-582d-4df3-b1a8-f8bc32c6c6b1}">
+      <Declaration><![CDATA[METHOD RemoveComponent : RegistrationResult
+VAR_INPUT
+	Component : I_Component;
+END_VAR
+
+VAR
+	i : UDINT;
+	PresentInCollection : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Component = 0 THEN
+	RemoveComponent := RegistrationResult.NullReference;
+	RETURN;
+END_IF
+
+IF ComponentCount = 0 THEN
+	RemoveComponent := RegistrationResult.CollectionEmpty;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Components[i] = Component THEN
+		PresentInCollection := TRUE;
+	END_IF
+END_FOR
+
+IF NOT PresentInCollection THEN
+	RemoveComponent := RegistrationResult.NotFoundInCollection;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Components[i] = Component THEN
+		ComponentCount := ComponentCount - 1;
+		IF i < MaxCount THEN
+			MEMMOVE(ADR(Components[i]), ADR(Components[i + 1]), (MaxCount - i) * SIZEOF(Component));
+		ELSE
+			Components[MaxCount] := 0;
+		END_IF
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

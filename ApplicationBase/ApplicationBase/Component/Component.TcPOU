@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Component" Id="{7ca68c2e-7809-4db1-96cb-21e40a6911fb}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT Component IMPLEMENTS I_Component
+VAR
+	_Name : T_MaxString;
+	RegisteredAsComponentResult : RegistrationResult;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Component" Id="{dd63eb0a-0590-4ac7-84a0-2d1103657814}" />
+    <Folder Name="Constructor" Id="{7029559d-96b3-44f4-8e40-cfc39c228da9}" />
+    <Method Name="Accept" Id="{9a005210-45b9-436e-9e5a-8b8cb2b2ea95}" FolderPath="Component\">
+      <Declaration><![CDATA[METHOD Accept
+VAR_INPUT
+	ComponentVisitor : I_ComponentVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ComponentVisitor.VisitComponent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterWithParent" Id="{bcf6106e-efab-4aec-bbf2-ef9b6729b2d3}" FolderPath="Component\">
+      <Declaration><![CDATA[METHOD DeregisterWithParent
+VAR_INPUT
+	Parent : I_ContainComponents;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Parent.DeregisterComponent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{5181ee6d-8a10-4110-87d4-aaf6651da738}" FolderPath="Constructor\">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	Name		 : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Name := Name;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Name" Id="{34c0fc61-f2f3-4510-aa21-6e7de308a6d2}" FolderPath="Component\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Name : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{b36d2889-dbf5-4307-bc29-88bfde6a6b0a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Name := _Name;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{48fdb33f-6030-41eb-a266-3d231f9f5318}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Name := Name;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="RegisterWithParent" Id="{41ccae3b-803b-4aef-a366-bc240eaedcd8}" FolderPath="Component\">
+      <Declaration><![CDATA[METHOD RegisterWithParent
+VAR_INPUT
+	Parent : I_ContainComponents;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisteredAsComponentResult := Parent.RegisterComponent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_AX5000AmpToNm" Id="{3e5cacfa-6046-4582-b5f7-07cfb501a234}">
+    <Declaration><![CDATA[TYPE ST_AX5000AmpToNm :
+	STRUCT
+		Curve	   : ST_IDN_P_0_0074_LREAL; // Contents read in from P-0-0074   ( scaled )
+		ActCurrent : LREAL;					// Actual current in Amps           ( units := A )
+		ActTorque  : LREAL;					// Actual torque in Newton Meters   ( units := Nm )
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

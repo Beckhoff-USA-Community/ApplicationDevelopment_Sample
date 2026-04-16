@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SerialByteConnection" Id="{afe7f624-8829-41b7-af75-0221cfcfe750}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SerialByteConnection EXTENDS CyclicComponent IMPLEMENTS I_SerialByteConnection
+VAR
+	sendSerialByte		: SendByte;
+	recieveSerialByte	: ReceiveByte;
+	clearTheComBuffer	: ClearComBuffer;
+	MySerialLineControl : I_SerialLineControl;
+	_ByteDataRecieved	: BYTE;
+	_RecieveError		: ComError_t;
+	_SendError			: ComError_t;
+	RecieveCounter		: UDINT;
+	_ByteRecieved		: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ByteData" Id="{75e36d47-c41b-4a2f-a57a-4a06ddd8751b}">
+      <Declaration><![CDATA[PROPERTY ByteData : Byte]]></Declaration>
+      <Get Name="Get" Id="{262a4950-00ff-40c3-8818-55deafaa8498}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ByteData := _ByteDataRecieved;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ByteDataRecieved" Id="{9aa403d0-052a-4d3a-bfb4-bc42998fc581}">
+      <Declaration><![CDATA[PROPERTY ByteDataRecieved : BOOL]]></Declaration>
+      <Get Name="Get" Id="{94ad4d15-acda-479d-807b-adc99fa328f3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ByteDataRecieved := _ByteRecieved;
+_ByteRecieved := FALSE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{9936783b-6ef1-4c11-a4c1-5f0ba81f7f50}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF MySerialLineControl = 0 THEN
+	RETURN;
+END_IF
+
+IF recieveSerialByte.ByteReceived THEN
+	_ByteDataRecieved := recieveSerialByte.ReceivedByte;
+	RecieveCounter	  := RecieveCounter + 1;
+	_ByteRecieved	  := TRUE;
+END_IF
+
+recieveSerialByte(Error => _RecieveError, RxBuffer := MySerialLineControl.rxBuffer);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{d6b21186-386b-46ff-90c5-7f44d9f38d3c}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains		 : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode			 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	Name				 : T_MaxString;
+	SerialLineController : I_SerialLineControl;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetDependencies(SerialLineController);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{72f3eeda-bd50-4f63-bfbb-b245dce417fd}">
+      <Declaration><![CDATA[METHOD Reset : HRESULT;
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF MySerialLineControl = 0 THEN
+	Reset := -1;
+	trace.Error(Source := 'SerialConnection', 'No LineControl for Sending');
+	RETURN;
+END_IF
+
+clearTheComBuffer(Buffer := MySerialLineControl.rxBuffer);
+_ByteDataRecieved := 0;
+_ByteRecieved	  := FALSE;
+RecieveCounter	  := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendAByte" Id="{1db3c927-39e3-4211-a280-5244e9f2301a}">
+      <Declaration><![CDATA[METHOD SendAByte : HRESULT
+VAR_INPUT
+	DataToSend : BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF MySerialLineControl = 0 THEN
+	SendAByte := -1;
+	trace.Error(Source := 'SerialConnection', 'No LineControl for Sending');
+	RETURN;
+END_IF
+
+sendSerialByte(SendByte := DataToSend, Error => _SendError, TxBuffer := MySerialLineControl.txBuffer);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetDependencies" Id="{618f74a8-5738-427e-bbeb-0901d60e6a89}">
+      <Declaration><![CDATA[METHOD SetDependencies : BOOL
+VAR_INPUT
+	SerialLineController : I_SerialLineControl;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF SerialLineController = 0 THEN
+	RETURN;
+END_IF
+
+MySerialLineControl := SerialLineController;
+SetDependencies		:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

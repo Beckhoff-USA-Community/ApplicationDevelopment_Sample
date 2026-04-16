@@ -1,0 +1,631 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FifoBuffer" Id="{13f7ba05-9555-4ac6-bc89-9b0980688b12}" SpecialFunc="None">
+    <Declaration><![CDATA[// Provides a simplified FIFO queue interface as an adapter over AnyBuffer
+FUNCTION_BLOCK FifoBuffer IMPLEMENTS I_AnyBufferStrategy
+VAR
+	anyBuffer	  : I_AnyBuffer;
+	isInitialized : BOOL := FALSE;
+	_overwrite	  : BOOL := FALSE; // When TRUE, Push overwrites oldest element when full
+	_reversed	  : BOOL := FALSE; // When TRUE, reverses push/pop direction (PushLeft/PopRight)
+	{attribute 'hide'}
+	discardObject : BYTE; // element for discarding elements in overwrite mode
+END_VAR
+
+(*
+## Detailed Description
+
+FifoBuffer is an adapter (also known as a strategy or facade) that wraps an AnyBuffer instance
+to provide a simplified First-In-First-Out (FIFO) queue interface. Instead of using the full
+AnyBuffer API with directional operations (AppendLeft/Right, PopLeft/Right), users can simply
+Push and Pop elements following standard queue semantics.
+
+### Alternative Names
+In computer science, FIFO data structures are commonly called "Queues". This implementation
+could alternatively be named "Queue" or "QueueAdapter" for more conventional naming.
+
+### Design Pattern
+This implements the **Adapter Pattern** (also Strategy Pattern), which:
+- Wraps a more complex interface (I_AnyBuffer) with a simpler, domain-specific interface
+- Delegates all operations to the underlying AnyBuffer instance
+- Provides semantic clarity: Push/Pop vs AppendLeft/PopRight
+- Allows multiple strategy implementations (FIFO, LIFO, Priority, etc.) over the same buffer
+
+### FIFO Semantics
+- **Push(element)**: Adds element using PushRight (reversed=FALSE) or PushLeft (reversed=TRUE)
+- **Pop(element)**: Removes element using PopLeft (reversed=FALSE) or PopRight (reversed=TRUE)
+- The reversed parameter controls the direction of both Push and Pop operations
+- Elements maintain insertion order, but retrieval order depends on reversed setting
+
+### Configurable Behavior
+The FifoBuffer supports two optional parameters during initialization:
+
+**overwrite parameter:**
+- **FALSE (default)**: Push fails when buffer is full, returns FALSE and logs error
+- **TRUE**: Push to full buffer automatically removes element to make space (circular buffer behavior)
+  - When reversed=FALSE: Removes from front (PopLeft), adds to back (PushRight)
+  - When reversed=TRUE: Removes from back (PopRight), adds to front (PushLeft)
+  - Removed element is discarded using internal temporary buffer
+
+**reversed parameter:**
+- **FALSE (default)**: Standard FIFO - Push to back (PushRight), Pop from front (PopLeft)
+- **TRUE**: Reversed direction - Push to front (PushLeft), Pop from back (PopRight)
+- When reversed=TRUE, behavior is similar to LIFO/stack but with directional consistency
+
+### Operation Mapping
+**Standard Mode (overwrite=FALSE, reversed=FALSE):**
+```
+Push()  -> anyBuffer.PushRight()  // Add to back (right)
+Pop()   -> anyBuffer.PopLeft()    // Remove from front (left)
+Clear() -> anyBuffer.Clear()      // Clear all
+isEmpty -> anyBuffer.isEmpty      // Check if empty
+isFull  -> anyBuffer.isFull       // Check if full
+```
+
+**Overwrite Mode (overwrite=TRUE, reversed=FALSE):**
+```
+Push()  -> if full: anyBuffer.PopLeft(pBufferTemp), then anyBuffer.PushRight()
+Pop()   -> anyBuffer.PopLeft()    // Remove from front (left)
+```
+
+**Reversed Mode (overwrite=FALSE, reversed=TRUE):**
+```
+Push()  -> anyBuffer.PushLeft()   // Add to front (left)
+Pop()   -> anyBuffer.PopRight()   // Remove from back (right)
+```
+
+**Overwrite + Reversed Mode (overwrite=TRUE, reversed=TRUE):**
+```
+Push()  -> if full: anyBuffer.PopRight(pBufferTemp), then anyBuffer.PushLeft()
+Pop()   -> anyBuffer.PopRight()   // Remove from back (right)
+```
+
+### Usage Examples
+
+**Standard FIFO Mode:**
+```iecst
+VAR
+    rawBuffer : ARRAY[0..2] OF DINT;
+    buffer : AnyBuffer(pBuffer := rawBuffer,
+                       bufferBoundLower := 0,
+                       bufferBoundUpper := 2,
+                       isBufferPersistent := FALSE);
+    fifo : FifoBuffer(anyBuffer := buffer, overwrite := FALSE, reversed := FALSE);
+    value : DINT;
+END_VAR
+
+// Push elements
+value := 100; fifo.Push(value);  // Queue: [100]
+value := 200; fifo.Push(value);  // Queue: [100, 200]
+value := 300; fifo.Push(value);  // Queue: [100, 200, 300]
+
+// Pop elements (FIFO order - oldest first)
+fifo.Pop(value);   // value = 100, Queue: [200, 300]
+fifo.Pop(value);   // value = 200, Queue: [300]
+fifo.Pop(value);   // value = 300, Queue: []
+```
+
+**Overwrite Mode (Circular Buffer):**
+```iecst
+VAR
+    fifo : FifoBuffer(anyBuffer := buffer, overwrite := TRUE, reversed := FALSE);
+END_VAR
+
+// Fill buffer
+value := 100; fifo.Push(value);  // Queue: [100]
+value := 200; fifo.Push(value);  // Queue: [100, 200]
+value := 300; fifo.Push(value);  // Queue: [100, 200, 300]
+
+// Push to full buffer overwrites oldest
+value := 400; fifo.Push(value);  // Queue: [200, 300, 400] - 100 was removed
+value := 500; fifo.Push(value);  // Queue: [300, 400, 500] - 200 was removed
+```
+
+**Reversed Mode (reversed=TRUE):**
+```iecst
+VAR
+    fifo : FifoBuffer(anyBuffer := buffer, overwrite := FALSE, reversed := TRUE);
+END_VAR
+
+// Push elements (adds to front using PushLeft)
+value := 100; fifo.Push(value);  // Buffer: [100]
+value := 200; fifo.Push(value);  // Buffer: [200, 100] - 200 added to front
+value := 300; fifo.Push(value);  // Buffer: [300, 200, 100] - 300 added to front
+
+// Pop elements (removes from back using PopRight)
+fifo.Pop(value);   // value = 100, Buffer: [300, 200]
+fifo.Pop(value);   // value = 200, Buffer: [300]
+fifo.Pop(value);   // value = 300, Buffer: []
+```
+
+### Advantages
+- **Simplified interface**: Push/Pop instead of AppendLeft/PopRight
+- **Semantic clarity**: Code intention is clearer with queue terminology
+- **Flexibility**: Easy to swap different buffer strategies (FIFO, LIFO, etc.)
+- **Type safety**: Enforces FIFO semantics at compile time through interface
+
+### Limitations
+- No random access: Cannot peek at arbitrary indices (use AnyBuffer directly if needed)
+- No priority queue: Elements are strictly ordered by insertion time
+- Overwrite mode loses oldest data when buffer is full
+- Combining overwrite and reversed modes creates a circular stack behavior
+
+### Dependencies
+- Requires I_AnyBuffer implementation (e.g., AnyBuffer)
+- Uses Trace for error logging and verbose diagnostics
+- Implements I_AnyBufferStrategy interface
+
+### Related Patterns
+- **LifoBuffer**: Would implement stack (Last-In-First-Out) semantics
+- **PriorityBuffer**: Would implement priority queue with ordered insertion
+- **CircularBuffer**: Would implement ring buffer with overwrite semantics
+*)
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Clear" Id="{0083493d-19b8-48b5-8cf6-ce1664470cf1}">
+      <Declaration><![CDATA[// Removes all elements from the queue and resets to empty state
+METHOD Clear : BOOL
+
+(*
+## Detailed Description
+
+Clears all elements from the underlying buffer, resetting it to an empty state.
+After calling Clear, isEmpty will return TRUE and elementCount will be 0.
+
+This operation delegates directly to the underlying anyBuffer.Clear() method.
+
+### Return Value
+- **TRUE**: Queue was successfully cleared
+- **FALSE**: Clear operation failed (e.g., anyBuffer is not initialized)
+
+### Side Effects
+- All elements are removed from the buffer
+- Element count is reset to 0
+- Buffer capacity is restored to maximum
+- Logs verbose trace message on success
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Clear := FALSE;
+IF anyBuffer <> 0 THEN
+	Clear := anyBuffer.Clear();
+	;
+END_IF
+
+Trace.Verbose(__POUNAME(), 'executed');]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{0fa7d73b-f719-4e39-9456-bde507fdb932}">
+      <Declaration><![CDATA[// Initializes the FIFO queue by injecting the underlying buffer dependency
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL;		// TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL;		// TRUE: the instance will be copied to the copy code afterward (online change)
+	anyBuffer	 : I_AnyBuffer; // The underlying buffer implementation to wrap
+	overwrite	 : BOOL;		// When TRUE, Push overwrites oldest element when full
+	reversed	 : BOOL;		// When TRUE, reverses push/pop direction (PushLeft/PopRight)
+END_VAR
+
+(*
+## Detailed Description
+
+Initializes the FifoBuffer by injecting the underlying AnyBuffer dependency. This follows
+the dependency injection pattern where the buffer implementation is provided during
+construction rather than being created internally.
+
+### Initialization Sequence
+1. Validates that a valid anyBuffer reference is provided (non-zero pointer)
+2. Stores the buffer reference for use by Push, Pop, and other operations
+3. Sets isInitialized flag to TRUE to enable operations
+
+### Parameters
+- **anyBuffer**: Reference to an I_AnyBuffer implementation (e.g., AnyBuffer instance)
+  - Must be a valid, initialized buffer
+  - This FifoBuffer will delegate all operations to this buffer
+- **overwrite**: Controls behavior when pushing to a full buffer
+  - **FALSE (default)**: Push returns FALSE and logs error when buffer is full
+  - **TRUE**: Push automatically removes an element to make space (circular buffer behavior)
+    - When reversed=FALSE: Removes from front (PopLeft), adds to back (PushRight)
+    - When reversed=TRUE: Removes from back (PopRight), adds to front (PushLeft)
+  - Discarded element is popped to internal temporary buffer (pBufferTemp)
+- **reversed**: Controls the direction of both Push and Pop operations
+  - **FALSE (default)**: Push to back (PushRight), Pop from front (PopLeft) - standard FIFO
+  - **TRUE**: Push to front (PushLeft), Pop from back (PopRight) - reversed direction
+  - Affects the operational direction of the buffer, not just retrieval order
+
+### Return Value
+Returns BOOL but value is not evaluated by the runtime. Always call with valid anyBuffer.
+
+### Usage Example
+```iecst
+VAR
+    rawBuffer : ARRAY[0..9] OF DINT;
+    buffer : AnyBuffer(pBuffer := rawBuffer,
+                       bufferBoundLower := 0,
+                       bufferBoundUpper := 9,
+                       isBufferPersistent := FALSE);
+    fifo : FifoBuffer(anyBuffer := buffer,
+                      overwrite := FALSE,
+                      reversed := FALSE);
+END_VAR
+```
+
+### Important Notes
+- Must provide a valid anyBuffer reference, otherwise Push/Pop will fail
+- The underlying buffer must already be initialized before passing to FB_Init
+- A temporary buffer (pBufferTemp) is allocated internally for discarding elements in overwrite mode
+- pBufferTemp is automatically deallocated in FB_exit
+- Overwrite mode is useful for logging/telemetry where newest data is more important
+- Reversed mode changes the operational direction of both Push and Pop
+- Combining overwrite=TRUE and reversed=TRUE creates a circular buffer operating from the opposite end
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF anyBuffer <> 0 THEN
+	THIS^.anyBuffer := anyBuffer;
+	_overwrite		:= overwrite;
+	_reversed		:= reversed;
+	isInitialized	:= TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="isEmpty" Id="{153c04a1-ed32-419a-885e-cf4fe3692c3b}">
+      <Declaration><![CDATA[// Returns TRUE if the queue contains no elements
+PROPERTY isEmpty : BOOL
+
+(*
+## Detailed Description
+
+Returns TRUE if the queue is empty (contains no elements), FALSE otherwise.
+This property delegates directly to the underlying anyBuffer.isEmpty property.
+
+Use this property to check if Pop operation would succeed before attempting to
+remove an element.
+
+### Return Value
+- **TRUE**: Queue is empty (elementCount = 0)
+- **FALSE**: Queue contains one or more elements
+
+### Usage Example
+```iecst
+IF NOT fifo.isEmpty THEN
+    fifo.Pop(value);  // Safe to pop
+END_IF
+```
+*)
+]]></Declaration>
+      <Get Name="Get" Id="{bb8170da-8995-4988-b39a-d3ec225b274d}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isEmpty := anyBuffer.isEmpty;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="isFull" Id="{6870eb34-cdce-4846-9a4e-1f6689bd7888}">
+      <Declaration><![CDATA[// Returns TRUE if the queue is at maximum capacity
+PROPERTY isFull : BOOL
+
+(*
+## Detailed Description
+
+Returns TRUE if the queue is full (at maximum capacity), FALSE otherwise.
+This property delegates directly to the underlying anyBuffer.isFull property.
+
+Use this property to check if Push operation would succeed before attempting to
+add an element.
+
+### Return Value
+- **TRUE**: Queue is full (elementCount = capacity)
+- **FALSE**: Queue has space for more elements
+
+### Usage Example
+```iecst
+IF NOT fifo.isFull THEN
+    value := 100;
+    fifo.Push(value);  // Safe to push
+END_IF
+```
+*)
+]]></Declaration>
+      <Get Name="Get" Id="{2f367298-3f92-4f96-bf94-e886157daa2a}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isFull := anyBuffer.isFull;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Pop" Id="{82186ce7-e68c-4f89-837e-7aa4c81be577}">
+      <Declaration><![CDATA[// Removes and retrieves an element from the queue (FIFO or LIFO depending on reversed setting)
+{attribute 'hasanytype'}
+METHOD Pop : BOOL
+VAR_INPUT
+	element : ANY; // Variable to receive the popped element
+END_VAR
+
+(*
+## Detailed Description
+
+Removes and retrieves an element from the queue. The behavior depends on the 'reversed'
+initialization parameter:
+
+**When reversed = FALSE (default mode):**
+- Removes element from the front (left side, index 0)
+- Delegates to anyBuffer.PopLeft()
+- Standard FIFO behavior when combined with PushRight
+
+**When reversed = TRUE (reversed mode):**
+- Removes element from the back (right side, highest index)
+- Delegates to anyBuffer.PopRight()
+- Reversed direction - removes from opposite end compared to default
+- Combined with PushLeft, maintains FIFO order but from opposite direction
+
+### Operation Sequence
+1. Validates that the buffer has been initialized
+2. Validates that element size matches the buffer's configured element size
+3. Checks that the queue is not empty
+4. Removes element using PopLeft (FIFO) or PopRight (LIFO) based on reversed setting
+5. Copies the element value to the output parameter
+6. For PopLeft: Shifts remaining elements left; For PopRight: No shifting needed
+7. Logs verbose trace on success or error trace on failure
+
+### Standard Mode Example (reversed = FALSE)
+```iecst
+// Push to right, Pop from left
+value := 100; fifo.Push(value);  // Buffer: [100]
+value := 200; fifo.Push(value);  // Buffer: [100, 200] - 200 added to right
+value := 300; fifo.Push(value);  // Buffer: [100, 200, 300] - 300 added to right
+
+fifo.Pop(value);  // Returns 100 (from left), Buffer: [200, 300]
+fifo.Pop(value);  // Returns 200 (from left), Buffer: [300]
+fifo.Pop(value);  // Returns 300 (from left), Buffer: []
+```
+
+### Reversed Mode Example (reversed = TRUE)
+```iecst
+// Push to left, Pop from right
+value := 100; fifo.Push(value);  // Buffer: [100]
+value := 200; fifo.Push(value);  // Buffer: [200, 100] - 200 added to left
+value := 300; fifo.Push(value);  // Buffer: [300, 200, 100] - 300 added to left
+
+fifo.Pop(value);  // Returns 100 (from right), Buffer: [300, 200]
+fifo.Pop(value);  // Returns 200 (from right), Buffer: [300]
+fifo.Pop(value);  // Returns 300 (from right), Buffer: []
+```
+
+### Return Value
+- **TRUE**: Element was successfully popped and copied to element parameter
+- **FALSE**: Pop operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer was not initialized
+- Returns FALSE and logs error if element size doesn't match buffer element size
+- Returns FALSE and logs error if queue is empty (no elements to pop)
+- Returns FALSE and logs error if underlying PopLeft or PopRight operation fails
+
+### Parameters
+- **element**: Must be a writable variable (not a literal) of the correct size
+  - Must match the buffer's configured element size
+  - Will receive the popped element value on success
+
+### Side Effects
+- Removes one element from the queue
+- Decrements element count by 1
+- For FIFO mode (reversed=FALSE): Shifts remaining elements one position to the left
+- For LIFO mode (reversed=TRUE): No element shifting required
+- Logs verbose trace message on success
+- Logs error trace message on failure
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Pop := FALSE;
+IF NOT isInitialized THEN
+	Trace.Error(__POUNAME(), 'Buffer was not initialized yet, execute method .init() at least once');
+	RETURN;
+END_IF
+
+// valid sized element?
+IF element.diSize <> anyBuffer.Configuration.elementSize THEN
+	Trace.Error(__POUNAME(), 'Passed element to pop to is of improper size');
+	RETURN;
+END_IF
+
+// retrieve element from buffer if there is any left
+IF NOT isEmpty THEN
+	IF _reversed THEN
+		// LIFO mode: pop from back (newest first)
+		Pop := anyBuffer.PopRight(element);
+	ELSE
+		// FIFO mode: pop from front (oldest first)
+		Pop := anyBuffer.PopLeft(element);
+	END_IF
+ELSE
+	Trace.Error(__POUNAME(), 'Attempt to pop from empty buffer');
+END_IF
+
+// Pop was ok, trace message
+IF Pop THEN
+	Trace.Verbose(__POUNAME(), 'executed');
+ELSE
+	Trace.Error(__POUNAME(), 'FAILED');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Push" Id="{389483b1-44e9-4206-b0fa-3ccaf8dc6d3f}">
+      <Declaration><![CDATA[// Adds a new element to the queue (direction depends on reversed setting)
+{attribute 'hasanytype'}
+METHOD Push : BOOL
+VAR_INPUT
+	element : ANY; // Element to add to the queue
+END_VAR
+
+(*
+## Detailed Description
+
+Adds a new element to the queue. The push direction and overwrite behavior depend on
+the 'reversed' and 'overwrite' initialization parameters.
+
+**Push Direction (reversed parameter):**
+- **reversed = FALSE (default)**: Delegates to anyBuffer.PushRight() - adds to back/right
+- **reversed = TRUE**: Delegates to anyBuffer.PushLeft() - adds to front/left
+
+**Overwrite Behavior (overwrite parameter):**
+- **overwrite = FALSE (default)**: Push fails if buffer is full, returns FALSE and logs error
+- **overwrite = TRUE (circular buffer mode)**: Push succeeds even when buffer is full
+  - When reversed=FALSE: Removes element from front (PopLeft to pBufferTemp), then adds to back (PushRight)
+  - When reversed=TRUE: Removes element from back (PopRight to pBufferTemp), then adds to front (PushLeft)
+  - Discarded element is popped to internal temporary buffer and dropped
+  - Useful for logging/telemetry where newest data is more important
+
+### Operation Sequence
+
+**Standard Mode (overwrite = FALSE, reversed = FALSE):**
+1. Validates that the buffer has been initialized
+2. Validates that element size matches the buffer's configured element size
+3. Checks that the queue is not full (has available capacity)
+4. If full: Returns FALSE and logs error
+5. If not full: Adds element to the back using PushRight
+6. Logs verbose trace on success or error trace on failure
+
+**Standard Mode with Reversed (overwrite = FALSE, reversed = TRUE):**
+1. Validates that the buffer has been initialized
+2. Validates that element size matches the buffer's configured element size
+3. Checks that the queue is not full (has available capacity)
+4. If full: Returns FALSE and logs error
+5. If not full: Adds element to the front using PushLeft
+6. Logs verbose trace on success or error trace on failure
+
+**Overwrite Mode (overwrite = TRUE, reversed = FALSE):**
+1. Validates that the buffer has been initialized
+2. Validates that element size matches the buffer's configured element size
+3. If buffer is full: Removes oldest element using PopLeft (discards to pBufferTemp)
+4. Adds new element to the back using PushRight
+5. Logs verbose trace on success or error trace on failure
+
+**Overwrite Mode with Reversed (overwrite = TRUE, reversed = TRUE):**
+1. Validates that the buffer has been initialized
+2. Validates that element size matches the buffer's configured element size
+3. If buffer is full: Removes element using PopRight (discards to pBufferTemp)
+4. Adds new element to the front using PushLeft
+5. Logs verbose trace on success or error trace on failure
+
+### Standard Mode Example (overwrite = FALSE)
+```iecst
+// Starting with empty queue
+value := 100; fifo.Push(value);  // Queue: [100]
+value := 200; fifo.Push(value);  // Queue: [100, 200]
+value := 300; fifo.Push(value);  // Queue: [100, 200, 300]
+
+// Pop operations retrieve in FIFO order (oldest first)
+fifo.Pop(value);  // Returns 100 (first pushed)
+fifo.Pop(value);  // Returns 200 (second pushed)
+fifo.Pop(value);  // Returns 300 (third pushed)
+```
+
+### Overwrite Mode Example (overwrite = TRUE)
+```iecst
+// Assuming buffer capacity is 3
+value := 100; fifo.Push(value);  // Queue: [100]
+value := 200; fifo.Push(value);  // Queue: [100, 200]
+value := 300; fifo.Push(value);  // Queue: [100, 200, 300] - full
+
+// Push to full buffer overwrites oldest
+value := 400; fifo.Push(value);  // Queue: [200, 300, 400] - 100 removed
+value := 500; fifo.Push(value);  // Queue: [300, 400, 500] - 200 removed
+```
+
+### Return Value
+- **TRUE**: Element was successfully pushed to the queue
+- **FALSE**: Push operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer was not initialized
+- Returns FALSE and logs error if element size doesn't match buffer element size
+- Returns FALSE and logs error if queue is full AND overwrite is FALSE
+- Returns FALSE and logs error if underlying PushRight operation fails
+- In overwrite mode, Push should always succeed unless buffer is not initialized or element size is wrong
+
+### Parameters
+- **element**: Must be a writable variable (not a literal) of the correct size
+  - Must match the buffer's configured element size
+  - Value will be copied into the queue
+
+### Side Effects
+
+**Standard Mode (overwrite = FALSE):**
+- Adds one element to the queue at the back (next available index)
+- No shifting of existing elements required
+- Increments element count by 1
+- Decrements available capacity by 1
+- Logs verbose trace message on success
+- Logs error trace message on failure
+
+**Overwrite Mode (overwrite = TRUE):**
+- If buffer is full: Removes oldest element first (PopLeft with shifting)
+- Adds new element to the back (next available index)
+- Element count remains constant when overwriting
+- Logs verbose trace message on success
+- Logs error trace message on failure
+
+### Performance Considerations
+- **Standard mode (reversed=FALSE)**: O(1) - PushRight is constant time, no shifting
+- **Standard mode (reversed=TRUE)**: O(n) - PushLeft requires shifting all elements right
+- **Overwrite mode (reversed=FALSE)**: O(n) when full (PopLeft + PushRight both with shifting)
+- **Overwrite mode (reversed=TRUE)**: O(n) when full (PopRight O(1) + PushLeft O(n))
+- **Overwrite mode**: O(1) or O(n) when not full (depends on reversed setting)
+- Pop operation with reversed=FALSE has O(n) complexity (PopLeft with shifting)
+- Pop operation with reversed=TRUE has O(1) complexity (PopRight, no shifting)
+- Trade-off: reversed=FALSE optimizes Push, reversed=TRUE optimizes Pop
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Push := FALSE;
+IF NOT isInitialized THEN
+	Trace.Error(__POUNAME(), 'Buffer was not initialized yet, execute method .init() at least once');
+	RETURN;
+END_IF
+
+// valid sized element pushed?
+IF element.diSize <> anyBuffer.Configuration.elementSize THEN
+	Trace.Error(__POUNAME(), 'Pushed element is of improper size');
+	RETURN;
+END_IF
+
+// handle full buffer based on overwrite setting
+IF isFull THEN
+	IF _overwrite THEN
+		// Overwrite mode: remove element to make space (discard to pBufferTemp)
+		IF _reversed THEN
+			// Reversed: remove from back before adding to front
+			anyBuffer.PopRight(discardObject, TRUE);
+		ELSE
+			// Standard: remove from front before adding to back
+			anyBuffer.PopLeft(discardObject, TRUE);
+		END_IF
+	ELSE
+		// Standard mode: fail and log error
+		Trace.Error(__POUNAME(), 'Attempt to push to full buffer');
+		RETURN;
+	END_IF
+END_IF
+
+// add element based on direction setting
+IF _reversed THEN
+	// Reversed: add to front (left)
+	Push := anyBuffer.PushLeft(element);
+ELSE
+	// Standard: add to back (right)
+	Push := anyBuffer.PushRight(element);
+END_IF
+
+// Push was ok, trace message
+IF Push THEN
+	Trace.Verbose(__POUNAME(), 'executed');
+ELSE
+	Trace.Error(__POUNAME(), 'FAILED');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

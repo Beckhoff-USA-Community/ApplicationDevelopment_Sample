@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_ModuleCollection" Id="{dd6cc2c1-1448-4aa6-9e8b-8818dd0510db}">
+    <Declaration><![CDATA[INTERFACE I_ModuleCollection]]></Declaration>
+    <Method Name="Accept" Id="{00bb0fc4-e666-4f7c-9398-c023cf379fe8}">
+      <Declaration><![CDATA[METHOD Accept
+VAR_INPUT
+	Visitor : I_ModuleVisitor;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Count" Id="{790a9179-f461-4e12-8a52-c0226a9a8965}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Count : UDINT]]></Declaration>
+      <Get Name="Get" Id="{2a7d3a76-57bd-499d-95aa-6051e5d3ad83}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="GetAtIndex" Id="{716f100a-87fb-4760-a321-c0ed53195055}">
+      <Declaration><![CDATA[METHOD GetAtIndex : I_Module
+VAR_INPUT
+	Index : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="GetModuleByName" Id="{d1687fd2-a287-4088-8e3c-61ac47a9b099}">
+      <Declaration><![CDATA[METHOD GetModuleByName : I_Module
+VAR_INPUT
+	Name : T_MaxString;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

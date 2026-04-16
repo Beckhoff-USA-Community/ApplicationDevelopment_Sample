@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="PackMLStatemachine_ModuleIntegrated" Id="{6af3844e-8f57-453a-af6b-d9cd7f1cd53f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PackMLStatemachine_ModuleIntegrated EXTENDS CyclicComponent IMPLEMENTS I_StateMachine
+VAR
+	StateMachine   : FB_PMLStateMachine;
+	StateCommand   : E_PMLCommand;
+	_CurrentState  : E_PMLState;
+	ModeController : PackMLModeControl := (StateMachine := THIS^);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Modes" Id="{428c32b9-2eb2-4482-98d3-f2e46e07d423}" />
+    <Folder Name="States" Id="{36a0f6b4-634a-47db-833a-f9589586e9da}" />
+    <Method Name="ChangeState" Id="{41ddad9d-1d05-4f86-a234-6efc14f9c8e6}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD ChangeState
+VAR_INPUT
+	StateCommand : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF StateCommand <= 0 OR StateCommand > 17 THEN
+	Trace.LogMessage('PackML Statemachine ChangeState()', 'StateId is not a PackML State');
+END_IF
+
+{warning disable C0196}
+THIS^.StateCommand := StateCommand;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="CurrentState" Id="{91d831ce-0e69-4fcf-9a1b-42b5bd7af121}" FolderPath="States\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentState : DINT]]></Declaration>
+      <Get Name="Get" Id="{df7a7bb4-1334-45a6-8639-576ce08bb99d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentState := _CurrentState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{fbc7f5d0-e09d-4388-bb76-c5eb4a3b3c55}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	ClearingTon : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ModeController.CyclicLogic();
+IF _CurrentState = E_PMLState.Undefined AND Mode.CurrentMode <> 0 THEN
+	StateCommand := E_PMLCommand.Abort;
+END_IF
+
+StateMachine(eMode			  := TO_DINT(Mode.CurrentMode),
+			 eCommand		  := StateCommand,
+			 stSubUnitInfoRef :=,
+			 stOptions		  :=,
+			 eState			  => _CurrentState,
+			 sState			  =>,
+			 bError			  =>,
+			 nErrorID		  =>);
+
+CASE _CurrentState OF
+	E_PMLState.Clearing:
+		ClearingTon(IN := TRUE, PT := ApplicationBaseParameter.ClearingTimeout);
+		IF ClearingTon.Q THEN
+			ClearingTon(IN := FALSE);
+			Trace.LogMessage('Clearing Timeout exeeded!', 'ApplicationBaseParameter.ClearingTimeout');
+			StateCommand := E_PMLCommand.Abort;
+		END_IF
+
+ELSE
+	ClearingTon(IN := FALSE);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Mode" Id="{83a63664-6138-42ed-acca-36dd26d77de4}" FolderPath="Modes\">
+      <Declaration><![CDATA[PROPERTY Mode : I_Mode]]></Declaration>
+      <Get Name="Get" Id="{a74dd507-17e3-47aa-a14a-0ff02111ede5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Mode := ModeController;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{510c2cc5-b434-425e-8cb7-b963d0bcdabb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[// Fix defined in PackML]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateComplete" Id="{d9ec21f4-6221-452b-a45f-3be9846ce6e4}">
+      <Declaration><![CDATA[METHOD StateComplete
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StateMachine.M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="States" Id="{d3a1c744-b3d0-42e7-b57d-ec8902643abe}">
+      <Declaration><![CDATA[{attribute 'hide'} 
+PROPERTY States : I_StateList]]></Declaration>
+      <Get Name="Get" Id="{6aaf7fe0-fce6-49ad-8998-48d136f32e62}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[States := 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

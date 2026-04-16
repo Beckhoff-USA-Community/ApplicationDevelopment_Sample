@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ComponentVisitor_Mockup" Id="{8cd48175-b841-420f-87e6-b7e24b16e518}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ComponentVisitor_Mockup IMPLEMENTS I_ComponentVisitor
+VAR
+	StringCollection : I_StringCollection;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_Init" Id="{3c9b2b9c-4a61-4ab8-8900-27ff7ff6469a}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains	 : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode		 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	StringCollection : I_StringCollection;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.StringCollection := StringCollection;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{be5f48d3-d9b4-4938-9825-7b2521a8a788}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StringCollection.AddString(Component.Name);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CyclicComponent_TEST" Id="{1136b2b3-2c8c-44de-860c-2aff554e6bce}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CyclicComponent_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[AcceptVisitor();
+NameAssigned();
+RegisterWithParent();
+RegisterWithParent();
+RegisterCyclic();
+DeregisterWithParent();]]></ST>
+    </Implementation>
+    <Method Name="AcceptVisitor" Id="{bd0ba0ce-ecd8-46da-9e84-8e0e23097330}">
+      <Declaration><![CDATA[METHOD AcceptVisitor
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR
+VAR
+	Component		 : CyclicComponent_Mockup('Component');
+	StringCollection : StringCollection<100>;
+	ComponentVisitor : ComponentVisitor_Mockup(StringCollection);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	Component.Accept(ComponentVisitor);
+	Actual := StringCollection.Entries;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterWithParent" Id="{9e8edb0d-70f5-4b73-93ce-66dec4256d13}">
+      <Declaration><![CDATA[METHOD DeregisterWithParent
+VAR_INST
+	Expected : I_Component;
+	Actual	 : I_Component;
+END_VAR
+VAR
+	Component		 : CyclicComponent_Mockup('Component');
+	StringCollection : StringCollection<100>;
+	ComponentVisitor : ComponentVisitor_Mockup(StringCollection);
+	Module			 : EquipmentModule_Mockup('Module', Component, Component);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 0;
+	Component.DeregisterWithParent(Module);
+	Component.DeregisterWithParent(Module);
+	Actual := Module.GetComponentByName('Component');
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="NameAssigned" Id="{a42363dd-f515-454e-9ea2-dc45b9ccd3a1}">
+      <Declaration><![CDATA[METHOD NameAssigned
+VAR_INST
+	Expected : STRING;
+	Actual	 : STRING;
+END_VAR
+VAR
+	Component		 : CyclicComponent_Mockup('Component');
+	StringCollection : StringCollection<100>;
+	ComponentVisitor : ComponentVisitor_Mockup(StringCollection);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 'Component';
+	Actual	 := Component.Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterCyclic" Id="{a4cef198-b4b1-4e56-9353-07915e432030}">
+      <Declaration><![CDATA[METHOD RegisterCyclic
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR
+VAR
+	Component		 : CyclicComponent_Mockup('Component');
+	StringCollection : StringCollection<100>;
+	ComponentVisitor : ComponentVisitor_Mockup(StringCollection);
+	Module	: EquipmentModule_Mockup('Module', Component, Component);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Module.CyclicLogic();
+	Actual := Component.WasCalled;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterWithParent" Id="{2cc3a40e-4e9d-4a92-8f25-292ee24ed70e}">
+      <Declaration><![CDATA[METHOD RegisterWithParent
+VAR_INST
+	Expected : STRING;
+	Actual	 : STRING;
+END_VAR
+VAR
+	Component		 : CyclicComponent_Mockup('Component');
+	StringCollection : StringCollection<100>;
+	ComponentVisitor : ComponentVisitor_Mockup(StringCollection);
+	Module	: EquipmentModule_Mockup('Module', Component, Component);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 'Component';
+	Actual	 := Module.GetComponentByName('Component').Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_CalibrateLinear" Id="{414c9990-d1a3-4edc-bdb8-2f3b082144f3}">
+    <Declaration><![CDATA[INTERFACE I_CalibrateLinear EXTENDS I_TransformLrealValue]]></Declaration>
+    <Property Name="Gain" Id="{5a17f08c-d540-4193-b40d-2636b2e84b0b}">
+      <Declaration><![CDATA[PROPERTY Gain : LREAL]]></Declaration>
+      <Set Name="Set" Id="{3e354b81-511e-429d-898d-f79426100bc3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Offset" Id="{651497dd-f331-4ef8-b81d-e5ace74b52d7}">
+      <Declaration><![CDATA[PROPERTY Offset : LREAL]]></Declaration>
+      <Set Name="Set" Id="{193e7fb7-a1d6-4c24-a707-7708eb9ac1a8}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

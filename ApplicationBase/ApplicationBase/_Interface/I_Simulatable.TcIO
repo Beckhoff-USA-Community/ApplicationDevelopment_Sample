@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Simulatable" Id="{b2009768-caaa-4ccc-a400-96e337139a16}">
+    <Declaration><![CDATA[INTERFACE I_Simulatable EXTENDS I_Base]]></Declaration>
+    <Property Name="Simulated" Id="{09d92c05-d7d0-4ed4-add0-3613eebc0c68}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Simulated : BOOL]]></Declaration>
+      <Get Name="Get" Id="{86255679-f41c-44e9-b682-4b6322219af1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{ee1753cd-c3b1-4015-9708-8c4040af9ca4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

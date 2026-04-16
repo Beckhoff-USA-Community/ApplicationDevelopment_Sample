@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TraceSourceInfo" Id="{f422aea9-6b45-4cf4-8dae-40b6ad181483}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK TraceSourceInfo IMPLEMENTS I_TraceSourceInfo
+VAR
+	_SourceId	: UDINT;
+	_SourceName : T_MaxString;
+	_TimeStamp	: ULINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="SourceId" Id="{7ae65d48-718d-4e93-ae7b-83c1b4aef237}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY SourceId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{eaf36768-c941-4211-a12d-bda99bb27973}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SourceId := _SourceId;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b0e0d5b7-55cf-4560-abd9-88ec1f82b78a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SourceId := SourceId;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="SourceName" Id="{5df30974-ea80-4e1d-bc28-b5524b1750ef}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY SourceName : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{33831ce8-6d35-40e5-a17a-190dcdfc311d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SourceName := _SourceName;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9da2e403-2569-40f3-a8ee-8274f0ba8f00}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SourceName := SourceName;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TimeStamp" Id="{93c6ff2a-642b-4956-9abd-62ff78b62eb3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY TimeStamp : ULINT]]></Declaration>
+      <Get Name="Get" Id="{bfc0da36-1c2a-4b63-8ae3-9e85fd70a42d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TimeStamp := _TimeStamp;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{fc770bab-f0c3-4529-be80-475c361e8edd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TimeStamp := TimeStamp;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

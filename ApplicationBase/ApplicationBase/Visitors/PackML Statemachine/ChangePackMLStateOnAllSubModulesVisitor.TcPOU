@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ChangePackMLStateOnAllSubModulesVisitor" Id="{42781ec0-072f-4091-9290-a690c6933460}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ChangePackMLStateOnAllSubModulesVisitor IMPLEMENTS I_ModuleVisitor
+VAR
+	PackMLCommand : E_PMLCommand;
+	Statemachine  : I_ContainStatemachine;
+	StateChanged  : BOOL;
+	CheckState	  : E_PMLState;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ChangeState" Id="{15e9e9c9-dec0-4f9a-a63d-e41b0a1dcb0f}">
+      <Declaration><![CDATA[METHOD ChangeState : BOOL;
+VAR_INPUT
+	PackMLCommand : E_PMLCommand;
+	Module		  : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StateChanged		:= TRUE;
+THIS^.PackMLCommand := PackMLCommand;
+CASE THIS^.PackMLCommand OF
+	E_PMLCommand.Abort:
+		CheckState := E_PMLState.Aborted;
+
+	E_PMLCommand.Clear, E_PMLCommand.Stop:
+		CheckState := E_PMLState.Stopped;
+
+	E_PMLCommand.Complete:
+		CheckState := E_PMLState.Completed;
+
+	E_PMLCommand.Hold:
+		CheckState := E_PMLState.Held;
+
+	E_PMLCommand.Reset:
+		CheckState := E_PMLState.Idle;
+
+	E_PMLCommand.Start, E_PMLCommand.Unhold, E_PMLCommand.Unsuspend:
+		CheckState := E_PMLState.Execute;
+
+	E_PMLCommand.Suspend:
+		CheckState := E_PMLState.Suspended;
+
+	E_PMLCommand.Undefined:
+		CheckState := E_PMLState.Undefined;
+END_CASE
+
+Module.Modules.Accept(THIS^);
+ChangeState := StateChanged;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{15adb598-06cd-4cbf-bad5-9d120f504a64}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR
+
+VAR_INST
+	ReturnModule : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Module, Statemachine) THEN
+	IF Statemachine.Statemachine = 0 THEN
+		ReturnModule := Module;
+		RETURN;
+	END_IF
+
+	Statemachine.Statemachine.ChangeState(THIS^.PackMLCommand);
+	IF Statemachine.Statemachine.CurrentState <> CheckState THEN
+		StateChanged := FALSE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

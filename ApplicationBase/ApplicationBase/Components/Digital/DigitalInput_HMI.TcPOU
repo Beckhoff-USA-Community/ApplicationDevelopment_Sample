@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DigitalInput_HMI" Id="{14f73d60-fba0-482b-92ac-ecebfe0e4b94}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DigitalInput_HMI EXTENDS HmiFunction
+VAR
+	DigitalInput : I_DigitalInput;
+	{ attribute 'TcHmiSymbol.AddSymbol' }
+	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators,Admin' }
+	DigitalInput_HMI : ST_DigitalInput_HMI;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ControlObject" Id="{fb128baf-aaa6-41c6-8632-5171fad8b8f7}">
+      <Declaration><![CDATA[PROPERTY ControlObject : I_Base]]></Declaration>
+      <Set Name="Set" Id="{7bd410d3-4dc6-4c17-8ac4-78a402ddc578}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[__QueryInterface(ControlObject,DigitalInput);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{7be58c60-625a-4d72-a201-c5468d3a2a77}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF DigitalInput = 0 THEN
+	RETURN;
+END_IF
+
+DigitalInput_HMI.Name		:= DigitalInput.Name;
+DigitalInput_HMI.Active		:= DigitalInput.IsActive;
+DigitalInput_HMI.HmiEnabled := Enabled;
+IF Enabled THEN
+	DigitalInput.Force := DigitalInput_HMI.Force;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{5fdeebdb-4ac0-40f2-947d-771bb10e8d5f}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode	 : BOOL;
+	Name		 : T_MaxString;
+	DigitalInput : I_DigitalInput;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.DigitalInput := DigitalInput;
+ControlType		   := 'DigitalInput';
+LinkObject		   := 'DigitalInput_HMI';]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_ContainComponents" Id="{6bc694a1-f81e-491a-98a2-601cc8f3ebf8}">
+    <Declaration><![CDATA[INTERFACE I_ContainComponents]]></Declaration>
+    <Property Name="Components" Id="{c8f84fb0-b104-4221-8e49-38fa9d0fa737}">
+      <Declaration><![CDATA[PROPERTY Components : I_ComponentCollection]]></Declaration>
+      <Get Name="Get" Id="{4926c63d-9dcf-44b3-9a00-093bd6a620e6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="DeregisterComponent" Id="{d8b78266-fd93-4d96-b9f8-e8aeab8edcae}">
+      <Declaration><![CDATA[METHOD DeregisterComponent  : RegistrationResult
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="DeregisterCyclic" Id="{af6b3bf8-0e3b-4743-bbd8-3a3f304cb25f}">
+      <Declaration><![CDATA[METHOD DeregisterCyclic : RegistrationResult
+VAR_INPUT
+	Cyclic : I_Cyclic;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="DeregisterInitialize" Id="{8a1440aa-e6af-4a82-8973-2520e7239cdd}">
+      <Declaration><![CDATA[METHOD DeregisterInitialize : RegistrationResult
+VAR_INPUT
+	Initializable : I_Initializable;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="RegisterComponent" Id="{d1d17a0a-9628-4ec2-b9b7-ef88cd2f344b}">
+      <Declaration><![CDATA[METHOD RegisterComponent  : RegistrationResult
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="RegisterCyclic" Id="{b9a26b47-80c2-40f6-9a7f-7a1cbaba5c50}">
+      <Declaration><![CDATA[METHOD RegisterCyclic  : RegistrationResult
+VAR_INPUT
+	Cyclic : I_Cyclic;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="RegisterInitialize" Id="{6e5c7540-532b-4df1-ba69-052adf4c5372}">
+      <Declaration><![CDATA[METHOD RegisterInitialize  : RegistrationResult
+VAR_INPUT
+	Initializable : I_Initializable;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

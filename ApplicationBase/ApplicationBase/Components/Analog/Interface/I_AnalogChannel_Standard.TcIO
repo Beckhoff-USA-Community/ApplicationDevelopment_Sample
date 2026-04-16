@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AnalogChannel_Standard" Id="{d7004d98-1e42-4305-a3a4-56a520504679}">
+    <Declaration><![CDATA[INTERFACE I_AnalogChannel_Standard EXTENDS I_AnalogChannel_Generic]]></Declaration>
+    <Property Name="Limit1High" Id="{5ba8d246-7845-4591-bace-0506de2e882a}">
+      <Declaration><![CDATA[PROPERTY Limit1High : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c117f990-421c-4229-9124-b4d7841ff777}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Limit1Low" Id="{13b17a65-2d60-4929-9c71-5745f4ceef0a}">
+      <Declaration><![CDATA[PROPERTY Limit1Low : BOOL]]></Declaration>
+      <Get Name="Get" Id="{d9f0069c-edc1-435b-a96e-bd709b7bfb5e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Limit2High" Id="{d3b3eb1a-c68e-4d89-902b-37a332695336}">
+      <Declaration><![CDATA[PROPERTY Limit2High : BOOL]]></Declaration>
+      <Get Name="Get" Id="{fa0ad16b-7167-4eb2-9c11-cc9e4ea047ab}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Limit2Low" Id="{d4af74ef-912a-4321-bcf4-c4547f49b7dc}">
+      <Declaration><![CDATA[PROPERTY Limit2Low : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b27fb765-44c3-4ba4-a19d-d81a8f3c897c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

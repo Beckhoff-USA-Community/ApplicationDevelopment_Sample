@@ -1,0 +1,229 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="StringHelper" Id="{c85bdd22-b8d7-073d-1a1e-f74f4074d5dd}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'no_explicit_call' := 'This FB is a CLASS and must be accessed using methods or properties'}
+FUNCTION_BLOCK StringHelper]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="GetExtensionOrVarName" Id="{a3546389-4f20-0a94-0ad4-f8666457ad4c}">
+      <Declaration><![CDATA[METHOD PROTECTED GetExtensionOrVarName : T_MaxString
+VAR_INPUT
+	input : T_MaxString;
+END_VAR
+
+VAR
+	i		 : INT;
+	charArry : ARRAY[0..255] OF STRING(1);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT ValidInput(input) THEN
+	RETURN;
+END_IF
+
+charArry := StringToCharArray(input);
+//Get Location of final delimiter '.'
+FOR i := LEN(input) - 1 TO 0 BY -1 DO //Start at the end and find the last delimiter
+	IF charArry[i] = '.' THEN
+		GetExtensionOrVarName := RIGHT(input, LEN(input) - 1 - i);
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetFileNameFromPath" Id="{e4a053e1-52af-0b3d-33c4-eaaa12e4818f}">
+      <Declaration><![CDATA[METHOD PROTECTED GetFileNameFromPath : T_MaxString
+VAR_INPUT
+	input : T_MaxString;
+END_VAR
+
+VAR
+	i			  : INT;
+	searchResults : ARRAY[0..99] OF INT;
+	tempPath	  : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT ValidInput(input) THEN
+	RETURN;
+END_IF
+
+tempPath := input; //Copy to temp variable for modification
+FOR i := 0 TO LEN(input) - 1 DO
+	searchResults[i] := FIND(tempPath, '\');
+	IF searchResults[i] > 0 THEN
+		tempPath := RIGHT(tempPath, LEN(tempPath) - searchResults[i]); //Remove begining up to and including the first delimiter
+	ELSE
+		EXIT; //No more delimiters remaining
+	END_IF
+END_FOR
+
+GetFileNameFromPath := tempPath;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetFilePath" Id="{41c73ed0-bfde-0dcc-30f3-530504ac5719}">
+      <Declaration><![CDATA[METHOD PROTECTED GetFilePath : T_MaxString
+VAR_INPUT
+	input : T_MaxString;
+END_VAR
+
+VAR
+	tempPath	  : T_MaxString;
+	i			  : INT;
+	searchResults : ARRAY[0..99] OF INT;
+	location	  : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT ValidInput(input) THEN
+	RETURN;
+END_IF
+
+tempPath := input;								 //Copy to temp variable for modification
+tempPath := LEFT(tempPath, (LEN(tempPath) - 1)); //Remove Last Character, on first pass this has no effect, but on subsequents passes this will remove the ending \
+
+//Reduce String by removing each delimiter and counting number of characters removed to find last '\'
+FOR i := 0 TO LEN(input) - 1 DO
+	searchResults[i] := FIND(tempPath, '\');
+	IF searchResults[i] > 0 THEN
+		tempPath := RIGHT(tempPath, LEN(tempPath) - searchResults[i]); //Remove begining up to and including the first delimiter
+	ELSE
+		EXIT; //No more delimiters remaining
+	END_IF
+END_FOR
+
+//Sum length of string to last delimiter
+FOR i := 0 TO LEN(input) - 1 DO
+	IF searchResults[i] > 0 THEN
+		location := location + searchResults[i]; //Location of last delimiter
+	ELSE
+		EXIT;
+	END_IF
+END_FOR
+
+GetFilePath := LEFT(input, location);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetName" Id="{92fe5209-358c-0d68-0821-d1fc218a620f}">
+      <Declaration><![CDATA[METHOD GetName : T_MaxString
+VAR_INPUT
+	FullPath : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT ValidInput(FullPath) THEN
+	RETURN;
+END_IF
+
+//Find the First \ or . to determine if this is a File Path or Symbol Path
+IF FIND(FullPath, '\') > 0 THEN
+	GetName := GetFileNameFromPath(FullPath);
+ELSE //symbolPath
+	GetName := GetExtensionOrVarName(FullPath);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetPath" Id="{91e998fd-2efc-0f4e-1b22-140cfc120ede}">
+      <Declaration><![CDATA[METHOD GetPath : T_MaxString
+VAR_INPUT
+	FullPath : T_MaxString;
+END_VAR
+
+VAR
+	tempPath : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT ValidInput(FullPath) THEN
+	RETURN;
+END_IF
+
+//Find the First \ or . to determine if this is a File Path or Symbol Path
+IF FIND(FullPath, '\') > 0 THEN
+	GetPath := GetFilePath(FullPath);
+ELSE //symbolPath
+	GetPath := GetSymbolPath(FullPath);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetSymbolPath" Id="{c42dcb4f-5fe1-09c3-2a18-10d72db9b658}">
+      <Declaration><![CDATA[METHOD PROTECTED GetSymbolPath : T_MaxString
+VAR_INPUT
+	input : T_MaxString;
+END_VAR
+
+VAR
+	i		 : INT;
+	charArry : ARRAY[0..255] OF STRING(1);
+	tempPath : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT ValidInput(input) THEN
+	RETURN;
+END_IF
+
+charArry := StringToCharArray(input);
+tempPath := input;					  //Copy to temp variable for modification
+FOR i := LEN(input) - 1 TO 0 BY -1 DO //Start at the end and find the last delimiter
+	IF charArry[i] = '.' THEN
+		tempPath := LEFT(tempPath, i);
+		EXIT;
+	END_IF
+END_FOR
+
+GetSymbolPath := tempPath;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveFirstChar" Id="{532be49e-4b48-0cf7-0885-a0efe36fc167}">
+      <Declaration><![CDATA[METHOD PROTECTED RemoveFirstChar : T_MaxString
+VAR_INPUT
+	input : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RemoveFirstChar := DELETE(input, 1, 1);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveLastChar" Id="{247f4e00-c256-0312-132f-c636049b52ba}">
+      <Declaration><![CDATA[METHOD PROTECTED RemoveLastChar : T_MaxString
+VAR_INPUT
+	input : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RemoveLastChar := DELETE(input, 1, len(input));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StringToCharArray" Id="{106cdd2f-c4b7-05a7-2586-cdd7f640defb}">
+      <Declaration><![CDATA[METHOD PROTECTED StringToCharArray : ARRAY[0..255] OF STRING(1)
+VAR_INPUT
+	input : T_MaxString;
+END_VAR
+
+VAR
+	i		 : INT;
+	end		 : INT;
+	tempPath : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT ValidInput(input) THEN
+	RETURN;
+END_IF
+
+tempPath := input;
+//Convert String to CharArray
+FOR i := 0 TO LEN(input) - 1 DO
+	StringToCharArray[i] := Left(tempPath, 1); //Return the first/next character
+	tempPath			 := RemoveFirstChar(tempPath);
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ValidInput" Id="{6e4b9930-4fe3-0902-03f0-91eddc83d28b}">
+      <Declaration><![CDATA[METHOD PROTECTED ValidInput : BOOL
+VAR_INPUT
+	input : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF LEN(input) > 0 THEN
+	ValidInput := TRUE;
+ELSE
+	ValidInput := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

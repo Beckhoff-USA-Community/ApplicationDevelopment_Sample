@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_EtherCatSyncUnitTaskInfo" Id="{1ad3ce28-8764-0f5f-29ce-da927a859126}">
+    <Declaration><![CDATA[TYPE ST_EtherCatSyncUnitTaskInfo :
+	STRUCT
+		WcState	   : BIT;
+		ObjectId   : OTCID;
+		State	   : UINT;
+		SlaveCount : UINT;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

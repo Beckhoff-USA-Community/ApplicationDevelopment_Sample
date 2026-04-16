@@ -1,0 +1,610 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="RingBuffer" Id="{9f1cac5d-a1f4-44c6-bbde-1d7bcef0e263}" SpecialFunc="None">
+    <Declaration><![CDATA[// Provides a circular buffer (ring buffer) interface with automatic overwrite capability
+FUNCTION_BLOCK RingBuffer IMPLEMENTS I_AnyBufferStrategy
+VAR
+	anyBuffer	  : I_AnyBuffer;
+	isInitialized : BOOL := FALSE;
+	_overwrite	  : BOOL := TRUE; // TRUE: overwrites oldest when full
+END_VAR
+
+(*
+## Detailed Description
+
+RingBuffer is an adapter that wraps an AnyBuffer instance to provide circular buffer
+(also called ring buffer) semantics with automatic overwrite capability. When the buffer
+is full and a new element is added, the oldest element is automatically removed to make
+space, creating a continuous circular data flow.
+
+### Alternative Names
+This data structure is commonly known as:
+- **Ring Buffer**: Emphasizes the circular/wrap-around nature
+- **Circular Buffer**: Describes the logical circular structure
+- **Cyclic Buffer**: Another term for the same concept
+
+### Design Pattern
+This implements the **Adapter Pattern**, which:
+- Wraps the AnyBuffer interface with domain-specific circular buffer semantics
+- Delegates all operations to the underlying AnyBuffer instance
+- Provides automatic overwrite behavior when buffer reaches capacity
+- Useful for streaming data, logging, and producer-consumer patterns
+
+### Ring Buffer Semantics
+- **Push(element)**: Adds element using circular indexing (FIFO enqueue)
+  - When not full: Uses WriteAtIndex for direct write at tail position
+  - When full: Overwrites oldest element using WriteAtIndex (no shifting!)
+- **Pop(element)**: Removes oldest element using PeekAtIndex and circular head pointer (no shifting!)
+- **Automatic overwrite**: When enabled and buffer is full, oldest data is overwritten in place
+- **Circular indexing**: Uses head/tail pointers to track logical queue positions
+- **Direct memory access**: Uses WriteAtIndex for O(1) writes without counter overhead
+- Elements maintain FIFO order (first in, first out)
+
+### Operation Mapping
+```
+Push() when not full  -> anyBuffer.WriteAtIndex(tail, ...)  // Direct write (O(1), no counter overhead)
+Push() when full      -> anyBuffer.WriteAtIndex(tail, ...)  // Overwrite oldest (O(1), no shift!)
+Pop()                 -> anyBuffer.PeekAtIndex(head, ...)   // Read oldest (O(1), no shift!)
+Clear()               -> anyBuffer.Clear()                  // Clear all + reset indices
+isEmpty               -> (elementCount = 0)                 // Check element count
+isFull                -> (elementCount >= capacity)         // Check element count
+```
+
+### Usage Example
+```iecst
+VAR
+    rawBuffer : ARRAY[0..2] OF DINT;  // Small buffer for demonstration
+    buffer : AnyBuffer(pBuffer := rawBuffer,
+                       bufferBoundLower := 0,
+                       bufferBoundUpper := 2,
+                       isBufferPersistent := FALSE);
+    ring : RingBuffer(anyBuffer := buffer, overwrite := TRUE);
+    value : DINT;
+END_VAR
+
+// Fill buffer
+value := 100; ring.Push(value);  // Buffer: [100]
+value := 200; ring.Push(value);  // Buffer: [100, 200]
+value := 300; ring.Push(value);  // Buffer: [100, 200, 300] (full)
+
+// Push to full buffer - oldest (100) is automatically removed
+value := 400; ring.Push(value);  // Buffer: [200, 300, 400]
+value := 500; ring.Push(value);  // Buffer: [300, 400, 500]
+
+// Pop retrieves in FIFO order
+ring.Pop(value);  // value = 300, Buffer: [400, 500]
+```
+
+### Circular Buffer Visualization
+```
+Initial state (capacity 5):
+[ ][ ][ ][ ][ ]
+
+After pushing 100, 200, 300:
+[100][200][300][ ][ ]
+
+After filling completely (100, 200, 300, 400, 500):
+[100][200][300][400][500]  <- Full
+
+After pushing 600 (overwrites 100):
+[600][200][300][400][500]
+     ^                ^
+   oldest          newest
+
+After pushing 700 (overwrites 200):
+[600][700][300][400][500]
+          ^             ^
+       oldest       newest
+```
+
+### Advantages
+- **No data loss when streaming**: Automatically maintains most recent data
+- **Constant memory usage**: Buffer size never grows beyond capacity
+- **Highly efficient**: Both Push and Pop are O(1) with circular indexing (no shifting!)
+- **Simple interface**: Push/Pop semantics like FifoBuffer
+- **Predictable behavior**: Always keeps newest data when overwrite is enabled
+- **True circular buffer**: Implements proper ring buffer with head/tail pointers
+
+### Use Cases
+- **Logging buffers**: Keep most recent N log messages
+- **Sensor data streams**: Store latest readings, discard old data
+- **Audio/video buffers**: Maintain continuous data flow
+- **Producer-consumer patterns**: Decouple data production and consumption rates
+- **History tracking**: Keep fixed-size history of events or states
+
+### Comparison with FifoBuffer
+| Feature | FifoBuffer | RingBuffer |
+|---------|-----------|------------|
+| Behavior when full | Rejects new elements | Overwrites oldest |
+| Push operation | Fails if full | Always succeeds |
+| Data loss | Never (rejects push) | Yes (by design) |
+| Use case | Queue with backpressure | Streaming data |
+| Memory | Fixed size | Fixed size |
+
+### Overwrite Behavior
+- **overwrite = TRUE**: Push to full buffer removes oldest, adds newest (circular)
+- **overwrite = FALSE**: Push to full buffer fails (same as FifoBuffer)
+
+### Limitations
+- No random access: Cannot peek at arbitrary indices (use AnyBuffer directly if needed)
+- Overwrite is automatic: Cannot prevent data loss when buffer is full (by design)
+- No notification: Caller is not informed when overwrite occurs
+
+### Dependencies
+- Requires I_AnyBuffer implementation (e.g., AnyBuffer)
+- Uses Trace for error logging and verbose diagnostics
+- Implements I_AnyBufferStrategy interface
+
+### Performance Considerations
+- **Push when not full**: O(1) - uses AppendRight
+- **Push when full**: O(1) - uses ReplaceAtIndex with circular indexing (no shifting!)
+- **Pop**: O(1) - uses PeekAtIndex with circular indexing (no shifting!)
+- **Overall**: True O(1) constant-time operations for all Push and Pop operations
+- Ideal for high-performance scenarios with frequent overwrites and streaming data
+
+### Related Patterns
+- **FifoBuffer**: FIFO queue without overwrite (rejects when full)
+- **LifoBuffer**: Stack (Last-In-First-Out) semantics
+- **PriorityBuffer**: Priority queue with ordered insertion
+*)
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AdvanceHead" Id="{f89abdc7-3c28-4ef9-b3c1-e36d8b1764f7}">
+      <Declaration><![CDATA[METHOD PRIVATE AdvanceHead]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Advance tail pointer (circular)
+anyBuffer.Metadata.headIndex := anyBuffer.Metadata.headIndex + 1;
+IF anyBuffer.Metadata.headIndex > anyBuffer.Configuration.bufferBoundUpper THEN
+	anyBuffer.Metadata.headIndex := anyBuffer.Configuration.bufferBoundLower;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AdvanceTail" Id="{d4b8bf82-3b94-4456-befb-c0b089e6b546}">
+      <Declaration><![CDATA[METHOD PRIVATE AdvanceTail]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Advance tail pointer (circular)
+anyBuffer.Metadata.tailIndex := anyBuffer.Metadata.tailIndex + 1;
+IF anyBuffer.Metadata.tailIndex > anyBuffer.Configuration.bufferBoundUpper THEN
+	anyBuffer.Metadata.tailIndex := anyBuffer.Configuration.bufferBoundLower;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Clear" Id="{5660a7ee-5c25-44a4-95ab-c846847de2ce}">
+      <Declaration><![CDATA[// Removes all elements from the ring buffer and resets to empty state
+METHOD Clear : BOOL
+
+(*
+## Detailed Description
+
+Clears all elements from the underlying buffer, resetting it to an empty state.
+After calling Clear, isEmpty will return TRUE and elementCount will be 0.
+
+This operation delegates directly to the underlying anyBuffer.Clear() method.
+
+### Return Value
+- **TRUE**: Ring buffer was successfully cleared
+- **FALSE**: Clear operation failed (e.g., anyBuffer is not initialized)
+
+### Side Effects
+- All elements are removed from the buffer
+- Element count is reset to 0
+- Buffer capacity is restored to maximum
+- Logs verbose trace message on success
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Clear := FALSE;
+IF anyBuffer <> 0 THEN
+	Clear := anyBuffer.Clear();
+
+	// Reset circular buffer indices
+	anyBuffer.Metadata.headIndex	:= anyBuffer.Configuration.bufferBoundLower;
+	anyBuffer.Metadata.tailIndex	:= anyBuffer.Configuration.bufferBoundLower;
+	anyBuffer.Metadata.elementCount := 0;
+END_IF
+
+Trace.Verbose(__POUNAME(), 'executed');]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{3eb19cae-09c6-4812-a17b-0de3227203a3}">
+      <Declaration><![CDATA[// Initializes the ring buffer by injecting the underlying buffer dependency
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL;		 // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL;		 // TRUE: the instance will be copied to the copy code afterward (online change)
+	anyBuffer	 : I_AnyBuffer;	 // The underlying buffer implementation to wrap
+	overwrite	 : BOOL := TRUE; // TRUE: overwrites oldest element when full (circular behavior)
+END_VAR
+
+(*
+## Detailed Description
+
+Initializes the RingBuffer by injecting the underlying AnyBuffer dependency. This follows
+the dependency injection pattern where the buffer implementation is provided during
+construction rather than being created internally.
+
+### Initialization Sequence
+1. Validates that a valid anyBuffer reference is provided (non-zero pointer)
+2. Stores the buffer reference for use by Push, Pop, and other operations
+3. Stores the overwriteEnabled flag to control circular buffer behavior
+4. Sets isInitialized flag to TRUE to enable operations
+
+### Parameters
+- **anyBuffer**: Reference to an I_AnyBuffer implementation (e.g., AnyBuffer instance)
+  - Must be a valid, initialized buffer
+  - This RingBuffer will delegate all operations to this buffer
+- **overwriteEnabled**: Controls behavior when buffer is full
+  - **TRUE** (default): Push to full buffer removes oldest, adds newest (circular behavior)
+  - **FALSE**: Push to full buffer fails and logs error (same as FifoBuffer)
+
+### Return Value
+Returns BOOL but value is not evaluated by the runtime. Always call with valid anyBuffer.
+
+### Usage Example
+```iecst
+VAR
+    rawBuffer : ARRAY[0..9] OF DINT;
+    buffer : AnyBuffer(pBuffer := rawBuffer,
+                       bufferBoundLower := 0,
+                       bufferBoundUpper := 9,
+                       isBufferPersistent := FALSE);
+    ring : RingBuffer(anyBuffer := buffer,
+                      overwriteEnabled := TRUE);  // Enable circular overwrite
+END_VAR
+```
+
+### Important Notes
+- Must provide a valid anyBuffer reference, otherwise Push/Pop will fail
+- The underlying buffer must already be initialized before passing to FB_Init
+- Setting overwriteEnabled to FALSE makes RingBuffer behave like FifoBuffer
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF anyBuffer <> 0 THEN
+	THIS^.anyBuffer	 := anyBuffer;
+	THIS^._overwrite := _overwrite;
+	isInitialized	 := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="isEmpty" Id="{9a2d2e0b-e5ab-4c3e-9537-9bf9788b9d13}">
+      <Declaration><![CDATA[// Returns TRUE if the ring buffer contains no elements
+PROPERTY isEmpty : BOOL
+
+(*
+## Detailed Description
+
+Returns TRUE if the ring buffer is empty (contains no elements), FALSE otherwise.
+This property delegates directly to the underlying anyBuffer.isEmpty property.
+
+Use this property to check if Pop operation would succeed before attempting to
+remove an element.
+
+### Return Value
+- **TRUE**: Ring buffer is empty (elementCount = 0)
+- **FALSE**: Ring buffer contains one or more elements
+
+### Usage Example
+```iecst
+IF NOT ring.isEmpty THEN
+    ring.Pop(value);  // Safe to pop
+END_IF
+```
+*)
+]]></Declaration>
+      <Get Name="Get" Id="{6b262ac3-557d-4925-8e6d-2caa16855875}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isEmpty := (anyBuffer.Metadata.elementCount = 0);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="isFull" Id="{44d4009b-7eb1-4ff8-a587-856072a51c84}">
+      <Declaration><![CDATA[// Returns TRUE if the ring buffer is at maximum capacity
+PROPERTY isFull : BOOL
+
+(*
+## Detailed Description
+
+Returns TRUE if the ring buffer is full (at maximum capacity), FALSE otherwise.
+This property delegates directly to the underlying anyBuffer.isFull property.
+
+Note: When overwriteEnabled is TRUE, Push will still succeed even when isFull is TRUE
+by automatically removing the oldest element. When overwriteEnabled is FALSE, Push
+will fail when isFull is TRUE.
+
+### Return Value
+- **TRUE**: Ring buffer is full (elementCount = capacity)
+- **FALSE**: Ring buffer has space for more elements
+
+### Usage Example
+```iecst
+IF ring.isFull THEN
+    // With overwriteEnabled=TRUE, Push will overwrite oldest
+    // With overwriteEnabled=FALSE, Push will fail
+    value := 100;
+    success := ring.Push(value);
+END_IF
+```
+*)
+]]></Declaration>
+      <Get Name="Get" Id="{decd9c4d-b174-43d1-a249-f24603fdd711}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isFull := (anyBuffer.Metadata.elementCount >= anyBuffer.Configuration.capacity);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Pop" Id="{ecc28ea5-ab7e-4704-85d5-0ad1a2481e63}">
+      <Declaration><![CDATA[// Removes and retrieves the oldest element from the ring buffer (FIFO dequeue)
+{attribute 'hasanytype'}
+METHOD Pop : BOOL
+VAR_INPUT
+	element : ANY; // Variable to receive the popped element
+END_VAR
+
+(*
+## Detailed Description
+
+Removes and retrieves the oldest element from the ring buffer following FIFO (First-In-First-Out)
+semantics. The element that was pushed first (or oldest remaining after overwrites) is removed
+and copied to the provided element parameter.
+
+This operation uses anyBuffer.PeekAtIndex() to read the element at the head position, then
+advances the head pointer circularly. No element shifting occurs, making this an O(1) operation.
+
+### Operation Sequence
+1. Validates that the buffer has been initialized
+2. Validates that element size matches the buffer's configured element size
+3. Checks that the ring buffer is not empty
+4. Reads element at head position using PeekAtIndex (no removal, no shifting!)
+5. Copies the element value to the output parameter
+6. Advances head pointer circularly: headIndex = (headIndex + 1) MOD capacity
+7. Decrements element count
+8. Logs verbose trace on success or error trace on failure
+
+### FIFO Behavior Example
+```iecst
+value := 100; ring.Push(value);  // Buffer: [100]
+value := 200; ring.Push(value);  // Buffer: [100, 200]
+value := 300; ring.Push(value);  // Buffer: [100, 200, 300]
+
+ring.Pop(value);  // Returns 100 (oldest), Buffer: [200, 300]
+ring.Pop(value);  // Returns 200 (next oldest), Buffer: [300]
+ring.Pop(value);  // Returns 300 (last), Buffer: []
+```
+
+### Return Value
+- **TRUE**: Element was successfully popped and copied to element parameter
+- **FALSE**: Pop operation failed (see error conditions)
+
+### Error Conditions
+- Returns FALSE and logs error if buffer was not initialized
+- Returns FALSE and logs error if element size doesn't match buffer element size
+- Returns FALSE and logs error if ring buffer is empty (no elements to pop)
+- Returns FALSE and logs error if underlying PopLeft operation fails
+
+### Parameters
+- **element**: Must be a writable variable (not a literal) of the correct size
+  - Must match the buffer's configured element size
+  - Will receive the popped element value on success
+
+### Side Effects
+- Logically removes one element from the ring buffer (advances head pointer)
+- No physical shifting of elements occurs
+- Decrements element count by 1
+- Advances head pointer circularly
+- Logs verbose trace message on success
+- Logs error trace message on failure
+
+### Performance Considerations
+- **Time complexity**: O(1) - constant time operation
+- No element shifting required due to circular indexing
+- Optimal performance for ring buffer operations
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Pop := FALSE;
+IF NOT isInitialized THEN
+	Trace.Error(__POUNAME(), 'Buffer was not initialized yet, execute method .init() at least once');
+	RETURN;
+END_IF
+
+// valid sized element pushed?
+IF element.diSize <> anyBuffer.Configuration.elementSize THEN
+	Trace.Error(__POUNAME(), 'Passed element to pop to is of improper size');
+	RETURN;
+END_IF
+
+// retrieve element at the head position if there is any left in the buffer
+IF NOT isEmpty THEN
+	// Read and clear element at head position (no shifting!)
+	Pop := anyBuffer.PeekAtIndex(anyBuffer.Metadata.headIndex, element);
+	IF Pop THEN
+		anyBuffer.DeleteAtIndex(anyBuffer.Metadata.headIndex);
+
+		// Delete index does not change counters, do it manually
+		anyBuffer.Metadata.capacity		:= anyBuffer.Metadata.capacity + 1;
+		anyBuffer.Metadata.elementCount := anyBuffer.Metadata.elementCount - 1;
+
+		// Advance head circular
+		AdvanceHead();
+	END_IF
+ELSE
+	Trace.Error(__POUNAME(), 'Attempt to pop from empty buffer');
+END_IF
+
+// Pop was ok, trace message
+IF Pop THEN
+	Trace.Verbose(__POUNAME(), 'executed');
+ELSE
+	Trace.Error(__POUNAME(), 'FAILED');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Push" Id="{a17a03e0-8925-492e-91b5-bc6dc26d2dd9}">
+      <Declaration><![CDATA[// Adds a new element to the ring buffer with optional automatic overwrite
+{attribute 'hasanytype'}
+METHOD Push : BOOL
+VAR_INPUT
+	element : ANY; // Element to add to the ring buffer
+END_VAR
+
+VAR
+	dummyElement : AnyType; // For discarding oldest element
+END_VAR
+
+(*
+## Detailed Description
+
+Adds a new element to the ring buffer. Behavior depends on the overwriteEnabled setting:
+
+**When overwriteEnabled = TRUE (circular buffer mode)**:
+- If buffer is not full: Adds element using WriteAtIndex (direct write at tail position)
+- If buffer is full: Overwrites oldest element at tail position using WriteAtIndex (no shifting!)
+- Push always succeeds (except for validation errors)
+- Oldest data is automatically overwritten in place when buffer is full
+- Both head and tail pointers advance circularly
+- No buffer counter updates (managed by RingBuffer)
+
+**When overwriteEnabled = FALSE (bounded queue mode)**:
+- If buffer is not full: Adds element using WriteAtIndex
+- If buffer is full: Operation fails and logs error
+- Behaves like a bounded queue (rejects new elements when full)
+
+### Operation Sequence (overwriteEnabled = TRUE)
+1. Validates that the buffer has been initialized
+2. Validates that element size matches the buffer's configured element size
+3. If buffer not full: Uses WriteAtIndex and advances tail pointer, increments elementCount
+4. If buffer is full: Overwrites at tail position using WriteAtIndex, advances both head and tail circularly
+5. No element shifting occurs, no AnyBuffer counter changes
+6. Logs verbose trace on success or error trace on failure
+
+### Operation Sequence (overwriteEnabled = FALSE)
+1. Validates that the buffer has been initialized
+2. Validates that element size matches the buffer's configured element size
+3. Checks that buffer is not full
+4. Adds new element at tail position using WriteAtIndex
+5. Logs verbose trace on success or error trace on failure
+
+### Circular Buffer Example (overwriteEnabled = TRUE)
+```iecst
+// Buffer capacity = 3
+value := 100; ring.Push(value);  // Buffer: [100]
+value := 200; ring.Push(value);  // Buffer: [100, 200]
+value := 300; ring.Push(value);  // Buffer: [100, 200, 300] (full)
+
+// Push to full buffer - oldest (100) is removed automatically
+value := 400; ring.Push(value);  // Buffer: [200, 300, 400]
+value := 500; ring.Push(value);  // Buffer: [300, 400, 500]
+
+// Latest 3 elements are always retained
+```
+
+### Bounded Queue Example (overwriteEnabled = FALSE)
+```iecst
+// Buffer capacity = 3
+value := 100; ring.Push(value);  // Buffer: [100], returns TRUE
+value := 200; ring.Push(value);  // Buffer: [100, 200], returns TRUE
+value := 300; ring.Push(value);  // Buffer: [100, 200, 300], returns TRUE
+
+// Push to full buffer fails
+value := 400;
+success := ring.Push(value);     // Returns FALSE, logs error, buffer unchanged
+```
+
+### Return Value
+- **TRUE**: Element was successfully pushed to the ring buffer
+- **FALSE**: Push operation failed (see error conditions)
+
+### Error Conditions (both modes)
+- Returns FALSE and logs error if buffer was not initialized
+- Returns FALSE and logs error if element size doesn't match buffer element size
+- Returns FALSE and logs error if underlying WriteAtIndex operation fails
+
+### Error Conditions (overwriteEnabled = FALSE only)
+- Returns FALSE and logs error if ring buffer is full (no available capacity)
+
+### Parameters
+- **element**: Must be a writable variable (not a literal) of the correct size
+  - Must match the buffer's configured element size
+  - Value will be copied into the ring buffer
+
+### Side Effects (when not full)
+- Adds one element to the ring buffer using WriteAtIndex
+- Increments elementCount by 1 (managed by RingBuffer, not AnyBuffer)
+- Advances tail pointer circularly
+- Logs verbose trace message on success
+- Logs error trace message on failure
+
+### Side Effects (when full and overwriteEnabled = TRUE)
+- Overwrites element at tail position using WriteAtIndex (no shifting!)
+- Advances both head pointer and tail pointer circularly
+- Element count remains at maximum capacity
+- No physical element movement occurs
+- No AnyBuffer counter modifications
+- Logs verbose trace message on success
+
+### Performance Considerations
+- **When not full**: O(1) - uses WriteAtIndex (raw write, no counter overhead)
+- **When full**: O(1) - uses WriteAtIndex with circular indexing (no shifting!)
+- **Overall**: True O(1) constant-time operation for all scenarios
+- **Optimal efficiency**: WriteAtIndex bypasses AnyBuffer counter management
+- Ideal for high-frequency streaming and real-time data processing
+*)
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Push := FALSE;
+IF NOT isInitialized THEN
+	Trace.Error(__POUNAME(), 'Buffer was not initialized yet, execute method .init() at least once');
+	RETURN;
+END_IF
+
+// valid sized element pushed?
+IF element.diSize <> anyBuffer.Configuration.elementSize THEN
+	Trace.Error(__POUNAME(), 'Pushed element is of improper size');
+	RETURN;
+END_IF
+
+// Handle push based on buffer state
+IF anyBuffer.Metadata.elementCount < anyBuffer.Configuration.capacity THEN
+	// Buffer not yet full - use WriteAtIndex for direct write without counter changes
+	Push := anyBuffer.ReplaceAtIndex(anyBuffer.Metadata.tailIndex, element);
+	IF Push THEN
+		// Advance tail circular
+		AdvanceTail();
+
+		// Replace index does not change counters, do it manually
+		anyBuffer.Metadata.elementCount := anyBuffer.Metadata.elementCount + 1;
+		anyBuffer.Metadata.capacity		:= anyBuffer.Metadata.capacity - 1;
+	END_IF
+ELSIF _overwrite THEN
+	// Buffer is full and overwrite enabled - use WriteAtIndex for circular overwrite (no shifting!)
+	Push := anyBuffer.ReplaceAtIndex(anyBuffer.Metadata.tailIndex, element);
+	IF Push THEN
+		// Advance tail circular
+		AdvanceTail();
+
+		// Advance head circular
+		AdvanceHead();
+
+		// elementCount stays at capacity
+	END_IF
+ELSE
+	// Overwrite disabled - reject push when full (bounded queue behavior)
+	Trace.Error(__POUNAME(), 'Attempt to push to full buffer with overwrite disabled');
+	RETURN;
+END_IF
+
+// Push was ok, trace message
+IF Push THEN
+	Trace.Verbose(__POUNAME(), 'executed');
+ELSE
+	Trace.Error(__POUNAME(), 'FAILED');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

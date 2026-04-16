@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MotionHomeTask_CoESetEncoderOffset" Id="{e1294b8e-35f5-42c7-be50-4a49b1ec2ccb}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK MotionHomeTask_CoESetEncoderOffset EXTENDS MotionTask
+VAR
+	SequenceState	  : UDINT;
+	SetPositionOffset : FB_CoEAX8000SetPositionOffset;
+	_HomePosition	  : LREAL := 0.0;
+	_ErrorId		  : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{564fd2af-c38d-4be9-8ee5-77c9042c5a5e}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{701e6380-184d-42a9-be79-24fe8da0ce60}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := SequenceState <> 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{2aea27ab-9a3e-4a56-9fec-91fd8e669c5b}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	DriveEnabledAtBeginning : BOOL;
+	AxisRef					: REFERENCE TO AXIS_REF;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0: // Wait for Execute();
+	10:
+		IF Axis.Enabled THEN
+			DriveEnabledAtBeginning := TRUE;
+			SequenceState			:= 20;
+		ELSE
+			DriveEnabledAtBeginning := FALSE;
+			SequenceState			:= 30;
+		END_IF
+
+	20:
+		Axis.Disable();
+		IF NOT Axis.Enabled THEN
+			SequenceState := 30;
+		END_IF
+
+	30:
+		AxisRef REF= Axis.Axis;
+		SetPositionOffset(Axis	   := AxisRef,
+						  Execute  := TRUE,
+						  Position := _HomePosition,
+						  Relative := FALSE,
+						  Feedback := ePositionOffsetFeedback1,
+						  Memory   := ePositionOffsetMemory_Encoder);
+
+		IF NOT SetPositionOffset.Busy THEN
+			IF SetPositionOffset.Error THEN
+				_ErrorId	  := SetPositionOffset.ErrorID;
+				SequenceState := 999;
+			ELSE
+				SequenceState := 40;
+			END_IF
+
+			SetPositionOffset(Axis := AxisRef, Execute := FALSE);
+		END_IF
+
+	40:
+		IF DriveEnabledAtBeginning THEN
+			SequenceState := 50;
+		ELSE
+			SequenceState := 0;
+		END_IF
+
+	50:
+		Axis.Enable();
+		IF Axis.Enabled THEN
+			SequenceState := 0;
+		END_IF
+
+	999:
+		_ErrorId	  := 0;
+		SequenceState := 0;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{6227517c-5b00-48e3-8354-107fe8b711bd}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7505cc76-74be-4293-90b2-19183acad95f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := SequenceState = 999;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{0f5a93bb-706a-4749-b3e7-2ccc9fa5da12}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{1c923099-dcdc-4f4f-9000-9d1c82aeeebf}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := _ErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{7ea55adc-1050-4e62-b3d9-d7c34ec541d3}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Axis.Busy OR Axis.Error THEN
+	RETURN;
+END_IF
+
+SequenceState := 10;
+_ErrorID	  := 0;
+Execute		  := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="HomePosition" Id="{f612c61a-ddf6-4e2d-aeac-2d780a305cb3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY HomePosition : LREAL]]></Declaration>
+      <Get Name="Get" Id="{024b1c1e-139f-47c8-a023-bfe4552f19f6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HomePosition := _HomePosition;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{cdb19ae6-5e01-4b69-8c3b-0636969c43bd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_HomePosition := HomePosition;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

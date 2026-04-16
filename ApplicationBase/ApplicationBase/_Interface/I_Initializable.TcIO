@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Initializable" Id="{aaea7e7e-41a5-49c1-8b5d-cd842bb624f2}">
+    <Declaration><![CDATA[INTERFACE I_Initializable EXTENDS I_Base]]></Declaration>
+    <Method Name="Initialize" Id="{c9c29a0b-548d-4d02-8fcc-ef709b07aa61}">
+      <Declaration><![CDATA[METHOD Initialize]]></Declaration>
+    </Method>
+    <Property Name="Initialized" Id="{dc50bae1-6ce1-45d0-9786-31d4c490340a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Initialized : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c0c3f9e9-cc4d-4aa4-965e-533aeb972726}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{2368bccd-c88d-40f4-a277-c70194ded820}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

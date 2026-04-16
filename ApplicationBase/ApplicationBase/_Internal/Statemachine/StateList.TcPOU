@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="StateList" Id="{b9677d1f-46db-46ec-81b0-8c3821098953}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK StateList
+VAR_GENERIC CONSTANT
+	MaxCount : DINT := 10;
+END_VAR IMPLEMENTS I_StateList
+VAR
+	States : ARRAY[0..MaxCount] OF I_State;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AddStateAtIndex" Id="{5c241dee-4946-49cf-95b8-783756096cf4}">
+      <Declaration><![CDATA[METHOD AddStateAtIndex
+VAR_INPUT
+	Index : DINT;
+	State : I_State;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Index > MaxCount THEN
+	RETURN;
+END_IF
+
+States[Index] := State;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetStateAtIndex" Id="{45de4b0b-2e2d-4f8a-9529-30ab85ff8fac}">
+      <Declaration><![CDATA[METHOD GetStateAtIndex : I_State
+VAR_INPUT
+	Index : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Index > MaxCount THEN
+	RETURN;
+END_IF
+
+GetStateAtIndex := States[Index];]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="NumberOfStates" Id="{d6a3c2b0-4380-46a5-beaf-abe63d9022e0}">
+      <Declaration><![CDATA[PROPERTY NumberOfStates : DINT]]></Declaration>
+      <Get Name="Get" Id="{970c706a-78c3-4730-8137-2fbd69e4719d}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[NumberOfStates := MaxCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

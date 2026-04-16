@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_SafetyConnection_State" Id="{8021c2e5-de84-031f-1656-bad20c6048df}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_SafetyConnection_State : (
+		Reset	   := 100,
+		Session	   := 101,
+		Connection := 102,
+		Parameter  := 103,
+		Data	   := 104,
+		Shutdown   := 105,
+		Deactive   := 106
+	) USINT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

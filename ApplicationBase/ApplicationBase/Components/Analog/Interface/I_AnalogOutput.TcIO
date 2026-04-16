@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AnalogOutput" Id="{a1de9bb4-babd-4f6a-aa93-156ab9fa7a05}">
+    <Declaration><![CDATA[INTERFACE I_AnalogOutput EXTENDS I_Component, I_ForcibleInt]]></Declaration>
+    <Property Name="RawValue" Id="{bc1b64df-2892-4f10-af7b-ba93edd2dcf0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY RawValue : INT]]></Declaration>
+      <Get Name="Get" Id="{1243ca05-bed7-4777-b24a-fae1aeb03f1c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{aa8edd14-9c35-48d5-a992-e7fd33db2e2f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Value" Id="{30008f89-618c-40cc-b725-c383256bdc6a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Value : LREAL]]></Declaration>
+      <Get Name="Get" Id="{7c9d862f-6fc7-411c-b212-5dbb09c1318a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{4b0bb198-e388-4a69-b836-072af1df0d43}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

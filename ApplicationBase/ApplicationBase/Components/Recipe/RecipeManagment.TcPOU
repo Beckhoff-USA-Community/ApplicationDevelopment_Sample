@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="RecipeManagment" Id="{b65ca51e-5995-4535-b825-8e43266b4daa}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK RecipeManagment EXTENDS CyclicComponent IMPLEMENTS I_RecipeManagment
+VAR
+	nRecipe					 : UDINT;
+	pActiveRecipeData		 : PVOID;
+	pUpdateRecipeData		 : PVOID;
+	_ChangesPending			 : BOOL;
+	_AutoLoadChangesToActive : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{3e6b25ab-78b3-43c8-8ae4-45b27f6676c2}" />
+    <Folder Name="Methods" Id="{c6a619af-43da-4e2e-a235-f0e1867318ac}" />
+    <Folder Name="RecipeManagment" Id="{4ed9dee3-58eb-4a5c-8762-c7b058bf8d4e}" />
+    <Property Name="AutoLoadChangesToActive" Id="{27f4d677-8377-4af3-9666-54d07d3dd4f9}" FolderPath="RecipeManagment\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY AutoLoadChangesToActive : BOOL]]></Declaration>
+      <Set Name="Set" Id="{b79c3396-4093-454d-b9e5-9bf0b187e8b3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_AutoLoadChangesToActive := AutoLoadChangesToActive;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ChangesPending" Id="{36e3fc96-12fb-4eb6-b64c-b48d64e8f838}" FolderPath="RecipeManagment\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ChangesPending : BOOL]]></Declaration>
+      <Get Name="Get" Id="{28889099-0b7b-481b-a3e8-cac1807525d3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ChangesPending := _ChangesPending;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CompareData" Id="{5d020501-bcb5-48df-950d-d58bdd8e9546}" FolderPath="Methods\">
+      <Declaration><![CDATA[METHOD CompareData
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF MEMCMP(pActiveRecipeData, pUpdateRecipeData, nRecipe) = 0 THEN
+	_ChangesPending := FALSE;
+ELSE
+	IF _AutoLoadChangesToActive THEN
+		LoadChangesToActive();
+	ELSE
+		_ChangesPending := TRUE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CyclicLogic" Id="{0293d60a-0ca8-4af6-ac17-31088f7042d5}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF nRecipe = 0 THEN
+	RETURN;
+END_IF
+
+IF pActiveRecipeData = 0 THEN
+	RETURN;
+END_IF
+
+IF pUpdateRecipeData = 0 THEN
+	RETURN;
+END_IF
+
+CompareData();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{3e3ad3a4-1fe8-423d-8c4a-512e41906470}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode		  : BOOL;
+	Name			  : T_MaxString;
+	nRecipe			  : UDINT;
+	pActiveRecipeData : PVOID;
+	pUpdateRecipeData : PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.nRecipe			:= nRecipe;
+THIS^.pActiveRecipeData := pActiveRecipeData;
+THIS^.pUpdateRecipeData := pUpdateRecipeData;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="LoadChangesToActive" Id="{ae840ff5-7b38-48ad-8dc2-70d20a677920}" FolderPath="RecipeManagment\">
+      <Declaration><![CDATA[METHOD LoadChangesToActive
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MEMCPY(pActiveRecipeData, pUpdateRecipeData, nRecipe);
+CompareData();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

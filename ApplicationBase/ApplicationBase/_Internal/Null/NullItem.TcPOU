@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="NullItem" Id="{69305bfe-9891-4a94-b77e-852628667a5b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK NullItem IMPLEMENTS I_Base
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

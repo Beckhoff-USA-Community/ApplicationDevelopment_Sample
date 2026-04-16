@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SafetyAndOrFB" Id="{38938398-edc5-4349-baf8-8c79fa3f2ecf}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SafetyAndOrFB EXTENDS SafetyBase
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{8ca1ae71-ab8e-487f-ac45-f623e9025320}" />
+    <Method Name="CyclicLogic" Id="{dfb61799-1c78-469c-b931-88ac019768f9}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.CyclicLogic();
+_OK := SUPER^.InfoData.State = E_SafetyOrAnd_State.Run;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

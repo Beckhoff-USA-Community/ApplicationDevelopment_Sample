@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_StringCollection" Id="{948b2321-fa34-4cea-87df-e34b3cfb3399}">
+    <Declaration><![CDATA[INTERFACE I_StringCollection]]></Declaration>
+    <Method Name="AddString" Id="{103948a8-76d9-4c96-8bd9-aed81f3079a0}">
+      <Declaration><![CDATA[METHOD AddString
+VAR_INPUT
+	StringToAdd : T_MaxString;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="Clear" Id="{498f145f-cd20-4c5c-b118-f450c3eccf54}">
+      <Declaration><![CDATA[METHOD Clear : BOOL
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Entries" Id="{e5110f88-1927-4974-88bc-b32403da1255}">
+      <Declaration><![CDATA[PROPERTY Entries : UDINT]]></Declaration>
+      <Get Name="Get" Id="{dd3a5a6a-1c74-4592-847c-c0c0c7e22eba}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

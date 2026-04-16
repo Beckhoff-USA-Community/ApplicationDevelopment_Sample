@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SafetyConnectionFB_TcEvents" Id="{5f616a0a-19be-4f58-838b-4f141bba4b78}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SafetyConnectionFB_TcEvents EXTENDS SafetyBase IMPLEMENTS I_EventReactionTcEvents
+VAR
+	Events : TcEventClass('FSoE Connection Events');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{3c7b77cf-14ec-438b-b588-7b3f761f56b6}" />
+    <Folder Name="Events" Id="{3fb67da3-f179-4d26-9b8f-5333c4b75905}" />
+    <Method Name="CyclicLogic" Id="{a42589d0-4ed3-4bf3-8256-9d9bfea02a18}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	DiagWord	: WORD;
+	BitMaskDiag : WORD := 16#000F;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.CyclicLogic();
+_OK	   := SUPER^.InfoData.State = E_SafetyConnection_State.Data;
+_Error := GetHighestActiveEventReaction() >= TcEventSeverity.Error;
+IF _ResetFunction <> 0 AND_THEN _ResetFunction.Busy THEN
+	RETURN;
+END_IF
+
+BitMaskDiag := 16#000F;
+DiagWord	:= TO_WORD(SUPER^.InfoData.Diag) AND BitMaskDiag;
+IF (DiagWord = 1) THEN
+	Events.RaiseEvent(E_SafetyConnection.InvalidCommand);
+END_IF
+
+IF (DiagWord = 2) THEN
+	Events.RaiseEvent(E_SafetyConnection.UnknownCommand);
+END_IF
+
+IF (DiagWord = 3) THEN
+	Events.RaiseEvent(E_SafetyConnection.InvalidConID);
+END_IF
+
+IF (DiagWord = 4) THEN
+	Events.RaiseEvent(E_SafetyConnection.InvalidCrc);
+END_IF
+
+IF (DiagWord = 5) THEN
+	Events.RaiseEvent(E_SafetyConnection.WatchdogExpired);
+END_IF
+
+IF (DiagWord = 6) THEN
+	Events.RaiseEvent(E_SafetyConnection.InvalidFSOEAddr);
+END_IF
+
+IF (DiagWord = 7) THEN
+	Events.RaiseEvent(E_SafetyConnection.InvalidData);
+END_IF
+
+IF (DiagWord = 8) THEN
+	Events.RaiseEvent(E_SafetyConnection.InvalidComParameterLen);
+END_IF
+
+IF (DiagWord = 9) THEN
+	Events.RaiseEvent(E_SafetyConnection.InavlidComParameter);
+END_IF
+
+IF (DiagWord = 10) THEN
+	Events.RaiseEvent(E_SafetyConnection.InvalidUserParameterLen);
+END_IF
+
+IF (DiagWord = 11) THEN
+	Events.RaiseEvent(E_SafetyConnection.InvalidUserParameter);
+END_IF
+
+IF (DiagWord = 12) THEN
+	Events.RaiseEvent(E_SafetyConnection.FSoEMasterReset);
+END_IF
+
+IF (DiagWord = 13) THEN
+	Events.RaiseEvent(E_SafetyConnection.ModuleErrorOnSlave);
+END_IF
+
+IF (DiagWord = 14) THEN
+	Events.RaiseEvent(E_SafetyConnection.ModuleError);
+END_IF
+
+IF (DiagWord = 15) THEN
+	Events.RaiseEvent(E_SafetyConnection.SlaveNotStarted);
+END_IF
+
+BitMaskDiag := 16#0010;
+DiagWord	:= TO_WORD(SUPER^.InfoData.Diag) AND BitMaskDiag;
+IF DiagWord.4 THEN
+	Events.RaiseEvent(E_SafetyConnection.FsoESlaveError);
+END_IF
+
+BitMaskDiag := 16#0020;
+DiagWord	:= TO_WORD(SUPER^.InfoData.Diag) AND BitMaskDiag;
+IF DiagWord.5 THEN
+	Events.RaiseEvent(E_SafetyConnection.FsoESlaveFailSafeValue);
+END_IF
+
+BitMaskDiag := 16#0040;
+DiagWord	:= TO_WORD(SUPER^.InfoData.Diag) AND BitMaskDiag;
+IF DiagWord.6 THEN
+	Events.RaiseEvent(E_SafetyConnection.Startup);
+END_IF
+
+BitMaskDiag := 16#0080;
+DiagWord	:= TO_WORD(SUPER^.InfoData.Diag) AND BitMaskDiag;
+IF DiagWord.7 THEN
+	Events.RaiseEvent(E_SafetyConnection.FsoEMasterSafeValue);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{7228f7f3-06ab-43aa-911e-c06b762f4d68}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.GenerateTcEvents(Name, ADR(TC_events.SafetyConnection), SIZEOF(ST_SafetyConnection));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventReaction" Id="{7777176e-4430-4dc2-844e-f4c45242b96b}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventReaction := Events.GetHighestActiveEventReaction();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{9e44d937-1a23-4bbb-89aa-9252dcba1c5f}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventSeverity := Events.GetHighestActiveEventSeverity();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{b17cfcd8-a916-4960-bb30-b1f84d9a1c42}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.Reset();
+Events.Reset();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEventReactions" Id="{921193a4-b09a-4316-908c-a44d2af2eef9}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.SetEventReactions(Verbose,
+						 Info,
+						 Warning,
+						 Error,
+						 Critical);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

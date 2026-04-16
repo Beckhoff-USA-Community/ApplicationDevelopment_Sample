@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="AxisPTP_HMI" Id="{e48832af-14b2-499a-a3f7-17b5e3c2c043}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK AxisPTP_HMI EXTENDS HmiFunction
+VAR
+	Axis : I_Axis_PTP;
+	{ attribute 'TcHmiSymbol.AddSymbol' }
+	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators,Admin' }
+	AxisPTP_HMI : ST_AxisPTP_HMI;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Button Permissives" Id="{ec4ff6f5-3915-469b-989a-722f4eeac77c}" />
+    <Property Name="ControlObject" Id="{6f5fdd79-a376-4b59-a654-75185406e984}">
+      <Declaration><![CDATA[PROPERTY ControlObject : I_Base]]></Declaration>
+      <Set Name="Set" Id="{87e8668b-dfba-4f7d-a8bd-473573b71a68}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[__QueryInterface(ControlObject,Axis);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{9e4a2d0b-42d1-4a3f-bfe7-bcbc4b120734}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	EnableRT	   : R_TRIG;
+	DisableRT	   : R_TRIG;
+	StopRT		   : R_TRIG;
+	HomeRT		   : R_TRIG;
+	ResetRT		   : R_TRIG;
+	MoveAbsoluteRT : R_TRIG;
+	MoveModuloRT   : R_TRIG;
+	MoveRelativeRT : R_TRIG;
+	MoveVelocityRT : R_TRIG;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Axis = 0 THEN
+	RETURN;
+END_IF
+
+AxisPTP_HMI.HmiEnabled			 := Enabled;
+AxisPTP_HMI.ActualAcceleration	 := Axis.ActualAcceleration;
+AxisPTP_HMI.ActualPosition		 := Axis.ActualPosition;
+AxisPTP_HMI.ActualPositionModulo := Axis.ActualPositionModulo;
+AxisPTP_HMI.ActualTorque		 := Axis.ActualTorque;
+AxisPTP_HMI.ActualVelocity		 := Axis.ActualVelocity;
+AxisPTP_HMI.Busy				 := Axis.Busy;
+AxisPTP_HMI.Error				 := Axis.Error;
+AxisPTP_HMI.ErrorId				 := Axis.ErrorId;
+AxisPTP_HMI.Name				 := Axis.Name;
+AxisPTP_HMI.Status				 := Axis.Axis.Status;
+
+// HMI Commands
+StopRT(CLK := AxisPTP_HMI.Stop.Active);
+IF StopRT.Q THEN
+	IF AxisPTP_HMI.Stop.Permissive.OK THEN
+		Axis.Stop();
+	END_IF
+END_IF
+
+ResetRT(CLK := AxisPTP_HMI.Reset.Active);
+IF ResetRT.Q THEN
+	IF AxisPTP_HMI.Reset.Permissive.OK THEN
+		Axis.Reset();
+	END_IF
+END_IF
+
+IF Enabled THEN
+	EnableRT(CLK := AxisPTP_HMI.Enable.Active);
+	IF EnableRT.Q THEN
+		IF AxisPTP_HMI.Enable.Permissive.OK THEN
+			Axis.Enable();
+		END_IF
+	END_IF
+
+	DisableRT(CLK := AxisPTP_HMI.Disable.Active);
+	IF DisableRT.Q THEN
+		IF AxisPTP_HMI.Disable.Permissive.OK THEN
+			Axis.Disable();
+		END_IF
+	END_IF
+
+	IF AxisPTP_HMI.JogBackwardSlow.Active THEN
+		IF AxisPTP_HMI.JogBackwardSlow.Permissive.OK THEN
+			Axis.Jog(JogForward := FALSE, JogBackwards := TRUE, JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW);
+		END_IF
+	ELSIF AxisPTP_HMI.JogForwardSlow.Active THEN
+		Axis.Jog(JogForward := TRUE, JogBackwards := FALSE, JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW);
+	ELSIF AxisPTP_HMI.JogBackwardFast.Active THEN
+		Axis.Jog(JogForward := FALSE, JogBackwards := TRUE, JogMode := E_JogMode.MC_JOGMODE_STANDARD_FAST);
+	ELSIF AxisPTP_HMI.JogForwardFast.Active THEN
+		Axis.Jog(JogForward := TRUE, JogBackwards := FALSE, JogMode := E_JogMode.MC_JOGMODE_STANDARD_FAST);
+	ELSE
+		Axis.Jog(JogForward := FALSE, JogBackwards := FALSE, JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW);
+	END_IF
+
+	HomeRT(CLK := AxisPTP_HMI.Home.Active);
+	IF HomeRT.Q THEN
+		IF AxisPTP_HMI.Home.Permissive.OK THEN
+			Axis.Home();
+		END_IF
+	END_IF
+
+	MoveAbsoluteRT(CLK := AxisPTP_HMI.MoveAbsolute.Active);
+	IF MoveAbsoluteRT.Q THEN
+		IF AxisPTP_HMI.MoveAbsolute.Permissive.OK THEN
+			Axis.MoveAbsolute(AxisPTP_HMI.TargetPosition);
+		END_IF
+	END_IF
+
+	MoveModuloRT(CLK := AxisPTP_HMI.MoveModulo.Active);
+	IF MoveModuloRT.Q THEN
+		IF AxisPTP_HMI.MoveModulo.Permissive.OK THEN
+			Axis.MoveModulo(AxisPTP_HMI.TargetPosition);
+		END_IF
+	END_IF
+
+	MoveRelativeRT(CLK := AxisPTP_HMI.MoveRelative.Active);
+	IF MoveRelativeRT.Q THEN
+		IF AxisPTP_HMI.MoveRelative.Permissive.OK THEN
+			Axis.MoveRelative(AxisPTP_HMI.TargetDistance);
+		END_IF
+	END_IF
+
+	MoveVelocityRT(CLK := AxisPTP_HMI.MoveVelocity.Active);
+	IF MoveVelocityRT.Q THEN
+		IF AxisPTP_HMI.MoveVelocity.Permissive.OK THEN
+			Axis.MoveVelocity(AxisPTP_HMI.TargetVelocity);
+		END_IF
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="DisablePermissive" Id="{b2e57bab-a249-4965-81c9-49b9ce365ac1}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY DisablePermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{1ffe4964-8e18-45db-ae65-a9a5c34fe5a4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DisablePermissive := AxisPTP_HMI.Disable.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="EnablePermissive" Id="{a5d9222e-c7da-482c-937e-cf94323f91c7}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY EnablePermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{c9889fb7-d31f-48d8-8ecb-44f007914b8c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[EnablePermissive := AxisPTP_HMI.Enable.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Init" Id="{6a5bd057-7513-4b13-9e46-c42c8fb6c16e}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	Axis		: I_Axis_PTP;
+	Unit		: STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Axis		 := Axis;
+ControlType		 := 'AxisPTP';
+LinkObject		 := 'AxisPTP_HMI';
+AxisPTP_HMI.Unit := Unit;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="HomePermissive" Id="{2d45b464-ae39-4613-ab1d-8e8438be2ac3}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY HomePermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{d7f24ff6-8858-4a39-84ec-06d9af61ac59}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HomePermissive := AxisPTP_HMI.Home.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="JogBackwardFastPermissive" Id="{fa6f30d9-7408-4c95-822a-38bf91c7c423}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY JogBackwardFastPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{cd04e466-bbc7-4567-af4c-9f7ab559d108}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[JogBackwardFastPermissive := AxisPTP_HMI.JogBackwardFast.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="JogBackwardSlowPermissive" Id="{b5f10fff-0dfe-4027-8428-697e8c5a567c}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY JogBackwardSlowPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{7f0e3e50-31d4-49c0-98a5-7c49a1db17bd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[JogBackwardSlowPermissive := AxisPTP_HMI.JogBackwardSlow.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="JogForwardFastPermissive" Id="{88deac7e-b512-477c-82a8-dc8aa300f612}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY JogForwardFastPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{dafff7d6-8ff0-495d-bc79-b2a24d3666c5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[JogForwardFastPermissive := AxisPTP_HMI.JogForwardFast.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="JogForwardSlowPermissive" Id="{ecc504b2-e3af-4830-bac5-afe34b2f6bc3}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY JogForwardSlowPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{0a184746-52f3-442d-ae5a-7963f9f5f2e7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[JogForwardSlowPermissive := AxisPTP_HMI.JogForwardSlow.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="MoveAbsolutePermissive" Id="{797188eb-4d0d-4eba-8c92-f2c7c93698ef}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY MoveAbsolutePermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{7bd98e37-1a94-4b7b-ad05-ba6a9f438fb9}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveAbsolutePermissive := AxisPTP_HMI.MoveAbsolute.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="MoveModuloPermissive" Id="{fb927034-2c38-442d-990c-f0df03dd223e}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY MoveModuloPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{d9ecdbbc-505c-4b15-9867-4da6624b67f9}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveModuloPermissive := AxisPTP_HMI.MoveModulo.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="MoveRelativePermissive" Id="{743468ad-f4ce-4f61-bae9-0c0d01ee8683}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY MoveRelativePermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{11f4fb1b-9bc7-4f41-b111-54d07cf01618}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveRelativePermissive := AxisPTP_HMI.MoveRelative.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="MoveVelocityPermissive" Id="{10cb4381-af8c-401f-9663-a950fcab4579}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY MoveVelocityPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{278dfc60-857f-4a95-9a0b-db3e3b5791d6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveVelocityPermissive := AxisPTP_HMI.MoveVelocity.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ResetPermissive" Id="{d09bb902-1471-4a4d-91ca-9d2851188990}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY ResetPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{d6d63940-2c34-4a78-832b-abf634cd9c76}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ResetPermissive := AxisPTP_HMI.Reset.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="StopPermissive" Id="{0561ba9c-b6a4-408a-87bd-99373376dac9}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY StopPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{89b12035-e84a-4acc-b61e-f5cb8be11b9e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StopPermissive := AxisPTP_HMI.Stop.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

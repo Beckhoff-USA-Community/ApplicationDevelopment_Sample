@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SafetyGroup_TcEvents" Id="{c54cec83-6135-4a73-89ca-06d667a62595}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SafetyGroup_TcEvents EXTENDS SafetyBase IMPLEMENTS I_EventReactionTcEvents
+VAR
+	Run AT %Q* : BOOL;
+	Events	   : TcEventClass('Safety Group Events');
+	{attribute 'hide'}
+	_AutoResetFaults : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{98e545fa-01b7-4154-a759-083f8bbb0f5a}" />
+    <Folder Name="Events" Id="{d9eb39cf-5e43-4161-a660-5624c0598695}" />
+    <Property Name="AutoResetFaults" Id="{bf70e365-2279-42be-9f15-477b79f36981}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY AutoResetFaults : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2db4d46b-6689-4ffa-a993-7152b83cac82}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AutoResetFaults := _AutoResetFaults;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{db5a3b56-1c2a-457a-8ec1-18722b3b4006}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_AutoResetFaults := AutoResetFaults;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{2f98e0c1-edc1-41f9-a399-e7a0ab731245}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	LinkErrorRun	 : BOOL;
+	AutoFaultAck	 : TON;
+	TriggerAutoReset : R_TRIG;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.CyclicLogic();
+IF NOT LinkErrorRun AND NOT Simulated AND (F_GetMappingStatus(ADR(Run), SIZEOF(Run)) = EplcMappingStatus.MS_Unmapped) THEN
+	LinkErrorRun := TRUE;
+	Trace.LogMessage(Name, 'Group Run not mapped to Safety!');
+END_IF
+
+Run := TRUE;
+IF _ResetFunction <> 0 THEN
+	AutoFaultAck(IN := (_AutoResetFaults AND (SUPER^.InfoData.Diag <> 0)) AND NOT _ResetFunction.Busy, PT := T#250MS);
+	TriggerAutoReset(CLK := AutoFaultAck.Q);
+	IF TriggerAutoReset.Q THEN
+		_ResetFunction.Execute();
+	END_IF
+
+	_Busy := _ResetFunction.Busy;
+END_IF
+
+_OK	   := SUPER^.InfoData.State = E_SafetyGroup_State.Run;
+_Error := GetHighestActiveEventReaction() >= TcEventSeverity.Error;
+IF _ResetFunction <> 0 AND_THEN _ResetFunction.Busy THEN
+	RETURN;
+END_IF
+
+IF SUPER^.InfoData.Diag = E_SafetyGroup_Diag.FbError THEN
+	Events.RaiseEvent(E_SafetyGroup.FbError);
+END_IF
+
+IF SUPER^.InfoData.Diag = E_SafetyGroup_Diag.ComError THEN
+	Events.RaiseEvent(E_SafetyGroup.ComError);
+END_IF
+
+IF SUPER^.InfoData.Diag = E_SafetyGroup_Diag.ModuleError THEN
+	Events.RaiseEvent(E_SafetyGroup.ModuleError);
+END_IF
+
+IF SUPER^.InfoData.Diag = E_SafetyGroup_Diag.CmpError THEN
+	Events.RaiseEvent(E_SafetyGroup.CmpError);
+END_IF
+
+IF SUPER^.InfoData.Diag = E_SafetyGroup_Diag.DeactiveError THEN
+	Events.RaiseEvent(E_SafetyGroup.DeactiveError);
+END_IF
+
+IF SUPER^.InfoData.Diag = E_SafetyGroup_Diag.RestartError THEN
+	Events.RaiseEvent(E_SafetyGroup.RestartError);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{732914ff-8b71-4388-9703-a78ddb95bf7d}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.GenerateTcEvents(Name, ADR(TC_events.SafetyGroup), SIZEOF(ST_SafetyGroup));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventReaction" Id="{f438589a-6471-4473-b24b-3a2d84ced708}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventReaction := Events.GetHighestActiveEventReaction();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{8c0a2be7-629f-4653-aa5e-e8547ca546a2}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventSeverity := Events.GetHighestActiveEventSeverity();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{bb08e735-b651-4e28-9563-4a578b4c0634}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.Reset();
+Events.Reset();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEventReactions" Id="{c0021467-dd2c-44ce-bece-ada2091e0ae5}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.SetEventReactions(Verbose,
+						 Info,
+						 Warning,
+						 Error,
+						 Critical);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

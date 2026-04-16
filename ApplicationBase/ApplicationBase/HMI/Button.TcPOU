@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Button" Id="{2cb7e824-e9b5-4f75-969e-124c8f64b713}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Button IMPLEMENTS I_Button
+VAR
+	_Name		: STRING;
+	_Active		: BOOL;
+	_Permissive : PermissiveInterlock;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Active" Id="{543cb6e2-55cb-4606-9d7e-d8ac9341b449}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Active : BOOL]]></Declaration>
+      <Get Name="Get" Id="{296650f2-0fa4-4417-b80c-e30c6a7d7aa1}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Active := _Active;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Name" Id="{a8db3bc1-9c91-4d67-8e2d-8bac5b2975e1}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Name : STRING]]></Declaration>
+      <Get Name="Get" Id="{93c69b03-bb2b-46d6-973c-24c524c8f9f4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Name := _Name;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e6d4f1fc-6cc1-48bc-987a-6b3c9cd5d08a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Name := Name;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Permissive" Id="{f69812ca-1e08-4e62-9e82-48eebfce6d02}">
+      <Declaration><![CDATA[PROPERTY Permissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{28550a8f-4d4e-40c9-a927-2b547e068e94}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Permissive := _Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

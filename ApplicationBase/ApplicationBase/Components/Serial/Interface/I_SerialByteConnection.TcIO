@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_SerialByteConnection" Id="{00a5bad9-6763-42c4-8902-f64c5ba333d5}">
+    <Declaration><![CDATA[INTERFACE I_SerialByteConnection]]></Declaration>
+    <Property Name="ByteData" Id="{656f7cd0-c916-4807-9bdf-77f84d9beb68}">
+      <Declaration><![CDATA[PROPERTY ByteData : BYTE]]></Declaration>
+      <Get Name="Get" Id="{033eef38-8531-4af4-842a-ae03fdfb9840}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ByteDataRecieved" Id="{58fc521f-68b7-46c0-b15a-31f40e325f44}">
+      <Declaration><![CDATA[PROPERTY ByteDataRecieved : BOOL]]></Declaration>
+      <Get Name="Get" Id="{439accd9-8dd1-4931-a322-c6a097c0005f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="SendAByte" Id="{4dd28dde-0709-4ab0-8d33-eb2cf7c91d2a}">
+      <Declaration><![CDATA[METHOD SendAByte : HRESULT
+VAR_INPUT
+	DataToSend : BYTE;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="File_HMI" Id="{3022c6ba-5695-4121-b9d2-284c4ac5c17e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK File_HMI EXTENDS HmiFunction
+VAR
+	File : I_FileHandler;
+	{ attribute 'TcHmiSymbol.AddSymbol' }
+	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators,Admin' }
+	File_HMI : ST_File_HMI;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Button Permissives" Id="{48bb8c45-64ce-4a6c-a4e7-317cc97b023b}" />
+    <Property Name="ControlObject" Id="{7ab4ea2f-78c4-436e-b8b8-850f4c118c16}">
+      <Declaration><![CDATA[PROPERTY ControlObject : I_Base]]></Declaration>
+      <Set Name="Set" Id="{00b65ffe-a9e9-418f-b0d7-d144578c81cf}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[__QueryInterface(ControlObject,File);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{053c85c3-3c8e-4ec1-9b9e-ce4e1245bc62}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	SaveRT		 : R_TRIG;
+	LoadRT		 : R_TRIG;
+	ReloadActive : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF File = 0 THEN
+	RETURN;
+END_IF
+
+File_HMI.Name		:= File.Name;
+File_HMI.HmiEnabled := Enabled;
+// HMI Commands
+IF Enabled THEN
+	SaveRT(CLK := File_HMI.Save.Active);
+	IF SaveRT.Q THEN
+		IF File_HMI.Save.Permissive.OK THEN
+			File.UpdateSymbol();
+		END_IF
+	END_IF
+
+	IF ReloadActive AND NOT File.Busy AND NOT File.Error THEN
+		File.ReadSymbol();
+		ReloadActive := FALSE;
+	END_IF
+
+	LoadRT(CLK := File_HMI.Load.Active);
+	IF LoadRT.Q THEN
+		IF File_HMI.Load.Permissive.OK THEN
+			File.LoadFile();
+			ReloadActive := TRUE;
+		END_IF
+	END_IF
+
+	IF File_HMI.NewPath THEN
+		File.Path		 := File_HMI.Path;
+		File_HMI.NewPath := FALSE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{4a939dec-14a0-445e-9c45-b84ea484aed1}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	File		: I_FileHandler;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.File	:= File;
+ControlType := 'File';
+LinkObject	:= 'File_HMI';]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="LoadPermissive" Id="{31acdffa-4673-43e1-86f0-b95d1d37e0bb}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY LoadPermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{76256cd7-0cea-4858-9cac-51cf9b9f4295}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LoadPermissive := File_HMI.Load.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="SavePermissive" Id="{19ed96f1-48b6-42fa-b423-0bbc7982e9e2}" FolderPath="Button Permissives\">
+      <Declaration><![CDATA[PROPERTY SavePermissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{8c4fbf48-49b2-48d7-a781-b12e61a0307f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SavePermissive := File_HMI.Save.Permissive;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

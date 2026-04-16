@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_EtherCatDiagnosticEventProvider" Id="{2b46d3ce-4575-4f3d-821d-77693f46da70}">
+    <Declaration><![CDATA[INTERFACE I_EtherCatDiagnosticEventProvider EXTENDS I_EventReactionTcEvents]]></Declaration>
+    <Method Name="RaiseEtherCatDiagnosticEvent" Id="{5bf6003a-71d5-43fb-912e-43a87a1d270b}">
+      <Declaration><![CDATA[METHOD RaiseEtherCatDiagnosticEvent
+VAR_INPUT
+	EventId	  : UDINT;
+	Argument1 : STRING := '';
+	Argument2 : STRING := '';
+	Argument3 : STRING := '';
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="RaiseSyncUnitEvent" Id="{85e2b692-6448-4be0-b90d-317d7ce9edea}">
+      <Declaration><![CDATA[METHOD RaiseSyncUnitEvent
+VAR_INPUT
+	EventId	  : UDINT;
+	Argument1 : STRING := '';
+	Argument2 : STRING := '';
+	Argument3 : STRING := '';
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

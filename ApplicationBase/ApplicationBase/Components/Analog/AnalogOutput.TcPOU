@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="AnalogOutput" Id="{7ac7b465-3ea6-4a4b-a148-c7c7ca366b31}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK AnalogOutput EXTENDS Component IMPLEMENTS I_AnalogOutput, I_AnalogScalable, I_CalibratableLinear
+VAR
+	Output			 : REFERENCE TO INT;
+	Forcible		 : ForcibleInt(_Name);
+	_Scale			 : I_AnalogScale;
+	_CalibrateLinear : I_CalibrateLinear;
+	_CalibrateCustom : I_TransformLRealValue;
+END_VAR
+
+VAR
+	{attribute 'hide'}
+	DefaultScale : AnalogScale;
+	{attribute 'hide'}
+	DefaultCalibration : Calibrate;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="CalibrateCustom" Id="{04dcee8b-a1cc-4f1a-836f-3d0d008232b8}">
+      <Declaration><![CDATA[PROPERTY CalibrateCustom : I_TransformLrealValue]]></Declaration>
+      <Set Name="Set" Id="{9d385b0f-d874-4736-9ee0-aa302a5da53a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_CalibrateCustom := CalibrateCustom;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="CalibrateLinear" Id="{a949be51-6327-4ebe-b127-42c3188ffb68}">
+      <Declaration><![CDATA[PROPERTY CalibrateLinear : I_CalibrateLinear]]></Declaration>
+      <Get Name="Get" Id="{c3baffc3-8374-4a90-849e-b67739613787}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CalibrateLinear := _CalibrateLinear;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ae98b87d-60d7-46d2-9575-d6988ab4795f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_CalibrateLinear := CalibrateLinear;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_Init" Id="{f0a06d4b-0191-43db-aa6c-266db73fd8b3}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	Output		: REFERENCE TO INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Scale			 := DefaultScale;
+_CalibrateLinear := DefaultCalibration;
+THIS^.Output	 REF= Output;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Force" Id="{cefcff39-2f6d-4613-993e-9c02de9b7180}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Force : E_ForceState]]></Declaration>
+      <Get Name="Get" Id="{2393f979-99e5-4298-bc06-6835fdfe84d7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Force := Forcible.CurrentForceState;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{60605ba1-f5c7-49d8-a154-a392b3e3df4d}">
+        <Declaration><![CDATA[VAR
+	ForceString : T_MaxString := TO_STRING(Force);
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Forcible.SetForceState(Force);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ForceValue" Id="{a2166ad8-18ea-4e6c-8900-501742c3b4fc}">
+      <Declaration><![CDATA[PROPERTY ForceValue : INT]]></Declaration>
+      <Get Name="Get" Id="{4a64e6f6-a852-40aa-a41a-b04a29c8216b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ForceValue := Forcible.ForceValue;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5aaa7d58-59c6-4358-9012-8b157df07bd6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Forcible.ForceValue := ForceValue;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="RawValue" Id="{553d454b-200d-42b1-a096-8cb414ef4255}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY RawValue : INT]]></Declaration>
+      <Get Name="Get" Id="{039c508d-0af9-4d11-bc75-523b85e577d3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RawValue := Output;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0a9a00eb-b728-43a1-9b6a-04001c8b8e9a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Forcible.Input := RawValue;
+Output		   := Forcible.Output;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Scale" Id="{9d78ccf3-4e6e-4a17-9169-071053d01cc5}">
+      <Declaration><![CDATA[PROPERTY Scale : I_AnalogScale]]></Declaration>
+      <Get Name="Get" Id="{bdae6016-0bf2-4755-970b-6c41ede1fd4d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Scale := _Scale;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d724350c-9d4d-4e95-9b75-bd13b259a649}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Scale := Scale;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Value" Id="{6cd4557c-222d-46fd-bea3-95d7e2d99f63}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Value : LREAL]]></Declaration>
+      <Get Name="Get" Id="{4cbb0c42-9e94-4e9d-85f0-da8831e13519}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _CalibrateCustom = 0 THEN
+	Value := _CalibrateLinear.Transform(_Scale.Transform(RawValue));
+ELSE
+	Value := _CalibrateCustom.Transform(_Scale.Transform(RawValue));
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{bc6b6fe3-52c1-4a9c-ba31-0596ad973380}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _CalibrateCustom = 0 THEN
+	RawValue := LREAL_TO_INT(_Scale.Transform(_CalibrateLinear.Transform(Value, TRUE)));
+ELSE
+	RawValue := LREAL_TO_INT(_Scale.Transform(_CalibrateCustom.Transform(Value, TRUE)));
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

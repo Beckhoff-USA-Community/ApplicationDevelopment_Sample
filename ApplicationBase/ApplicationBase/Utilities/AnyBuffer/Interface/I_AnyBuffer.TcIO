@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AnyBuffer" Id="{60cee1cf-fb68-48c3-abb8-fe31f509a54b}">
+    <Declaration><![CDATA[INTERFACE I_AnyBuffer]]></Declaration>
+    <Method Name="Clear" Id="{849286ba-076d-4c56-9255-771889b0cd6a}">
+      <Declaration><![CDATA[// Clears all buffer data and resets metadata to initial state
+METHOD Clear : BOOL]]></Declaration>
+    </Method>
+    <Property Name="Configuration" Id="{c0d2b101-1a70-467b-b58f-1f9559b034a5}">
+      <Declaration><![CDATA[PROPERTY Configuration : REFERENCE TO ST_BufferConfiguration]]></Declaration>
+      <Get Name="Get" Id="{ff19f906-63d0-4782-931d-ecd93ad18af5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="DeleteAtIndex" Id="{2060181c-1939-4dcf-bc54-f92e9f79151d}">
+      <Declaration><![CDATA[// Deletes element at specified index position and decrements element count
+METHOD DeleteAtIndex : BOOL
+VAR_INPUT
+	index : DINT; // Zero-based index position of element to delete
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="isEmpty" Id="{b3c75437-54c6-4169-8138-dec6d759cef0}">
+      <Declaration><![CDATA[PROPERTY isEmpty : BOOL]]></Declaration>
+      <Get Name="Get" Id="{4479090a-7d0d-419d-8081-624211c00972}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="isFull" Id="{ae8474ef-0c15-473f-bed8-d80fe8682216}">
+      <Declaration><![CDATA[PROPERTY isFull : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f2ecb5fc-12a6-4032-be50-6b5a96057a13}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Metadata" Id="{b3a05896-ae50-4afc-ab24-348700284021}">
+      <Declaration><![CDATA[PROPERTY Metadata : REFERENCE TO ST_BufferMetadata]]></Declaration>
+      <Get Name="Get" Id="{dedc9ee0-8963-43bc-a6a7-218bc7f96247}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="PeekAtIndex" Id="{7ba53775-4df3-4e7b-b910-1da50882392f}">
+      <Declaration><![CDATA[// Retrieve an element at a specific index without removing it from the buffer
+METHOD PeekAtIndex : BOOL
+VAR_INPUT
+	index	: DINT;
+	element : ANY;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="PopAtIndex" Id="{ebe6895d-d58b-415e-92aa-48c0dfb75f64}">
+      <Declaration><![CDATA[// Remove and retrieve an element at a specific index, shifting remaining elements left
+METHOD PopAtIndex : BOOL
+VAR_INPUT
+	index	   : DINT;
+	element	   : ANY;
+	popDiscard : BOOL := FALSE;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="PopLeft" Id="{fe164e11-c2d7-4cf1-a5d4-ebe3243b3f03}">
+      <Declaration><![CDATA[// Removes and retrieves the first element from the buffer (FIFO/queue operation)
+METHOD PopLeft : BOOL
+VAR_INPUT
+	element	   : ANY;			// Variable to receive the popped element
+	popDiscard : BOOL := FALSE; // When TRUE, element is removed but not copied (type checking skipped)
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="PopRight" Id="{fcfc84bc-c259-4364-9d76-c72fa3f9861c}">
+      <Declaration><![CDATA[// Removes and retrieves the last element from the buffer (stack pop operation)
+METHOD PopRight : BOOL
+VAR_INPUT
+	element	   : ANY;			// Variable to receive the popped element
+	popDiscard : BOOL := FALSE; // When TRUE, element is removed but not copied (type checking skipped)
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="PushAtIndex" Id="{16f13405-13fb-4fdc-ac84-0b8648ed8d4d}">
+      <Declaration><![CDATA[// Add an element at a specific index, shifting remaining elements right
+METHOD PushAtIndex : BOOL
+VAR_INPUT
+	index	: DINT;
+	element : ANY;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="PushLeft" Id="{89c68ad2-38f2-42f0-bb74-ef813d6c9c40}">
+      <Declaration><![CDATA[// Appends a new element to the left side of the buffer (LIFO/stack push operation)
+METHOD PushLeft : BOOL
+VAR_INPUT
+	element : ANY;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="PushRight" Id="{dcd1a543-93f3-4939-b1b1-6eb44acb032d}">
+      <Declaration><![CDATA[// Appends a new element to the right side of the buffer (FIFO/queue enqueue operation)
+METHOD PushRight : BOOL
+VAR_INPUT
+	element : ANY;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="ReplaceAtIndex" Id="{09dec0f3-348b-45ee-98f2-42cf4eb7dd8c}">
+      <Declaration><![CDATA[// Replaces an element at a specific index with the given element
+METHOD ReplaceAtIndex : BOOL
+VAR_INPUT
+	index	: DINT;
+	element : ANY;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

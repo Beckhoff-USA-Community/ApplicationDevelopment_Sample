@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_HmiFunction" Id="{6b42475e-12f2-4911-a76f-3ff40dfa2908}">
+    <Declaration><![CDATA[INTERFACE I_HmiFunction EXTENDS I_Component]]></Declaration>
+    <Property Name="ControlType" Id="{bf7ce83b-dd40-4707-af6e-d3e2c2af1709}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ControlType : STRING]]></Declaration>
+      <Get Name="Get" Id="{e7ee5cf4-3554-4830-b1f1-00b9de66cacf}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{795f5349-5060-4053-85c2-846f416ebc47}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="Disable" Id="{75b5a0ab-5a2f-4886-9c0e-c8c17650f55c}">
+      <Declaration><![CDATA[METHOD Disable
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="Enable" Id="{041116f3-0e61-4825-aa05-5c868fafc78d}">
+      <Declaration><![CDATA[METHOD Enable
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Enabled" Id="{195ab685-1c3c-4ae6-8adc-e24cf067d808}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Enabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{661c6603-a0fc-4501-a13b-345ad244b3da}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="InstancePath" Id="{40f01fb0-6749-4f40-be25-98e485f97c4d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InstancePath : STRING]]></Declaration>
+      <Get Name="Get" Id="{6e0843e5-7871-4a11-b613-3343e1f29ff1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="LinkObject" Id="{f3ef0dca-f549-4334-9a5c-0118cba35489}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY LinkObject : STRING]]></Declaration>
+      <Get Name="Get" Id="{d6e31cc7-f70a-431d-a296-d8ac6a9933a3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{81538e38-0442-49cb-8129-86ee503be2e6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

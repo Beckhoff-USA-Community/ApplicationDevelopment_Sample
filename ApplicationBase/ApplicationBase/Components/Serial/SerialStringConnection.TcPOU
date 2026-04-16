@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SerialStringConnection" Id="{e96ab8e5-b9e4-4b2c-862d-5570d2a24fa6}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SerialStringConnection EXTENDS CyclicComponent IMPLEMENTS I_SerialStringConnection
+VAR
+	sendSerialString	: SendString255;
+	receiveSerialString : ReceiveString255;
+	clearTheComBuffer	: ClearComBuffer;
+	MySerialLineControl : I_SerialLineControl;
+	_StringDataRecieved : T_MaxString;
+	_RecieveError		: ComError_t;
+	_SendError			: ComError_t;
+	RecieveCounter		: UDINT;
+	_StringReceived		: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CyclicLogic" Id="{85cab52f-9a7f-4f6a-961a-d1ae2e29c978}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF MySerialLineControl = 0 THEN
+	RETURN;
+END_IF
+
+IF receiveSerialString.StringReceived THEN
+	_StringReceived := TRUE;
+	RecieveCounter	:= RecieveCounter + 1;
+END_IF
+
+receiveSerialString(ReceivedString := _StringDataRecieved, Error => _RecieveError, RXbuffer := MySerialLineControl.rxBuffer);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{3cf39181-9fb0-4bdd-b9ea-0cb65904911f}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains		 : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode			 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	Name				 : T_MaxString;
+	SerialLineController : I_SerialLineControl;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetDependencies(SerialLineController);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{935ec149-dfda-4eef-b965-1ecdfd8595be}">
+      <Declaration><![CDATA[METHOD Reset : HRESULT
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF MySerialLineControl = 0 THEN
+	Reset := -1;
+	trace.Error(Source := 'SerialConnection', 'No LineControl for Sending');
+	RETURN;
+END_IF
+
+clearTheComBuffer(Buffer := MySerialLineControl.rxBuffer);
+_StringDataRecieved := '';
+_StringReceived		:= FALSE;
+RecieveCounter		:= 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendAString" Id="{bef610a1-cc1b-43ae-8eec-139e53f60344}">
+      <Declaration><![CDATA[METHOD SendAString : HRESULT
+VAR_INPUT
+	DataToSend : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF MySerialLineControl = 0 THEN
+	SendAString := -1;
+	trace.Error(Source := 'SerialConnection', 'No LineControl for Sending');
+	RETURN;
+END_IF
+
+sendSerialString(SendString := DataToSend, Error => _SendError, TXbuffer := MySerialLineControl.txBuffer);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetDependencies" Id="{cc5a5361-a344-498f-97d3-0215c7875028}">
+      <Declaration><![CDATA[METHOD SetDependencies : BOOL
+VAR_INPUT
+	SerialLineController : I_SerialLineControl;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF SerialLineController = 0 THEN
+	RETURN;
+END_IF
+
+MySerialLineControl := SerialLineController;
+SetDependencies		:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetSerialConfiguration" Id="{6646a269-9759-4d97-b676-92eafb9cf332}">
+      <Declaration><![CDATA[METHOD SetSerialConfiguration : BOOL
+VAR_INPUT
+	Prefix : STRING;
+	Suffix : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[receiveSerialString.Prefix := Prefix;
+receiveSerialString.Suffix := Suffix;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StringData" Id="{48caa34b-d388-453f-b6bd-f738f4ad24d7}">
+      <Declaration><![CDATA[PROPERTY StringData : t_maxstring]]></Declaration>
+      <Get Name="Get" Id="{c3f103d1-43c5-4d38-8344-1d31a2eb5508}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StringData := _StringDataRecieved;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="StringRecieved" Id="{8bb2b774-73ea-49af-be17-4ef8297b7589}">
+      <Declaration><![CDATA[PROPERTY StringRecieved : BOOL]]></Declaration>
+      <Get Name="Get" Id="{4861f495-e9e1-4eb1-81d0-753316c0eeea}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StringRecieved	:= _StringReceived;
+_StringReceived := FALSE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

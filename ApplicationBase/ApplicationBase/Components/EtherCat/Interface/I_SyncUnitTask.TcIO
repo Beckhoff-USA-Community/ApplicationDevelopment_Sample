@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_SyncUnitTask" Id="{c5df68f5-6d75-0adf-17fb-e7b677114901}">
+    <Declaration><![CDATA[INTERFACE I_SyncUnitTask EXTENDS I_Component]]></Declaration>
+    <Property Name="IoDataValid" Id="{be618f08-b567-4b19-9cb3-bb10f9979a74}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IoDataValid : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b921a502-e4be-4b28-95fa-3954235f43c9}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="IsHotConnect" Id="{9c0c794b-7737-0c4b-1807-9ee8ebfdec0c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IsHotConnect : BOOL]]></Declaration>
+      <Get Name="Get" Id="{74b3a85e-3b20-0806-3417-98d2a1cc8316}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="SlaveCount" Id="{d965788c-f877-053f-2191-657ba8fcc60f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PUBLIC SlaveCount : UINT]]></Declaration>
+      <Get Name="Get" Id="{6432ecea-f7e2-0f4e-2d8d-45015cbba232}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

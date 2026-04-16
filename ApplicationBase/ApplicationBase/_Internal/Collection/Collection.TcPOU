@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Collection" Id="{3eb2356d-50ff-4430-a8a5-609a55da1f2b}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'reflection'}
+FUNCTION_BLOCK Collection IMPLEMENTS I_Collection
+VAR
+	{attribute 'instance-path'}
+	{attribute 'noinit'}
+	InstancePath : STRING;
+	Collection	 : FB_DynMem_Buffer(GlobalApplicationBase.DynamicMemory);
+	pCollection	 : POINTER TO I_Base;
+	_Count		 : UDINT := 0;
+	pCurrent	 : POINTER TO I_Base;
+	{attribute 'hide'}
+	_CurrentIndex : UDINT := 0;
+	{attribute 'hide'}
+	NullItem : NullItem;
+	{attribute 'hide'}
+	ipNullItem : I_Base := NullItem;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Collection" Id="{e3063733-b6e3-4d2b-a421-a8a47167157d}" />
+    <Folder Name="Enumerator" Id="{0e1e3bab-71a2-4ef8-8bdb-1636f8c7281f}" />
+    <Folder Name="Protected" Id="{abcfdbb4-f3ca-410a-81a8-fc86ba1dbd76}" />
+    <Method Name="AddItem" Id="{8dc9b7c5-c393-41c7-ac37-c828f880d635}" FolderPath="Collection\">
+      <Declaration><![CDATA[METHOD AddItem
+VAR_INPUT
+	Item : I_Base;
+END_VAR
+
+VAR
+	pItem : POINTER TO I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Count = 0 THEN
+	_Count := 1;
+	Collection.CreateBuffer(nSize := (_Count * SIZEOF(PVOID)), bReset := TRUE);
+	IF Collection.pBuffer <> 0 THEN
+		pCollection	 := Collection.pBuffer;
+		pCollection^ := Item;
+	END_IF
+ELSE
+	_Count := _Count + 1;
+	Collection.Resize(nSize := (_Count * SIZEOF(PVOID)), bPreserve := TRUE, bReset := TRUE);
+	pCollection := Collection.pBuffer;
+	pItem		:= Collection.pBuffer + ((_Count - 1) * SIZEOF(PVOID));
+	pItem^		:= Item;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Clear" Id="{759468a3-d50e-4673-96b7-f890b1d86578}" FolderPath="Collection\">
+      <Declaration><![CDATA[METHOD Clear]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Collection.DeleteBuffer();
+pCollection := 0;
+_Count		:= 0;
+ResetIterator();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Count" Id="{c562679c-992e-4fae-b0ea-63d9ba95b38c}" FolderPath="Collection\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Count : UDINT]]></Declaration>
+      <Get Name="Get" Id="{164a15b7-b792-49b3-ac50-3913e5430902}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Count := _Count;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Current" Id="{c3c70017-3699-48d7-83b5-350caf20afd6}" FolderPath="Enumerator\">
+      <Declaration><![CDATA[PROPERTY Current : I_Base]]></Declaration>
+      <Get Name="Get" Id="{e17ae0f5-4d4d-4d40-8d2c-bfffb2b0fe89}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF pCurrent <> 0 THEN
+	Current := pCurrent^;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CurrentItem" Id="{3342aa8f-34a1-4c43-8982-b07afa25408f}" FolderPath="Enumerator\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentItem : UDINT]]></Declaration>
+      <Get Name="Get" Id="{e17b57dc-6665-430e-b3e5-5e18915084ab}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentItem := _CurrentIndex;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Exit" Id="{54ad7d9f-f083-4647-b697-e1cef91ac36c}" FolderPath="Collection\">
+      <Declaration><![CDATA[//FB_Exit must be implemented explicitly. If there is an implementation, then the
+
+//method is called before the controller removes the code of the function block instance
+
+//(implicit call). The return value is not evaluated.
+METHOD FB_Exit : BOOL
+VAR_INPUT
+	bInCopyCode : BOOL; // TRUE: the exit method is called in order to leave the instance which will be copied afterwards (online change).  
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT bInCopyCode THEN
+	Collection.DeleteBuffer();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FillGaps" Id="{45031dee-3dad-4f9a-b8cc-e8fe5565f1dd}" FolderPath="Protected\">
+      <Declaration><![CDATA[METHOD PROTECTED FillGaps
+VAR
+	pItem	  : POINTER TO I_Base;
+	pItemNext : POINTER TO I_Base;
+	i		  : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Count > 1 THEN
+	FOR i := 0 TO (_Count - 2) DO
+		pItem	  := Collection.pBuffer + (i * SIZEOF(PVOID));
+		pItemNext := Collection.pBuffer + ((i + 1) * SIZEOF(PVOID));
+		IF pItem^ = 0 AND pItemNext^ <> 0 THEN
+			pItem^	   := pItemNext^;
+			pItemNext^ := 0;
+		END_IF
+	END_FOR
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsEmpty" Id="{afd89d7f-da36-4305-b77e-9e7098a261d6}" FolderPath="Collection\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IsEmpty : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3a4c8afe-7db3-444f-abb9-b0bcc968ff55}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsEmpty := _Count = 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="MoveToNext" Id="{cc47be74-85e0-4d07-b7ec-9125cb461c73}" FolderPath="Enumerator\">
+      <Declaration><![CDATA[PROPERTY MoveToNext : BOOL]]></Declaration>
+      <Get Name="Get" Id="{07ede445-240a-42da-9d93-875d063af6a3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveToNext := FALSE;
+IF Count = 0 THEN
+	RETURN;
+END_IF
+
+IF _CurrentIndex = Count THEN
+	RETURN;
+END_IF
+
+pCurrent	  := Collection.pBuffer + (_CurrentIndex * SIZEOF(PVOID));
+_CurrentIndex := _CurrentIndex + 1;
+MoveToNext	  := TRUE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="RemoveItem" Id="{b7b28bac-dcef-4dee-af03-3532db545660}" FolderPath="Collection\">
+      <Declaration><![CDATA[METHOD RemoveItem
+VAR_INPUT
+	Item : I_Base;
+END_VAR
+
+VAR
+	pItem	  : POINTER TO I_Base;
+	i		  : UDINT;
+	ItemFound : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Count = 0 THEN
+	Trace.LogMessage(InstancePath, 'No Items found in this Collection!');
+	RETURN;
+END_IF
+
+IF Item = 0 THEN
+	Trace.LogMessage(InstancePath, 'Item to remove needs to be valid interface!');
+	RETURN;
+END_IF
+
+FOR i := 0 TO (_Count - 1) DO
+	pItem := Collection.pBuffer + (i * SIZEOF(PVOID));
+	IF pItem^ = Item THEN
+		pItem^	  := 0;
+		ItemFound := TRUE;
+	END_IF
+END_FOR
+
+FillGaps();
+IF ItemFound THEN
+	_Count := _Count - 1;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetIterator" Id="{f05a2325-6db1-4c68-833a-03206c1dbee9}" FolderPath="Enumerator\">
+      <Declaration><![CDATA[METHOD ResetIterator]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[pCurrent	  := ADR(ipNullItem);
+_CurrentIndex := 0;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

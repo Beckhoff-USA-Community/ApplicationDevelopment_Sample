@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CyclicRunner" Id="{4ff2549e-983f-42ce-a573-4a30ca932a76}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CyclicRunner
+VAR_GENERIC CONSTANT
+	MaxCount : UDINT := 10;
+END_VAR
+
+VAR
+	Callees		: ARRAY[0..MaxCount] OF I_Cyclic;
+	CalleeCount : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AddCallee" Id="{d59cad39-e9d9-4ab5-a36e-deb81719725a}">
+      <Declaration><![CDATA[METHOD AddCallee : RegistrationResult
+VAR_INPUT
+	Callee : I_Cyclic;
+END_VAR
+
+VAR
+	i : UDINT;
+	Registered : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Callee = 0 THEN
+	AddCallee := RegistrationResult.NullReference;
+	RETURN;
+END_IF
+
+IF CalleeCount >= MaxCount THEN
+	AddCallee := RegistrationResult.TooManyComponents;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Callees[i] = Callee THEN
+		Registered := TRUE;
+	END_IF
+END_FOR
+
+IF Registered THEN
+	AddCallee := RegistrationResult.AlreadyAdded;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Callees[i] = 0 THEN
+		Callees[i] := Callee;
+		CalleeCount := CalleeCount + 1;
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CallAll" Id="{bd9bd98a-ab71-4a91-9a15-66ba8b49c359}">
+      <Declaration><![CDATA[METHOD CallAll
+VAR_INST
+	Logged : BOOL;
+END_VAR
+
+VAR
+	i	   : UDINT;
+	Callee : I_Cyclic;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO MaxCount DO
+	IF Callees[i] = 0 THEN
+		RETURN;
+	END_IF
+
+	Callees[i].CyclicLogic();
+END_FOR
+
+IF NOT Logged THEN
+	Logged := TRUE;
+	Trace.LogMessage('Cyclic Runner', 'Collection is full. Review library parameters and code to ensure proper setup.');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveCallee" Id="{7966859d-7126-440a-8804-1e7e5d2eb4b6}">
+      <Declaration><![CDATA[METHOD RemoveCallee : RegistrationResult
+VAR_INPUT
+	Callee : I_Cyclic;
+END_VAR
+
+VAR
+	i : UDINT;
+	PresentInCollection : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Callee = 0 THEN
+	RemoveCallee := RegistrationResult.NullReference;
+	RETURN;
+END_IF
+
+IF CalleeCount = 0 THEN
+	RemoveCallee := RegistrationResult.CollectionEmpty;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Callees[i] = Callee THEN
+		PresentInCollection := TRUE;
+	END_IF
+END_FOR
+
+IF NOT PresentInCollection THEN
+	RemoveCallee := RegistrationResult.NotFoundInCollection;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Callees[i] = Callee THEN
+		CalleeCount := CalleeCount - 1;
+		IF i < MaxCount THEN
+			MEMMOVE(ADR(Callees[i]), ADR(Callees[i + 1]), (MaxCount - i) * SIZEOF(Callee));
+		ELSE
+			Callees[MaxCount] := 0;
+		END_IF
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

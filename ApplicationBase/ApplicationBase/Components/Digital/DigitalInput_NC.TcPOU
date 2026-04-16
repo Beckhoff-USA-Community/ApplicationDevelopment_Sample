@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="DigitalInput_NC" Id="{e6e54a28-ad82-4ad1-9614-af6f56f9a48b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK DigitalInput_NC EXTENDS Component IMPLEMENTS I_DigitalInput
+VAR
+	Input		  : REFERENCE TO BOOL;
+	ForcibleInput : ForcibleBool(_Name);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_Init" Id="{12d0ef35-6330-4c23-843c-af1ae73a6200}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	Name		 : T_MaxString;
+	Input		 : REFERENCE TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Input REF= Input;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Force" Id="{4c5a5179-7d73-4714-b916-c3f71c22bdf3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Force : E_ForceState]]></Declaration>
+      <Get Name="Get" Id="{81204393-ca12-454c-9ec5-676f2f4242c4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Force := ForcibleInput.CurrentForceState;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{894c037b-d93f-4a44-ba14-bcf8f549c64e}">
+        <Declaration><![CDATA[VAR
+	ForceString : T_MaxString := TO_STRING(Force);
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ForcibleInput.SetForceState(Force);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="IsActive" Id="{ab42629a-4dc8-4e88-9e44-c5ac3c74d422}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IsActive : BOOL]]></Declaration>
+      <Get Name="Get" Id="{abf91698-86de-43c6-8243-4c07e739c18c}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ForcibleInput.Input := NOT Input;
+IsActive			:= ForcibleInput.Output;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

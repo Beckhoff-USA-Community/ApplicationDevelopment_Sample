@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Module" Id="{ba882a87-0f50-4fc7-bcd6-b6f9f2ef2c8f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT Module IMPLEMENTS I_Module, I_Cyclic, I_Initializable
+VAR
+	_Name				: T_MaxString;
+	ModuleInitialized	: BOOL;
+	CyclicRunner		: CyclicRunner<ApplicationBaseParameter.MaxCountInCollections>;
+	ComponentCollection : ComponentCollection<ApplicationBaseParameter.MaxCountInCollections>;
+	ModuleCollection	: ModuleCollection<ApplicationBaseParameter.MaxCountInCollections>;
+	Initializer			: Initializer<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Constructor" Id="{1f9c9323-a6f6-4221-bf1e-61a5fa6deeb3}" />
+    <Folder Name="Cyclic" Id="{176fdab4-b50f-4569-a326-1d2a9b5e87b7}" />
+    <Folder Name="Deregister" Id="{6f28b1f4-7376-486c-80f9-167a3de80c0f}" />
+    <Folder Name="Initialize" Id="{58bbfb32-9bd3-4bd5-8cf9-e28128c0b575}" />
+    <Folder Name="Register" Id="{dd252a0c-d496-4e73-8b6e-5e1f8316d90a}" />
+    <Folder Name="Reset" Id="{51e46921-2a39-4a8a-8ed7-7f594b5557ee}" />
+    <Method Name="Accept" Id="{7a3c0e4c-05cc-490f-b194-9f47bd0e0091}">
+      <Declaration><![CDATA[METHOD Accept
+VAR_INPUT
+	Visitor : I_ModuleVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Visitor.VisitModule(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Components" Id="{6e12e67e-1cce-49cd-9275-deda5c5622a5}">
+      <Declaration><![CDATA[PROPERTY Components : I_ComponentCollection]]></Declaration>
+      <Get Name="Get" Id="{16c9cb13-0020-426d-be02-daa798ea7c80}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Components := ComponentCollection;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{dad5f49a-5efc-41e6-bd0b-3550498f5f76}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[OnCyclicCall();
+CyclicRunner.CallAll();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterComponent" Id="{a8317164-7c08-4bc5-bc9f-51e881ba5c0d}" FolderPath="Deregister\">
+      <Declaration><![CDATA[METHOD DeregisterComponent : RegistrationResult
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DeregisterComponent := ComponentCollection.RemoveComponent(Component);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterCyclic" Id="{0723553c-56c5-4893-9136-b4b5f155f191}" FolderPath="Deregister\">
+      <Declaration><![CDATA[METHOD DeregisterCyclic : RegistrationResult
+VAR_INPUT
+	Cyclic : I_Cyclic;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DeregisterCyclic := CyclicRunner.RemoveCallee(Cyclic);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterInitialize" Id="{1935f706-6e77-4468-97ea-96740cce20d5}" FolderPath="Deregister\">
+      <Declaration><![CDATA[METHOD DeregisterInitialize : RegistrationResult
+VAR_INPUT
+	Initializable : I_Initializable;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DeregisterInitialize := Initializer.RemoveInitialize(Initializable);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterModule" Id="{4b225922-4401-4feb-9d22-0d41394de9a4}" FolderPath="Deregister\">
+      <Declaration><![CDATA[METHOD DeregisterModule : RegistrationResult
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[DeregisterModule := ModuleCollection.RemoveModule(Module);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterWithParent" Id="{8fe9758f-4a7d-4eb1-ab4b-8bb742494079}" FolderPath="Deregister\">
+      <Declaration><![CDATA[METHOD DeregisterWithParent
+VAR_INPUT
+	Parent : I_ContainModules;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Parent.DeregisterModule(THIS^);
+Parent.DeregisterCyclic(THIS^);
+Parent.DeregisterInitialize(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{57434274-dd3b-44b5-b48e-284471edaeac}" FolderPath="Constructor\">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)   
+	Name		 : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Name := Name;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initialize" Id="{feee4fc8-2c01-452c-9843-f47d7b3f8849}" FolderPath="Initialize\">
+      <Declaration><![CDATA[METHOD Initialize]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT ModuleInitialized THEN
+	Initializing();
+	RETURN;
+END_IF
+
+Initializer.Initializing();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Initialized" Id="{1aa48218-d364-4be8-8f45-d3ab87898d69}" FolderPath="Initialize\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Initialized : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7c175a3a-c3c7-48a0-975c-e227873ee706}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Initialized := ModuleInitialized AND Initializer.Initialized;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b5804f10-e9ee-4851-a95a-ecd4661faf3b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ModuleInitialized := Initialized;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Initializing" Id="{9910c161-fc35-4216-8c36-bf7a21871d63}" FolderPath="Initialize\">
+      <Declaration><![CDATA[(* This Module will be done initialize when ModuleInitialized := TRUE;, subequently all subitems will be called to be initialized *)
+METHOD ABSTRACT Initializing]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ModuleInitialized := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Modules" Id="{8d2ccc65-8cba-45e4-a8ed-478cbdc34b6d}">
+      <Declaration><![CDATA[PROPERTY Modules : I_ModuleCollection]]></Declaration>
+      <Get Name="Get" Id="{f4007c7e-0162-466b-8112-b65a7332fdff}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Modules := ModuleCollection;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Name" Id="{a49b4550-78b0-4910-a0a8-4a104f15e841}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Name : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{1e05850f-8152-42a8-af80-f66f89b22454}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Name := _Name;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c18c3cb1-3370-43d0-a7de-8ea729562e40}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Name := Name;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="OnCyclicCall" Id="{b49f13fa-fc59-4158-b58e-dfd322deb29f}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD ABSTRACT OnCyclicCall
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterComponent" Id="{f891c5eb-7c27-49fc-bd52-67b687db0c3b}" FolderPath="Register\">
+      <Declaration><![CDATA[METHOD RegisterComponent : RegistrationResult
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterComponent := ComponentCollection.AddComponent(Component);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterCyclic" Id="{e0d43d55-4c2d-41ca-9c92-4c1d59271668}" FolderPath="Register\">
+      <Declaration><![CDATA[METHOD RegisterCyclic : RegistrationResult
+VAR_INPUT
+	Cyclic : I_Cyclic;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterCyclic := CyclicRunner.AddCallee(Cyclic);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterInitialize" Id="{9dcccf88-aab0-4dc4-9295-b3c00aa2606d}" FolderPath="Register\">
+      <Declaration><![CDATA[METHOD RegisterInitialize : RegistrationResult
+VAR_INPUT
+	Initializable : I_Initializable;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterInitialize := Initializer.AddInitialize(Initializable);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterModule" Id="{eccb7e2e-e326-4ac8-8c58-bdffe5567128}" FolderPath="Register\">
+      <Declaration><![CDATA[METHOD RegisterModule : RegistrationResult
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterModule := ModuleCollection.AddModule(Module);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterWithParent" Id="{0e69af46-11af-4ad1-be6a-9efbf989c269}" FolderPath="Register\">
+      <Declaration><![CDATA[METHOD RegisterWithParent
+VAR_INPUT
+	Parent : I_ContainModules;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Parent.RegisterModule(THIS^);
+Parent.RegisterCyclic(THIS^);
+Parent.RegisterInitialize(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetComponents" Id="{f973ec71-a7f4-4fa0-8997-c6b2ac13cd92}" FolderPath="Reset\">
+      <Declaration><![CDATA[METHOD ResetComponents : BOOL
+VAR_INST
+	ResetComponentsVisitor : ResetComponentsVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ResetComponentsVisitor.Reset(THIS^);
+ResetComponents := NOT ResetComponentsVisitor.Error AND NOT ResetComponentsVisitor.Busy;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetModules" Id="{179349de-35b5-4459-8b5e-e17e9d56d3af}" FolderPath="Reset\">
+      <Declaration><![CDATA[METHOD ResetModules : BOOL
+VAR_INST
+	ResetModulesVisitor : ResetModulesVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ResetModulesVisitor.Reset(THIS^);
+ResetModules := NOT ResetModulesVisitor.Error AND NOT ResetModulesVisitor.Busy;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MoveJogTask" Id="{949ec021-9e06-4765-b74e-0dd100d557b2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK MoveJogTask EXTENDS MotionTask IMPLEMENTS I_MotionJogTask
+VAR
+	McJog		  : MC_Jog;
+	_JogForward	  : BOOL;
+	_JogBackwards : BOOL;
+	_Mode		  : E_JogMode;
+	_Position	  : LREAL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{b72d5904-9bfc-4514-acb7-1f22fa0b534b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7d70124e-1302-4c1a-abdf-8e220863faef}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := MCJog.Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{30bdeb88-7bd6-4b2f-96bd-ec1b2f7219a2}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McJog(Axis		   := _Axis.Axis,
+	  Velocity	   := _Axis.Velocity,
+	  Acceleration := _Axis.Acceleration,
+	  Deceleration := _Axis.Deceleration,
+	  Jerk		   := _Axis.Jerk);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{84420d75-ad24-4d3a-8cef-0d3144af0820}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e11c98b5-4e50-4b50-b742-7461cd584d12}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := MCJog.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{95504fdc-fa04-4d67-815f-b0ed06f5a0cf}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{4baa563d-ded1-4b72-9ff7-9946736b121e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := MCJog.ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{4b27b5b6-b31f-4d84-b855-5827507dc4b4}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McJog(Axis		   := _Axis.Axis,
+	  JogForward   := _JogForward,
+	  JogBackwards := _JogBackwards,
+	  Mode		   := _Mode,
+	  Position	   := _Position);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="JogBackwards" Id="{d2b5dab1-f45a-4e3d-be2c-05d411cc1ef6}">
+      <Declaration><![CDATA[PROPERTY JogBackwards : BOOL]]></Declaration>
+      <Set Name="Set" Id="{f0740fec-7256-4bea-9d26-8aa30207f2fe}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_JogBackwards := JogBackwards;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="JogForward" Id="{81e7ed2d-2f35-4455-a04c-953404cc4d3c}">
+      <Declaration><![CDATA[PROPERTY JogForward : BOOL]]></Declaration>
+      <Set Name="Set" Id="{8bc556cc-67e9-41b4-bd7d-472843338c61}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_JogForward := JogForward;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Mode" Id="{1fce2653-7463-4826-be32-f4cd665c43bd}">
+      <Declaration><![CDATA[PROPERTY Mode : E_JogMode]]></Declaration>
+      <Set Name="Set" Id="{528e85dc-b9a5-4a65-8e4d-5be74dc91129}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Mode := Mode;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Position" Id="{093b613a-4624-4500-a07a-295591354775}">
+      <Declaration><![CDATA[PROPERTY Position : LREAL]]></Declaration>
+      <Set Name="Set" Id="{5c8ab3e9-e9c8-40cc-a33e-b96060121f40}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Position := Position;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

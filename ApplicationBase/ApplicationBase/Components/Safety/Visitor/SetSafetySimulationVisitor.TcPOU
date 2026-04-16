@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SetSafetySimulationVisitor" Id="{79102bb4-a0f7-4ee5-9427-b177ab4334f8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SetSafetySimulationVisitor IMPLEMENTS I_ComponentVisitor
+VAR
+	SafetyComponent : I_SafetyBase;
+	InfoData		: ST_SafetyStateDiag;
+	_Simulated		: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Diag" Id="{7a1ddad5-8f39-4d1e-87da-b5052b1d418d}">
+      <Declaration><![CDATA[PROPERTY Diag : UINT]]></Declaration>
+      <Set Name="Set" Id="{8166e58e-686c-460f-a3e1-5eb1bb404148}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InfoData.Diag := Diag;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Simulated" Id="{a9e80197-9312-4336-a27a-75b318350a40}">
+      <Declaration><![CDATA[PROPERTY Simulated : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2e4a40fa-d007-422b-a194-2e0cd694ccbc}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Simulated := _Simulated;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2b44dbcf-0407-4121-af7a-a86c14213ed3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Simulated := Simulated;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="State" Id="{02f3e22b-889d-46c9-ac40-8fa5db0d3242}">
+      <Declaration><![CDATA[PROPERTY State : USINT]]></Declaration>
+      <Set Name="Set" Id="{3218036a-fcc6-4da0-8d8f-5933bdc1724f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InfoData.State := State;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="VisitComponent" Id="{7c119b81-f287-4983-a57c-5d070e320c65}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, SafetyComponent) THEN
+	SafetyComponent.Simulated := _Simulated;
+	SafetyComponent.SimulateSafetyDiag(InfoData.Diag);
+	SafetyComponent.SimulateSafetyState(InfoData.State);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

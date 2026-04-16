@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CollectionPeeker_Mock" Id="{a944388b-5e70-40ba-94fc-59ceda2b96af}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CollectionPeeker_Mock
+VAR_GENERIC CONSTANT
+	PeekSize2 : UDINT := 5;
+END_VAR
+EXTENDS CollectionPeeker<PeekSize2>
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Collection" Id="{3c86236d-d9d7-4773-8532-52f9e10f88b6}">
+      <Declaration><![CDATA[PROPERTY Collection : I_Collection]]></Declaration>
+      <Get Name="Get" Id="{266b0a47-eb2e-4abb-b586-a7f21804293d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Collection := _Collection;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

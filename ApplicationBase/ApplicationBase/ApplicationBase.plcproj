@@ -29,10 +29,565 @@
     <POUsForPropertyAccessIncluded>true</POUsForPropertyAccessIncluded>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="Component" />
+    <Folder Include="Components" />
+    <Folder Include="Components\ADS" />
+    <Folder Include="Components\ADS\Interface" />
+    <Folder Include="Components\Analog" />
+    <Folder Include="Components\Analog\DUT" />
+    <Folder Include="Components\Analog\Interface" />
+    <Folder Include="Components\CoE" />
+    <Folder Include="Components\CoE\DUT" />
+    <Folder Include="Components\CoE\Interface" />
+    <Folder Include="Components\Cylinder" />
+    <Folder Include="Components\Cylinder\DUT" />
+    <Folder Include="Components\Cylinder\Interface" />
+    <Folder Include="Components\Digital" />
+    <Folder Include="Components\Digital\DUT" />
+    <Folder Include="Components\Digital\Interface" />
+    <Folder Include="Components\Digital\Visitor" />
+    <Folder Include="Components\EtherCat" />
+    <Folder Include="Components\EtherCat\DUT" />
+    <Folder Include="Components\EtherCat\Interface" />
+    <Folder Include="Components\Recipe" />
+    <Folder Include="Components\Recipe\Interface" />
+    <Folder Include="Components\Safety" />
+    <Folder Include="Components\Safety\DUT" />
+    <Folder Include="Components\Safety\Interface" />
+    <Folder Include="Components\Safety\Reset Function" />
+    <Folder Include="Components\Safety\Visitor" />
+    <Folder Include="Components\Serial" />
+    <Folder Include="Components\Serial\Interface" />
+    <Folder Include="Components\Tcp Ip" />
+    <Folder Include="Components\Tcp Ip\DUT" />
+    <Folder Include="Components\Tcp Ip\Interface" />
+    <Folder Include="Component\Interface" />
+    <Folder Include="Events" />
+    <Folder Include="Events\Interface" />
+    <Folder Include="HMI" />
+    <Folder Include="HMI\DUT" />
+    <Folder Include="HMI\Interface" />
+    <Folder Include="Kinematic Group" />
+    <Folder Include="Kinematic Group\Interface" />
+    <Folder Include="Modes" />
+    <Folder Include="Modes\Interface" />
+    <Folder Include="Module" />
+    <Folder Include="Module PackML" />
+    <Folder Include="Module\Interface" />
+    <Folder Include="Motion" />
+    <Folder Include="Motion\DUT" />
+    <Folder Include="Motion\Interface" />
+    <Folder Include="Permissive Interlock" />
     <Folder Include="Project Information" />
+    <Folder Include="Statemachine" />
+    <Folder Include="Statemachine\DUT" />
+    <Folder Include="Statemachine\Generic" />
+    <Folder Include="Statemachine\Interface" />
+    <Folder Include="Statemachine\PackML" />
+    <Folder Include="Tracing" />
+    <Folder Include="Tracing\DUT" />
+    <Folder Include="Tracing\Interface" />
+    <Folder Include="Utilities" />
+    <Folder Include="Utilities\AnyBuffer" />
+    <Folder Include="Utilities\AnyBuffer\DUT" />
+    <Folder Include="Utilities\AnyBuffer\Interface" />
+    <Folder Include="Utilities\AnyBuffer\TypedBuffers" />
+    <Folder Include="Utilities\File" />
+    <Folder Include="Utilities\File\DUT" />
+    <Folder Include="Utilities\File\Interface" />
+    <Folder Include="Utilities\Flash" />
+    <Folder Include="Utilities\Force" />
+    <Folder Include="Utilities\Force\DUT" />
+    <Folder Include="Utilities\Force\Interface" />
+    <Folder Include="Utilities\Functions" />
+    <Folder Include="Utilities\Scaling" />
+    <Folder Include="Utilities\Scaling\Interface" />
+    <Folder Include="Utilities\Timing" />
     <Folder Include="Version" />
+    <Folder Include="Visitors" />
+    <Folder Include="Visitors\Enable" />
+    <Folder Include="Visitors\Events" />
+    <Folder Include="Visitors\HMI" />
+    <Folder Include="Visitors\Override" />
+    <Folder Include="Visitors\PackML Statemachine" />
+    <Folder Include="Visitors\Reset" />
+    <Folder Include="Visitors\Statemachine" />
+    <Folder Include="Visitors\Stop" />
+    <Folder Include="_Interface" />
+    <Folder Include="_Internal" />
+    <Folder Include="_Internal\Collection" />
+    <Folder Include="_Internal\CollectionPeeker" />
+    <Folder Include="_Internal\CollectionPeeker\Interface" />
+    <Folder Include="_Internal\Collection\Interface" />
+    <Folder Include="_Internal\Component" />
+    <Folder Include="_Internal\Component\Interface" />
+    <Folder Include="_Internal\Cyclic" />
+    <Folder Include="_Internal\Cyclic\Interface" />
+    <Folder Include="_Internal\Events" />
+    <Folder Include="_Internal\Initialize" />
+    <Folder Include="_Internal\List" />
+    <Folder Include="_Internal\List\Interface" />
+    <Folder Include="_Internal\Module" />
+    <Folder Include="_Internal\Module\Interface" />
+    <Folder Include="_Internal\MotionTasks" />
+    <Folder Include="_Internal\MotionTasks\AX5000" />
+    <Folder Include="_Internal\MotionTasks\AX5000\DUT" />
+    <Folder Include="_Internal\MotionTasks\AX5000\DUT\P_0_0074" />
+    <Folder Include="_Internal\MotionTasks\AX5000\DUT\P_0_0074_LREAL" />
+    <Folder Include="_Internal\MotionTasks\Base" />
+    <Folder Include="_Internal\MotionTasks\Base\DUT" />
+    <Folder Include="_Internal\MotionTasks\Coupling" />
+    <Folder Include="_Internal\MotionTasks\Home" />
+    <Folder Include="_Internal\MotionTasks\Interface" />
+    <Folder Include="_Internal\MotionTasks\Move" />
+    <Folder Include="_Internal\MotionTasks\Power" />
+    <Folder Include="_Internal\MotionTasks\Reset" />
+    <Folder Include="_Internal\Null" />
+    <Folder Include="_Internal\Statemachine" />
+    <Folder Include="_Internal\Statemachine\Interface" />
+    <Folder Include="_Internal\Tracing" />
+    <Folder Include="_Internal\Tracing\Interface" />
+    <Folder Include="_Internal\Types" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\ADS\AdsReadWrite.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\ADS\Interface\I_AdsAccess.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\ADS\Interface\I_AdsRW.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Analog\AnalogInput.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Analog\AnalogInput_Generic.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Analog\AnalogInput_Standard.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Analog\AnalogOutput.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Analog\DUT\ST_AnalogInputStatus_EL30xx.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Analog\DUT\ST_AnalogInputStatus_Generic.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Analog\Interface\I_AnalogChannel_Generic.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Analog\Interface\I_AnalogChannel_Standard.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Analog\Interface\I_AnalogInput.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Analog\Interface\I_AnalogOutput.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\CoE\CoeDevice.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\CoE\DUT\ST_TerminalProductInfo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\CoE\Interface\I_CoeAccess.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\CoE\Interface\I_CoeDevice.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\CoE\NullCoeDevice.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Cylinder\Cylinder.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Cylinder\Cylinder_HMI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Cylinder\Cylinder_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Cylinder\DUT\E_CylinderErrorId.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Cylinder\DUT\E_CylinderState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Cylinder\DUT\ST_Cylinder_HMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Cylinder\Interface\I_Cylinder.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Cylinder\Interface\I_CylinderCommand.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Cylinder\Interface\I_CylinderStatus.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\DigitalInput_Combiner.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\DigitalInput_DebounceFallingEdge.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\DigitalInput_DebounceRisingEdge.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\DigitalInput_HMI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\DigitalInput_NC.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\DigitalInput_NO.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\DigitalOutput.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\DigitalOutput_HMI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\DUT\ST_DigitalInput_HMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\DUT\ST_DigitalOutput_HMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\Interface\I_DigitalInput.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\Interface\I_DigitalOutput.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\Visitor\ForceVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Digital\Visitor\ReleaseAllForceVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\DUT\EtherCatParameter.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="Components\EtherCat\DUT\ST_EtherCatMasterInfo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\DUT\ST_EtherCatSyncUnitTaskInfo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\EtherCatIoDevice.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\EtherCatMaster.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\EtherCatMaster_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\Interface\I_EcIoDevice.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\Interface\I_EtherCatDiagnosticEventProvider.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\Interface\I_EtherCatMasterDiagnostic.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\Interface\I_IoDevice.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\Interface\I_SyncUnitTask.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\SyncUnitTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Recipe\Interface\I_RecipeManagment.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Recipe\RecipeManagment.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\DUT\E_SafetyConnection_State.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\DUT\E_SafetyEdm_State.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\DUT\E_SafetyEStop_State.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\DUT\E_SafetyGroup_Diag.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\DUT\E_SafetyGroup_State.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\DUT\E_SafetyMon_State.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\DUT\E_SafetyOrAnd_State.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\DUT\ST_SafetyAddressInfo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\DUT\ST_SafetyDeviceInfo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\DUT\ST_SafetyStateDiag.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\Interface\I_InSafetyGroup.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\Interface\I_SafetyBase.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\Interface\I_SafetyModule.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\Interface\I_SafetyReset.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\Interface\I_SafetySimulation.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\Reset Function\SafetyResetPulse.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\SafetyAndOrFB.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\SafetyBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\SafetyConnectionFB_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\SafetyEdmFB_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\SafetyEstopFB_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\SafetyGroup_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\SafetyModule.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\SafetyMonFB_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\Visitor\SafetyOkVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Safety\Visitor\SetSafetySimulationVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Serial\Interface\I_SerialByteConnection.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Serial\Interface\I_SerialLineControl.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Serial\Interface\I_SerialStringConnection.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Serial\SerialByteConnection.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Serial\SerialLineControl_ADS.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Serial\SerialLineControl_Terminal.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Serial\SerialStringConnection.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Tcp Ip\DUT\ST_TcpIpPayload.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Tcp Ip\Interface\I_TcpIpConnection.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Tcp Ip\Interface\I_TcpIpSubscription.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Tcp Ip\TcpIpCommandResultFilter.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Tcp Ip\TcpIpConnection.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\Tcp Ip\TcpIpConnectionParameter.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Component\Component.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Component\CyclicComponent.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Component\Interface\I_Component.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Component\Interface\I_ComponentVisitor.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ApplicationBaseParameter.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ApplicationBaseMotionParameterNc2.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="Events\Interface\I_EventArguments.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Events\Interface\I_EventClass.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Events\Interface\I_EventClassTcEvents.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Events\Interface\I_EventReaction.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Events\Interface\I_EventReactionTcEvents.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Events\TcEventClass.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GlobalApplicationBase.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="HMI\Button.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HMI\DUT\ST_HmiFunction.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HMI\HmiFunction.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HMI\Interface\I_Button.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HMI\Interface\I_HmiFunction.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HMI\Interface\I_Permissive.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HMI\Interface\I_StringCollection.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Kinematic Group\Interface\I_KinematicGroup.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Kinematic Group\KinematicGroup.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Kinematic Group\KinematicGroup_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Modes\Interface\I_Mode.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Modes\ModeControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Modes\PackMLModeControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module PackML\PackMLModule.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module\Interface\I_Module.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module\Interface\I_ModuleVisitor.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module\Module.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Axis.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\AxisPTP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\AxisPTP_HMI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Axis_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\DUT\ST_AxisPTP_HMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\DUT\ST_MotionDefaults.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_Axis.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisDynamics.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisEnable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisGear.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisHome.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisJog.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisMoveAbsolute.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisMoveModulo.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisMoveRelative.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisMoveVelocity.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisStatus.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_Axis_PTP.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_SlaveAxis.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\SlaveAxisPTP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Permissive Interlock\PermissiveInterlock.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Project Information\F_GetCompany.TcPOU">
       <SubType>Code</SubType>
       <SystemCall>true</SystemCall>
@@ -45,7 +600,439 @@
       <SubType>Code</SubType>
       <SystemCall>true</SystemCall>
     </Compile>
+    <Compile Include="Statemachine\DUT\ST_PackMLStatemachine_HMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\DUT\ST_Statemachine_HMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\Generic\NextMinorStep.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\Generic\NextStep.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\Generic\SetStep.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\Generic\State.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\Generic\Statemachine.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\Generic\Statemachine_HMI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\Interface\I_ContainStatemachine.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\Interface\I_State.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\Interface\I_Statemachine.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\PackML\NextAvailablePackMLCommands.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\PackML\PackMLStatemachine.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\PackML\PackMLStatemachine_HMI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Statemachine\PackML\PackMLStatemachine_ModuleIntegrated.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Tracing\CoreTrace.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Tracing\DUT\TcEventSeverityExt.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Tracing\Interface\I_Trace.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Tracing\Trace.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\AnyBuffer\AnyBuffer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\AnyBuffer\DUT\ST_BufferConfiguration.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\AnyBuffer\DUT\ST_BufferMetadata.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\AnyBuffer\Interface\I_AnyBuffer.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\AnyBuffer\Interface\I_AnyBufferStrategy.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\AnyBuffer\TypedBuffers\FifoBuffer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\AnyBuffer\TypedBuffers\LifoBuffer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\AnyBuffer\TypedBuffers\ListBuffer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\AnyBuffer\TypedBuffers\RingBuffer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\File\DUT\ST_File_HMI.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\File\File_HMI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\File\Interface\I_FileHandler.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\File\JsonFile.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\File\StringHelper.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Flash\SyncedSquareWaves.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Force\DUT\E_ForceState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Force\ForcibleBool.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Force\ForcibleInt.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Force\Interface\I_ForcibleBool.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Force\Interface\I_ForcibleInt.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Functions\CompareLREAL.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Functions\CompareModulo.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Functions\PercentToAnalog.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Scaling\AnalogScale.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Scaling\Calibrate.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Scaling\Interface\I_AnalogScalable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Scaling\Interface\I_AnalogScale.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Scaling\Interface\I_CalibratableLinear.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Scaling\Interface\I_CalibrateLinear.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Scaling\Interface\I_TransformLRealValue.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Timing\Stopwatch.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Version\Global_Version.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Enable\CheckComponentsEnabledVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Enable\DisableAllComponentsVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Enable\EnableAllComponentsVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Events\GetActiveEventSeverityVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\HMI\GetSystemTreeJsonHmiVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\HMI\HmiEnableDisableAllVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Override\SetAllOverrideVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\PackML Statemachine\ChangePackMLStateOnAllSubModulesVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\PackML Statemachine\EventReactorPackMLVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Reset\GetComponentsTaskResultVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Reset\ResetAllVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Reset\ResetComponentsVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Reset\ResetModulesVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Statemachine\ChangeModeOnAllSubModulesVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Statemachine\ChangeStateOnAllSubModulesVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Statemachine\EventReactorVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\Stop\StopAllComponentsVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_Base.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_Command.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_Disposable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_Enablable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_Initializable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_Override.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_Resettable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_Simulatable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_Stoppable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_TaskResult.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Interface\I_ToString.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\CollectionPeeker\CollectionPeeker.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\CollectionPeeker\Interface\I_CollectionPeeker.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\CollectionPeeker\Interface\I_Peekable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\CollectionPeeker\Interface\I_Peeker.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Collection\Collection.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Collection\Interface\I_Collection.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Collection\Interface\I_Enumerator.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Component\ComponentCollection.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Component\Interface\I_ComponentCollection.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Component\Interface\I_ContainComponents.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Cyclic\CyclicRunner.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Cyclic\Interface\I_Cyclic.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Events\TcEventClassArguments.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Initialize\Initializer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\List\Interface\I_List.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\List\List.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Module\Interface\I_ContainModules.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Module\Interface\I_ModuleCollection.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Module\ModuleCollection.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\AX5000\DUT\P_0_0074\ST_IDN_P_0_0074.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\AX5000\DUT\P_0_0074\ST_IDN_P_0_0074_UDINT.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\AX5000\DUT\P_0_0074_LREAL\ST_IDN_P_0_0074_LREAL.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\AX5000\DUT\ST_AX5000AmpToNm.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\AX5000\MotionTask_AX5000AmpToNm.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Base\DUT\ST_TaskState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Base\MotionTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Base\MotionTaskCollection.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Coupling\MotionCoupleTask_Gearing.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Home\MotionHomeTask_CoESetEncoderOffset.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Home\MotionHomeTask_SetPosition.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Home\MotionHomeTask_SetPositionOffset.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Home\MotionHomeTask_SetZeroHere.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Interface\I_AxisRef.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Interface\I_MotionJogTask.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Interface\I_MotionPowerTask.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Interface\I_MotionTask.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Interface\I_MotionTaskCollection.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Move\MoveAbsoluteTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Move\MoveJogTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Move\MoveModuloTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Move\MoveRelativeTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Move\MoveVelocityTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Power\PowerTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Power\StopTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Reset\CoEExtendedResetTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Reset\CoEResetTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\Reset\SoEResetTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Null\NullComponent.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Null\NullItem.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Null\NullModule.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Statemachine\Interface\I_StateList.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Statemachine\StateList.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\AdsLogger.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\Interface\I_ContainTraceArgument.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\Interface\I_ContainTracePublisher.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\Interface\I_TraceArgument.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\Interface\I_TraceInstanceLogger.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\Interface\I_TraceLogger.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\Interface\I_TraceMessageInfo.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\Interface\I_TracePublisher.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\Interface\I_TraceSourceInfo.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\TcEventLogger.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\TraceMessageInfo.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\TraceSourceInfo.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\USINT_To_TcEventSeverity.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Types\RegistrationResult.TcDUT">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -54,6 +1041,146 @@
       <SubType>Content</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ExternalTypes.tmc">
+      <SubType>Content</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PlaceholderReference Include="Tc2_DataExchange">
+      <DefaultResolution>Tc2_DataExchange, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_DataExchange</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_EtherCAT">
+      <DefaultResolution>Tc2_EtherCAT, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_EtherCAT</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_IoFunctions">
+      <DefaultResolution>Tc2_IoFunctions, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_IoFunctions</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Math">
+      <DefaultResolution>Tc2_Math, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Math</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_MC2">
+      <DefaultResolution>Tc2_MC2, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_MC2</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_MC2_Drive">
+      <DefaultResolution>Tc2_MC2_Drive, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_MC2_Drive</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_NcKinematicTransformation">
+      <DefaultResolution>Tc2_NcKinematicTransformation, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_NcKinematicTransformation</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_SerialCom">
+      <DefaultResolution>Tc2_SerialCom, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_SerialCom</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Standard">
+      <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Standard</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_System">
+      <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_TcpIp">
+      <DefaultResolution>Tc2_TcpIp, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_TcpIp</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Utilities">
+      <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Utilities</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_DynamicMemory">
+      <DefaultResolution>Tc3_DynamicMemory, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_DynamicMemory</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_EventLogger">
+      <DefaultResolution>Tc3_EventLogger, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_EventLogger</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_JsonXml">
+      <DefaultResolution>Tc3_JsonXml, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_JsonXml</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_Module">
+      <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_Module</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_PackML_V3">
+      <DefaultResolution>Tc3_PackML_V3, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_PackML_V3</Namespace>
+    </PlaceholderReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PlaceholderResolution Include="Tc2_DataExchange">
+      <Resolution>Tc2_DataExchange, 3.4.2.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_Drive">
+      <Resolution>Tc2_Drive, 3.3.14.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_EtherCAT">
+      <Resolution>Tc2_EtherCAT, 3.7.1.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_IoFunctions">
+      <Resolution>Tc2_IoFunctions, 3.4.5.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_Math">
+      <Resolution>Tc2_Math, 3.5.1.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_MC2">
+      <Resolution>Tc2_MC2, 3.3.72.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_MC2_Drive">
+      <Resolution>Tc2_MC2_Drive, 3.3.54.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_NC">
+      <Resolution>Tc2_NC, 3.3.11.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_NCI">
+      <Resolution>Tc2_NCI, 3.3.19.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_NcKinematicTransformation">
+      <Resolution>Tc2_NcKinematicTransformation, 3.2.11.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_PlcInterpolation">
+      <Resolution>Tc2_PlcInterpolation, 3.3.23.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_SerialCom">
+      <Resolution>Tc2_SerialCom, 3.4.6.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_Standard">
+      <Resolution>Tc2_Standard, 3.4.5.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_System">
+      <Resolution>Tc2_System, 3.10.1.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_TcpIp">
+      <Resolution>Tc2_TcpIp, 3.4.4.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc2_Utilities">
+      <Resolution>Tc2_Utilities, 3.10.1.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_DynamicMemory">
+      <Resolution>Tc3_DynamicMemory, 1.1.4.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_EventLogger">
+      <Resolution>Tc3_EventLogger, 3.3.13.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_JsonXml">
+      <Resolution>Tc3_JsonXml, 3.4.7.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_Module">
+      <Resolution>Tc3_Module, 3.4.5.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+    <PlaceholderResolution Include="Tc3_PackML_V3">
+      <Resolution>Tc3_PackML_V3, 1.0.6.0 (Beckhoff Automation GmbH)</Resolution>
+    </PlaceholderResolution>
+  </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
@@ -61,6 +1188,12 @@
     <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+        <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
+        <o>
+          <v n="Name">"{192FAD59-8248-4824-A8DE-9177C94C195A}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
         <v>{29BD8D0C-3586-4548-BB48-497B9A01693F}</v>
         <o>
           <v n="Name">"{29BD8D0C-3586-4548-BB48-497B9A01693F}"</v>

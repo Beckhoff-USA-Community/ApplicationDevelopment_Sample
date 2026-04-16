@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CyclicComponent_Mockup" Id="{fe8d9105-ae63-474d-b6c3-ab28ccdb43db}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CyclicComponent_Mockup EXTENDS CyclicComponent IMPLEMENTS I_Resettable
+VAR
+	_WasCalled : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CyclicLogic" Id="{e3e4c74d-7c34-4a9f-a2c5-a4aa377bdbd2}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_WasCalled := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{e08bd1d7-21e9-406e-8f02-94a155a8ca5e}">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="WasCalled" Id="{f3896350-1690-4687-b6a2-3ee3e321c2fd}">
+      <Declaration><![CDATA[PROPERTY WasCalled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{658661b0-20e5-41b3-a498-b4314d4192d4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[WasCalled := _WasCalled;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

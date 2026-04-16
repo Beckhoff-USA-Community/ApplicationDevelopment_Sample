@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="EtherCatIoDevice" Id="{20a9f0b1-40b0-400f-882c-783fc1cdd204}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK EtherCatIoDevice EXTENDS CyclicComponent IMPLEMENTS I_EcIoDevice
+VAR
+	_Config	  : REFERENCE TO ST_EcSlaveConfigData;
+	_State	  : REFERENCE TO ST_EcSlaveState;
+	_SyncUnit : I_SyncUnitTask;
+	_AmsAddr  : AMSADDR;
+	CoeDevice : CoeDevice('CoE Terminal');
+	{attribute 'hide'}
+	NullCoeDevice : NullCoeDevice('Null Terminal');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Device" Id="{0e6012ac-dfb3-49bf-b9b6-e8b700a86eb0}" />
+    <Property Name="AmsNetId" Id="{59f5bcc5-b664-4721-8eaf-547a77cee820}">
+      <Declaration><![CDATA[PROPERTY AmsNetId : AMSNETID]]></Declaration>
+      <Set Name="Set" Id="{d5ed1dac-2482-4982-aea9-09ea8fbe7c1c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_AmsAddr.netId := AmsNetId;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Bootstrap" Id="{6d8beaa5-7350-497a-9664-f92d86b4d56a}" FolderPath="Device\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Bootstrap : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f78f2411-98e7-4c9f-af73-a9bef93883f8}">
+        <Declaration><![CDATA[VAR
+	DiagByte	: BYTE;
+	BitMaskDiag : BYTE := 16#0F;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __ISVALIDREF(_State) THEN
+	BitMaskDiag := 16#0F;
+	DiagByte	:= _State.deviceState AND BitMaskDiag;
+	Bootstrap	:= DiagByte = EC_DEVICE_STATE_BOOTSTRAP;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CoE" Id="{3571bd28-7a3f-4af9-8812-1e004a6a6323}" FolderPath="Device\">
+      <Declaration><![CDATA[PROPERTY CoE : I_CoeDevice]]></Declaration>
+      <Get Name="Get" Id="{4794d657-a8db-45a2-ae07-50370d61eb03}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _Config.nMailboxInSize = 0 THEN
+	CoE := NullCoeDevice;
+ELSE
+	_AmsAddr.port	  := _Config.nAddr;
+	CoeDevice.AdsAddr REF= _AmsAddr;
+	CoE				  := CoeDevice;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d80f7747-bb23-471e-b687-fad92a28aafe}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Configuration" Id="{5edeac0f-d414-4913-abd8-25629f2d8804}" FolderPath="Device\">
+      <Declaration><![CDATA[PROPERTY Configuration : REFERENCE TO ST_EcSlaveConfigData]]></Declaration>
+      <Get Name="Get" Id="{be8827bd-5394-49e0-8f69-08f4516e301e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Configuration REF= _Config;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{bd8d5771-f645-4bf4-8e51-400374428bad}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Config REF= Configuration;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{4535afd1-41ad-4a0b-b50f-d26e99d4b7ce}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _AmsAddr.port = 0 THEN
+	_AmsAddr.port	  := _Config.nAddr;
+	CoeDevice.AdsAddr REF= _AmsAddr;
+END_IF
+
+IF _Config.nMailboxInSize <> 0 THEN
+	CoeDevice.CyclicLogic();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="DeviceError" Id="{56a432d0-8bf0-4f61-9d42-0a3e7223eb04}" FolderPath="Device\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY DeviceError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8e068f78-253e-40c1-b647-f54cbf1caed7}">
+        <Declaration><![CDATA[VAR
+	DiagByte	: BYTE;
+	BitMaskDiag : BYTE := 16#0F;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __ISVALIDREF(_State) THEN
+	BitMaskDiag := 16#0F;
+	DiagByte	:= _State.deviceState AND BitMaskDiag;
+	DeviceError := DiagByte = EC_DEVICE_STATE_ERROR;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Disabled" Id="{ae3d4377-3250-4eac-9ae7-00e5e7d12533}" FolderPath="Device\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Disabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c55405db-ab23-4a29-9f22-847edfd9b27f}">
+        <Declaration><![CDATA[VAR
+	DiagByte	: BYTE;
+	BitMaskDiag : BYTE := 16#0F;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __ISVALIDREF(_State) THEN
+	BitMaskDiag := 16#0F;
+	DiagByte	:= _State.deviceState AND BitMaskDiag;
+	Disabled	:= DiagByte = EC_DEVICE_STATE_DISABLED;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Init" Id="{22a145bc-7c97-405d-9076-bd3571e36ca0}" FolderPath="Device\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Init : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b69da1bc-3e7f-4f52-bd17-ee243b3418e8}">
+        <Declaration><![CDATA[VAR
+	DiagByte	: BYTE;
+	BitMaskDiag : BYTE := 16#0F;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __ISVALIDREF(_State) THEN
+	BitMaskDiag := 16#0F;
+	DiagByte	:= _State.deviceState AND BitMaskDiag;
+	Init		:= DiagByte = EC_DEVICE_STATE_INIT;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="InitCmdError" Id="{d8fd24df-4de2-4a2b-a273-c17c398db933}" FolderPath="Device\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InitCmdError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{961f39f3-6722-49b2-a728-3587fcd7d26b}">
+        <Declaration><![CDATA[VAR
+	DiagByte	: BYTE;
+	BitMaskDiag : BYTE := 16#0F;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __ISVALIDREF(_State) THEN
+	BitMaskDiag	 := 16#0F;
+	DiagByte	 := _State.deviceState AND BitMaskDiag;
+	InitCmdError := DiagByte = EC_DEVICE_STATE_INVALID_VPRS;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="InvalidVPRS" Id="{c5fd7491-68a3-46a1-aae0-d982fc628cd7}" FolderPath="Device\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InvalidVPRS : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f76c247f-ff58-40dc-9782-54ac2c7b4c91}">
+        <Declaration><![CDATA[VAR
+	DiagByte	: BYTE;
+	BitMaskDiag : BYTE := 16#0F;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __ISVALIDREF(_State) THEN
+	BitMaskDiag := 16#0F;
+	DiagByte	:= _State.deviceState AND BitMaskDiag;
+	InvalidVPRS := DiagByte = EC_DEVICE_STATE_INVALID_VPRS;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IoDataValid" Id="{4a75f071-59af-4a48-9dc3-447db374b183}" FolderPath="Device\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IoDataValid : BOOL]]></Declaration>
+      <Get Name="Get" Id="{57d9357e-87be-49c0-aaf2-9d68b8f0a4bc}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _SyncUnit <> 0 THEN
+	IoDataValid := _SyncUnit.IoDataValid;
+ELSE
+	IoDataValid := TRUE;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="OP" Id="{eb1f0a23-5ad4-40fc-871c-678fde62bc70}" FolderPath="Device\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY OP : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b16f5fba-237a-4c73-aae9-36674700194d}">
+        <Declaration><![CDATA[VAR
+	DiagByte	: BYTE;
+	BitMaskDiag : BYTE := 16#0F;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __ISVALIDREF(_State) THEN
+	BitMaskDiag := 16#0F;
+	DiagByte	:= _State.deviceState AND BitMaskDiag;
+	OP			:= DiagByte = EC_DEVICE_STATE_OP;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PreOp" Id="{04485a59-96d0-4266-b1aa-a6d775b9b496}" FolderPath="Device\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PreOp : BOOL]]></Declaration>
+      <Get Name="Get" Id="{87665946-6a3f-4051-9cd0-9041a83b38d2}">
+        <Declaration><![CDATA[VAR
+	DiagByte	: BYTE;
+	BitMaskDiag : BYTE := 16#0F;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __ISVALIDREF(_State) THEN
+	BitMaskDiag := 16#0F;
+	DiagByte	:= _State.deviceState AND BitMaskDiag;
+	PreOp		:= DiagByte = EC_DEVICE_STATE_PREOP;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="SafeOp" Id="{61450f79-f493-43db-9d99-127882730b10}" FolderPath="Device\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY SafeOp : BOOL]]></Declaration>
+      <Get Name="Get" Id="{59907eae-6723-4af7-9151-005c94a3236f}">
+        <Declaration><![CDATA[VAR
+	DiagByte	: BYTE;
+	BitMaskDiag : BYTE := 16#0F;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __ISVALIDREF(_State) THEN
+	BitMaskDiag := 16#0F;
+	DiagByte	:= _State.deviceState AND BitMaskDiag;
+	SafeOp		:= DiagByte = EC_DEVICE_STATE_SAFEOP;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="State" Id="{7a8d6550-1b78-406d-8ecd-7e25decdd9e3}" FolderPath="Device\">
+      <Declaration><![CDATA[PROPERTY State : REFERENCE TO ST_EcSlaveState]]></Declaration>
+      <Get Name="Get" Id="{cb6dd145-705e-42af-972f-1e157d39cc88}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[State REF= _State;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{889dd6d0-b640-4d3f-8228-3e53c6b88c4c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_State REF= State;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="SyncUnit" Id="{cc8e8db4-5398-48e5-9950-6c3dff9c0ecd}">
+      <Declaration><![CDATA[PROPERTY SyncUnit : I_SyncUnitTask]]></Declaration>
+      <Set Name="Set" Id="{09b0faa4-bd95-4576-b84c-17bcc77bbbc4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SyncUnit := SyncUnit;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

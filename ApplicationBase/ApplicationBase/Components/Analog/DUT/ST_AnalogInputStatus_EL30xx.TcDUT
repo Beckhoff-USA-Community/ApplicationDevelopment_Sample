@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_AnalogInputStatus_EL30xx" Id="{1ad60c0c-7c4f-48bf-a1a8-ea85d86b0a2c}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
+TYPE ST_AnalogInputStatus_EL30xx :
+	STRUCT
+		Underrrange : BIT;
+		Overrange	: BIT;
+		Limit1L		: BIT;
+		Limit1H		: BIT;
+		Limit2L		: BIT;
+		Limit2H		: BIT;
+		Error		: BIT;
+		TxPDOState	: BIT;
+		TxPDOToggle : BIT;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

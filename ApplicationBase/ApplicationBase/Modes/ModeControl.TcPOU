@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ModeControl" Id="{77561641-1ab8-44f5-99d4-37f3fb200a36}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ModeControl IMPLEMENTS I_Mode
+VAR
+	{attribute 'hide'}
+	_CurrentMode : DINT := 1;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ChangeMode" Id="{0574cbb0-7576-4b63-88c2-180504acf2f9}">
+      <Declaration><![CDATA[METHOD ChangeMode
+VAR_INPUT
+	RequestedMode : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (RequestedMode >= 1) THEN
+	_CurrentMode := RequestedMode;
+ELSE
+	Trace.LogMessage('Mode Controller', 'Requested Mode is not Defined');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="CurrentMode" Id="{8ea7f208-a1f6-4963-8d0d-b4d4f4e4dd44}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentMode : DINT]]></Declaration>
+      <Get Name="Get" Id="{53ce988f-40e7-4999-91d1-9c988e1c2051}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentMode := _CurrentMode;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

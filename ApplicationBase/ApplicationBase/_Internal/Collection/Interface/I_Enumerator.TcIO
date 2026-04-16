@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Enumerator" Id="{03716d85-6911-4abe-97c9-d40c2b190516}">
+    <Declaration><![CDATA[INTERFACE I_Enumerator]]></Declaration>
+    <Property Name="Current" Id="{81062654-14bd-4610-bc0b-f2f2269353c4}">
+      <Declaration><![CDATA[PROPERTY Current : I_Base]]></Declaration>
+      <Get Name="Get" Id="{95a36be0-c11d-4ec8-8209-630f9e5ed2d4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="CurrentItem" Id="{1ee5bd6e-ed56-403e-9847-762bfe91fd19}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentItem : UDINT]]></Declaration>
+      <Get Name="Get" Id="{b276964b-0794-48df-a61f-f5acd3e980a0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="MoveToNext" Id="{b42fa9da-591d-4da1-95e5-74fac9157265}">
+      <Declaration><![CDATA[PROPERTY MoveToNext : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ad6dd402-b466-4cac-b01a-60597148bf99}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="ResetIterator" Id="{fa76e2d5-d5d3-4092-8298-ef6acc7901f7}">
+      <Declaration><![CDATA[METHOD ResetIterator
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

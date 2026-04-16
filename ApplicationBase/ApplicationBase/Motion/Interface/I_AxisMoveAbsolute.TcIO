@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AxisMoveAbsolute" Id="{f131de79-9024-420e-97dc-cfb7f7f67b47}">
+    <Declaration><![CDATA[INTERFACE I_AxisMoveAbsolute EXTENDS I_Base]]></Declaration>
+    <Method Name="MoveAbsolute" Id="{ca6dfe26-59a3-400f-bd15-0a803422840b}">
+      <Declaration><![CDATA[METHOD MoveAbsolute
+VAR_INPUT
+	TargetPosition : LREAL;
+	AbortPrevious  : BOOL := TRUE;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

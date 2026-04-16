@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_SafetySimulation" Id="{ca0cee81-6bde-08e0-02c6-6f5bea10c344}">
+    <Declaration><![CDATA[INTERFACE I_SafetySimulation EXTENDS I_Simulatable]]></Declaration>
+    <Method Name="SimulateSafetyDiag" Id="{e9ca0188-4ac0-4a84-8ea6-cb92241a0d24}">
+      <Declaration><![CDATA[METHOD SimulateSafetyDiag
+VAR_INPUT
+	SimulationValueDiag : UINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="SimulateSafetyState" Id="{bc0695d1-1e1a-4e72-bf9c-768eb9226d50}">
+      <Declaration><![CDATA[METHOD SimulateSafetyState
+VAR_INPUT
+	SimulationValueState : USINT;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_TcpIpPayload" Id="{604313c4-6d29-432e-a9f8-d6032b480a93}">
+    <Declaration><![CDATA[TYPE ST_TcpIpPayload :
+	STRUCT
+		Size : UDINT;
+		Data : ARRAY[0..(TcpIpConnectionParameter.PayloadSize - 1)] OF BYTE;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

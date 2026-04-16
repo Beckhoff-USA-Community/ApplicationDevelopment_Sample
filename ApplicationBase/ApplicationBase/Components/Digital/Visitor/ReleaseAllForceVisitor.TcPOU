@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ReleaseAllForceVisitor" Id="{92f7ef8e-be5f-443c-9c9c-16d1f4d0ace3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ReleaseAllForceVisitor IMPLEMENTS I_ModuleVisitor, I_ComponentVisitor
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ReleaseForces" Id="{f62924e1-477e-4923-83f0-7508536e54e4}">
+      <Declaration><![CDATA[METHOD ReleaseForces : BOOL;
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Module.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitComponent" Id="{607cf173-9019-41f0-a3ec-cbef310ec291}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR
+
+VAR_INST
+	Forcible : I_ForcibleBool;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, Forcible) THEN
+	Forcible.Force := E_ForceState.Unforced;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VisitModule" Id="{0d62342b-8de3-4474-8c0c-6ffa8b4ac127}">
+      <Declaration><![CDATA[METHOD VisitModule
+VAR_INPUT
+	Module : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Module.Components.Accept(THIS^);
+Module.Modules.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

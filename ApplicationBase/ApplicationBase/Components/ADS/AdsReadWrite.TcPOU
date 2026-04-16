@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="AdsReadWrite" Id="{78adf466-4094-4be0-9a8c-2ef53d9eabfd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK AdsReadWrite EXTENDS CyclicComponent IMPLEMENTS I_AdsRW
+VAR
+	{attribute 'hide'}
+	_AmsNetId : T_AmsNetId;
+	{attribute 'hide'}
+	_AmsPort : T_AmsPort;
+	{attribute 'hide'}
+	_AdsComMode		  : E_AdsComMode := eAdsComModeSecureCom;
+	AdsRead			  : ADSREAD;
+	AdsWrite		  : ADSWRITE;
+	ReadAdsSymByName  : FB_ReadAdsSymByName;
+	WriteAdsSymByName : FB_WriteAdsSymByName;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="TaskResult" Id="{37d1f881-6feb-4092-954d-6283a8881389}" />
+    <Property Name="AdsComMode" Id="{35dd6da7-dd18-4e9a-a4fa-9de1f3eb6685}">
+      <Declaration><![CDATA[PROPERTY AdsComMode : E_AdsComMode]]></Declaration>
+      <Set Name="Set" Id="{d915536a-3734-473e-9ce5-6fcdd3045157}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_AdsComMode := AdsComMode;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="AmsNetId" Id="{4f7647b5-43af-47fe-be01-8072781b3e3f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY AmsNetId : T_AmsNetId]]></Declaration>
+      <Get Name="Get" Id="{4411c607-a4f4-43ad-9574-653e7e03e5e4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AmsNetId := _AmsNetId;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{a0592dad-7d6e-46f7-8923-132ddce75992}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_AmsNetId := AmsNetId;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="AmsPort" Id="{9ff52718-9c64-46a8-bd15-cd4688244783}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY AmsPort : T_AmsPort]]></Declaration>
+      <Get Name="Get" Id="{44d15b3f-7f69-46e9-917c-886f1631f7c3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AmsPort := _AmsPort;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0d86d055-2a31-4ddf-9134-a3e07fe3d1a3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_AmsPort := AmsPort;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Busy" Id="{6b5ac5b8-5bdb-42f2-bb5c-f24adf95b21c}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{dd71e461-15b5-478e-95fe-afc7bdfcfacb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := AdsWrite.BUSY OR AdsRead.BUSY OR ReadAdsSymByName.bBusy OR WriteAdsSymByName.bBusy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{a8a0e855-0f1e-460c-94f8-a3128fb5e19b}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AdsRead(NETID := _AmsNetId, PORT := _AmsPort, TMOUT := DEFAULT_ADS_TIMEOUT);
+AdsRead.READ := FALSE;
+AdsWrite(NETID := _AmsNetId, PORT := _AmsPort, TMOUT := DEFAULT_ADS_TIMEOUT);
+AdsWrite.WRITE := FALSE;
+
+//
+ReadAdsSymByName(sNetId		   := _AmsNetId,
+				 nPort		   := _AmsPort,
+				 tTimeout	   := DEFAULT_ADS_TIMEOUT,
+				 eComMode	   := _AdsComMode,
+				 bClearOnError := TRUE);
+
+ReadAdsSymByName.bRead := FALSE;
+
+//
+WriteAdsSymByName(sNetId   := _AmsNetId,
+				  nPort	   := _AmsPort,
+				  tTimeout := DEFAULT_ADS_TIMEOUT,
+				  eComMode := _AdsComMode);
+
+WriteAdsSymByName.bWrite := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{59586859-4b2a-4dd0-b858-3a3cff141f19}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c3c83e4c-1523-49fc-a17f-9d10410fd244}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := AdsWrite.ERR OR AdsRead.ERR OR ReadAdsSymByName.bError OR WriteAdsSymByName.bError;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{c58841ab-fa5a-4497-ad1d-66e7c60bde0b}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{53131f9e-1d07-46dd-809c-4d7b4f0f4c41}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF AdsWrite.ERR THEN
+	ErrorID := AdsWrite.ERRID;
+ELSIF AdsRead.ERR THEN
+	ErrorID := AdsRead.ERRID;
+ELSIF ReadAdsSymByName.bError THEN
+	ErrorID := ReadAdsSymByName.nErrorId;
+ELSIF WriteAdsSymByName.bError THEN
+	ErrorID := WriteAdsSymByName.nErrorId;
+ELSE
+	ErrorID := 0;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Read" Id="{049e98b4-005f-495a-8f6a-1adfe9639370}">
+      <Declaration><![CDATA[METHOD Read
+VAR_INPUT
+	IdxGrp	  : UDINT;
+	IdxOffset : UDINT;
+	pDestAddr : PVOID;
+	Length	  : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF AdsRead.BUSY THEN
+	RETURN;
+END_IF
+
+AdsRead.IDXGRP	 := IdxGrp;
+AdsRead.IDXOFFS	 := IdxOffset;
+AdsRead.LEN		 := Length;
+AdsRead.DESTADDR := pDestAddr;
+AdsRead.READ	 := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReadBySymbol" Id="{7226648d-89af-451f-945f-ad5de33e0ec6}">
+      <Declaration><![CDATA[METHOD ReadBySymbol
+VAR_INPUT
+	SymbolName : STRING(255);
+	pDestAddr  : PVOID;
+	Length	   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ReadAdsSymByName.bBusy THEN
+	RETURN;
+END_IF
+
+ReadAdsSymByName.sVarName  := SymbolName;
+ReadAdsSymByName.nDestAddr := pDestAddr;
+ReadAdsSymByName.nLen	   := Length;
+ReadAdsSymByName.bRead	   := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Write" Id="{3e8fe55a-dba6-4133-94dc-ed2f55630b1e}">
+      <Declaration><![CDATA[METHOD Write
+VAR_INPUT
+	IdxGrp		: UDINT;
+	IdxOffset	: UDINT;
+	pSourceAddr : PVOID;
+	Length		: UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF AdsWrite.BUSY THEN
+	RETURN;
+END_IF
+
+AdsWrite.IDXGRP	 := IdxGrp;
+AdsWrite.IDXOFFS := IdxOffset;
+AdsWrite.LEN	 := Length;
+AdsWrite.SRCADDR := pSourceAddr;
+AdsWrite.WRITE	 := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WriteBySymbol" Id="{dd58d2ef-b24e-4f59-9233-bb32762cc73c}">
+      <Declaration><![CDATA[METHOD WriteBySymbol
+VAR_INPUT
+	SymbolName	: STRING(255);
+	pSourceAddr : PVOID;
+	Length		: UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF WriteAdsSymByName.bBusy THEN
+	RETURN;
+END_IF
+
+WriteAdsSymByName.sVarName := SymbolName;
+WriteAdsSymByName.nSrcAddr := pSourceAddr;
+WriteAdsSymByName.nLen	   := Length;
+WriteAdsSymByName.bWrite   := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

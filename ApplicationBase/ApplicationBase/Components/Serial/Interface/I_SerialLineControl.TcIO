@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_SerialLineControl" Id="{8e04325f-c983-4383-ba94-6bcbb284e0c4}">
+    <Declaration><![CDATA[INTERFACE I_SerialLineControl EXTENDS I_Cyclic]]></Declaration>
+    <Property Name="rxBuffer" Id="{65485aae-8181-48f4-b85d-00c0e7e234cb}">
+      <Declaration><![CDATA[PROPERTY rxBuffer : REFERENCE TO combuffer]]></Declaration>
+      <Get Name="Get" Id="{4fe4f0a6-2d5a-4299-af4b-4e84d06b8c2f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="txBuffer" Id="{62c7cf58-d06c-4029-b359-936fcd368ea5}">
+      <Declaration><![CDATA[PROPERTY txBuffer : REFERENCE TO combuffer]]></Declaration>
+      <Get Name="Get" Id="{826e1cbf-184e-4846-a873-60b10c01c3be}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

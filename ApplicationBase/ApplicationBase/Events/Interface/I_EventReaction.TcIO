@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_EventReaction" Id="{2d3762dd-5d80-4ddd-8558-4e0b9ee44a56}">
+    <Declaration><![CDATA[INTERFACE I_EventReaction EXTENDS I_Resettable]]></Declaration>
+    <Method Name="GetHighestActiveEventReaction" Id="{26c945db-abca-484f-a18c-e9a17a338df6}">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT;]]></Declaration>
+    </Method>
+    <Method Name="SetEventReactions" Id="{91c44206-9ee8-4d78-984e-96e2b8b818b9}">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

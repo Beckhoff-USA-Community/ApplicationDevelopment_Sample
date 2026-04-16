@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CyclicRunner_TEST" Id="{55cf7dfd-1c83-4c8a-864f-0d6db9a65a13}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CyclicRunner_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[AddTwoCyclicCalleesAndRun();
+CollectionAddsCyclicSucessfully();
+CollectionRejectsAddingCyclicDuplicate();
+CollectionRejectsAddingNullCyclic();
+CollectionRejectsAddingTooManyCyclics();
+CollectionRejectsRemoveWhenEmpty();
+CollectionRejectsRemoveWhenNotFound();
+CollectionRejectsRemovingNullCyclic();
+CollectionRemovesCyclicSuccessfully();]]></ST>
+    </Implementation>
+    <Method Name="AddTwoCyclicCalleesAndRun" Id="{ab1b29cb-5735-4281-851b-290893ba1195}">
+      <Declaration><![CDATA[METHOD AddTwoCyclicCalleesAndRun
+VAR
+	Expected	 : BOOL := TRUE;
+	Actual		 : BOOL;
+	CyclicRunner : CyclicRunner<ApplicationBaseParameter.MaxCountInCollections>;
+	Component	 : ARRAY[0..1] OF CyclicComponent_Mockup[(Name := 'Component 1'), (Name := 'Component 2')];
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	CyclicRunner.AddCallee(Component[0]);
+	CyclicRunner.AddCallee(Component[1]);
+	CyclicRunner.CallAll();
+	Actual := Component[0].WasCalled AND Component[1].WasCalled;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionAddsCyclicSucessfully" Id="{8a57c9f6-c88c-4b3c-9ca0-7e5385a20828}">
+      <Declaration><![CDATA[METHOD CollectionAddsCyclicSucessfully
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	CyclicRunner : CyclicRunner<ApplicationBaseParameter.MaxCountInCollections>;
+	Cyclic	 : CyclicComponent_Mockup(Name := 'Cyclic 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := CyclicRunner.AddCallee(Cyclic) = RegistrationResult.Succeeded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingCyclicDuplicate" Id="{3ecd52cc-d6a3-4247-8ef5-9fd58b63c501}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingCyclicDuplicate
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	CyclicRunner : CyclicRunner<ApplicationBaseParameter.MaxCountInCollections>;
+	Cyclic	 : CyclicComponent_Mockup(Name := 'Cyclic 1');
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	CyclicRunner.AddCallee(Cyclic);
+	Actual := CyclicRunner.AddCallee(Cyclic) = RegistrationResult.AlreadyAdded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingNullCyclic" Id="{5f7fea12-11d9-4533-bc80-26efedd6fa66}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingNullCyclic
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	CyclicRunner : CyclicRunner<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := CyclicRunner.AddCallee(16#0) = RegistrationResult.NullReference;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingTooManyCyclics" Id="{1a9e938e-864d-4494-92b1-c850ad24e5f4}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingTooManyCyclics
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	CyclicRunner : CyclicRunner<1>;
+	Cyclic1	 : CyclicComponent_Mockup(Name := 'Cyclic 1');
+	Cyclic2	 : CyclicComponent_Mockup(Name := 'Cyclic 2');
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	CyclicRunner.AddCallee(Cyclic1);
+	Actual := CyclicRunner.AddCallee(Cyclic2) = RegistrationResult.TooManyComponents;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemoveWhenEmpty" Id="{5c14fe73-2aa3-4680-a2bb-ee49a28204e6}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemoveWhenEmpty
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	CyclicRunner : CyclicRunner<ApplicationBaseParameter.MaxCountInCollections>;
+	Cyclic1	 : CyclicComponent_Mockup(Name := 'Cyclic 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := CyclicRunner.RemoveCallee(Cyclic1) = RegistrationResult.CollectionEmpty;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemoveWhenNotFound" Id="{10564c10-9905-43aa-9daa-549829507a1a}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemoveWhenNotFound
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	CyclicRunner : CyclicRunner<ApplicationBaseParameter.MaxCountInCollections>;
+	Cyclic1	 : CyclicComponent_Mockup(Name := 'Cyclic 1');
+	Cyclic2	 : CyclicComponent_Mockup(Name := 'Cyclic 2');
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	CyclicRunner.AddCallee(Cyclic1);
+	Actual := CyclicRunner.RemoveCallee(Cyclic2) = RegistrationResult.NotFoundInCollection;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemovingNullCyclic" Id="{38e3b685-93ca-42b9-a5e6-11efca91f576}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemovingNullCyclic
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	CyclicRunner : CyclicRunner<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := CyclicRunner.RemoveCallee(16#0) = RegistrationResult.NullReference;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRemovesCyclicSuccessfully" Id="{d5ee7b2c-ebed-4a6c-8165-e2c60050819b}">
+      <Declaration><![CDATA[METHOD CollectionRemovesCyclicSuccessfully
+VAR
+	Expected	   : BOOL := TRUE;
+	Actual		   : BOOL;
+	CyclicCollection : CyclicRunner<ApplicationBaseParameter.MaxCountInCollections>;
+	Cyclic		: CyclicComponent_Mockup(Name := 'Component 1');
+	AddedCyclic : I_Cyclic := Cyclic;
+	CollectionCyclic : I_Cyclic;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	CyclicCollection.AddCallee(Cyclic);
+	Actual := CyclicCollection.RemoveCallee(Cyclic) = RegistrationResult.Succeeded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

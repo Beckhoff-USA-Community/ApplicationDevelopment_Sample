@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_ComponentCollection" Id="{cadf997f-6bee-48d5-b8f4-0a4cf5e22c66}">
+    <Declaration><![CDATA[INTERFACE I_ComponentCollection]]></Declaration>
+    <Method Name="Accept" Id="{beafdad1-ed76-4206-a17e-6ca7f63f3670}">
+      <Declaration><![CDATA[METHOD Accept
+VAR_INPUT
+	Visitor : I_ComponentVisitor;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Count" Id="{cdbbc379-6b01-4e27-b9cf-c5d3cead7de7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Count : UDINT]]></Declaration>
+      <Get Name="Get" Id="{5d87c04f-2e24-4afd-a569-d35860f1e484}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="GetAtIndex" Id="{f7b9b9f2-6550-4554-b667-33eb61a3b7c1}">
+      <Declaration><![CDATA[METHOD GetAtIndex : I_Component
+VAR_INPUT
+	Index : UDINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="GetComponentByName" Id="{1f2dcbc9-b0c5-44ba-af82-138fa6441cc0}">
+      <Declaration><![CDATA[METHOD GetComponentByName : I_Component
+VAR_INPUT
+	Name : T_MaxString;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

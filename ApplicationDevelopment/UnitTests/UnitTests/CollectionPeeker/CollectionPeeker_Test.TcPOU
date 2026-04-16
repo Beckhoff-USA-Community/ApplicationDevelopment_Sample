@@ -1,0 +1,496 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CollectionPeeker_Test" Id="{f047f35c-9391-403b-9213-2618be153bc1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CollectionPeeker_Test
+VAR
+	ComponentArray : ARRAY[0..9] OF Component_Mockup[(Name := '1'), (Name := '2'), (Name := '3'), (Name := '4'), (Name := '5'), (Name := '6'), (Name := '7'), (Name := '8'), (Name := '9'), (Name := '10')];
+	AllComponents  : Collection;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF AllComponents.Count <> (SIZEOF(ComponentArray) / SIZEOF(ComponentArray[0])) THEN
+	FOR i := 0 TO (SIZEOF(ComponentArray) / SIZEOF(ComponentArray[0])) - 1 DO
+		AllComponents.AddItem(ComponentArray[i]);
+	END_FOR
+END_IF
+
+SetCollectionCheck();
+SetFirstItem();
+MoveDownOne();
+MoveUpOne();
+PageDownOne();
+PageUpOne();
+MoveUpOneRollOver();
+MoveDownOneRollOver();
+PageUpRollOver();
+PageDownRollOver();
+NoCollection();
+CollectionSmallerThanPeekSize();]]></ST>
+    </Implementation>
+    <Method Name="CollectionSmallerThanPeekSize" Id="{71f0ba78-5061-417b-813d-6b37854ee24d}">
+      <Declaration><![CDATA[METHOD CollectionSmallerThanPeekSize
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..10] OF STRING[5];
+	ActualNames		 : ARRAY[1..10] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<12>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[0].Name;
+	ExpectedNames[2]	  := ComponentArray[1].Name;
+	ExpectedNames[3]	  := ComponentArray[2].Name;
+	ExpectedNames[4]	  := ComponentArray[3].Name;
+	ExpectedNames[5]	  := ComponentArray[4].Name;
+	ExpectedNames[6]	  := ComponentArray[5].Name;
+	ExpectedNames[7]	  := ComponentArray[6].Name;
+	ExpectedNames[8]	  := ComponentArray[7].Name;
+	ExpectedNames[9]	  := ComponentArray[8].Name;
+	ExpectedNames[10]	  := ComponentArray[9].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	Peeker.MoveDownOne := TRUE;
+	Peeker.MoveDownOne := TRUE;
+	Peeker.MoveUpOne   := TRUE;
+	Peeker.PageDown	   := TRUE;
+	Peeker.PageUp	   := TRUE;
+	NamesEqual		   := TRUE;
+	FOR i := 1 TO 10 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.FirstItem = 1 AND Peeker.LastItem = 12 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveDownOne" Id="{945fa6b2-372f-45df-a23d-0b2741f1de79}">
+      <Declaration><![CDATA[METHOD MoveDownOne
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..5] OF STRING[5];
+	ActualNames		 : ARRAY[1..5] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[1].Name;
+	ExpectedNames[2]	  := ComponentArray[2].Name;
+	ExpectedNames[3]	  := ComponentArray[3].Name;
+	ExpectedNames[4]	  := ComponentArray[4].Name;
+	ExpectedNames[5]	  := ComponentArray[5].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	Peeker.MoveDownOne := TRUE;
+	NamesEqual		   := TRUE;
+	FOR i := 1 TO 5 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.FirstItem = 2 AND Peeker.LastItem = 6 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveDownOneRollOver" Id="{39c4e23e-4fe7-4afa-a46e-6967eb4b168b}">
+      <Declaration><![CDATA[METHOD MoveDownOneRollOver
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..5] OF STRING[5];
+	ActualNames		 : ARRAY[1..5] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[6].Name;
+	ExpectedNames[2]	  := ComponentArray[7].Name;
+	ExpectedNames[3]	  := ComponentArray[8].Name;
+	ExpectedNames[4]	  := ComponentArray[9].Name;
+	ExpectedNames[5]	  := ComponentArray[0].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	Peeker.FirstItem   := 6;
+	Peeker.MoveDownOne := TRUE;
+	NamesEqual		   := TRUE;
+	FOR i := 1 TO 5 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.FirstItem = 7 AND Peeker.LastItem = 1 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveUpOne" Id="{2c33fd08-ebd9-4120-aa3f-96b425d8e307}">
+      <Declaration><![CDATA[METHOD MoveUpOne
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..5] OF STRING[5];
+	ActualNames		 : ARRAY[1..5] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[1].Name;
+	ExpectedNames[2]	  := ComponentArray[2].Name;
+	ExpectedNames[3]	  := ComponentArray[3].Name;
+	ExpectedNames[4]	  := ComponentArray[4].Name;
+	ExpectedNames[5]	  := ComponentArray[5].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	Peeker.FirstItem := 3;
+	Peeker.MoveUpOne := TRUE;
+	NamesEqual		 := TRUE;
+	FOR i := 1 TO 5 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.FirstItem = 2 AND Peeker.LastItem = 6 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveUpOneRollOver" Id="{63680814-ffa0-4285-ac8c-003e682c3e75}">
+      <Declaration><![CDATA[METHOD MoveUpOneRollOver
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..5] OF STRING[5];
+	ActualNames		 : ARRAY[1..5] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[9].Name;
+	ExpectedNames[2]	  := ComponentArray[0].Name;
+	ExpectedNames[3]	  := ComponentArray[1].Name;
+	ExpectedNames[4]	  := ComponentArray[2].Name;
+	ExpectedNames[5]	  := ComponentArray[3].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	Peeker.MoveUpOne := TRUE;
+	NamesEqual		 := TRUE;
+	FOR i := 1 TO 5 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.FirstItem = 10 AND Peeker.LastItem = 4 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="NoCollection" Id="{66630e67-bf44-45d7-8293-f439eb6addfa}">
+      <Declaration><![CDATA[METHOD NoCollection
+VAR
+	Expected : BOOL;
+	Actual	 : BOOL;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		   := TRUE;
+	CollectionName	   := '';
+	Peeker.MoveDownOne := TRUE;
+	Peeker.MoveUpOne   := TRUE;
+	Peeker.PageDown	   := TRUE;
+	Peeker.PageUp	   := TRUE;
+	Actual			   := Peeker.CollectionName = CollectionName;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PageDownOne" Id="{2a8eba21-0cfd-4dca-9327-945b05f39369}">
+      <Declaration><![CDATA[METHOD PageDownOne
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..5] OF STRING[5];
+	ActualNames		 : ARRAY[1..5] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[5].Name;
+	ExpectedNames[2]	  := ComponentArray[6].Name;
+	ExpectedNames[3]	  := ComponentArray[7].Name;
+	ExpectedNames[4]	  := ComponentArray[8].Name;
+	ExpectedNames[5]	  := ComponentArray[9].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	Peeker.PageDown := TRUE;
+	NamesEqual		:= TRUE;
+	FOR i := 1 TO 5 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.FirstItem = 6 AND Peeker.LastItem = 10 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PageDownRollover" Id="{f5abe07b-2d9e-4d5f-80c6-ea58513327c7}">
+      <Declaration><![CDATA[METHOD PageDownRollover
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..5] OF STRING[5];
+	ActualNames		 : ARRAY[1..5] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[8].Name;
+	ExpectedNames[2]	  := ComponentArray[9].Name;
+	ExpectedNames[3]	  := ComponentArray[0].Name;
+	ExpectedNames[4]	  := ComponentArray[1].Name;
+	ExpectedNames[5]	  := ComponentArray[2].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	Peeker.FirstItem := 4;
+	Peeker.PageDown	 := TRUE;
+	NamesEqual		 := TRUE;
+	FOR i := 1 TO 5 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.FirstItem = 9 AND Peeker.LastItem = 3 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PageUpOne" Id="{c413cfc6-3c23-418c-a9a5-80297955f09e}">
+      <Declaration><![CDATA[METHOD PageUpOne
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..5] OF STRING[5];
+	ActualNames		 : ARRAY[1..5] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[1].Name;
+	ExpectedNames[2]	  := ComponentArray[2].Name;
+	ExpectedNames[3]	  := ComponentArray[3].Name;
+	ExpectedNames[4]	  := ComponentArray[4].Name;
+	ExpectedNames[5]	  := ComponentArray[5].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	Peeker.FirstItem := 7;
+	Peeker.PageUp	 := TRUE;
+	NamesEqual		 := TRUE;
+	FOR i := 1 TO 5 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.FirstItem = 2 AND Peeker.LastItem = 6 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PageUpRollOver" Id="{fbb7b8bd-4d65-4d13-b0a5-a8a48e6012b9}">
+      <Declaration><![CDATA[METHOD PageUpRollOver
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..5] OF STRING[5];
+	ActualNames		 : ARRAY[1..5] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[6].Name;
+	ExpectedNames[2]	  := ComponentArray[7].Name;
+	ExpectedNames[3]	  := ComponentArray[8].Name;
+	ExpectedNames[4]	  := ComponentArray[9].Name;
+	ExpectedNames[5]	  := ComponentArray[0].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	Peeker.FirstItem := 2;
+	Peeker.PageUp	 := TRUE;
+	NamesEqual		 := TRUE;
+	FOR i := 1 TO 5 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.FirstItem = 7 AND Peeker.LastItem = 1 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetCollectionCheck" Id="{9bfdc73b-fb35-4b87-8fb4-6bcc49551407}">
+      <Declaration><![CDATA[METHOD SetCollectionCheck
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..5] OF STRING[5];
+	ActualNames		 : ARRAY[1..5] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[0].Name;
+	ExpectedNames[2]	  := ComponentArray[1].Name;
+	ExpectedNames[3]	  := ComponentArray[2].Name;
+	ExpectedNames[4]	  := ComponentArray[3].Name;
+	ExpectedNames[5]	  := ComponentArray[4].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	NamesEqual := TRUE;
+	FOR i := 1 TO 5 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.CollectionName = CollectionName AND Peeker.Collection.Count = AllComponents.Count AND Peeker.FirstItem = 1 AND Peeker.LastItem = 5 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetFirstItem" Id="{9d9eeb20-aa5c-460f-b568-d28e15a2ebe2}">
+      <Declaration><![CDATA[METHOD SetFirstItem
+VAR
+	Expected		 : BOOL;
+	Actual			 : BOOL;
+	NamesEqual		 : BOOL;
+	ExpectedNames	 : ARRAY[1..5] OF STRING[5];
+	ActualNames		 : ARRAY[1..5] OF STRING[5];
+	CurrentComponent : I_Component;
+
+	//
+	Peeker		   : CollectionPeeker_Mock<5>;
+	CollectionName : T_MaxString;
+	i			   : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			  := TRUE;
+	CollectionName		  := 'Test Collection';
+	ExpectedNames[1]	  := ComponentArray[4].Name;
+	ExpectedNames[2]	  := ComponentArray[5].Name;
+	ExpectedNames[3]	  := ComponentArray[6].Name;
+	ExpectedNames[4]	  := ComponentArray[7].Name;
+	ExpectedNames[5]	  := ComponentArray[8].Name;
+	Peeker.CollectionName := CollectionName;
+	Peeker.PeekCollection(AllComponents);
+	Peeker.FirstItem := 5;
+	NamesEqual		 := TRUE;
+	FOR i := 1 TO 5 DO
+		__QUERYINTERFACE(Peeker.Items[i], CurrentComponent);
+		ActualNames[i] := CurrentComponent.Name;
+		NamesEqual	   := NamesEqual AND ActualNames[i] = ExpectedNames[i];
+	END_FOR
+
+	Actual := Peeker.FirstItem = 5 AND Peeker.LastItem = 9 AND NamesEqual;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

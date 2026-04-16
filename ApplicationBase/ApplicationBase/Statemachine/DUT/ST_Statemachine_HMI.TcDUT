@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_Statemachine_HMI" Id="{21f20df7-3034-485c-b8f0-7830e866e511}">
+    <Declaration><![CDATA[TYPE ST_Statemachine_HMI EXTENDS ST_HmiFunction :
+	STRUCT
+		CurrentState	   : DINT;
+		CurrentMode		   : DINT;
+		StateChangeCommand : DINT;
+		ModeChangeCommand  : DINT;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

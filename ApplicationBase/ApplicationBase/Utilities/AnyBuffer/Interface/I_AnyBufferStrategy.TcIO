@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AnyBufferStrategy" Id="{f5ddd2a6-d5a1-465f-9d4c-2073f3f17d30}">
+    <Declaration><![CDATA[INTERFACE I_AnyBufferStrategy]]></Declaration>
+    <Method Name="Clear" Id="{7cbbf9fc-5ef5-4ab4-90ba-2b494932ede4}">
+      <Declaration><![CDATA[METHOD Clear : BOOL]]></Declaration>
+    </Method>
+    <Property Name="isEmpty" Id="{ee0be38f-0fe9-4e01-9dce-e3504330ac64}">
+      <Declaration><![CDATA[PROPERTY isEmpty : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ac0f001e-e3b6-4cd3-a991-3164a019a046}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="isFull" Id="{25f592d5-1274-42f1-a8e2-81bb2c82d30c}">
+      <Declaration><![CDATA[PROPERTY isFull : BOOL]]></Declaration>
+      <Get Name="Get" Id="{d101225f-6f55-431c-a488-732b8a685df2}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

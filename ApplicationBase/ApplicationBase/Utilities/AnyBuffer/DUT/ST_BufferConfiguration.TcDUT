@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_BufferConfiguration" Id="{82eef6af-b499-4b56-b999-93d3889da41f}">
+    <Declaration><![CDATA[TYPE ST_BufferConfiguration :
+	STRUCT
+		isPersistent	 : BOOL; // is the buffer persistent?
+		capacity		 : DINT; // No of elements in buffer
+		elementSize		 : DINT; // Buffer element size in bytes
+		bufferSize		 : DINT; // Complete buffer size in bytes	
+		bufferBoundLower : DINT; // Lower boundary of the buffer
+		bufferBoundUpper : DINT; // Upper boundary of the buffer	
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

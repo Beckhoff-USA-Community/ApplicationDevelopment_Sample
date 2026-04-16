@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="StopAllComponentsVisitor" Id="{ee4ec0b3-4c2a-44b2-a6fe-73a91a90a035}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK StopAllComponentsVisitor IMPLEMENTS I_ComponentVisitor
+VAR
+	Stoppable : I_Stoppable;
+	_Stopped  : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Stop" Id="{1bfd48af-b250-4fc3-a57c-055b0603f97a}">
+      <Declaration><![CDATA[METHOD Stop
+VAR_INPUT
+	Components : I_ComponentCollection;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Stopped := TRUE;
+Components.Accept(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Stopped" Id="{2a33b24c-acd4-4d13-aa3e-46988a89de90}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Stopped : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f65a0f1d-6f58-41a8-a1d0-71f0f99f2532}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Stopped := _Stopped;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="VisitComponent" Id="{267eea54-520f-4c73-9c11-e182033c07b1}">
+      <Declaration><![CDATA[METHOD VisitComponent
+VAR_INPUT
+	Component : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(Component, Stoppable) THEN
+	Stoppable.Stop();
+	IF NOT Stoppable.Stopped THEN
+		_Stopped := FALSE;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

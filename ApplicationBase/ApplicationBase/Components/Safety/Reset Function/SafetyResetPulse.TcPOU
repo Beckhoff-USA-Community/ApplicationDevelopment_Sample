@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="SafetyResetPulse" Id="{09229861-3f09-45a0-a5b4-f46f9a49fca2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SafetyResetPulse EXTENDS CyclicComponent IMPLEMENTS I_SafetyReset
+VAR
+	Reset AT %Q*   : BOOL;
+	TpErrorAck	   : TP;
+	TofErrorAck	   : TOF;
+	_PulseDuration : TIME := T#100MS;
+	_Error		   : BOOL;
+	_Busy		   : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Cyclic" Id="{2deae2d2-457c-4a39-b3bd-4a68025d6f51}" />
+    <Folder Name="Task Result" Id="{171edb54-945e-42e2-94df-49e641707b6f}" />
+    <Property Name="Busy" Id="{a858ad43-f63d-42dc-82d6-01755db5b6cb}" FolderPath="Task Result\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{4f5f0888-7a87-4784-b5e8-5c09374b8bb2}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{b50de6f6-0b87-01cb-3768-01ace14c57c5}" FolderPath="Cyclic\">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TpErrorAck(PT := _PulseDuration, Q => Reset);
+IF TpErrorAck.Q THEN
+	TpErrorAck.IN := FALSE;
+END_IF
+
+TofErrorAck(In := TpErrorAck.Q, PT := _PulseDuration);
+_Error := FALSE;
+_Busy  := TofErrorAck.Q;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{e2f40b1a-ea29-46a9-8bb1-35950e4bcf9f}" FolderPath="Task Result\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{35d0191a-fdcb-4e8b-8ace-6bb47ffebd71}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{51d90d7c-d9de-44f6-8a9a-f2116e4f3cd5}" FolderPath="Task Result\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{9b056a5d-1563-4674-b664-b098ff175362}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{acecda22-c4a5-081a-1e41-acc1086dcae5}">
+      <Declaration><![CDATA[METHOD Execute]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TpErrorAck.Q THEN
+	RETURN;
+END_IF
+
+TpErrorAck.IN := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="PulseDuration" Id="{9a7f665f-6a2b-0576-0210-d1809c704fec}">
+      <Declaration><![CDATA[PROPERTY PulseDuration : TIME]]></Declaration>
+      <Set Name="Set" Id="{68e316a0-81c4-0cea-29dd-9f53ad00db9e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_PulseDuration := PulseDuration;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

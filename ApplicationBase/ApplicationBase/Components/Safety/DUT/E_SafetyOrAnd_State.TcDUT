@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_SafetyOrAnd_State" Id="{86f75023-381e-0710-0bcb-170e4490a891}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+TYPE E_SafetyOrAnd_State : (
+		Invalid := 0,
+		Run		:= 1,
+		Stop	:= 2,
+		Safe	:= 3
+	) USINT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

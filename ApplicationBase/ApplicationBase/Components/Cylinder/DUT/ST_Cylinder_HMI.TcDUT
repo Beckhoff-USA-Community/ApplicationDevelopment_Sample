@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_Cylinder_HMI" Id="{74a7aa1a-613a-49b4-9d29-45f87fbc3516}">
+    <Declaration><![CDATA[TYPE ST_Cylinder_HMI EXTENDS ST_HmiFunction :
+	STRUCT
+		Busy		  : BOOL;
+		Error		  : BOOL;
+		ErrorId		  : UDINT;
+		Extended	  : BOOL;
+		ExtendedName  : STRING := 'Extended';
+		Retracted	  : BOOL;
+		RetractedName : STRING := 'Retracted';
+		Extend		  : Button;
+		Retract		  : Button;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

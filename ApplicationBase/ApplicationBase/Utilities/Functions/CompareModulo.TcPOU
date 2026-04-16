@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="CompareModulo" Id="{d3bbc66d-4e2f-4a53-b7d0-195638229c83}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION CompareModulo : BOOL
+VAR_INPUT
+	Var1	: LREAL;
+	Var2	: LREAL;
+	Modulo	: LREAL := 360.0;
+	Epsilon : LREAL := 1E-6;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CompareModulo := (ABS(MODABS(Var1, Modulo) - MODABS(Var2, Modulo)) < Epsilon) OR (ABS(MODABS(Var1, Modulo) - MODABS(Var2, Modulo)) > (Modulo - Epsilon));]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

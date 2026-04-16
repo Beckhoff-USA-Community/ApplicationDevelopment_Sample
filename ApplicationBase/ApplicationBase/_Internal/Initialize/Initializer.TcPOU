@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Initializer" Id="{86c3d8aa-62eb-4a7b-ba76-b9bf23c6ae04}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Initializer
+VAR_GENERIC CONSTANT
+	MaxCount : UDINT := 10;
+END_VAR
+
+VAR
+	Initializable : ARRAY[0..MaxCount] OF I_Initializable;
+	InitializableCount : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AddInitialize" Id="{1e75cc2c-f47b-4dff-801b-3121c1faf59a}">
+      <Declaration><![CDATA[METHOD AddInitialize : RegistrationResult
+VAR_INPUT
+	Initialize : I_Initializable;
+END_VAR
+
+VAR
+	i : UDINT;
+	Registered : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Initialize = 0 THEN
+	AddInitialize := RegistrationResult.NullReference;
+	RETURN;
+END_IF
+
+IF InitializableCount >= MaxCount THEN
+	AddInitialize := RegistrationResult.TooManyComponents;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Initializable[i] = Initialize THEN
+		Registered := TRUE;
+	END_IF
+END_FOR
+
+IF Registered THEN
+	AddInitialize := RegistrationResult.AlreadyAdded;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Initializable[i] = 0 THEN
+		Initializable[i] := Initialize;
+		InitializableCount := InitializableCount + 1;
+		EXIT;
+	END_IF
+END_FOR
+
+FOR i := 0 TO MaxCount DO
+	IF Initializable[i] = 0 THEN
+		Initializable[i] := Initialize;
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Initialized" Id="{b90e128f-6751-47fe-9463-217bd4b7dde3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Initialized : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b9c8b2c4-4b3f-4be1-babd-28fc8f116fe7}">
+        <Declaration><![CDATA[VAR
+	i		   : UDINT;
+	Initialize : I_Initializable;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Initialized := TRUE;
+FOR i := 0 TO MaxCount DO
+	IF Initializable[i] = 0 THEN
+		EXIT;
+	END_IF
+
+	IF NOT Initializable[i].Initialized THEN
+		Initialized := FALSE;
+	END_IF
+END_FOR]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Initializing" Id="{992246d5-7fda-4553-b5de-2363192812b2}">
+      <Declaration><![CDATA[METHOD Initializing
+VAR_INST
+	Logged : BOOL;
+END_VAR
+
+VAR
+	i		   : UDINT;
+	Initialize : I_Initializable;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO MaxCount DO
+	IF Initializable[i] = 0 THEN
+		RETURN;
+	END_IF
+
+	Initializable[i].Initialize();
+END_FOR
+
+IF NOT Logged THEN
+	Logged := TRUE;
+	Trace.LogMessage('Initializer', 'Collection is full. Review library parameters and code to ensure proper setup.');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveInitialize" Id="{47a4bdf0-4985-4ec3-b746-c5957034b70c}">
+      <Declaration><![CDATA[METHOD RemoveInitialize : RegistrationResult
+VAR_INPUT
+	Initialize : I_Initializable;
+END_VAR
+
+VAR
+	i : UDINT;
+	PresentInCollection : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Initialize = 0 THEN
+	RemoveInitialize := RegistrationResult.NullReference;
+	RETURN;
+END_IF
+
+IF InitializableCount = 0 THEN
+	RemoveInitialize := RegistrationResult.CollectionEmpty;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Initializable[i] = Initialize THEN
+		PresentInCollection := TRUE;
+	END_IF
+END_FOR
+
+IF NOT PresentInCollection THEN
+	RemoveInitialize := RegistrationResult.NotFoundInCollection;
+	RETURN;
+END_IF
+
+FOR i := 0 TO MaxCount DO
+	IF Initializable[i] = Initialize THEN
+		InitializableCount := InitializableCount - 1;
+		IF i < MaxCount THEN
+			MEMMOVE(ADR(Initializable[i]), ADR(Initializable[i + 1]), (MaxCount - i) * SIZEOF(Initialize));
+		ELSE
+			Initializable[MaxCount] := 0;
+		END_IF
+
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

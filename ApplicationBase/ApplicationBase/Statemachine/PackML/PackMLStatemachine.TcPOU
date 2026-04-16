@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="PackMLStatemachine" Id="{e7cde89f-efcf-424b-8517-54330bd132f1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PackMLStatemachine EXTENDS CyclicComponent IMPLEMENTS I_StateMachine
+VAR
+	StateList	   : StateList<17>;
+	StateMachine   : FB_PMLStateMachine;
+	StateCommand   : E_PMLCommand;
+	_CurrentState  : E_PMLState;
+	ModeController : PackMLModeControl := (StateMachine := THIS^);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Modes" Id="{84e362af-4026-436a-8d85-05613988e293}" />
+    <Folder Name="States" Id="{90bc1725-ac18-493b-82d0-91bc4cd051de}" />
+    <Method Name="CallState" Id="{c96df913-b680-47b1-b3a6-d44ef7000fef}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD PROTECTED CallState : BOOL
+VAR_INPUT
+	StateIndex : E_PMLState;
+END_VAR
+
+VAR
+	State : I_State;
+	i	  : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[State := StateList.GetStateAtIndex(StateIndex);
+IF State <> 0 THEN
+	CallState := State.Executing();
+ELSE
+	CallState := TRUE;
+END_IF
+
+FOR i := 0 TO StateList.NumberOfStates DO
+	State := StateList.GetStateAtIndex(i);
+	IF State <> 0 AND i <> StateIndex THEN
+		State.Inactive();
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeState" Id="{c10d75bc-1837-451f-9311-4c7e4e5da6f1}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD ChangeState
+VAR_INPUT
+	StateCommand : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF StateCommand <= 0 OR StateCommand > 17 THEN
+	Trace.LogMessage('PackML Statemachine ChangeState()', 'StateId is not a PackML State');
+END_IF
+
+{warning disable C0196}
+THIS^.StateCommand := StateCommand;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="CurrentState" Id="{e4c1fd4c-b749-426b-9d79-dd503d363019}" FolderPath="States\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY CurrentState : DINT]]></Declaration>
+      <Get Name="Get" Id="{0773eb4c-63f6-4cf7-a4a5-397da7da08cb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentState := _CurrentState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{de09ae5b-904b-4121-a1f4-c6400869394f}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	ClearingTon : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF StateList.NumberOfStates = 0 THEN
+	RETURN;
+END_IF
+
+ModeController.CyclicLogic();
+IF _CurrentState = E_PMLState.Undefined AND Mode.CurrentMode <> 0 THEN
+	StateCommand := E_PMLCommand.Abort;
+END_IF
+
+StateMachine(eMode			  := TO_DINT(Mode.CurrentMode),
+			 eCommand		  := StateCommand,
+			 stSubUnitInfoRef :=,
+			 stOptions		  :=,
+			 eState			  => _CurrentState,
+			 sState			  =>,
+			 bError			  =>,
+			 nErrorID		  =>);
+
+CASE _CurrentState OF
+	E_PMLState.Undefined:
+		CallState(_CurrentState);
+
+	E_PMLState.Clearing:
+		ClearingTon(IN := TRUE, PT := ApplicationBaseParameter.ClearingTimeout);
+		IF CallState(_CurrentState) THEN
+			ClearingTon(IN := FALSE);
+			StateMachine.M_StateComplete();
+		END_IF
+
+		IF ClearingTon.Q THEN
+			ClearingTon(IN := FALSE);
+			Trace.LogMessage('Clearing Timeout exeeded!', 'ApplicationBaseParameter.ClearingTimeout');
+			StateCommand := E_PMLCommand.Abort;
+		END_IF
+
+	E_PMLState.Stopped:
+		CallState(_CurrentState);
+
+	E_PMLState.Starting:
+		IF CallState(_CurrentState) THEN
+			StateMachine.M_StateComplete();
+		END_IF
+
+	E_PMLState.Idle:
+		CallState(_CurrentState);
+
+	E_PMLState.Suspended:
+		CallState(_CurrentState);
+
+	E_PMLState.Execute:
+		CallState(_CurrentState);
+
+	E_PMLState.Stopping:
+		IF CallState(_CurrentState) THEN
+			StateMachine.M_StateComplete();
+		END_IF
+
+	E_PMLState.Aborting:
+		IF CallState(_CurrentState) THEN
+			StateMachine.M_StateComplete();
+		END_IF
+
+	E_PMLState.Aborted:
+		CallState(_CurrentState);
+
+	E_PMLState.Holding:
+		IF CallState(_CurrentState) THEN
+			StateMachine.M_StateComplete();
+		END_IF
+
+	E_PMLState.Held:
+		CallState(_CurrentState);
+
+	E_PMLState.Unholding:
+		IF CallState(_CurrentState) THEN
+			StateMachine.M_StateComplete();
+		END_IF
+
+	E_PMLState.Suspending:
+		IF CallState(_CurrentState) THEN
+			StateMachine.M_StateComplete();
+		END_IF
+
+	E_PMLState.Unsuspending:
+		IF CallState(_CurrentState) THEN
+			StateMachine.M_StateComplete();
+		END_IF
+
+	E_PMLState.Resetting:
+		IF CallState(_CurrentState) THEN
+			StateMachine.M_StateComplete();
+		END_IF
+
+	E_PMLState.Completing:
+		IF CallState(_CurrentState) THEN
+			StateMachine.M_StateComplete();
+		END_IF
+
+	E_PMLState.Completed:
+		CallState(_CurrentState);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Mode" Id="{40fbadfc-f346-412e-a9d9-68f87c973184}" FolderPath="Modes\">
+      <Declaration><![CDATA[PROPERTY Mode : I_Mode]]></Declaration>
+      <Get Name="Get" Id="{cdb5a674-3f6d-4fbd-9da4-b15d507fbd94}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Mode := ModeController;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ffb3fcdb-042e-4291-b6c7-183a56cfc1d1}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[// Fix defined in PackML]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="States" Id="{c9f4e88f-a451-4efc-995d-26f05434b868}" FolderPath="States\">
+      <Declaration><![CDATA[PROPERTY States : I_StateList]]></Declaration>
+      <Get Name="Get" Id="{7baf670b-a9d8-474b-b0ad-d211b50bdd22}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[States := StateList;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

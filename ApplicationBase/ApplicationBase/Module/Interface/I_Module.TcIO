@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Module" Id="{abdc2707-eea5-4b43-9b07-7c9c593bb60d}">
+    <Declaration><![CDATA[INTERFACE I_Module EXTENDS I_ContainComponents, I_ContainModules, I_Base]]></Declaration>
+    <Method Name="Accept" Id="{ed2f01ce-0901-480b-b14f-5f4ea8dd406d}">
+      <Declaration><![CDATA[METHOD Accept
+VAR_INPUT
+	Visitor : I_ModuleVisitor;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="DeregisterWithParent" Id="{85e7f18d-e30e-436d-88cc-cfcd0938a84b}">
+      <Declaration><![CDATA[METHOD DeregisterWithParent
+VAR_INPUT
+	Parent : I_ContainModules;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Name" Id="{645dead5-ca4e-489b-a742-ccdef1b7fc18}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Name : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{54e077c2-cb3e-43c2-b722-968bb81d61c6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="RegisterWithParent" Id="{9377ff83-3c4e-440d-9f12-20e3c4e37115}">
+      <Declaration><![CDATA[METHOD RegisterWithParent
+VAR_INPUT
+	Parent : I_ContainModules;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="ResetComponents" Id="{b058bb8f-c663-4af3-a6e2-40a7aeaa18db}">
+      <Declaration><![CDATA[METHOD ResetComponents : BOOL]]></Declaration>
+    </Method>
+    <Method Name="ResetModules" Id="{ab9c2664-14e8-4ad8-af34-4e0b3e2ab838}">
+      <Declaration><![CDATA[METHOD ResetModules : BOOL]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

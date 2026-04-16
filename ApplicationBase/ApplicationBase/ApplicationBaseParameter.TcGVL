@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <GVL Name="ApplicationBaseParameter" Id="{2526c0fd-460b-49f2-8b36-798b68d06534}" ParameterList="True">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+	MaxCountInCollections : UDINT			   := 50;
+	EnableTcEventLogging  : BOOL			   := FALSE;
+	EnableAdsLogger		  : BOOL			   := TRUE;
+	ClearingTimeout		  : TIME			   := T#2S;
+	TraceLevel			  : TcEventSeverityExt := TcEventSeverityExt.Verbose;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

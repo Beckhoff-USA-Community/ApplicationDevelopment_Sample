@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_ForcibleBool" Id="{56bd5c6a-00f8-4316-ab2a-af3720b8bb94}">
+    <Declaration><![CDATA[INTERFACE I_ForcibleBool EXTENDS I_Base]]></Declaration>
+    <Property Name="Force" Id="{4b636602-23e9-42ab-a6d6-0ad9c07ec265}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Force : E_ForceState]]></Declaration>
+      <Get Name="Get" Id="{b2b6ea85-c67a-416b-9746-3a00644a4436}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{5de82df9-eaf5-44b2-b95d-1a9a1eb1dc20}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

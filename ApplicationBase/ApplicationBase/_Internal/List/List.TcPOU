@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="List" Id="{af29319b-574f-4e46-9fab-e40ca5d32152}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK List EXTENDS Collection IMPLEMENTS I_List
+VAR
+	_ListCount : UDINT := 0;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Collection" Id="{2b9c8ba3-c154-494a-a636-238324b2aea7}" />
+    <Folder Name="Private" Id="{a679ba01-c874-4153-a7ec-1396e367be78}" />
+    <Method Name="AddItem" Id="{1596be71-9d81-43cb-8891-f42b67f8ce52}" FolderPath="Collection\">
+      <Declaration><![CDATA[METHOD AddItem
+VAR_INPUT
+	Item : I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.AddItem(Item);
+CountListItems();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Clear" Id="{44514f62-79d4-4e53-bbe0-4cc03497e90d}" FolderPath="Collection\">
+      <Declaration><![CDATA[METHOD Clear]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.Clear();
+CountListItems();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ContainsItem" Id="{4cfb3b5d-edfb-4547-a262-8c17ef4c6601}">
+      <Declaration><![CDATA[METHOD ContainsItem : BOOL
+VAR_INPUT
+	Item : I_Base;
+END_VAR
+
+VAR
+	i	  : UDINT;
+	pItem : POINTER TO I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Item = 0 THEN
+	Trace.LogMessage(InstancePath, 'Item is not a valid interface!');
+	RETURN;
+END_IF
+
+IF _ListCount = 0 THEN
+	RETURN;
+END_IF
+
+FOR i := 0 TO (_ListCount - 1) DO
+	pItem := Collection.pBuffer + (i * SIZEOF(PVOID));
+	IF pItem^ = Item AND pItem^ <> 0 THEN
+		ContainsItem := TRUE;
+		RETURN;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Count" Id="{f6eb0ff9-dee3-4c0e-a279-9a01659a8597}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Count : UDINT]]></Declaration>
+      <Get Name="Get" Id="{0fba2825-bfa9-4b65-a5b6-25c736c60f27}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Count := _ListCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CountListItems" Id="{9a734140-c852-430b-8cdb-5e1e55a05c3d}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PRIVATE CountListItems
+VAR
+	i	  : UDINT;
+	pItem : POINTER TO I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Count = 0 THEN
+	_ListCount := 0;
+	RETURN;
+END_IF
+
+_ListCount := 0;
+FOR i := 0 TO (_Count - 1) DO
+	pItem := Collection.pBuffer + (i * SIZEOF(PVOID));
+	IF pItem^ <> 0 THEN
+		_ListCount := _ListCount + 1;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetAtIndex" Id="{6175e397-7fb9-4a5f-b2c9-81e015814843}">
+      <Declaration><![CDATA[METHOD GetAtIndex : I_Base
+VAR_INPUT
+	Index : UDINT;
+END_VAR
+
+VAR
+	pItem : POINTER TO I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Count = 0 THEN
+	Trace.LogMessage(InstancePath, 'No Items found in this List!');
+	RETURN;
+END_IF
+
+IF Index > (_Count - 1) THEN
+	Trace.LogMessage(InstancePath, 'Index does not exist in List!');
+	RETURN;
+END_IF
+
+pItem	   := Collection.pBuffer + (Index * SIZEOF(PVOID));
+GetAtIndex := pItem^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InsertAtIndex" Id="{3d241dbc-f3ba-4d49-852a-1cfd8db3a81f}">
+      <Declaration><![CDATA[METHOD InsertAtIndex : BOOL
+VAR_INPUT
+	Item  : I_Base;
+	Index : UDINT;
+END_VAR
+
+VAR
+	pItem	  : POINTER TO I_Base;
+	pItemNext : POINTER TO I_Base;
+	i		  : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Index > _Count THEN
+	InsertAtIndex := FALSE;
+	RETURN;
+END_IF
+
+IF _Count = 0 THEN
+	Collection.CreateBuffer(nSize := (1 * SIZEOF(PVOID)), bReset := TRUE);
+	pCollection := Collection.pBuffer;
+END_IF
+
+_Count := (_Count + 1);
+Collection.Resize(nSize := (_Count * SIZEOF(PVOID)), bPreserve := TRUE, bReset := TRUE);
+pCollection := Collection.pBuffer;
+FOR i := _Count TO Index + 1 BY -1 DO
+	pItem	  := Collection.pBuffer + (i * SIZEOF(PVOID));
+	pItemNext := Collection.pBuffer + ((i - 1) * SIZEOF(PVOID));
+	pItem^	  := pItemNext^;
+END_FOR
+
+pItem  := Collection.pBuffer + (Index * SIZEOF(PVOID));
+pItem^ := Item;
+CountListItems();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveAtIndex" Id="{12021925-b0b2-4465-b4f0-31cc3667b43a}">
+      <Declaration><![CDATA[METHOD RemoveAtIndex
+VAR_INPUT
+	Index : UDINT;
+END_VAR
+
+VAR
+	pItem : POINTER TO I_Base;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Count = 0 THEN
+	Trace.LogMessage(InstancePath, 'No Items found in this List!');
+	RETURN;
+END_IF
+
+IF Index > (_Count - 1) THEN
+	Trace.LogMessage(InstancePath, 'Index does not exist in List!');
+	RETURN;
+END_IF
+
+MEMMOVE(Collection.pBuffer + (Index * SIZEOF(PVOID)), Collection.pBuffer + ((Index + 1) * SIZEOF(PVOID)), (_Count - Index - 1) * SIZEOF(PVOID));
+_Count := _Count - 1;
+Collection.Resize(nSize := (_Count * SIZEOF(PVOID)), bPreserve := TRUE, bReset := TRUE); //not sure if this is needed?
+pItem := Collection.pBuffer + (Index * SIZEOF(PVOID));
+CountListItems();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveItem" Id="{cd74e3fb-92ab-435b-829f-468f2665dfb1}" FolderPath="Collection\">
+      <Declaration><![CDATA[METHOD RemoveItem
+VAR_INPUT
+	Item : I_Base;
+END_VAR
+
+VAR
+	pItem		 : POINTER TO I_Base;
+	pItemNext	 : POINTER TO I_Base;
+	i			 : UDINT;
+	removedItems : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Count = 0 THEN
+	Trace.LogMessage(InstancePath, 'No Items found in this Collection!');
+	RETURN;
+END_IF
+
+IF Item = 0 THEN
+	Trace.LogMessage(InstancePath, 'Item to remove needs to be valid interface!');
+	RETURN;
+END_IF
+
+FOR i := 0 TO (_Count - 1) DO
+	pItem := Collection.pBuffer + (i * SIZEOF(PVOID));
+	IF pItem^ = Item THEN
+		pItem^		 := 0;
+		removedItems := removedItems + 1;
+	END_IF
+END_FOR
+
+IF _Count > 1 THEN
+	FOR i := 0 TO (_Count - 2) DO
+		pItem	  := Collection.pBuffer + (i * SIZEOF(PVOID));
+		pItemNext := Collection.pBuffer + ((i + 1) * SIZEOF(PVOID));
+		IF pItem^ = 0 AND pItemNext^ <> 0 THEN
+			pItem^	   := pItemNext^;
+			pItemNext^ := 0;
+		END_IF
+	END_FOR
+END_IF
+
+CountListItems();
+_Count := _Count - removedItems;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

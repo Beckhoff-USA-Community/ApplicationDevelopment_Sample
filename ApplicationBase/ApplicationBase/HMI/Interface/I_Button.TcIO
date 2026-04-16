@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Button" Id="{dc87b376-9916-4af0-b5fb-3937dc1a1a2c}">
+    <Declaration><![CDATA[INTERFACE I_Button EXTENDS I_Base]]></Declaration>
+    <Property Name="Active" Id="{24e556cb-0ac4-4670-b3f5-d0f94d4c1f94}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Active : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c0ce9bb1-7ab7-4676-a85d-a4e9df869101}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Name" Id="{5e539ec9-7038-4c4c-9689-84749789b947}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Name : STRING]]></Declaration>
+      <Get Name="Get" Id="{f4ea3554-5f9f-49f0-8c57-003b2c39adbb}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{7d1ddbf2-6324-4d29-89f2-584b1e602a64}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Permissive" Id="{91674e1c-496e-4ecb-a243-af4070a47c12}">
+      <Declaration><![CDATA[PROPERTY Permissive : I_Permissive]]></Declaration>
+      <Get Name="Get" Id="{ba58a541-451c-40f3-a2c6-430b9a3dc1c3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_CylinderState" Id="{6be93bb2-3b72-45d9-a431-eec996599a63}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+TYPE E_CylinderState : (
+		Undefined  := 0,
+		Extending  := 1,
+		Extended   := 2,
+		Retracting := 3,
+		Retracted  := 4
+	);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

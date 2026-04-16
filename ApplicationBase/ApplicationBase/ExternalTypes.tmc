@@ -1,0 +1,613 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcModuleClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance2" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2009/05/TcModuleClass" GeneratedBy="TwinCAT XAE Plc">
+  <DataTypes>
+    <DataType>
+      <Name GUID="{884421B5-118B-45E3-A7BD-818159468DE2}">NullEvents</Name>
+      <DisplayName TxtId=""><![CDATA[EventClass1_DisplayText]]></DisplayName>
+      <EventId>
+        <Name Id="1">NullEvent</Name>
+        <DisplayName TxtId=""><![CDATA[Null Event - No event class provider found!]]></DisplayName>
+        <Severity>Critical</Severity>
+      </EventId>
+      <Hides>
+        <Hide GUID="{928053FD-BD5A-42D9-B588-D1E6F70F96AB}" />
+        <Hide GUID="{B6184532-1A4E-4BC3-8239-BA0E651C8E35}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{837E2E4A-6EE5-4EEE-B5E9-3468343CBE31}">Trace</Name>
+      <DisplayName TxtId=""><![CDATA[Trace]]></DisplayName>
+      <EventId>
+        <Name Id="1">TraceMessage</Name>
+        <DisplayName TxtId=""><![CDATA[{0}]]></DisplayName>
+        <Severity>Verbose</Severity>
+      </EventId>
+      <Hides>
+        <Hide GUID="{10B71207-17C9-4F2C-93A2-6048F0E866C6}" />
+        <Hide GUID="{DF1183ED-CEC8-471C-B0C7-BA1DD25807DC}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{8E3A5ABF-5BF3-4791-9530-85C4FBFC920C}">Cylinder</Name>
+      <DisplayName TxtId=""><![CDATA[Cylinder Events]]></DisplayName>
+      <EventId>
+        <Name Id="1">ExtendTimeout</Name>
+        <DisplayName TxtId=""><![CDATA[Extend Timeout!]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="2">RetractTimeout</Name>
+        <DisplayName TxtId=""><![CDATA[Retract Timeout!]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="3">ExtendedPlausibility</Name>
+        <DisplayName TxtId=""><![CDATA[Uncommanded falling edge of extended sensor!]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="4">RetractedPlausibility</Name>
+        <DisplayName TxtId=""><![CDATA[Uncommanded falling edge of extended sensor!]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="5">BothSensorsActive</Name>
+        <DisplayName TxtId=""><![CDATA[Both Sensors on feedback from extended & retracted sensors!]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <Hides>
+        <Hide GUID="{4EB44813-D3D9-4720-AAF9-D540DC9E7EE9}" />
+        <Hide GUID="{714EB672-8EE4-44DD-AB1C-B4E03894DCCB}" />
+        <Hide GUID="{E323167A-A5FE-4137-9156-F5C69BE4CFDB}" />
+        <Hide GUID="{02103735-9625-44D2-98DD-BFC1B0AA03A0}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{B08F5F0D-AEC2-4F21-8045-2E4B82BD1F68}">EtherCatMaster</Name>
+      <DisplayName TxtId=""><![CDATA[EtherCatMaster]]></DisplayName>
+      <EventId>
+        <Name Id="1">ReadSlave</Name>
+        <DisplayName TxtId=""><![CDATA[Read Slave States and Names failed!]]></DisplayName>
+        <Severity>Warning</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="2">MasterError</Name>
+        <DisplayName TxtId=""><![CDATA[EtherCat Master Error!]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="3">SlaveError</Name>
+        <DisplayName TxtId=""><![CDATA[EtherCat Slave Error!]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="4">SlaveDisabled</Name>
+        <DisplayName TxtId=""><![CDATA[EtherCat at least one Slave disabled!]]></DisplayName>
+        <Severity>Warning</Severity>
+      </EventId>
+      <Hides>
+        <Hide GUID="{193DF5F8-206E-4B26-8C55-E8057269CD72}" />
+        <Hide GUID="{AE5608B8-3213-4317-8830-D6D3E1955A08}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{445997D7-DF6C-40BF-A668-4695BBE122A2}">IO</Name>
+      <DisplayName TxtId=""><![CDATA[I/O Events]]></DisplayName>
+      <EventId>
+        <Name Id="1">ForceActive</Name>
+        <DisplayName TxtId=""><![CDATA[*** I/O FORCE ACTIVE *** {0} - {1}]]></DisplayName>
+        <Severity>Info</Severity>
+      </EventId>
+      <Hides>
+        <Hide GUID="{01DA429F-BDFC-43BF-B11B-8DC44B6A3102}" />
+        <Hide GUID="{FA0FC235-5B8F-4175-8E22-7E4258631EB8}" />
+        <Hide GUID="{38596556-976B-4682-B13F-2CCAB5AC2DBE}" />
+        <Hide GUID="{5531B990-3138-4EA7-81AF-8D03025C5259}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{A2A3778C-8F5F-4FB8-A23A-670DA817CD4F}">SafetyConnection</Name>
+      <DisplayName TxtId=""><![CDATA[SafetyConnection]]></DisplayName>
+      <EventId>
+        <Name Id="1">InitReferenceEvent</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_InitReferenceEvent]]></DisplayName>
+        <Severity>Info</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="2">InvalidCommand</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_InvalidCommand]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="3">UnknownCommand</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_UnknownCommand]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="4">InvalidConID</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_InvalidConID]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="5">InvalidCrc</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_InvalidCrc]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="6">WatchdogExpired</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_WatchdogExpired]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="7">InvalidFSOEAddr</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_InvalidFSOEAddr]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="8">InvalidData</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_InvalidData]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="9">InvalidComParameterLen</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_InvalidComParameterLen]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="10">InavlidComParameter</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_InavlidComParameter]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="11">InvalidUserParameterLen</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_InvalidUserParameterLen]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="12">InvalidUserParameter</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_InvalidUserParameter]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="13">FSoEMasterReset</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_FSoEMasterReset]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="14">ModuleErrorOnSlave</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_ModuleErrorOnSlave]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="15">ModuleError</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_ModuleError]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="16">SlaveNotStarted</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_SlaveNotStarted]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="17">FsoESlaveError</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_FsoESlaveError]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="18">FsoESlaveFailSafeValue</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_FsoESlaveFailSafeValue]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="19">Startup</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_Startup]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="20">FsoEMasterSafeValue</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyConnection_Event_FsoEMasterSafeValue]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <Translations>
+        <Text TxtId="DT_SafetyConnection_Event_InitReferenceEvent">
+          <Text LcId="1033"><![CDATA[Init Event]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_InvalidCommand">
+          <Text LcId="1033"><![CDATA[Invalid command!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_UnknownCommand">
+          <Text LcId="1033"><![CDATA[Unknown command!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_InvalidConID">
+          <Text LcId="1033"><![CDATA[Invalid connection ID]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_InvalidCrc">
+          <Text LcId="1033"><![CDATA[Invalid CRC!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_WatchdogExpired">
+          <Text LcId="1033"><![CDATA[Watchdog time elapsed!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_InvalidFSOEAddr">
+          <Text LcId="1033"><![CDATA[Invalid FSoE address!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_InvalidData">
+          <Text LcId="1033"><![CDATA[Invalid data!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_InvalidComParameterLen">
+          <Text LcId="1033"><![CDATA[Invalid communication parameter length!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_InavlidComParameter">
+          <Text LcId="1033"><![CDATA[Invalid communication parameters!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_InvalidUserParameterLen">
+          <Text LcId="1033"><![CDATA[Invalid user parameter length!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_InvalidUserParameter">
+          <Text LcId="1033"><![CDATA[Invalid user parameters!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_FSoEMasterReset">
+          <Text LcId="1033"><![CDATA[FSoE master reset!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_ModuleErrorOnSlave">
+          <Text LcId="1033"><![CDATA[Module error detected on slave, with option "Module error is ComError" activated!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_ModuleError">
+          <Text LcId="1033"><![CDATA[Module error detected on EL290x, with option "Error acknowledge active" activated!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_SlaveNotStarted">
+          <Text LcId="1033"><![CDATA[Slave not yet started, or unexpected error argument!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_FsoESlaveError">
+          <Text LcId="1033"><![CDATA[FSoE slave error detected!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_FsoESlaveFailSafeValue">
+          <Text LcId="1033"><![CDATA[FSoE slave reports Failsafe Value active!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_Startup">
+          <Text LcId="1033"><![CDATA[StartUp!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyConnection_Event_FsoEMasterSafeValue">
+          <Text LcId="1033"><![CDATA[FSoE master reports Failsafe Value active!]]></Text>
+        </Text>
+      </Translations>
+      <Hides>
+        <Hide GUID="{BE858BC0-CC73-4B99-968F-246A21F9BD3E}" />
+        <Hide GUID="{A100DF9A-C55E-4517-8D2C-CFCA194058CC}" />
+        <Hide GUID="{7698C027-10BD-4A4A-A860-0487EB21E5DA}" />
+        <Hide GUID="{D9202F37-7AAB-46BB-8F38-141BD9073873}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{0FA8C4FD-7DB4-48D2-B0AD-10E6F2ACE4FC}">SafetyEdm</Name>
+      <DisplayName TxtId=""><![CDATA[SafetyEdm]]></DisplayName>
+      <EventId>
+        <Name Id="1">SwitchOffTime</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyEdm_Event_SwitchOffTime]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="2">SwitchOnTime</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyEdm_Event_SwitchOnTime]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <Translations>
+        <Text TxtId="DT_SafetyEdm_Event_SwitchOffTime">
+          <Text LcId="1033"><![CDATA[EDM Switch-OFF timer elapsed!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyEdm_Event_SwitchOnTime">
+          <Text LcId="1033"><![CDATA[EDM Switch-ON timer elapsed!]]></Text>
+        </Text>
+      </Translations>
+      <Hides>
+        <Hide GUID="{4DD4D048-33B2-43D1-81C4-CCD708131765}" />
+        <Hide GUID="{4C225829-360C-4FC9-A07A-05C99D7BC9CB}" />
+        <Hide GUID="{66E8802B-A298-417D-BCDD-BFE1812654DF}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{60DA0DA3-8F08-454D-8E9A-5791072627FB}">SafetyEstop</Name>
+      <DisplayName TxtId=""><![CDATA[SafetyEstop]]></DisplayName>
+      <EventId>
+        <Name Id="1">InitReferenceEvent</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyEstop_Event_InitReferenceEvent]]></DisplayName>
+        <Severity>Info</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="2">Disc1</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyEstop_Event_Disc1]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="3">Disc2</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyEstop_Event_Disc2]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="4">Disc3</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyEstop_Event_Disc3]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="5">Disc4</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyEstop_Event_Disc4]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="6">EDM1</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyEstop_Event_EDM1]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="7">EDM2</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyEstop_Event_EDM2]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="8">Active</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyEstop_Event_Active]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <Translations>
+        <Text TxtId="DT_SafetyEstop_Event_InitReferenceEvent">
+          <Text LcId="1033"><![CDATA[Init Event]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyEstop_Event_Disc1">
+          <Text LcId="1033"><![CDATA[Discrepancy error input group 1!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyEstop_Event_Disc2">
+          <Text LcId="1033"><![CDATA[Discrepancy error input group 2!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyEstop_Event_Disc3">
+          <Text LcId="1033"><![CDATA[Discrepancy error input group 3!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyEstop_Event_Disc4">
+          <Text LcId="1033"><![CDATA[Discrepancy error input group 4!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyEstop_Event_EDM1">
+          <Text LcId="1033"><![CDATA[EDM monitoring error EDM1!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyEstop_Event_EDM2">
+          <Text LcId="1033"><![CDATA[EDM monitoring error EDM2!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyEstop_Event_Active">
+          <Text LcId="1033"><![CDATA[{0}]]></Text>
+        </Text>
+      </Translations>
+      <Hides>
+        <Hide GUID="{A97C72A9-84AA-457D-A5FE-47A1BB15BC91}" />
+        <Hide GUID="{44009295-9277-412B-AD34-1402FAA48DD2}" />
+        <Hide GUID="{D802F755-3A6A-4B0C-9227-F6D8E3324E8A}" />
+        <Hide GUID="{36DC8FAA-AAC7-4F04-9EB2-D5E983283798}" />
+        <Hide GUID="{1A44B7E5-1FEB-4BFA-A0A4-78B5DEA9EA9B}" />
+        <Hide GUID="{2F3D295F-04EF-4E5B-87FA-69C2CB8FEACF}" />
+        <Hide GUID="{4A30FC92-A930-4FB3-9441-E80124D64A58}" />
+        <Hide GUID="{9982FB5E-E3D6-42BD-A2ED-79E6EF258211}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{E319A4C2-4B91-4A36-BBCF-B485E931039D}">SafetyGroup</Name>
+      <DisplayName TxtId=""><![CDATA[SafetyGroup]]></DisplayName>
+      <EventId>
+        <Name Id="1">InitReferenceEvent</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyGroup_Event_InitReferenceEvent]]></DisplayName>
+        <Severity>Info</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="2">FbError</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyGroup_Event_FbError]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="3">ComError</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyGroup_Event_ComError]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="4">CmpError</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyGroup_Event_CmpError]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="5">ModuleError</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyGroup_Event_ModuleError]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="6">DeactiveError</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyGroup_Event_DeactiveError]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="7">RestartError</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyGroup_Event_RestartError]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <Translations>
+        <Text TxtId="DT_SafetyGroup_Event_InitReferenceEvent">
+          <Text LcId="1033"><![CDATA[Init Event]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyGroup_Event_FbError">
+          <Text LcId="1033"><![CDATA[At least one FB is in ERROR state!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyGroup_Event_ComError">
+          <Text LcId="1033"><![CDATA[At least one FSOE connection is faulty!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyGroup_Event_CmpError">
+          <Text LcId="1033"><![CDATA[On startup, at least one analog FB input deviates from the last saved value (Power-On Analog Value Check Error)!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyGroup_Event_ModuleError">
+          <Text LcId="1033"><![CDATA[Input Module Faulted!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyGroup_Event_DeactiveError">
+          <Text LcId="1033"><![CDATA[The timeout has elapsed while waiting for the COM error in "passivate" mode of a manual control unit!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyGroup_Event_RestartError">
+          <Text LcId="1033"><![CDATA[Group Error at Restart!]]></Text>
+        </Text>
+      </Translations>
+      <Hides>
+        <Hide GUID="{DF6F601B-B758-4BFC-B804-EB26D0FE72CF}" />
+        <Hide GUID="{FDDA06D5-97BB-4073-A326-556BD2B51583}" />
+        <Hide GUID="{8A74116E-791C-4962-A4C6-21E660DE432C}" />
+        <Hide GUID="{EA82DF61-5717-4882-99EB-1DC177297D62}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{81DF94CE-D78B-4A32-A879-05F07BF605FA}">SafetyMon</Name>
+      <DisplayName TxtId=""><![CDATA[SafetyMon]]></DisplayName>
+      <EventId>
+        <Name Id="1">InitReferenceEvent</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyMon_Event_InitReferenceEvent]]></DisplayName>
+        <Severity>Info</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="2">Disc1</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyMon_Event_Disc1]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="3">Disc2</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyMon_Event_Disc2]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="4">DiscInput</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyMon_Event_DiscInput]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="5">Edm1</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyMon_Event_Edm1]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="6">Edm2</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyMon_Event_Edm2]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="7">Disc1Safe</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyMon_Event_Disc1Safe]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="8">Disc2Safe</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyMon_Event_Disc2Safe]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="9">DiscInputSafe</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyMon_Event_DiscInputSafe]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="10">Active</Name>
+        <DisplayName TxtId=""><![CDATA[DT_SafetyMon_Event_Active]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <Translations>
+        <Text TxtId="DT_SafetyMon_Event_InitReferenceEvent">
+          <Text LcId="1033"><![CDATA[Init Event]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyMon_Event_Disc1">
+          <Text LcId="1033"><![CDATA[Discrepancy error input group 1!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyMon_Event_Disc2">
+          <Text LcId="1033"><![CDATA[Discrepancy error input group 2!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyMon_Event_DiscInput">
+          <Text LcId="1033"><![CDATA[Discrepancy error in Secure input group!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyMon_Event_Edm1">
+          <Text LcId="1033"><![CDATA[EDM monitoring error EDM1!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyMon_Event_Edm2">
+          <Text LcId="1033"><![CDATA[EDM monitoring error EDM2!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyMon_Event_Disc1Safe">
+          <Text LcId="1033"><![CDATA[Discrepancy error input group 1 with activated option "Safe Inputs after Disc Error"!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyMon_Event_Disc2Safe">
+          <Text LcId="1033"><![CDATA[Discrepancy error input group 2 with activated option "Safe Inputs after Disc Error"!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyMon_Event_DiscInputSafe">
+          <Text LcId="1033"><![CDATA[Discrepancy error input group Secure with activated option "Safe Inputs after Disc Error"!]]></Text>
+        </Text>
+        <Text TxtId="DT_SafetyMon_Event_Active">
+          <Text LcId="1033"><![CDATA[{0}]]></Text>
+        </Text>
+      </Translations>
+      <Hides>
+        <Hide GUID="{AB4245D5-C706-43A7-8EC2-A39D664179A1}" />
+        <Hide GUID="{38B42CC1-2745-4265-9DE7-A57D12272089}" />
+        <Hide GUID="{2DD0B0EE-7668-4D75-A9BF-E5D3CCBEDD82}" />
+        <Hide GUID="{79FF1CBB-7C51-47F2-8B76-A76E7BA708DC}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{ABCBB5B0-8E3D-436A-BA55-7C1739AC3CFD}">SyncUnit</Name>
+      <DisplayName TxtId=""><![CDATA[Sync Unit]]></DisplayName>
+      <EventId>
+        <Name Id="1">SyncUnitError</Name>
+        <DisplayName TxtId=""><![CDATA[EtherCat - Slaves in SyncUnit '{0}' do not provide valid Data! Slaves: {1}]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="2">SyncUnitWarning</Name>
+        <DisplayName TxtId=""><![CDATA[EtherCat - Slaves in SyncUnit '{0}' do not provide valid Data! Slaves: {1}]]></DisplayName>
+        <Severity>Warning</Severity>
+      </EventId>
+      <Hides>
+        <Hide GUID="{A7B099E8-0DF0-4650-94D4-525650EB5A11}" />
+        <Hide GUID="{461402EA-4FAE-42F2-808F-5DB1EA25A647}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{DFF3F0F2-E949-4655-96D9-D6CB23F13E61}">KinematicGroup</Name>
+      <DisplayName TxtId=""><![CDATA[KinematicGroup]]></DisplayName>
+      <EventId>
+        <Name Id="1">KinematicGroupError</Name>
+        <DisplayName TxtId=""><![CDATA[KinematicGroupError]]></DisplayName>
+        <Severity>Error</Severity>
+      </EventId>
+      <Translations>
+        <Text TxtId="KinematicGroupError">
+          <Text LcId="1033"><![CDATA[Kinematic Group Error! Error ID - {0}]]></Text>
+        </Text>
+      </Translations>
+      <Hides>
+        <Hide GUID="{4E7B903F-C384-4946-866A-932757958FFF}" />
+        <Hide GUID="{4A87E623-7D4D-4D69-9AB7-F24A9C110D85}" />
+        <Hide GUID="{A1CA5D65-028E-BE73-6A61-98D39757577B}" />
+        <Hide GUID="{36AF8512-6B19-4DA3-96F2-59782A47B2BA}" />
+        <Hide GUID="{E62167A0-FA99-4981-9C3B-AF41B2FA6877}" />
+      </Hides>
+    </DataType>
+    <DataType>
+      <Name GUID="{670BED62-70D8-4757-89AF-53283251429E}">Nc2Axis</Name>
+      <DisplayName TxtId=""><![CDATA[EventClass1_DisplayText]]></DisplayName>
+      <EventId>
+        <Name Id="1">AxisError</Name>
+        <DisplayName TxtId=""><![CDATA[AxisError]]></DisplayName>
+        <Severity>Critical</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="2">AxisWarning</Name>
+        <DisplayName TxtId=""><![CDATA[AxisWarning]]></DisplayName>
+        <Severity>Warning</Severity>
+      </EventId>
+      <Translations>
+        <Text TxtId="AxisError">
+          <Text LcId="1033"><![CDATA[Axis Error - {0} - Error ID: {1}!]]></Text>
+        </Text>
+        <Text TxtId="AxisWarning">
+          <Text LcId="1033"><![CDATA[Axis Warning - {0} - Error ID: {1}!]]></Text>
+        </Text>
+      </Translations>
+      <Hides>
+        <Hide GUID="{51417159-46C6-4D27-A36F-6810A06DC684}" />
+        <Hide GUID="{A5B0650F-5329-4FC4-BA59-ED654CC7A041}" />
+      </Hides>
+    </DataType>
+  </DataTypes>
+</TcModuleClass>

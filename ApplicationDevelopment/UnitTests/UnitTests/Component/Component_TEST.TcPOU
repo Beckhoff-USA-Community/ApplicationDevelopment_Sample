@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Component_TEST" Id="{54af0819-9560-4386-ba42-5d4f8f9acf1b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Component_TEST
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[AcceptVisitor();
+NameAssigned();
+RegisterWithParent();
+DeregisterWithParent();]]></ST>
+    </Implementation>
+    <Method Name="AcceptVisitor" Id="{ee9a2d4f-e29d-4f3c-9634-5df3e2df65ee}">
+      <Declaration><![CDATA[METHOD AcceptVisitor
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR
+VAR
+	StringCollection : StringCollection<100>;
+	ComponentVisitor : ComponentVisitor_Mockup(StringCollection);
+	Component : Component_Mockup('Component');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	Component.Accept(ComponentVisitor);
+	Actual := StringCollection.Entries;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeregisterWithParent" Id="{6468e880-f605-4758-b7f3-a7160e48fd48}">
+      <Declaration><![CDATA[METHOD DeregisterWithParent
+VAR_INST
+	Expected : I_Component;
+	Actual	 : I_Component;
+END_VAR
+VAR
+	Component : Component_Mockup('Component');
+	Module	: EquipmentModule_Mockup('Module', Component, Component);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 0;
+	Component.DeregisterWithParent(Module);
+	Component.DeregisterWithParent(Module);
+	Actual := Module.GetComponentByName('Component');
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="NameAssigned" Id="{de00b36a-a6aa-4c8a-9d17-541ecd087a93}">
+      <Declaration><![CDATA[METHOD NameAssigned
+VAR_INST
+	Expected : STRING;
+	Actual	 : STRING;
+END_VAR
+VAR
+	StringCollection : StringCollection<100>;
+	ComponentVisitor : ComponentVisitor_Mockup(StringCollection);
+	Component : Component_Mockup('Component');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 'Component';
+	Actual	 := Component.Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RegisterWithParent" Id="{2eb6dcd0-d7d6-4ca5-849d-50f1462b3f54}">
+      <Declaration><![CDATA[METHOD RegisterWithParent
+VAR_INST
+	Expected : STRING;
+	Actual	 : STRING;
+END_VAR
+VAR
+	Component : Component_Mockup('Component');
+	Module	: EquipmentModule_Mockup('Module', Component, Component);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 'Component';
+	Actual	 := Module.GetComponentByName('Component').Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

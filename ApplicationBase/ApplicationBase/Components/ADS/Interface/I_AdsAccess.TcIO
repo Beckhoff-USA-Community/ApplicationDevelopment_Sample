@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_AdsAccess" Id="{28c023fc-e5c3-44ad-b222-07c7ba41bc96}">
+    <Declaration><![CDATA[INTERFACE I_AdsAccess EXTENDS I_Base]]></Declaration>
+    <Property Name="AdsRW" Id="{9f4bc844-73f3-4a77-8715-e73a39bb47ca}">
+      <Declaration><![CDATA[PROPERTY AdsRW : I_AdsRW]]></Declaration>
+      <Get Name="Get" Id="{097d335d-ecac-4073-bb72-dfdff801f537}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{28c21864-eb82-454e-b7de-a961167d710f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

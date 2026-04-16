@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Peeker" Id="{b7429f6b-3d35-4e23-97c7-df9fd385493d}">
+    <Declaration><![CDATA[INTERFACE I_Peeker EXTENDS I_Base]]></Declaration>
+    <Method Name="PeekCollection" Id="{c3d81d9a-bba0-40fd-b52a-dec6b604d15e}">
+      <Declaration><![CDATA[METHOD PeekCollection
+VAR_INPUT
+	Collection : I_Collection;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

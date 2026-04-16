@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="NextMinorStep" Id="{5f107c54-4b01-089b-079e-34e65a415783}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION NextMinorStep : UDINT
+VAR_IN_OUT
+	StateVar : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[NextMinorStep := StateVar := StateVar + 1;]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

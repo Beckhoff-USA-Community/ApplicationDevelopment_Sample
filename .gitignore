@@ -15,8 +15,6 @@
 *.plcproj.orig
 *.tpy
 *.tclrs
-#*.compiled-library
-#*.library
 *.compileinfo
 *.asm
 *.core

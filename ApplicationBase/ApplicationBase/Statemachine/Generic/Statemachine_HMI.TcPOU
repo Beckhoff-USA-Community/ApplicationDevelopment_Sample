@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Statemachine_HMI" Id="{2b3da08a-59da-4d70-aa8f-ab8875d1ceac}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Statemachine_HMI EXTENDS HmiFunction
+VAR
+	Statemachine : I_Statemachine;
+	{ attribute 'TcHmiSymbol.AddSymbol' }
+	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators,Admin' }
+	Statemachine_HMI : ST_Statemachine_HMI;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ControlObject" Id="{e8e9be5c-6a8b-4b34-8d51-d9fff687829f}">
+      <Declaration><![CDATA[PROPERTY ControlObject : I_Base]]></Declaration>
+      <Set Name="Set" Id="{22652ded-2524-4acd-9e68-3cbc6626e516}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[__QueryInterface(ControlObject,Statemachine);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{4a5ab2b9-b3bd-42f8-bf5b-f1214cb62b05}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	LastModeChangeCommand  : DINT;
+	LastStateChangeCommand : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Statemachine_HMI.Name		  := Statemachine.Name;
+Statemachine_HMI.CurrentState := Statemachine.CurrentState;
+Statemachine_HMI.CurrentMode  := Statemachine.Mode.CurrentMode;
+Statemachine_HMI.HmiEnabled	  := Enabled;
+IF Enabled THEN
+	IF Statemachine_HMI.ModeChangeCommand <> 0 THEN
+		Statemachine.Mode.ChangeMode(Statemachine_HMI.ModeChangeCommand);
+		LastModeChangeCommand			   := Statemachine_HMI.ModeChangeCommand;
+		Statemachine_HMI.ModeChangeCommand := 0;
+	END_IF
+
+	{warning disable C0196}
+	IF Statemachine_HMI.StateChangeCommand <> 0 THEN
+		Statemachine.ChangeState(TO_UDINT(Statemachine_HMI.StateChangeCommand));
+		{warning disable C0195}
+		LastStateChangeCommand				:= Statemachine_HMI.StateChangeCommand;
+		Statemachine_HMI.StateChangeCommand := 0;
+	END_IF
+ELSE
+	Statemachine_HMI.StateChangeCommand := 0;
+	Statemachine_HMI.ModeChangeCommand	:= 0;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{5ef45405-1a92-4c30-b7a9-0b5c436883be}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode	 : BOOL;
+	Name		 : T_MaxString;
+	Statemachine : I_Statemachine;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Statemachine := Statemachine;
+ControlType		   := 'Statemachine';
+LinkObject		   := 'Statemachine_HMI';]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

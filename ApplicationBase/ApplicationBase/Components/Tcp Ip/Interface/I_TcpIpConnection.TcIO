@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_TcpIpConnection" Id="{1658d39e-d185-4358-89f1-d41dc0880621}">
+    <Declaration><![CDATA[INTERFACE I_TcpIpConnection EXTENDS I_Component]]></Declaration>
+    <Property Name="ConnectionState" Id="{b6788988-6230-4132-96cf-dbe8ae56b615}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ConnectionState : E_SocketConnectionState]]></Declaration>
+      <Get Name="Get" Id="{785a2b48-ba5e-4389-934a-e3939630aef7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="IP" Id="{24bd76b7-a680-438b-9d10-edebf1338460}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY IP : T_IPv4Addr]]></Declaration>
+      <Set Name="Set" Id="{4f3c0c45-bbcc-42b1-aeba-c2b36d964a6f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Port" Id="{a61080ca-af12-432d-bb0d-cee6e914b428}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Port : UDINT]]></Declaration>
+      <Set Name="Set" Id="{0d2c351d-1561-430d-83aa-5d8f1ca8a35a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="RegisterCommand" Id="{2cf8e55d-0a6e-4004-903d-c0badd10454d}">
+      <Declaration><![CDATA[METHOD RegisterCommand
+VAR_INPUT
+	Command : I_TcpIpSubscription;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="SendCommand" Id="{00c54666-8a63-458b-b36a-68a0b1532086}">
+      <Declaration><![CDATA[METHOD SendCommand
+VAR_INPUT
+	Command : POINTER TO ST_TcpIpPayload;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="SendPriorityCommand" Id="{31208047-4915-41c1-8101-e562202a0c89}">
+      <Declaration><![CDATA[METHOD SendPriorityCommand
+VAR_INPUT
+	Command : POINTER TO ST_TcpIpPayload;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Socket" Id="{cede5a45-bdea-4442-941b-53ecf95f45de}">
+      <Declaration><![CDATA[PROPERTY Socket : T_HSOCKET]]></Declaration>
+      <Get Name="Get" Id="{b8217d4e-78e1-4b96-8374-7bb1d0bfa02f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

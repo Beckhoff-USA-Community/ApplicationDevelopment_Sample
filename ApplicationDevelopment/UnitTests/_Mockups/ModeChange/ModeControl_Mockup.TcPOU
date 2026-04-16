@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ModeControl_Mockup" Id="{ffe7bd8f-32c4-481d-b9b9-d57410f3e5a6}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ModeControl_Mockup EXTENDS ModeControl
+VAR
+	{attribute 'hide'}
+	_IsChangeModeInvoked : BOOL;
+	{attribute 'hide'}
+	_LastRequestedMode : DINT;
+	{attribute 'hide'}
+	_IsExecuting : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ChangeMode" Id="{56cb1f75-fe1f-4b3f-afe7-3774cfd68893}">
+      <Declaration><![CDATA[// Override the ChangeMode method to add mockup tracking
+METHOD ChangeMode
+VAR_INPUT
+	RequestedMode : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_IsChangeModeInvoked := TRUE;
+_LastRequestedMode	 := RequestedMode;
+_IsExecuting		 := TRUE;
+
+// Call the base implementation
+SUPER^.ChangeMode(RequestedMode);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Complete" Id="{487118ad-ddc0-41a9-8bc0-335f2c763b4a}">
+      <Declaration><![CDATA[// Method to complete/reset execution state
+METHOD Complete]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_IsExecuting		 := FALSE;
+_IsChangeModeInvoked := FALSE;
+_LastRequestedMode	 := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Executing" Id="{511bba75-592d-458c-9ff7-bf9a64a65085}">
+      <Declaration><![CDATA[// Mockup specific method to simulate execution state
+METHOD Executing]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_IsExecuting := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsExecuting" Id="{78a1caf7-e36d-4b5c-a083-483ce54243eb}">
+      <Declaration><![CDATA[// Additional method to check if ChangeMode was called
+METHOD IsExecuting : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IsExecuting := _IsExecuting;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

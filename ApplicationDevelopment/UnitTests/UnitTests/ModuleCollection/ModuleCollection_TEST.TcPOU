@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ModuleCollection_TEST" Id="{6bbf0d49-5092-4046-8d41-60e7acc6fb90}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ModuleCollection_TEST
+VAR
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CollectionAddsModuleSucessfully();
+CollectionRejectsAddingModuleDuplicate();
+CollectionRejectsAddingNullModule();
+CollectionRejectsAddingTooManyModules();
+CollectionRejectsRemoveWhenEmpty();
+CollectionRejectsRemoveWhenNotFound();
+CollectionRejectsRemovingNullModule();
+CollectionRemovesModuleSuccessfully();
+GetModuleByName();
+CollectionGetItemAtIndex();
+CollectionGetCount();]]></ST>
+    </Implementation>
+    <Method Name="CollectionAddsModuleSucessfully" Id="{5b9695b5-5b89-467d-aaec-fabd0b4e1e1d}">
+      <Declaration><![CDATA[METHOD CollectionAddsModuleSucessfully
+VAR
+	Expected	: BOOL := TRUE;
+	Actual		: BOOL;
+	Module			 : Module_Mockup('Mockup Module');
+	ModuleCollection : ModuleCollection<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := ModuleCollection.AddModule(Module) = RegistrationResult.Succeeded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionGetCount" Id="{3a809a9d-caec-484b-a620-db92bab2ee36}">
+      <Declaration><![CDATA[METHOD CollectionGetCount
+VAR
+	Expected		 : UDINT;
+	Actual			 : UDINT;
+	ModuleCollection : ModuleCollection<ApplicationBaseParameter.MaxCountInCollections>;
+	Module1			 : Module_Mockup('Mockup Module 1');
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	ModuleCollection.AddModule(Module1);
+	Actual := ModuleCollection.Count;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionGetItemAtIndex" Id="{b758dd70-b000-4a4d-8320-85472571f471}">
+      <Declaration><![CDATA[METHOD CollectionGetItemAtIndex
+VAR
+	Expected		 : BOOL := TRUE;
+	Actual			 : BOOL;
+	ModuleCollection : ModuleCollection<2>;
+	Module1			 : Module_Mockup('Mockup Module 1');
+	Module2			 : Module_Mockup('Mockup Module 2');
+	ReturnedModule	 : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ModuleCollection.AddModule(Module1);
+	ModuleCollection.AddModule(Module2);
+	ReturnedModule := ModuleCollection.GetAtIndex(1);
+	Actual		   := ReturnedModule.Name = Module2.Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingModuleDuplicate" Id="{7818614b-80e3-4355-bf04-0f4d458d15c5}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingModuleDuplicate
+VAR
+	Expected	: BOOL := TRUE;
+	Actual		: BOOL;
+	Module			 : Module_Mockup('Mockup Module');
+	ModuleCollection : ModuleCollection<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ModuleCollection.AddModule(Module);
+	Actual := ModuleCollection.AddModule(Module) = RegistrationResult.AlreadyAdded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingNullModule" Id="{2bc6d838-34f5-4011-9a9e-8fc6b3056ca8}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingNullModule
+VAR
+	Expected	: BOOL := TRUE;
+	Actual		: BOOL;
+	ModuleCollection : ModuleCollection<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := ModuleCollection.AddModule(16#0) = RegistrationResult.NullReference;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsAddingTooManyModules" Id="{83a70ef8-3a22-434d-ab5c-cf1330f159ee}">
+      <Declaration><![CDATA[METHOD CollectionRejectsAddingTooManyModules
+VAR
+	Expected	: BOOL := TRUE;
+	Actual		: BOOL;
+	Module1			 : Module_Mockup('Mockup Module');
+	Module2			 : Module_Mockup('Mockup Module');
+	ModuleCollection : ModuleCollection<1>;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ModuleCollection.AddModule(Module1);
+	Actual := ModuleCollection.AddModule(Module2) = RegistrationResult.TooManyComponents;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemoveWhenEmpty" Id="{26f67de0-feed-4c0c-b421-2066dc7eff52}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemoveWhenEmpty
+VAR
+	Expected	: BOOL := TRUE;
+	Actual		: BOOL;
+	Module			 : Module_Mockup('Mockup Module');
+	ModuleCollection : ModuleCollection<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := ModuleCollection.RemoveModule(Module) = RegistrationResult.CollectionEmpty;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemoveWhenNotFound" Id="{8ed9a6a5-e827-40f7-96a8-6219d4a5c0ce}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemoveWhenNotFound
+VAR
+	Expected	: BOOL := TRUE;
+	Actual		: BOOL;
+	Module1			 : Module_Mockup('Mockup Module');
+	Module2			 : Module_Mockup('Mockup Module');
+	ModuleCollection : ModuleCollection<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ModuleCollection.AddModule(Module1);
+	Actual := ModuleCollection.RemoveModule(Module2) = RegistrationResult.NotFoundInCollection;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRejectsRemovingNullModule" Id="{f7f88fc8-1ee2-470c-b03c-178586962a55}">
+      <Declaration><![CDATA[METHOD CollectionRejectsRemovingNullModule
+VAR
+	Expected	: BOOL := TRUE;
+	Actual		: BOOL;
+	ModuleCollection : ModuleCollection<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Actual := ModuleCollection.RemoveModule(16#0) = RegistrationResult.NullReference;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CollectionRemovesModuleSuccessfully" Id="{df927f1b-60c0-43b3-9e34-f7356f765a34}">
+      <Declaration><![CDATA[METHOD CollectionRemovesModuleSuccessfully
+VAR
+	Expected	: BOOL := TRUE;
+	Actual		: BOOL;
+	Module			 : Module_Mockup('Mockup Module');
+	ModuleCollection : ModuleCollection<ApplicationBaseParameter.MaxCountInCollections>;
+	AddedModule : I_Module := Module;
+	CollectionModule : I_Module;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	ModuleCollection.AddModule(Module);
+	Actual := ModuleCollection.RemoveModule(Module) = RegistrationResult.Succeeded;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetModuleByName" Id="{d4f1d598-0a6d-4322-be0c-92198fdcd26c}">
+      <Declaration><![CDATA[METHOD GetModuleByName
+VAR
+	Expected	: STRING;
+	Actual		: STRING;
+	BaseModule	: I_Module;
+	AddedModule : I_Module;
+	Module			 : Module_Mockup('Mockup Module');
+	ModuleCollection : ModuleCollection<ApplicationBaseParameter.MaxCountInCollections>;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected   := 'Mockup Module';
+	BaseModule := Module;
+	ModuleCollection.AddModule(Module);
+	AddedModule := ModuleCollection.GetModuleByName(Expected);
+	Actual		:= AddedModule.Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

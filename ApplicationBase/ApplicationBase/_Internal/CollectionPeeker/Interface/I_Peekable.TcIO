@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Peekable" Id="{b6fa2bf6-ec1d-4fc7-87a3-a0acc7c5f786}">
+    <Declaration><![CDATA[INTERFACE I_Peekable EXTENDS I_Base]]></Declaration>
+    <Method Name="AcceptPeeker" Id="{43887333-9138-4d3d-973c-3704124133fa}">
+      <Declaration><![CDATA[METHOD AcceptPeeker
+VAR_INPUT
+	Peeker : I_Peeker;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>
