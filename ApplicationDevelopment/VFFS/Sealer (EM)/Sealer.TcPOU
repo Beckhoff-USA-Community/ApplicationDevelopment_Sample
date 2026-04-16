@@ -1,0 +1,289 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Sealer" Id="{56dd06c2-e02b-41a1-be93-e878ac17c4d3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Sealer EXTENDS PackMLModule IMPLEMENTS I_Sealer
+VAR
+	// Components
+	SealerAxisRef	  : AXIS_REF;
+	_SealerAxis		  : AxisPTP('Sealer Axis', SealerAxisRef);
+	SealerAxis_HMI	  : AxisPTP_HMI('Sealer Axis HMI', _SealerAxis, '°');
+	SealerAxis_Events : Axis_TcEvents('Sealer Axis Events', _SealerAxis);
+	_SealBar		  : SealBar('Heat Bar');
+
+	// 
+	_Recipe			 : ST_SealerRecipe;
+	Statemachine_HMI : PackMLStatemachine_HMI('Sealer Statemachine HMI', _Statemachine);
+END_VAR
+
+VAR
+	_Override : LREAL := 100.0;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_ErrorId : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Constructor" Id="{c1f21874-4936-4f65-90fe-0e80fad0498b}" />
+    <Folder Name="Initialize" Id="{ae80e6b9-7c09-4030-98bd-c186c1ef23c3}" />
+    <Folder Name="Sealer" Id="{c036ad7a-c81e-4dcf-a3ab-7fca83a4990d}" />
+    <Folder Name="States" Id="{bad66d79-9d75-4a14-91d7-619da312714f}" />
+    <Folder Name="Status" Id="{94c12d78-47de-40c0-bb4c-f61e8a8d825f}" />
+    <Method Name="Aborting" Id="{49c9c87b-6b39-4546-9400-0b40c50c6deb}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Aborting : BOOL
+VAR_INST
+	DisableAll : DisableAllComponentsVisitor;
+	StopAll	   : StopAllComponentsVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0:
+		SealBar.Heat := FALSE;
+		StopAll.Stop(Components);
+		IF StopAll.Stopped THEN
+			NextStep(SequenceState);
+		END_IF
+
+	10:
+		DisableAll.Disable(Components);
+		IF NOT DisableAll.Enabled THEN
+			Aborting := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Busy" Id="{3c1a731c-e3df-479b-8667-38a2c767a5b0}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{c22ea46d-7aa7-423b-a827-57bd5e9e497a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Clearing" Id="{8a10436e-98cb-4de5-86a7-ccb1fbb95da7}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Clearing : BOOL
+VAR_INST
+    EnableAll: EnableAllComponentsVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0:
+		IF ResetComponents() THEN
+			NextStep(SequenceState);
+		END_IF
+
+	10:
+		EnableAll.Enable(Components);
+		IF EnableAll.Enabled THEN
+			Clearing := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{c98e1b1b-29df-41de-8faa-fc3cf7b05adc}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{79bee0fc-836e-4520-9118-260b86870135}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{e35b3e24-b07b-42d3-80b1-f968ed940ccf}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT
+]]></Declaration>
+      <Get Name="Get" Id="{2a0fb664-2797-457a-86de-d6116f0c4750}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{81c14ead-2140-498a-8b9e-dfaafa056d78}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Execute : BOOL
+VAR_INST
+	DwellTime : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		CASE SequenceState OF
+			0:
+				IF SealerAxis.Axis.Status.InTargetPosition AND NOT SealerAxis.Busy THEN
+					DwellTime.IN  := TRUE;
+					NextStep(SequenceState);
+				END_IF
+
+			10:
+				IF DwellTime.Q THEN
+					DwellTime.IN			:= FALSE;
+					SealerAxis.Velocity		:= Recipe.Axis.Velocity;
+					SealerAxis.Acceleration := Recipe.Axis.Acceleration;
+					SealerAxis.MoveAbsolute(Recipe.OpenPosition);
+					NextStep(SequenceState);
+				END_IF
+
+			20:
+				IF SealerAxis.Axis.Status.InTargetPosition AND NOT SealerAxis.Busy THEN
+					Statemachine.ChangeState(E_PmlCommand.Complete);
+					Execute := TRUE;
+				END_IF
+		END_CASE
+
+		DwellTime(PT := LREAL_TO_TIME(Recipe.SealTime));
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		Execute := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{6d4e63ed-7ba1-41c9-99b5-8a09cdc02fdb}" FolderPath="Constructor\">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains	: BOOL;
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode	: BOOL;
+	Name	: T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Statemachine.Name := _Name;
+Statemachine_HMI.RegisterWithParent(THIS^);
+_SealerAxis.RegisterWithParent(THIS^);
+SealerAxis_HMI.RegisterWithParent(THIS^);
+SealerAxis_Events.RegisterWithParent(THIS^);
+_SealBar.RegisterWithParent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initializing" Id="{0b766ed1-019e-46cc-8363-be8fc556a047}" FolderPath="Initialize\">
+      <Declaration><![CDATA[(* This Module will be done initialize when ModuleInitialized := TRUE;, subequently all subitems will be called to be initialized *)
+METHOD Initializing
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ModuleInitialized := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCyclicCall" Id="{415f9472-40f0-4fcd-9993-be952d0f2f73}">
+      <Declaration><![CDATA[METHOD OnCyclicCall
+VAR_INST
+	//Simulation variables for messaging
+	ErrorInput		: BOOL;
+	WarnInput		: BOOL;
+	InfoInput		: BOOL;
+	TempFeedbackBad : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_SealBar.SetTemperature := _Recipe.Temp;
+//
+IF ErrorInput THEN
+	_Error	 := TRUE;
+	_ErrorId := E_Sealer.AlarmMessage;
+ELSIF TempFeedbackBad THEN
+	_Error	 := TRUE;
+	_ErrorId := E_Sealer.FeedbackError;
+ELSIF WarnInput THEN
+	_ErrorId := E_Sealer.WarningMessage;
+ELSIF InfoInput THEN
+	_ErrorId := E_Sealer.InfoMessage;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Override" Id="{6d37835e-1194-4a1f-8763-f55327348ba3}" FolderPath="Sealer\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Override : LREAL]]></Declaration>
+      <Set Name="Set" Id="{afa17cd3-cd27-4727-80bc-afcea38b00ac}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Override := Override;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Recipe" Id="{80f14195-44f8-4cc9-bb9e-12f0ee38e0ba}" FolderPath="Sealer\">
+      <Declaration><![CDATA[PROPERTY Recipe : REFERENCE TO ST_SealerRecipe]]></Declaration>
+      <Get Name="Get" Id="{e7f6dd9b-30d1-4708-9d16-ea5acabac1d0}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Recipe REF= _Recipe;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Reset" Id="{daa0d3a9-953d-44ce-ad3e-70b7bc3d9227}" FolderPath="Sealer\">
+      <Declaration><![CDATA[METHOD Reset
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error	 := FALSE;
+_ErrorId := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SealBar" Id="{aba1d7f0-e5d4-43cd-8c86-84c90460979e}" FolderPath="Sealer\">
+      <Declaration><![CDATA[PROPERTY SealBar : I_SealBar]]></Declaration>
+      <Get Name="Get" Id="{1b7ab5a7-2358-45a3-ba6c-77e1e6685837}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SealBar := _SealBar;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="SealerAxis" Id="{8d09bd86-cfdf-488c-9fc1-d67982da4da0}" FolderPath="Sealer\">
+      <Declaration><![CDATA[PROPERTY SealerAxis : I_Axis_PTP]]></Declaration>
+      <Get Name="Get" Id="{c368e095-59fb-4fe8-938e-4a909571c3e1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SealerAxis := _SealerAxis;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Starting" Id="{ab2b4ed4-ff8a-487e-8ad0-3a85271ded8a}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Starting : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		CASE SequenceState OF
+			0:
+				SealerAxis.Velocity		:= Recipe.Axis.Velocity;
+				SealerAxis.Acceleration := Recipe.Axis.Acceleration;
+				SealerAxis.MoveAbsolute(Recipe.ClosedPosition);
+				NextStep(SequenceState);
+
+			10:
+				IF SealerAxis.Busy THEN
+					Starting := TRUE;
+				END_IF
+		END_CASE
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		Starting := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

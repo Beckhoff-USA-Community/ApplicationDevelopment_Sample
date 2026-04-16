@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<TcModuleClass>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{6D87E6E8-B5EB-4084-96D7-B6C0DCE65B04}">VFFS</Name>
+			<DisplayName TxtId=""><![CDATA[VFFS Events]]></DisplayName>
+			<EventId>
+				<Name Id="1">EstopOK_1</Name>
+				<DisplayName TxtId=""><![CDATA[E-Stop 1 Pressed!]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="2">EstopOK_2</Name>
+				<DisplayName TxtId=""><![CDATA[E-Stop 2 Pressed!]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{CC1CF3B8-09F3-4569-2D9F-2B588FF0C8C4}"/>
+				<Hide GUID="{97620D9A-50E3-4960-A45D-2AE6D9E65C92}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{69493C1E-8387-49C8-AA02-BC89A98B6286}">Sealer</Name>
+			<DisplayName TxtId=""><![CDATA[Sealer]]></DisplayName>
+			<EventId>
+				<Name Id="1">TemeratureOutOfRange</Name>
+				<DisplayName TxtId=""><![CDATA[Out of Temperature Range ({0}-{1})]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="2">FeedbackError</Name>
+				<DisplayName TxtId=""><![CDATA[Feedback error]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="3">InfoMessage</Name>
+				<DisplayName TxtId=""><![CDATA[Info Message]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="4">WarningMessage</Name>
+				<DisplayName TxtId=""><![CDATA[Warning Message]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="5">AlarmMessage</Name>
+				<DisplayName TxtId=""><![CDATA[Alarm Message]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{C5002987-6D58-19B4-0BEF-00ACB44F636C}"/>
+				<Hide GUID="{6998D088-17B3-4DDB-89C8-493459FBE2B8}"/>
+				<Hide GUID="{1D9C259E-2B30-459C-A991-A46D5BC96C00}"/>
+				<Hide GUID="{9E4E13F3-C9FB-4B25-8EFE-0662E462CA30}"/>
+				<Hide GUID="{1BBAADA0-D78F-4325-BB05-2F5C566AFD40}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+</TcModuleClass>

@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Custom_HMI" Id="{f1203497-2272-42d8-95c2-0ded775f1276}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Custom_HMI EXTENDS HmiFunction
+VAR
+	{ attribute 'TcHmiSymbol.AddSymbol' }
+	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators,Admin' }
+	Custom_HMI : ST_Custom_HMI;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ControlObject" Id="{8933ec1b-241a-414c-b3a9-27e21f68635d}">
+      <Declaration><![CDATA[PROPERTY ControlObject : I_Base]]></Declaration>
+      <Set Name="Set" Id="{de1c4977-3ae7-42a0-9ffc-919d3c614fde}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CyclicLogic" Id="{22d2fae9-ac59-44c4-ab86-0df1da67205b}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Custom_HMI.Name		  := Name;
+Custom_HMI.HmiEnabled := Enabled;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{20f740c3-187d-4371-9511-e29b195d7b93}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ControlType := 'Custom';
+LinkObject	:= 'Custom_HMI';]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

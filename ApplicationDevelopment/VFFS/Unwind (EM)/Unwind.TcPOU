@@ -1,0 +1,218 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Unwind" Id="{a0d8249b-183d-4a71-8f74-6eae7ceacca1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Unwind EXTENDS PackMLModule IMPLEMENTS I_Unwind
+VAR
+	// Components
+	UnwindAxisRef	  : AXIS_REF;
+	_UnwindAxis		  : AxisPTP('Unwind Axis', UnwindAxisRef);
+	UnwindAxis_HMI	  : AxisPTP_HMI('Unwind Axis HMI', _UnwindAxis, '°');
+	UnwindAxis_Events : Axis_TcEvents('Unwind Axis Events', _UnwindAxis);
+
+	//
+	_Recipe			 : ST_UnwindRecipe;
+	Statemachine_HMI : PackMLStatemachine_HMI('Unwind Statemachine HMI', _Statemachine);
+END_VAR
+
+VAR
+	_Override : LREAL := 100.0;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_ErrorId : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Constructor" Id="{ef067788-9f42-40e5-a0ed-d748036149a6}" />
+    <Folder Name="Initialize" Id="{2cf96b83-e842-4620-b70b-ce9b4467b27b}" />
+    <Folder Name="States" Id="{bc9c822f-69b5-4ad6-9e46-44a6dcb68335}" />
+    <Folder Name="Status" Id="{3500ee70-c428-4108-9590-f3d15ea2d8ca}" />
+    <Folder Name="Unwind" Id="{bbbd3571-9c17-4754-b515-9358ba59f21b}" />
+    <Method Name="Aborting" Id="{4b141fa4-5813-446e-a3c1-816365e238c9}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Aborting : BOOL
+VAR_INST
+	DisableAll : DisableAllComponentsVisitor;
+	StopAll	   : StopAllComponentsVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0:
+		StopAll.Stop(Components);
+		IF StopAll.Stopped THEN
+			NextStep(SequenceState);
+		END_IF
+
+	10:
+		DisableAll.Disable(Components);
+		IF NOT DisableAll.Enabled THEN
+			Aborting := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Busy" Id="{14ed4370-7a91-4679-ab55-2d2d2348bb71}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{d8694be6-22ea-4cbc-9d35-3b8730a7bac5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Clearing" Id="{b3ce10c4-be8d-44a7-b500-bb0294e8006d}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Clearing : BOOL
+VAR_INST
+    EnableAll: EnableAllComponentsVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0:
+		IF ResetComponents() THEN
+			NextStep(SequenceState);
+		END_IF
+
+	10:
+		EnableAll.Enable(Components);
+		IF EnableAll.Enabled THEN
+			Clearing := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{2700c3b8-2435-4b02-9c2e-14e245125a31}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{421b452a-5a18-4d7a-9f46-072d2e3fbd32}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{dd40f28f-3a6d-4bc1-a8a7-fe776b033813}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT
+]]></Declaration>
+      <Get Name="Get" Id="{f1ef638e-8d1b-4afd-8556-321bf6dbd208}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Init" Id="{9f107a93-a245-4d2a-ade6-8b2a98d9768c}" FolderPath="Constructor\">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains	: BOOL;
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode	: BOOL;
+	Name	: T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Statemachine.Name := _Name;
+Statemachine_HMI.RegisterWithParent(THIS^);
+UnwindAxis.RegisterWithParent(THIS^);
+UnwindAxis_HMI.RegisterWithParent(THIS^);
+UnwindAxis_Events.RegisterWithParent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initializing" Id="{bc7a8142-9413-408c-bf8f-e72ac7bc710c}" FolderPath="Initialize\">
+      <Declaration><![CDATA[(* This Module will be done initialize when ModuleInitialized := TRUE;, subequently all subitems will be called to be initialized *)
+METHOD Initializing
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ModuleInitialized := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCyclicCall" Id="{23757d71-0a17-4c68-85ad-c040612f8d02}">
+      <Declaration><![CDATA[METHOD OnCyclicCall]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Override" Id="{21d9f17c-c880-4f47-9809-9459380fbed7}" FolderPath="Unwind\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Override : LREAL]]></Declaration>
+      <Set Name="Set" Id="{e7b6d2ee-16d3-4eed-aad9-3ce86f464830}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Override := Override;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Recipe" Id="{da227c78-9e49-456a-9687-2febc225f809}" FolderPath="Unwind\">
+      <Declaration><![CDATA[PROPERTY Recipe : REFERENCE TO ST_UnwindRecipe]]></Declaration>
+      <Get Name="Get" Id="{2bca4098-2380-47d1-a909-f5a92383cdb2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Recipe REF= _Recipe;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Reset" Id="{b449d751-1805-43b3-82e0-b0dc93fc0f73}" FolderPath="Unwind\">
+      <Declaration><![CDATA[METHOD Reset
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error	 := FALSE;
+_ErrorId := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Starting" Id="{da1b5c33-569f-40aa-bf27-341564a3563d}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Starting : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		CASE SequenceState OF
+			0:
+				UnwindAxis.Velocity		:= Recipe.Axis.Velocity;
+				UnwindAxis.Acceleration := Recipe.Axis.Acceleration;
+				UnwindAxis.MoveVelocity(Recipe.Axis.Velocity);
+				NextStep(SequenceState);
+
+			10:
+				IF UnwindAxis.Busy THEN
+					Starting := TRUE;
+				END_IF
+		END_CASE
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		Starting := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="UnwindAxis" Id="{27f93244-a72b-479c-a51b-439cc466c480}" FolderPath="Unwind\">
+      <Declaration><![CDATA[PROPERTY UnwindAxis : I_Axis_PTP]]></Declaration>
+      <Get Name="Get" Id="{5fa37d27-cf5e-4ffe-9741-3949f9b76339}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[UnwindAxis := _UnwindAxis;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Sealer" Id="{374eec01-9f63-465f-96a9-4dee7b3bdec9}">
+    <Declaration><![CDATA[INTERFACE I_Sealer EXTENDS I_Module, I_TaskResult, I_Resettable, I_Override, I_ContainStatemachine]]></Declaration>
+    <Property Name="Recipe" Id="{ecf572f4-816d-4883-87af-c52553c257d7}">
+      <Declaration><![CDATA[PROPERTY Recipe : REFERENCE TO ST_SealerRecipe]]></Declaration>
+      <Get Name="Get" Id="{4ed5ed80-ef9f-4f46-a02c-5a59954dc9cd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="SealBar" Id="{4aab2e92-32ea-44b9-b581-f42fa3cb1a16}">
+      <Declaration><![CDATA[PROPERTY SealBar : I_SealBar]]></Declaration>
+      <Get Name="Get" Id="{94805132-6838-422c-bc5a-41ebbc79109b}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="SealerAxis" Id="{0552f28e-5fcb-44b6-bdd9-17ca7d619154}">
+      <Declaration><![CDATA[PROPERTY SealerAxis : I_Axis_PTP]]></Declaration>
+      <Get Name="Get" Id="{96dd9f9a-0002-4979-bff5-07599738a269}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

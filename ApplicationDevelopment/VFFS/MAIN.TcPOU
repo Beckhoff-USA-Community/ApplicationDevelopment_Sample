@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MAIN" Id="{924e4ce6-8af7-48db-bec5-c5742bec4788}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	VFFS		   : VFFS('Vertical from fill Seal');
+	MachineHmiTree : GetSystemTreeJsonHmiVisitor<10000>('MAIN');
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF NOT VFFS.Initialized THEN
+	VFFS.Initialize();
+	MachineHmiTree.GetTree(VFFS);
+	RETURN;
+END_IF
+
+VFFS.CyclicLogic();]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

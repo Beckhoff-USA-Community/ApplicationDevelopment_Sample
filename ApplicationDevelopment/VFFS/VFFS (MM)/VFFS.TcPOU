@@ -1,0 +1,648 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="VFFS" Id="{9da83f2c-1519-41d0-a4b0-5202777e3e35}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK VFFS EXTENDS PackMLModule IMPLEMENTS I_VFFS
+VAR
+	Events			  : TcEventClass('VFFS Events');
+	EventReactor	  : EventReactorPackMLVisitor('VFFS Event Reaction', THIS^);
+	SyncedSquareWaves : SyncedSquareWaves('Waves');
+
+	//
+	EStop1_Pressed : BOOL := FALSE;
+	EStop2_Pressed : BOOL := FALSE;
+
+	//
+	_Unwind		  : Unwind('Unwind EM');
+	_Sealer		  : Sealer('Sealer EM');
+	Sealer_Events : Sealer_TcEvents('Sealer EM Events', _Sealer);
+	_PullWheels	  : PullWheels('Pull Wheels EM');
+
+	// Recipe
+	_Recipe : ST_Recipe;
+	{ attribute 'TcHmiSymbol.AddSymbol' }
+	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators, Admin' }
+	Recipe_HMI		: ST_Recipe;
+	RecipeManagment : RecipeManagment('VFFS Recipe', nRecipe := SIZEOF(ST_Recipe), pActiveRecipeData := ADR(_Recipe), pUpdateRecipeData := ADR(Recipe_HMI));
+END_VAR
+
+VAR
+	VFFS_HMI   : VFFS_HMI('VFFS', _Statemachine, THIS^);
+	Custom_HMI : Custom_HMI('Custom');
+END_VAR
+
+VAR
+	_Override : LREAL := 100.0;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_ErrorId	   : UDINT;
+	_PartsProduced : ULINT;
+	_SealingTime   : LREAL;
+	_PullingTime   : LREAL;
+	_PartTime	   : LREAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	_PackTags : ST_PMLV2022;
+END_VAR
+
+VAR
+	ChangeStateOnAllSubModules : ChangePackMLStateOnAllSubModulesVisitor;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Constructor" Id="{7cbdf2ce-4d6a-487e-9d75-9adc8307e536}" />
+    <Folder Name="Initialize" Id="{e17704a3-955c-40b2-9abc-f2669b9f2737}" />
+    <Folder Name="States" Id="{33c9c68b-3be5-45be-9443-e2027782b564}" />
+    <Folder Name="Status" Id="{fbeb3cab-9995-4cc5-9f9f-2d492e8d259d}" />
+    <Folder Name="VFFS" Id="{ab009ce9-d92b-47e7-82ca-6f23c1997de3}" />
+    <Method Name="Aborting" Id="{95217094-6cfb-4676-9b2e-e833f143644d}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Aborting : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ChangeStateOnAllSubModules.ChangeState(E_PMLCommand.Abort, THIS^) THEN
+	Aborting := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Busy" Id="{86458e19-e5db-4198-b0dd-010b7c1d0da6}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ec8f090b-b398-4a57-a2c9-55d1b35287a7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Clearing" Id="{046e3c42-e409-4d4e-a160-7d027c74c2e5}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Clearing : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0:
+		Reset();
+		IF ResetComponents() AND ResetModules() AND NOT Busy AND NOT Error THEN
+			SequenceState := SequenceState + 10;
+		END_IF
+
+	10:
+		IF ChangeStateOnAllSubModules.ChangeState(E_PMLCommand.Clear, THIS^) THEN
+			Clearing := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Completing" Id="{5b5aa576-f457-4203-94e4-180ae820393c}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Completing : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		Completing := TRUE;
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		IF ChangeStateOnAllSubModules.ChangeState(E_PMLCommand.Complete, THIS^) THEN
+			Completing := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{c754811f-0d75-4592-a03b-cb14f692f94a}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{06ac79da-cbcd-46a4-9955-14df4ed218d4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{5738b251-3e71-4c0d-aeaa-aa112ecda93d}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{7e16e4da-2f4e-4e42-86d4-90130577b08b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{b869e0ce-de3d-4b70-bfa0-95f218146fa2}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Execute : BOOL
+VAR_INST
+	SealTime : Stopwatch;
+	SealTrig : R_TRIG;
+	PullTime : Stopwatch;
+	Pulltrig : R_TRIG;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		(* Run the sequence to make products 
+		 Unwind Runs Slowly 
+		 Pull Wheels Run 
+		 Jaws Seal, and Repeat until production reached*)
+		SealTrig(CLK := SequenceState = 10);
+		IF SealTrig.Q THEN
+			SealTime.Start();
+		END_IF
+
+		Pulltrig(CLK := SequenceState = 20);
+		IF Pulltrig.Q THEN
+			PullTime.Start();
+		END_IF
+
+		IF Sealer.SealBar.InTempRange THEN
+			CASE SequenceState OF
+				0:
+					Unwind.Statemachine.ChangeState(E_PMLCommand.Start);
+					IF Unwind.Statemachine.CurrentState = E_PMLState.Execute THEN
+						NextStep(SequenceState);
+					END_IF
+
+				10:
+					Sealer.Statemachine.ChangeState(E_PMLCommand.Start);
+					NextMinorStep(SequenceState);
+
+				11:
+					IF Sealer.Statemachine.CurrentState = E_PMLState.Completed THEN
+						Sealer.Statemachine.ChangeState(E_PMLCommand.Reset);
+						SealTime.Stop();
+						SealingTime := SealTime.Elapsed;
+						NextStep(SequenceState);
+					END_IF
+
+				20:
+					PullWheels.Statemachine.ChangeState(E_PMLCommand.Start);
+					NextMinorStep(SequenceState);
+
+				21:
+					IF PullWheels.Statemachine.CurrentState = E_PMLState.Completed THEN
+						PullWheels.Statemachine.ChangeState(E_PMLCommand.Reset);
+						PartsProduced := PartsProduced + 1;
+						PullTime.Stop();
+						PullingTime	  := PullTime.Elapsed;
+						PartTime	  := PullTime.Elapsed + SealTime.Elapsed;
+						SequenceState := 10;
+					END_IF
+			END_CASE
+		ELSE
+			Statemachine.ChangeState(E_PMLCommand.Suspend);
+		END_IF
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		Execute := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{ebfe6509-bc9a-4e77-b2d3-d43fe25436a3}" FolderPath="Constructor\">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.GenerateTcEvents('VFFS', ADR(TC_Events.VFFS), SIZEOF(ST_VFFS));
+Events.RegisterWithParent(THIS^);
+Events.SetEvent(E_Vffs.EstopOK_1, ADR(EStop1_Pressed), FALSE);
+Events.SetEvent(E_Vffs.EstopOK_2, ADR(EStop2_Pressed), TRUE);
+
+//
+EventReactor.RegisterWithParent(THIS^);
+VFFS_HMI.RegisterWithParent(THIS^);
+SyncedSquareWaves.RegisterWithParent(THIS^);
+
+//
+_Unwind.RegisterWithParent(THIS^);
+_Sealer.RegisterWithParent(THIS^);
+Sealer_Events.RegisterWithParent(THIS^);
+_PullWheels.RegisterWithParent(THIS^);
+
+//
+RecipeManagment.RegisterWithParent(THIS^);
+RecipeManagment.AutoLoadChangesToActive := TRUE;
+
+//
+Custom_HMI.RegisterWithParent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Holding" Id="{e05bb9be-3963-4eca-a642-518ab96e54c7}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Holding : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		IF (Sealer.Statemachine.CurrentState = E_PMLState.Completed OR Sealer.Statemachine.CurrentState = E_PMLState.Idle) AND (PullWheels.Statemachine.CurrentState = E_PMLState.Completed OR PullWheels.Statemachine.CurrentState = E_PMLState.Idle) THEN
+			Holding := TRUE;
+		END_IF
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		IF ChangeStateOnAllSubModules.ChangeState(E_PMLCommand.Hold, THIS^) THEN
+			Holding := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initializing" Id="{098ab474-7a33-4155-9772-c57a22f3038a}" FolderPath="Initialize\">
+      <Declaration><![CDATA[(* This Module will be done initializeing when ModuleInitialized := TRUE;, subequently all subitems will be called to be initialized*)
+METHOD Initializing
+VAR_INST
+	UnitModeConfig : FB_PMLUnitModeConfig;
+	SequenceState  : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0:
+		UnitModeConfig(eMode						  := E_PMLProtectedUnitMode.Production,
+					   sName						  := 'Mode Production',
+					   bDisableClearing				  := FALSE,
+					   bDisableStarting				  := FALSE,
+					   bDisableSuspended			  := FALSE,
+					   bDisableStopping				  := FALSE,
+					   bDisableAborting				  := FALSE,
+					   bDisableHolding				  := FALSE,
+					   bDisableHeld					  := FALSE,
+					   bDisableUnholding			  := FALSE,
+					   bDisableSuspending			  := FALSE,
+					   bDisableUnsuspending			  := FALSE,
+					   bDisableResetting			  := FALSE,
+					   bDisableIdle					  := FALSE,
+					   bDisableCompleting			  := FALSE,
+					   bDisableComplete				  := FALSE,
+					   bEnableUnitModeChangeStopped	  := TRUE,
+					   bEnableUnitModeChangeIdle	  := FALSE,
+					   bEnableUnitModeChangeSuspended := FALSE,
+					   bEnableUnitModeChangeExecute	  := FALSE,
+					   bEnableUnitModeChangeAborted	  := TRUE,
+					   bEnableUnitModeChangeHeld	  := FALSE,
+					   bEnableUnitModeChangeComplete  := FALSE,
+					   bError						  =>,
+					   nErrorId						  =>);
+
+		UnitModeConfig(eMode						  := E_PMLProtectedUnitMode.Maintenance,
+					   sName						  := 'Mode Maintenance',
+					   bDisableClearing				  := FALSE,
+					   bDisableStarting				  := FALSE,
+					   bDisableSuspended			  := FALSE,
+					   bDisableStopping				  := FALSE,
+					   bDisableAborting				  := FALSE,
+					   bDisableHolding				  := FALSE,
+					   bDisableHeld					  := FALSE,
+					   bDisableUnholding			  := FALSE,
+					   bDisableSuspending			  := FALSE,
+					   bDisableUnsuspending			  := FALSE,
+					   bDisableResetting			  := FALSE,
+					   bDisableIdle					  := FALSE,
+					   bDisableCompleting			  := FALSE,
+					   bDisableComplete				  := FALSE,
+					   bEnableUnitModeChangeStopped	  := TRUE,
+					   bEnableUnitModeChangeIdle	  := FALSE,
+					   bEnableUnitModeChangeSuspended := FALSE,
+					   bEnableUnitModeChangeExecute	  := FALSE,
+					   bEnableUnitModeChangeAborted	  := TRUE,
+					   bEnableUnitModeChangeHeld	  := FALSE,
+					   bEnableUnitModeChangeComplete  := FALSE,
+					   bError						  =>,
+					   nErrorId						  =>);
+
+		UnitModeConfig(eMode						  := E_PMLProtectedUnitMode.Manual,
+					   sName						  := 'Mode Manual',
+					   bDisableClearing				  := FALSE,
+					   bDisableStarting				  := FALSE,
+					   bDisableSuspended			  := FALSE,
+					   bDisableStopping				  := FALSE,
+					   bDisableAborting				  := FALSE,
+					   bDisableHolding				  := FALSE,
+					   bDisableHeld					  := FALSE,
+					   bDisableUnholding			  := FALSE,
+					   bDisableSuspending			  := FALSE,
+					   bDisableUnsuspending			  := FALSE,
+					   bDisableResetting			  := FALSE,
+					   bDisableIdle					  := FALSE,
+					   bDisableCompleting			  := FALSE,
+					   bDisableComplete				  := FALSE,
+					   bEnableUnitModeChangeStopped	  := TRUE,
+					   bEnableUnitModeChangeIdle	  := FALSE,
+					   bEnableUnitModeChangeSuspended := FALSE,
+					   bEnableUnitModeChangeExecute	  := FALSE,
+					   bEnableUnitModeChangeAborted	  := TRUE,
+					   bEnableUnitModeChangeHeld	  := FALSE,
+					   bEnableUnitModeChangeComplete  := FALSE,
+					   bError						  =>,
+					   nErrorId						  =>);
+
+		SequenceState := SequenceState + 10;
+
+	10:
+		Statemachine.Name := 'VFFS';
+		ModuleInitialized := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCyclicCall" Id="{476d3cf0-745a-4ea7-af37-cf8d6f697512}">
+      <Declaration><![CDATA[METHOD OnCyclicCall
+VAR_INST
+	LastMode				  : DINT;
+	ChangeModeOnAllSubModules : ChangeModeOnAllSubModulesVisitor;
+	HmiEnableDisable		  : HmiEnableDisableAllVisitor;
+	SetOverride				  : SetAllOverrideVisitor;
+	ForceVisitor			  : ForceVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Mode Propagation 
+IF _Statemachine.Mode.CurrentMode <> LastMode THEN
+	ChangeModeOnAllSubModules.ChangeMode(_Statemachine.Mode.CurrentMode, THIS^);
+	LastMode := _Statemachine.Mode.CurrentMode;
+	// Enable HMI only in Manual Mode
+	IF _Statemachine.Mode.CurrentMode = E_PMLProtectedUnitMode.Manual THEN
+		HmiEnableDisable.EnableHmi(THIS^);
+	ELSE
+		HmiEnableDisable.DisableHmi(THIS^);
+		VFFS_HMI.Enable();
+
+		// Disable All Forced Variables if applicable 
+		ForceVisitor.Force := E_ForceState.Unforced;
+		Components.Accept(ForceVisitor);
+	END_IF
+END_IF
+
+//
+SetOverride.Set(THIS^, _Override);
+UpdateModeTimers();
+IF Events.GetHighestActiveEventSeverity() >= TcEventSeverity.Error THEN
+	_Error	 := TRUE;
+	_ErrorId := Events.GetHighestActiveEventReaction();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Override" Id="{1956d724-7045-4b71-9b70-80d012936231}" FolderPath="VFFS\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Override : LREAL]]></Declaration>
+      <Set Name="Set" Id="{edd9906a-4b44-4d58-bf57-b53cfc3cd235}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Override := Override;
+
+//SetOverrideVisitor.SetOverride(THIS^, _Override);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="PackTags" Id="{9aa9f3a3-b6cb-4acf-9b63-fe5316f02b44}" FolderPath="VFFS\">
+      <Declaration><![CDATA[PROPERTY PUBLIC PackTags : ST_PMLV2022]]></Declaration>
+      <Get Name="Get" Id="{51ed710f-755c-4ab3-a3bb-482bbf3e96b4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PackTags := _PackTags;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PartsProduced" Id="{1e49a8af-b9a5-4fbb-ac2c-30dc5eae9a50}" FolderPath="VFFS\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PartsProduced : ULINT]]></Declaration>
+      <Get Name="Get" Id="{ba26d7fd-adde-4af6-9f19-099c527083cd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PartsProduced := _PartsProduced;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c3cd8c3e-877e-4edb-a893-ea8598002960}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_PartsProduced := PartsProduced;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="PartTime" Id="{c16cd028-5e13-42c1-9c61-9cdb42315532}" FolderPath="VFFS\">
+      <Declaration><![CDATA[PROPERTY PartTime : LREAL]]></Declaration>
+      <Get Name="Get" Id="{96a8f328-09b7-4716-abf7-1b60d946597f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PartTime := _PartTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{175d4a26-5f5f-4e37-9cc9-4ce6dad817e0}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_PartTime := PartTime;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="PullingTime" Id="{563b8256-7487-40bb-b6ef-b380073a0548}" FolderPath="VFFS\">
+      <Declaration><![CDATA[PROPERTY PullingTime : LREAL]]></Declaration>
+      <Get Name="Get" Id="{846edb20-0557-49f5-af9c-3e4863908dfb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PullingTime := _PullingTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d8d68d54-2269-43a4-9f79-32afdff3a05c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_PullingTime := PullingTime;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="PullWheels" Id="{18b5a4ae-8e73-4cd6-a654-8b8b4526674a}" FolderPath="VFFS\">
+      <Declaration><![CDATA[PROPERTY PullWheels : I_PullWheels]]></Declaration>
+      <Get Name="Get" Id="{cfbd5498-d3fb-45bb-b466-a1d548b2964b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PullWheels := _PullWheels;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Recipe" Id="{72689185-92ed-4be0-b2da-bb82b5aed0cb}" FolderPath="VFFS\">
+      <Declaration><![CDATA[PROPERTY Recipe : REFERENCE TO ST_Recipe]]></Declaration>
+      <Get Name="Get" Id="{282852e8-b6ff-48fd-b641-d7809067d523}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Recipe REF= _Recipe;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Reset" Id="{d016c500-71bc-4de3-b748-2b34fd994ef0}" FolderPath="VFFS\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error	 := FALSE;
+_ErrorId := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Resetting" Id="{50b5bfae-604c-4ee6-a5c3-01ae227e0fa8}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Resetting : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		Sealer.Recipe	  := Recipe.Sealer;
+		Unwind.Recipe	  := Recipe.Unwind;
+		PullWheels.Recipe := Recipe.PullWheels;
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		;
+END_CASE
+
+IF ChangeStateOnAllSubModules.ChangeState(E_PMLCommand.Reset, THIS^) THEN
+	Resetting := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Sealer" Id="{67eed5e7-f049-455b-9bba-ddcc1a949285}" FolderPath="VFFS\">
+      <Declaration><![CDATA[PROPERTY Sealer : I_Sealer]]></Declaration>
+      <Get Name="Get" Id="{b8ead09a-4157-4bc0-ad8e-ec9a431ebf92}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Sealer := _Sealer;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="SealingTime" Id="{fac77592-3a7f-4cd3-aea9-897071ee9b51}" FolderPath="VFFS\">
+      <Declaration><![CDATA[PROPERTY SealingTime : LREAL]]></Declaration>
+      <Get Name="Get" Id="{19216efb-4307-4421-bef5-17d8737fedcd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SealingTime := _SealingTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{8f831e06-f15a-4631-b9ac-5116e6fbf310}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SealingTime := SealingTime;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Starting" Id="{5a271cdf-6204-4c6f-b12c-34efa89d538d}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Starting : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		Sealer.SealBar.Heat := TRUE;
+		Starting			:= TRUE;
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		IF ChangeStateOnAllSubModules.ChangeState(E_PMLCommand.Start, THIS^) THEN
+			Starting := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stopping" Id="{0edcaa05-9eaa-4bdb-9cb8-ab7cd26bf4ab}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Stopping : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ChangeStateOnAllSubModules.ChangeState(E_PMLCommand.Stop, THIS^) THEN
+	Stopping := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Suspended" Id="{9111e456-d45f-4a0e-b49f-e398905c589c}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Suspended : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Sealer.SealBar.InTempRange THEN
+	Statemachine.ChangeState(E_PMLCommand.Unsuspend);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Suspending" Id="{14e1196d-8a20-49d0-8352-5fa264937fd4}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Suspending : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		IF (Sealer.Statemachine.CurrentState = E_PMLState.Completed OR Sealer.Statemachine.CurrentState = E_PMLState.Idle) AND (PullWheels.Statemachine.CurrentState = E_PMLState.Completed OR PullWheels.Statemachine.CurrentState = E_PMLState.Idle) THEN
+			Suspending := TRUE;
+		END_IF
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		IF ChangeStateOnAllSubModules.ChangeState(E_PMLCommand.Suspend, THIS^) THEN
+			Suspending := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Unholding" Id="{c8a1a088-ecf5-441e-9877-1dfd3ca0919e}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Unholding : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		Unholding := TRUE;
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		IF ChangeStateOnAllSubModules.ChangeState(E_PMLCommand.Unhold, THIS^) THEN
+			Unholding := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Unsuspending" Id="{e3de964d-0ed8-4184-bf2b-4fb73f49305b}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Unsuspending : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		Unsuspending := TRUE;
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		IF ChangeStateOnAllSubModules.ChangeState(E_PMLCommand.Unsuspend, THIS^) THEN
+			Unsuspending := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Unwind" Id="{ba22d330-a4e4-4944-838a-3f338ac2ba68}" FolderPath="VFFS\">
+      <Declaration><![CDATA[PROPERTY Unwind : I_Unwind]]></Declaration>
+      <Get Name="Get" Id="{52b6c80f-b9de-4865-95a5-996dfc45a88f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Unwind := _Unwind;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="UpdateModeTimers" Id="{7cb1f824-a369-47d2-b77a-03aae7321075}">
+      <Declaration><![CDATA[METHOD UpdateModeTimers
+VAR
+	CurrentTime	 : T_DCTIME64;
+	TimeToUpdate : LREAL;
+END_VAR
+
+VAR_INST
+	LastTime  : T_DCTIME64 := F_GetActualDcTime64();
+	LastState : DINT;
+	LastMode  : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _PackTags.Status.StateCurrent <> LastState THEN
+	MEMSET(ADR(_PackTags.Admin.StateTimeCurrent), 0, SIZEOF(_PackTags.Admin.StateTimeCurrent));
+	LastState := _PackTags.Status.StateCurrent;
+END_IF
+
+IF _PackTags.Status.UnitModeCurrent <> LastMode THEN
+	MEMSET(ADR(_PackTags.Admin.ModeTimeCurrent), 0, SIZEOF(_PackTags.Admin.ModeTimeCurrent));
+	LastMode := _PackTags.Status.UnitModeCurrent;
+END_IF
+
+CurrentTime := F_GetActualDcTime64();
+IF LastTime <> 0 THEN
+	TimeToUpdate := ULINT_TO_LREAL(CurrentTime - LastTime) / 1_000_000_000.0;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

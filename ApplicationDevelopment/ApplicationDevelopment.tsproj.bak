@@ -7,12 +7,16 @@
 				<Cpu CpuId="19"/>
 			</Settings>
 			<Tasks>
-				<Task Id="3" Priority="20" CycleTime="2000000" AmsPort="350" AdtTasks="true">
+				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
 					<Name>UnitTestsBase</Name>
+				</Task>
+				<Task Id="6" Priority="21" CycleTime="100000" AmsPort="351" Affinity="#x00080000" AdtTasks="true">
+					<Name>VFFS</Name>
 				</Task>
 			</Tasks>
 			<TypeSystem>
 				<AdditionalTmcFile Name="Events_UnitTest" File="Events_UnitTest.tmc"/>
+				<AdditionalTmcFile Name="Events_VFFS" File="VFFS\Events_VFFS.tmc"/>
 			</TypeSystem>
 		</System>
 		<Motion>
@@ -20,6 +24,7 @@
 		</Motion>
 		<Plc>
 			<Project File="UnitTests.xti"/>
+			<Project File="VFFS.xti"/>
 		</Plc>
 		<Io/>
 	</Project>

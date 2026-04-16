@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.22" ClassName="CTComPlcObjDef">
+	<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" XtvPath="VFFS\VFFS Instance.xtv" TmcPath="VFFS\VFFS.tmc">
+		<Name>__FILENAME__</Name>
+		<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+		<Contexts>
+			<Context>
+				<Id>0</Id>
+				<Name>PlcTask</Name>
+				<ManualConfig>
+					<OTCID>#x02010060</OTCID>
+				</ManualConfig>
+				<Priority>21</Priority>
+				<CycleTime>10000000</CycleTime>
+			</Context>
+		</Contexts>
+		<TaskPouOids>
+			<TaskPouOid Prio="21" OTCID="#x08502041"/>
+		</TaskPouOids>
+	</Instance>
+	<Mappings>
+		<OwnerA>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull Wheel Left">
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._PullWheels.PullWheelLeftAxisRef.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="PlcTask Outputs^MAIN.VFFS._PullWheels.PullWheelLeftAxisRef.PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull Wheel Right">
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._PullWheels.PullWheelRightAxisRef.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="PlcTask Outputs^MAIN.VFFS._PullWheels.PullWheelRightAxisRef.PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Seal">
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._Sealer.SealerAxisRef.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="PlcTask Outputs^MAIN.VFFS._Sealer.SealerAxisRef.PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Unwind">
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._Unwind.UnwindAxisRef.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="PlcTask Outputs^MAIN.VFFS._Unwind.UnwindAxisRef.PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+		</OwnerA>
+	</Mappings>
+</TcSmItem>

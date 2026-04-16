@@ -17,5 +17,9 @@
 			<Name>NC-Task 1 SVB</Name>
 		</SvbTask>
 		<Axis File="TestAxis.xti" Id="1"/>
+		<Axis File="Unwind.xti" Id="2"/>
+		<Axis File="Seal.xti" Id="3"/>
+		<Axis File="Pull Wheel Left.xti" Id="4"/>
+		<Axis File="Pull Wheel Right.xti" Id="5"/>
 	</NC>
 </TcSmItem>

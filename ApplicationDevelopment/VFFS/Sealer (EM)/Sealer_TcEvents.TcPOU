@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Sealer_TcEvents" Id="{424c36ef-2255-4b7e-920d-349605d9cd66}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Sealer_TcEvents EXTENDS CyclicComponent IMPLEMENTS I_EventReaction
+VAR
+	Sealer : I_Sealer;
+	Events : TcEventClass('Sealer Events');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Events" Id="{149b469b-3131-47a0-9c2f-499b595cd12e}" />
+    <Method Name="CyclicLogic" Id="{597c9f44-54f3-4896-99c4-70a4002a04c9}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR
+	LowLimit  : STRING;
+	HighLimit : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT Sealer.SealBar.InTempRange THEN
+	LowLimit  := TO_STRING(Sealer.SealBar.SetTemperature - 1);
+	HighLimit := TO_STRING(Sealer.SealBar.SetTemperature + 1);
+	Events.Arguments(E_Sealer.TemeratureOutOfRange).Clear().AddString(LowLimit).AddString(HighLimit);
+	Events.RaiseEvent(E_Sealer.TemeratureOutOfRange);
+ELSIF Sealer.SealBar.InTempRange THEN
+	Events.ClearEventById(E_Sealer.TemeratureOutOfRange);
+END_IF
+
+CASE Sealer.ErrorId OF
+	E_Sealer.AlarmMessage:
+		Events.RaiseEvent(E_Sealer.AlarmMessage);
+
+	E_Sealer.FeedbackError:
+		Events.RaiseEvent(E_Sealer.FeedbackError);
+
+	E_Sealer.WarningMessage:
+		Events.RaiseEvent(E_Sealer.WarningMessage);
+
+	E_Sealer.InfoMessage:
+		Events.RaiseEvent(E_Sealer.InfoMessage);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{a299f02d-b4b0-4760-9f65-279455de304c}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	Sealer		: I_Sealer;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Sealer := Sealer;
+Events.GenerateTcEvents(Sealer.Name, ADR(TC_events.Sealer), SIZEOF(ST_Sealer));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventReaction" Id="{553eb292-28a7-4203-8866-415065c2100f}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventReaction := Events.GetHighestActiveEventReaction();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{a14b7858-5062-4477-bf27-d994109e980c}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.Reset();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetEventReactions" Id="{d8f17270-d6d6-4a26-8c0d-ba774dc6c77b}" FolderPath="Events\">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Events.SetEventReactions(Verbose,
+						 Info,
+						 Warning,
+						 Error,
+						 Critical);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

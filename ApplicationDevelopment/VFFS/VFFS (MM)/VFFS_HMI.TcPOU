@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="VFFS_HMI" Id="{07969d8c-2d30-4e53-81bd-8000b6eccd36}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK VFFS_HMI EXTENDS PackMLStatemachine_HMI
+VAR
+	VFFS : I_VFFS;
+	{ attribute 'TcHmiSymbol.AddSymbol' }
+	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators, Admin' }
+	VFFS_HMI : ST_VFFS_HMI;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CyclicLogic" Id="{e4fe8e79-aaca-4e3c-ab82-bb07f0f7202c}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	StartRT : R_TRIG;
+	StopRT	: R_TRIG;
+	ResetRT : R_TRIG;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF VFFS = 0 THEN
+	RETURN;
+END_IF
+
+SUPER^.CyclicLogic();
+VFFS.Override := VFFS_HMI.Override;
+
+// User buttons
+Statemachine_HMI.StartPermissive := Statemachine_HMI.CurrentState = E_PMLState.Idle;
+Statemachine_HMI.StopPermissive	 := Statemachine_HMI.CurrentState <> E_PMLState.Aborted;
+Statemachine_HMI.ResetPermissive := Statemachine_HMI.CurrentState = E_PMLState.Aborted OR Statemachine_HMI.CurrentState = E_PMLState.Stopped;
+StartRT(CLK := Statemachine_HMI.StartPressed);
+IF StartRT.Q THEN
+	Statemachine.ChangeState(E_PMLCommand.Start);
+END_IF
+
+StopRT(CLK := Statemachine_HMI.StopPressed);
+IF StopRT.Q THEN
+	IF Statemachine_HMI.CurrentState = E_PMLState.Stopped THEN
+		Statemachine.ChangeState(E_PMLCommand.Abort);
+	ELSE
+		Statemachine.ChangeState(E_PMLCommand.Stop);
+	END_IF
+END_IF
+
+ResetRT(CLK := Statemachine_HMI.ResetPressed);
+IF ResetRT.Q THEN
+	IF Statemachine_HMI.CurrentState = E_PMLState.Aborted THEN
+		Statemachine.ChangeState(E_PMLCommand.Clear);
+	ELSE
+		Statemachine.ChangeState(E_PMLCommand.Reset);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{0551ce9c-9910-46fe-ac46-38b2b5caef22}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode	 : BOOL;
+	Name		 : T_MaxString;
+	Statemachine : I_Statemachine;
+	VFFS		 : I_VFFS;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.VFFS := VFFS;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

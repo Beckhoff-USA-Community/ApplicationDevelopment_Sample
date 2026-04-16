@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_VFFS" Id="{51d962b8-7e43-496a-a3d0-4f5a1d91cb3d}">
+    <Declaration><![CDATA[INTERFACE I_VFFS EXTENDS I_Module, I_TaskResult, I_Resettable, I_Override, I_ContainStatemachine]]></Declaration>
+    <Property Name="PackTags" Id="{a97ebd0f-771d-469b-aed1-04ab2be127af}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PackTags : ST_PMLV2022]]></Declaration>
+      <Get Name="Get" Id="{6ffea769-ca91-4ee9-ae51-3841c70acc43}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="PartsProduced" Id="{34d601fd-e864-467e-86eb-711f77cb0497}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY PartsProduced : ULINT]]></Declaration>
+      <Get Name="Get" Id="{6e5b3542-967b-4cdb-a3e8-29e9bb2f81d7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{113aedd7-4da4-408b-b68f-9bc53c8286be}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="PartTime" Id="{bc2c1b03-2879-4ec7-850e-1beecb6838a0}">
+      <Declaration><![CDATA[PROPERTY PartTime : LREAL]]></Declaration>
+      <Get Name="Get" Id="{e7d15f7a-78cb-41e7-abb1-494f86be8fba}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{efe1eebb-88ef-4d08-8452-fb797d7b5239}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="PullingTime" Id="{b9170468-192b-4153-b97c-afb6f18f94b0}">
+      <Declaration><![CDATA[PROPERTY PullingTime : LREAL]]></Declaration>
+      <Get Name="Get" Id="{b7b7c0a6-048b-43a1-81eb-8fa08c4803b6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{62e734b7-48f2-4c37-a998-fc2b07eef4eb}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="PullWheels" Id="{8aa8b7b3-6074-457d-a9c4-03bfc3f99194}">
+      <Declaration><![CDATA[PROPERTY PullWheels : I_PullWheels]]></Declaration>
+      <Get Name="Get" Id="{ea3ab148-014b-4f97-a33f-9dcc679cf361}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Recipe" Id="{3499cae3-a396-4884-9783-0b2d41b513c3}">
+      <Declaration><![CDATA[PROPERTY Recipe : REFERENCE TO ST_Recipe]]></Declaration>
+      <Get Name="Get" Id="{35a9fbfa-7bac-4691-b7a6-eddd7d524f13}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Sealer" Id="{3071bda7-0380-4b06-a92d-687d00fef28a}">
+      <Declaration><![CDATA[PROPERTY Sealer : I_Sealer]]></Declaration>
+      <Get Name="Get" Id="{8db5980b-fcf8-4ef2-91b9-8e9ca3c90e0b}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="SealingTime" Id="{1813ea85-85b2-41b7-85cd-6a1083985410}">
+      <Declaration><![CDATA[PROPERTY SealingTime : LREAL]]></Declaration>
+      <Get Name="Get" Id="{8beee708-f54f-418b-89a2-a2566fbcac2f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{14d8be65-7dd4-4550-99fa-dd5d8d86eaa4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Unwind" Id="{e3225b14-2d6e-4020-8448-8d38fd580dcb}">
+      <Declaration><![CDATA[PROPERTY Unwind : I_Unwind]]></Declaration>
+      <Get Name="Get" Id="{b41ed44f-2028-4609-98dc-c732cc95d91e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

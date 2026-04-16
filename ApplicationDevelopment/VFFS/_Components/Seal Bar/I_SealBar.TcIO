@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_SealBar" Id="{62ac93d1-8d6d-4d33-a1a7-d152125ab64d}">
+    <Declaration><![CDATA[INTERFACE I_SealBar EXTENDS I_Component]]></Declaration>
+    <Property Name="ActualTemperature" Id="{be45dbb9-f1c0-42c1-91fc-091887417a29}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ActualTemperature : LREAL]]></Declaration>
+      <Get Name="Get" Id="{b5d9bb76-35ab-41fd-b96e-b7d98b7dd688}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Heat" Id="{5b9d5c65-dbfd-4618-bfdc-3bcf1c4d129e}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Heat : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8fe30ada-943e-4f0b-a9e0-5fdd0158b264}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{387faa13-794a-4a5d-9d14-bbf5cb7864a6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="InTempRange" Id="{d290bbfd-71df-42b5-a256-2870f6ab0ae6}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InTempRange : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ec4d543f-afde-47e5-ad7c-c0965f35a192}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="SetTemperature" Id="{882dddeb-345a-4120-83aa-ccfb4298e8af}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY SetTemperature : LREAL]]></Declaration>
+      <Get Name="Get" Id="{afcf4b69-bd09-4d8c-acb8-fb61ee3d6b0b}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{5f121b87-f59a-47d6-86ee-1375777c8a96}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

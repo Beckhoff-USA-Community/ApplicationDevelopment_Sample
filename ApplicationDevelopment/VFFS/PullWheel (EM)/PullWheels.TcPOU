@@ -1,0 +1,320 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="PullWheels" Id="{7754a789-a66d-4052-b729-ff13827ef1ae}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PullWheels EXTENDS PackMLModule IMPLEMENTS I_PullWheels
+VAR
+	// Components
+	PullWheelLeftAxisRef	  : AXIS_REF;
+	_PullWheelLeftAxis		  : AxisPTP('Pull Wheel Left Axis', PullWheelLeftAxisRef);
+	PullWheelLeftAxis_HMI	  : AxisPTP_HMI('Pull Wheel Left Axis HMI', _PullWheelLeftAxis, '°');
+	PullWheelLeftAxis_Events  : Axis_TcEvents('Pul lWheel Left Axis Events', _PullWheelLeftAxis);
+	PullWheelRightAxisRef	  : AXIS_REF;
+	_PullWheelRightAxis		  : SlaveAxisPTP('Pull Wheel Right Axis', PullWheelRightAxisRef);
+	PullWheelRightAxis_HMI	  : AxisPTP_HMI('Pull Wheel Right Axis HMI', _PullWheelRightAxis, '°');
+	PullWheelRightAxis_Events : Axis_TcEvents('Pull Wheel Right Axis Events', _PullWheelRightAxis);
+	_PullWheelCylinder		  : Cylinder('Cylinder', 0, 0, 0, 0);
+	PullWheelCylinder_HMI	  : Cylinder_HMI('Cylinder HMI', _PullWheelCylinder) := (ExtendedName := 'Extended', RetractedName := 'Retracted', ExtendCommandName := 'Extend', RetractCommandName := 'Retract');
+	PullWheelCylinder_Events  : Cylinder_TcEvents('Cylinder Events', _PullWheelCylinder);
+
+	// 
+	_Recipe			 : ST_PullWheelsRecipe;
+	Statemachine_HMI : PackMLStatemachine_HMI('Pull Wheels Statemachine HMI', _Statemachine);
+END_VAR
+
+VAR
+	_Override : LREAL := 100.0;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_ErrorId : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Constructor" Id="{c03725ab-43ea-4dc4-b9e5-86673b36978d}" />
+    <Folder Name="Initialize" Id="{45593c16-c85b-4b29-9248-e4a4eec256e8}" />
+    <Folder Name="PullWheel" Id="{e633557b-aeea-4871-ae50-0d78b8c1faef}" />
+    <Folder Name="States" Id="{92dff042-6767-475b-bcb8-df619fcace0b}" />
+    <Folder Name="Status" Id="{9d61e470-a4a7-46ab-9360-4fc130577f60}" />
+    <Method Name="Aborting" Id="{dfa95981-c309-4b01-bac2-b069da141bfc}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Aborting : BOOL
+VAR_INST
+	DisableAll : DisableAllComponentsVisitor;
+	StopAll	   : StopAllComponentsVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0:
+		StopAll.Stop(Components);
+		IF StopAll.Stopped THEN
+			NextStep(SequenceState);
+		END_IF
+
+	10:
+		DisableAll.Disable(Components);
+		IF NOT DisableAll.Enabled THEN
+			Aborting := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Busy" Id="{4757de2c-806c-4f73-aa20-dbfeb27905ca}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{7268afbc-2990-43e4-adb3-e711dd21d870}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Clearing" Id="{5a48a9ad-a2b6-4466-a282-f899c0f7470f}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Clearing : BOOL
+VAR_INST
+    EnableAll: EnableAllComponentsVisitor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0:
+		IF ResetComponents() THEN
+			NextStep(SequenceState);
+		END_IF
+
+	10:
+		EnableAll.Enable(Components);
+		IF EnableAll.Enabled THEN
+			Clearing := TRUE;
+		END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{a402e210-acb6-42b5-83ea-2b0fe5d6024a}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{4f20fcdb-9245-4ad3-884e-30899e045d63}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{949cca28-941f-46fb-a795-16dde7701984}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT
+]]></Declaration>
+      <Get Name="Get" Id="{348c602e-303f-4ad8-a1ce-0a78abe916bb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{abd97491-0f39-44fa-9587-20035a55c042}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Execute : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		IF PullWheelLeftAxis.Axis.Status.InTargetPosition AND NOT PullWheelLeftAxis.Busy THEN
+			PullWheelCylinder.Retract();
+			IF PullWheelCylinder.Retracted THEN
+				Statemachine.ChangeState(E_PmlCommand.Complete);
+				Execute := TRUE;
+			END_IF
+		END_IF
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		Execute := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{3035fcf4-bd13-4a9e-9efa-0e716f795de8}" FolderPath="Constructor\">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains	: BOOL;
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode	: BOOL;
+	Name	: T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Statemachine.Name := _Name;
+Statemachine_HMI.RegisterWithParent(THIS^);
+_PullWheelLeftAxis.RegisterWithParent(THIS^);
+PullWheelLeftAxis_HMI.RegisterWithParent(THIS^);
+PullWheelLeftAxis_Events.RegisterWithParent(THIS^);
+_PullWheelRightAxis.RegisterWithParent(THIS^);
+PullWheelRightAxis_HMI.RegisterWithParent(THIS^);
+PullWheelRightAxis_Events.RegisterWithParent(THIS^);
+_PullWheelCylinder.RegisterWithParent(THIS^);
+PullWheelCylinder_HMI.RegisterWithParent(THIS^);
+PullWheelCylinder_Events.RegisterWithParent(THIS^);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Initializing" Id="{23c90ba9-8b37-43d5-86e3-995a92e47f76}" FolderPath="Initialize\">
+      <Declaration><![CDATA[(* This Module will be done initialize when ModuleInitialized := TRUE;, subequently all subitems will be called to be initialized *)
+METHOD Initializing
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ModuleInitialized := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCyclicCall" Id="{075ffe24-3c09-427f-904c-80728b5ea9ce}">
+      <Declaration><![CDATA[METHOD OnCyclicCall
+VAR
+	i		   : UDINT;
+	iComponent : I_Component;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Option to iterate through Components
+FOR i := 0 TO (Components.Count - 1) DO
+	iComponent := Components.GetAtIndex(i);
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Override" Id="{3c5dc862-2937-4f0f-af88-4840747973b4}" FolderPath="PullWheel\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Override : LREAL]]></Declaration>
+      <Set Name="Set" Id="{88300cd5-f6d5-4531-b939-949d3fa4bcbe}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Override := Override;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="PullWheelCylinder" Id="{9cc56510-6e6f-4197-a598-611a1f82118e}" FolderPath="PullWheel\">
+      <Declaration><![CDATA[PROPERTY PullWheelCylinder : I_Cylinder]]></Declaration>
+      <Get Name="Get" Id="{a27630f8-016a-4027-819b-e35884a87052}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PullWheelCylinder := _PullWheelCylinder;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PullWheelLeftAxis" Id="{65feab3a-ecc9-4b79-98f2-9f85773e8c13}" FolderPath="PullWheel\">
+      <Declaration><![CDATA[PROPERTY PullWheelLeftAxis : I_Axis_PTP]]></Declaration>
+      <Get Name="Get" Id="{83ac05be-817f-4069-b29e-2e8d236ce1da}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PullWheelLeftAxis := _PullWheelLeftAxis;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PullWheelRightAxis" Id="{9363d5c1-5201-43d8-ae8d-7e316ded4486}" FolderPath="PullWheel\">
+      <Declaration><![CDATA[PROPERTY PullWheelRightAxis : I_SlaveAxis]]></Declaration>
+      <Get Name="Get" Id="{e0e282cb-ae2c-4fea-b3b6-52a3bdfafea4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PullWheelRightAxis := _PullWheelRightAxis;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Recipe" Id="{e4e9f88d-0869-4588-95a5-0fa63e727390}" FolderPath="PullWheel\">
+      <Declaration><![CDATA[PROPERTY Recipe : REFERENCE TO ST_PullWheelsRecipe]]></Declaration>
+      <Get Name="Get" Id="{ed633815-85ea-4434-a20c-fab325914f3e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Recipe REF= _Recipe;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Reset" Id="{33adabb5-7fb8-48fb-9637-024d18a93086}" FolderPath="PullWheel\">
+      <Declaration><![CDATA[METHOD Reset
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error	 := FALSE;
+_ErrorId := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Resetting" Id="{51897ad0-d8ac-4ccc-b501-12a355474f7c}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Resetting : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		PullWheelRightAxis.Master1			:= PullWheelLeftAxis;
+		PullWheelRightAxis.GearRatioMaster1 := 1.0;
+		PullWheelRightAxis.GearIn();
+		Resetting := PullWheelRightAxis.Axis.Status.Coupled;
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		Resetting := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Starting" Id="{08b7192f-6d97-4960-9f94-708bb678333e}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Starting : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		CASE SequenceState OF
+			0:
+				PullWheelCylinder.Extend();
+				IF PullWheelCylinder.Extended THEN
+					PullWheelLeftAxis.Velocity	   := Recipe.LeftAxis.Velocity;
+					PullWheelLeftAxis.Acceleration := Recipe.LeftAxis.Acceleration;
+					PullWheelLeftAxis.MoveRelative(Distance := Recipe.Length, FALSE);
+					NextStep(SequenceState);
+				END_IF
+
+			10:
+				IF PullWheelLeftAxis.Busy THEN
+					Starting := TRUE;
+				END_IF
+		END_CASE
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		Starting := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stopping" Id="{0408b633-0bbd-4a0c-8391-9059215b3c81}" FolderPath="States\">
+      <Declaration><![CDATA[METHOD Stopping : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
+	E_PMLProtectedUnitMode.Production:
+		CASE SequenceState OF
+			0:
+				PullWheelCylinder.Retract();
+				NextStep(SequenceState);
+
+			10:
+				IF PullWheelCylinder.Retracted THEN
+					Stopping := TRUE;
+				END_IF
+		END_CASE
+
+	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
+		Stopping := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

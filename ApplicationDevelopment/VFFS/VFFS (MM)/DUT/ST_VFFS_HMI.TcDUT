@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_VFFS_HMI" Id="{edc57b5e-85e1-47d2-9554-e1ece94fb268}">
+    <Declaration><![CDATA[TYPE ST_VFFS_HMI :
+	STRUCT
+		Override : LREAL := 100.0;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

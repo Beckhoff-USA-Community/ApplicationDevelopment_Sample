@@ -3,8 +3,16 @@
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\UnitTests\\Axis\\Axis_Test.TcPOU@Reset||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
-      "RelativeMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|solutionrelative:UnitTests\\UnitTests\\Axis\\Axis_Test.TcPOU@Reset||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Visu\\V_Main.TcVIS||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|solutionrelative:VFFS\\Visu\\V_Main.TcVIS||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\VFFS (MM)\\VFFS.TcPOU@FB_Init||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}|ApplicationDevelopment.VFFS.MAIN.VFFS.FB_Init",
+      "RelativeMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|solutionrelative:VFFS\\VFFS (MM)\\VFFS.TcPOU@FB_Init||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}|ApplicationDevelopment.VFFS.MAIN.VFFS.FB_Init"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\MAIN.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}|ApplicationDevelopment.VFFS.MAIN",
+      "RelativeMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|solutionrelative:VFFS\\MAIN.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}|ApplicationDevelopment.VFFS.MAIN"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,18 +46,36 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Axis_Test.Reset",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\UnitTests\\Axis\\Axis_Test.TcPOU@Reset",
-              "RelativeDocumentMoniker": "UnitTests\\UnitTests\\Axis\\Axis_Test.TcPOU@Reset",
-              "ToolTip": "Reset [ApplicationDevelopment.UnitTests.Axis_Test]",
+              "DocumentIndex": 1,
+              "Title": "VFFS.FB_Init [Online]",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\VFFS (MM)\\VFFS.TcPOU@FB_Init",
+              "RelativeDocumentMoniker": "VFFS\\VFFS (MM)\\VFFS.TcPOU@FB_Init",
+              "ToolTip": "FB_Init [ApplicationDevelopment.VFFS.VFFS.Constructor]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-04-16T19:39:40.074Z",
+              "WhenOpened": "2026-04-16T20:00:18.397Z",
               "EditorCaption": ""
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:1:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "V_Main",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Visu\\V_Main.TcVIS",
+              "RelativeDocumentMoniker": "VFFS\\Visu\\V_Main.TcVIS",
+              "ToolTip": "V_Main [ApplicationDevelopment.VFFS]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-04-16T19:59:55.489Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MAIN [Online]",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\MAIN.TcPOU",
+              "RelativeDocumentMoniker": "VFFS\\MAIN.TcPOU",
+              "ToolTip": "MAIN [ApplicationDevelopment.VFFS]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-04-16T19:59:15.784Z",
+              "EditorCaption": ""
             }
           ]
         }
