@@ -1,0 +1,11 @@
+Summarize concise with the following sections:
+- short description
+- Function block interface
+- simple example
+
+Rules:
+In main readme intent of the this repository is to show how an application could be programmed using OOP and SOLID principles.
+Alos this repo can be used for examples how to use Beckhoff products interconnectedly and to enhance existing Twin Cat libraries.
+It enables automatic hmi generation and easy information generation after a project is structured.
+
+explain component module hierarchy structure for modern machine design. 
