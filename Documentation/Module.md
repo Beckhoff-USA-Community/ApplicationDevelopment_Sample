@@ -23,8 +23,6 @@ The framework provides two concrete module types:
 | `DeregisterModule(Module)` | Method | Removes a sub-module |
 | `Initialize()` | Method | Runs the initialization sequence |
 | `CyclicLogic()` | Method | Dispatches cyclic logic to all registered items |
-| `GetComponentByName(Name)` | Method | Looks up a component by name |
-| `GetModuleByName(Name)` | Method | Looks up a sub-module by name |
 | `OnCyclicCall()` | Abstract Method | Custom scan-level logic (override in subclass) |
 | `Initializing()` | Abstract Method | Custom init logic; must set `ModuleInitialized := TRUE` |
 
@@ -52,7 +50,7 @@ END_VAR
 
 Module.RegisterComponent(Component);
 Module.CyclicLogic();
-Actual := Module.GetComponentByName('Sensor').Name;
+Actual := Module.Components.GetComponentByName('Sensor').Name;
 // -> 'Sensor'
 
 // From Module_TEST — nested module hierarchy (MachineModule containing EquipmentModule)
@@ -64,7 +62,7 @@ VAR
 END_VAR
 
 Machine.CyclicLogic();
-ActualModule := Machine.GetModuleByName('FormStation');
+ActualModule := Machine.Modules.GetModuleByName('FormStation');
 // -> reference to Em
 
 // From Module_TEST — initialization sequence

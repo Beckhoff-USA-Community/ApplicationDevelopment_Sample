@@ -51,9 +51,6 @@ Statemachine.CyclicLogic();
 Actual := Statemachine.CurrentState;
 // -> 1  (InitialState generic)
 
-Actual := ExecuteState.IsExecuting;
-// -> TRUE
-
 // Transition to state 0
 Statemachine.ChangeState(0);
 Actual := Statemachine.CurrentState;

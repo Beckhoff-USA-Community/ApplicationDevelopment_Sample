@@ -18,7 +18,7 @@ Implements: `I_AnyBuffer`
 | `PopLeft()` | Method → `BOOL` | Removes from the front; returns FALSE if empty |
 | `PopRight()` | Method → `BOOL` | Removes from the back; returns FALSE if empty |
 | `PeekAtIndex(Index)` | Method → value | Non-destructive read at position |
-| `InsertAtIndex(Index, Value)` | Method → `BOOL` | Inserts at position, shifts rest right |
+| `PushAtIndex(Index, Value)` | Method → `BOOL` | Inserts at position, shifts rest right |
 | `DeleteAtIndex(Index)` | Method → `BOOL` | Removes at position, shifts rest left |
 | `ReplaceAtIndex(Index, Value)` | Method → `BOOL` | Overwrites value at position |
 
@@ -44,8 +44,8 @@ Buffer.PushRight(10);
 Buffer.PushRight(20);
 Buffer.PushRight(30);
 
-Buffer.PopLeft();
-Value := Buffer.PeekAtIndex(0);
+Buffer.PopLeft(Value);          // Value = 10, removes from front
+Buffer.PeekAtIndex(0, Value);   // Value = 20, non-destructive read
 // -> 20  (10 was removed)
 ```
 
