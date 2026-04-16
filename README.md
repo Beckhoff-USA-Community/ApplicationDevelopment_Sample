@@ -17,6 +17,14 @@ The application sample code models a machine as a tree of **Modules** and **Comp
 
 This structure enforces separation of concerns, makes each element independently testable, and maps naturally onto real machine architecture.
 
+## How to Use This Repository
+
+**1. As a source of ideas** — Browse the code to see how OOP and SOLID principles apply to PLC development. Use it as a reference when designing your own architecture without taking any code directly.
+
+**2. As a copy-template** — Take only what you need. Copy individual function blocks, components, or patterns into your own project and leave the rest behind. The framework is designed so that pieces work independently.
+
+**3. As a complete framework** — Reference the entire `ApplicationBase` library in your TwinCAT project and build your application on top of it, using the module-component hierarchy as your foundation from day one. The code is fully open and can be freely changed or adapted to fit a wide variety of needs and project requirements.
+
 ## Disclaimer
 
 All sample code provided by Beckhoff Automation LLC are for illustrative purposes only and are provided "as is" and without any warranties, express or implied. Actual implementations in applications will vary significantly. Beckhoff Automation LLC shall have no liability for, and does not waive any rights in relation to, any code samples that it provides or the use of such code samples for any purpose.
