@@ -1,5 +1,15 @@
 # ApplicationDevelopment_Sample
 
+## Table of Contents
+
+- [Intent](#intent)
+  - [Why OOP and SOLID for Modern Machine Software](#why-oop-and-solid-for-modern-machine-software)
+- [How to Use This Repository](#how-to-use-this-repository)
+- [Repository Structure](#repository-structure)
+- [Component-Module Hierarchy for Modern Machine Design](#component-module-hierarchy-for-modern-machine-design)
+  - [Documentation](#documentation)
+- [Disclaimer](#disclaimer)
+
 ## Intent
 
 This repository demonstrates how a PLC application can be structured using **OOP and SOLID principles** in TwinCAT 3. It serves two purposes:
@@ -64,6 +74,7 @@ The application sample code models a machine as a tree of **Modules** and **Comp
 | [ADS](Documentation/ADS.md) | `AdsReadWrite` — ADS read/write by index or symbol name |
 | [Serial](Documentation/Serial.md) | `SerialByteConnection`, `SerialStringConnection`, line control variants |
 | [TCP/IP](Documentation/TcpIp.md) | `TcpIpConnection`, `TcpIpCommandResultFilter` |
+| [VFFS Demo](Documentation/VFFS.md) | Module/component hierarchy of the VFFS sample application |
 
 ## Disclaimer
 
