@@ -75,6 +75,9 @@ The application sample code models a machine as a tree of **Modules** and **Comp
 | [Serial](Documentation/Serial.md) | `SerialByteConnection`, `SerialStringConnection`, line control variants |
 | [TCP/IP](Documentation/TcpIp.md) | `TcpIpConnection`, `TcpIpCommandResultFilter` |
 | [VFFS Demo](Documentation/VFFS.md) | Module/component hierarchy of the VFFS sample application |
+| [Events](Documentation/Events.md) | `TcEventClass`, `I_EventClass`, `I_EventReaction`, `Trace` logging utility |
+| [HMI](Documentation/HMI.md) | `HmiFunction`, `Button`, `PermissiveInterlock` |
+| [Interfaces](Documentation/Interfaces.md) | Standalone interface reference (`I_Base`, `I_Enablable`, `I_TaskResult`, …) |
 
 ## Disclaimer
 

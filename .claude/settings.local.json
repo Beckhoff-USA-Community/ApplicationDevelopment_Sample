@@ -3,7 +3,8 @@
     "allow": [
       "Bash(xargs grep *)",
       "Bash(grep -E \"\\\\.\\(TcPOU|TcDUT|TcGVL\\)$\")",
-      "Bash(find *)"
+      "Bash(find *)",
+      "Bash(cp *)"
     ]
   }
 }

@@ -2,6 +2,24 @@
 
 ---
 
+## Trace
+
+Global utility for debug logging and system diagnostics. Broadcasts messages to TcEventLogger and AdsLogger, both rate-limited to `MaxTraceMessagesPerScan`. Logging to either sink can be toggled via `EnableTcEventLogging` and `EnableAdsLogger` in the global parameters.
+
+```pascal
+Trace.LogMessage(Key := 'SourceName', Value := 'Message text');
+```
+
+`Key` is the source label; `Value` is the message body. Output format: `Value: Key`.
+
+**Register a custom transport** (file logging, MQTT, etc.):
+
+```pascal
+Trace.Subscribe(myCustomLogger); // myCustomLogger implements I_TraceLogger
+```
+
+---
+
 ## ForcibleBool
 
 A `BOOL` wrapper that supports three states: normal operation, forced on, or forced off. Used inside digital I/O components to implement hardware overrides.
