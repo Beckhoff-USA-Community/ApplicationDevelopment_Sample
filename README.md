@@ -59,6 +59,7 @@ The application sample code models a machine as a tree of **Modules** and **Comp
 
 | Topic | Description |
 |-------|-------------|
+| [VFFS — Demo Application](Documentation/VFFS.md) | Vertical Form Fill Seal packaging machine — the demo project where the full framework is applied end-to-end: module/component hierarchy, PackML state machine, events, visitors, and HMI |
 | [Component & CyclicComponent](Documentation/Component.md) | Base classes for all building blocks |
 | [Module](Documentation/Module.md) | Container hierarchy — `EquipmentModule` and `MachineModule` |
 | [Statemachine](Documentation/Statemachine.md) | Generic indexed state machine and `State` base class |
@@ -74,7 +75,6 @@ The application sample code models a machine as a tree of **Modules** and **Comp
 | [ADS](Documentation/ADS.md) | `AdsReadWrite` — ADS read/write by index or symbol name |
 | [Serial](Documentation/Serial.md) | `SerialByteConnection`, `SerialStringConnection`, line control variants |
 | [TCP/IP](Documentation/TcpIp.md) | `TcpIpConnection`, `TcpIpCommandResultFilter` |
-| [VFFS Demo](Documentation/VFFS.md) | Module/component hierarchy of the VFFS sample application |
 | [Events](Documentation/Events.md) | `TcEventClass`, `I_EventClass`, `I_EventReaction`, `Trace` logging utility |
 | [HMI](Documentation/HMI.md) | `HmiFunction`, `Button`, `PermissiveInterlock` |
 | [Interfaces](Documentation/Interfaces.md) | Standalone interface reference (`I_Base`, `I_Enablable`, `I_TaskResult`, …) |
