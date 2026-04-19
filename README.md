@@ -49,7 +49,7 @@ This repository is composed of four parts:
 
 **3. VFFS Demo**  — A sample application modelling a Vertical Form Fill Seal (VFFS) packaging machine. Demonstrates how to apply the `ApplicationBase` framework to a realistic machine design, showing how modules, components, and state machines compose into a complete application.
 
-**4. Template Project** *(coming soon)* — A minimal, pre-wired TwinCAT project to use as a starting point for new applications. Provides the scaffolding and references needed to build on `ApplicationBase` without having to set up the structure from scratch.
+**4. Template Project** — A minimal, pre-wired TwinCAT project to use as a starting point for new applications. Provides the scaffolding and references needed to build on `ApplicationBase` without having to set up the structure from scratch.
 
 ## Component-Module Hierarchy for Modern Machine Design
 
@@ -59,6 +59,7 @@ The application sample code models a machine as a tree of **Modules** and **Comp
 
 | Topic | Description |
 |-------|-------------|
+| [Template Project](Documentation/Template.md) | Minimal pre-wired starting point — `Machine` FB extending `PackMLModule`, HMI, recipe loading, and events, all wired and ready to extend |
 | [VFFS — Demo Application](Documentation/VFFS.md) | Vertical Form Fill Seal packaging machine — the demo project where the full framework is applied end-to-end: module/component hierarchy, PackML state machine, events, visitors, and HMI |
 | [Component & CyclicComponent](Documentation/Component.md) | Base classes for all building blocks |
 | [Module](Documentation/Module.md) | Container hierarchy — `EquipmentModule` and `MachineModule` |

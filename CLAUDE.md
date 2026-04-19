@@ -28,13 +28,17 @@ Tests run inside the TwinCAT PLC runtime — there is no CLI test runner.
 ApplicationDevelopment_Sample/
 ├── ApplicationBase/          # Reusable framework library (tspproj)
 │   └── ApplicationBase/      # Framework source (components, modules, utilities)
-└── ApplicationDevelopment/   # Application + unit tests (sln + tsproj)
-    └── UnitTests/            # PLC project with all test POUs and mockups
+└── ApplicationDevelopment/   # Applications and unit tests (sln + tsproj)
+    ├── UnitTests/            # PLC project with all test POUs and mockups
+    ├── Template/             # Minimal pre-wired starting point for new projects
+    └── VFFS/                 # Full demo application (Vertical Form Fill Seal machine)
 ```
 
-**Two projects:**
+**Four projects:**
 - `ApplicationBase` — the reusable framework (library project)
 - `UnitTests` (inside `ApplicationDevelopment`) — exercises the framework with 26+ test modules
+- `Template` (inside `ApplicationDevelopment`) — minimal pre-wired starting point for new applications
+- `VFFS` (inside `ApplicationDevelopment`) — complete demo application modelling a packaging machine
 
 ## Architecture
 
