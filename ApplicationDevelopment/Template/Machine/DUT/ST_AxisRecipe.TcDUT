@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_AxisRecipe" Id="{0aae78d1-3689-4be8-9db5-0530cb786268}">
+    <Declaration><![CDATA[TYPE ST_AxisRecipe :
+	STRUCT
+		Velocity	 : LREAL := 100;
+		Acceleration : LREAL := 1000;
+		Deceleration : LREAL := 1000;
+		Jerk		 : LREAL := 1000;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

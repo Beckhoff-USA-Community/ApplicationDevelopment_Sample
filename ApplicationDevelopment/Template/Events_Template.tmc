@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<TcModuleClass>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{1A305942-CC0D-4FD0-B448-205A282D7BB0}">Machine</Name>
+			<DisplayName TxtId=""><![CDATA[EventClass1_DisplayText]]></DisplayName>
+			<EventId>
+				<Name Id="1">EStop_Pressed</Name>
+				<DisplayName TxtId=""><![CDATA[E-Stop Pressed!]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+		</DataType>
+	</DataTypes>
+</TcModuleClass>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_Machine_HMI" Id="{c9be57c9-2b6c-4078-bf80-004ccab94b9d}">
+    <Declaration><![CDATA[TYPE ST_Machine_HMI EXTENDS ST_HmiFunction :
+	STRUCT
+		Override : LREAL := 100.0;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

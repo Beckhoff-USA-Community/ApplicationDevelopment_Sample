@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_Machine" Id="{fca79122-89b9-4a1f-b379-4abbced5f27b}">
+    <Declaration><![CDATA[INTERFACE I_Machine EXTENDS I_ContainStatemachine
+]]></Declaration>
+    <Property Name="Override" Id="{c89f7003-f24c-4ee5-913c-3cbe6f23f6d5}">
+      <Declaration><![CDATA[PROPERTY Override : LREAL]]></Declaration>
+      <Set Name="Set" Id="{4bb9dd3b-1382-4000-b75e-bf6964254785}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Recipe" Id="{c319658c-468c-40d5-ba0c-65e3a5df62dc}">
+      <Declaration><![CDATA[PROPERTY Recipe : REFERENCE TO ST_Recipe]]></Declaration>
+      <Get Name="Get" Id="{42edb347-818f-4d5a-975e-90e3e35a7086}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

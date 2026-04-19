@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MAIN" Id="{64551e79-26ad-474c-b7db-26dbd776d24f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	Machine : Machine('Machine');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF NOT Machine.Initialized THEN
+	Machine.Initialize();
+	RETURN;
+END_IF
+
+Machine.CyclicLogic();]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

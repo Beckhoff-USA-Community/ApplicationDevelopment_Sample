@@ -13,10 +13,14 @@
 				<Task Id="6" Priority="21" CycleTime="100000" AmsPort="351" Affinity="#x00080000" AdtTasks="true">
 					<Name>VFFS</Name>
 				</Task>
+				<Task Id="7" Priority="22" CycleTime="100000" AmsPort="352" AdtTasks="true">
+					<Name>PlcTask</Name>
+				</Task>
 			</Tasks>
 			<TypeSystem>
 				<AdditionalTmcFile Name="Events_UnitTest" File="Events_UnitTest.tmc"/>
 				<AdditionalTmcFile Name="Events_VFFS" File="VFFS\Events_VFFS.tmc"/>
+				<AdditionalTmcFile Name="Events_Template" File="Template\Events_Template.tmc"/>
 			</TypeSystem>
 		</System>
 		<Motion>
@@ -25,6 +29,7 @@
 		<Plc>
 			<Project File="UnitTests.xti"/>
 			<Project File="VFFS.xti"/>
+			<Project File="Template.xti"/>
 		</Plc>
 		<Io/>
 	</Project>
