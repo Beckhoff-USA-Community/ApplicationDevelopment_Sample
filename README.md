@@ -15,7 +15,7 @@
 This repository demonstrates how a PLC application can be structured using **OOP and SOLID principles** in TwinCAT 3. It serves two purposes:
 
 - Show how Beckhoff products can be used interconnectedly and how existing TwinCAT libraries can be functionally applied.
-- Provide a structured foundation that enables **automatic HMI generation** and easy information aggregation once a project is organized.
+- Provide a structured foundation that enables **automatic HMI generation**, easy information aggregation once a project is organized and more.
 
 This is an **open and collaborative repository**. Contributions, improvements, and adaptations are welcome. Before contributing, please familiarise yourself with **SOLID principles** and common **software design patterns** — the codebase is built on these foundations and all contributions are expected to follow them. Helpful resources include the [Design Patterns Catalog](https://refactoring.guru/design-patterns/catalog) on Refactoring.Guru and the [Design Patterns video series](https://www.youtube.com/@ChristopherOkhravi) by Christopher Okhravi on YouTube.
 
