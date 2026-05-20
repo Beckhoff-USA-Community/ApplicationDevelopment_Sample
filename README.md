@@ -6,6 +6,7 @@
   - [Why OOP and SOLID for Modern Machine Software](#why-oop-and-solid-for-modern-machine-software)
 - [How to Use This Repository](#how-to-use-this-repository)
 - [Repository Structure](#repository-structure)
+- [Build & Run](#build--run)
 - [Component-Module Hierarchy for Modern Machine Design](#component-module-hierarchy-for-modern-machine-design)
   - [Documentation](#documentation)
 - [Disclaimer](#disclaimer)
@@ -41,7 +42,15 @@ This is an **open and collaborative repository**. Contributions, improvements, a
 
 ## Repository Structure
 
-This repository is composed of four parts:
+```
+ApplicationDevelopment_Sample/
+├── ApplicationBase/          # Reusable framework library (tspproj)
+├── ApplicationDevelopment/   # Solution with applications and tests (sln)
+│   ├── Template/             # Minimal pre-wired starting point
+│   ├── VFFS/                 # Full demo — Vertical Form Fill Seal machine
+│   └── UnitTests/            # Tests + mockups for ApplicationBase
+└── Documentation/            # Topic-by-topic reference docs
+```
 
 **1. ApplicationBase**  — The core framework library. Referenced by other projects in this repository and by external TwinCAT projects that want to build on the component-module hierarchy. Contains all reusable function blocks, interfaces, and utilities.
 
@@ -51,34 +60,67 @@ This repository is composed of four parts:
 
 **4. Template Project** — A minimal, pre-wired TwinCAT project to use as a starting point for new applications. Provides the scaffolding and references needed to build on `ApplicationBase` without having to set up the structure from scratch.
 
+## Build & Run
+
+This project requires **TwinCAT 3 XAE IDE** (Visual Studio extension, Windows-only).
+
+- **Open the solution** — `ApplicationDevelopment/ApplicationDevelopment.sln`
+- **Build** — right-click the solution in XAE and choose *Build*. Targets: TwinCAT RT or TwinCAT OS, Debug/Release, x86 / x64 / ARMV7-A / ARMV7-M / ARMV8-A.
+- **Run** — activate the desired PLC task (`Template`, `VFFS`, or `UnitTests`), log in, and start the runtime on a controller or simulator.
+- **Run the unit tests** — start the `UnitTests` task; `UnitTests/MAIN.TcPOU` orchestrates every test. Inspect results in the global `GlobalTestSuite.TestSuite` via the TwinCAT online view. To run a single test, comment out the other test function calls in `MAIN.TcPOU`.
+
 ## Component-Module Hierarchy for Modern Machine Design
 
 The application sample code models a machine as a tree of **Modules** and **Components** — from a top-level `MachineModule` down to individual `Component` leaves. Modules coordinate initialization and cyclic execution of everything they contain. Tree-wide operations (reset, mode change, HMI generation) are applied via the **Visitor pattern**, keeping operations decoupled from the objects they act on.
 
 ### Documentation
 
+Full reference docs live in [`Documentation/`](Documentation/README.md). Highlights below, grouped by topic.
+
+**Application examples**
+
 | Topic | Description |
 |-------|-------------|
 | [Template Project](Documentation/Template.md) | Minimal pre-wired starting point — `Machine` FB extending `PackMLModule`, HMI, recipe loading, and events, all wired and ready to extend |
 | [VFFS — Demo Application](Documentation/VFFS.md) | Vertical Form Fill Seal packaging machine — the demo project where the full framework is applied end-to-end: module/component hierarchy, PackML state machine, events, visitors, and HMI |
+
+**Framework core**
+
+| Topic | Description |
+|-------|-------------|
 | [Component & CyclicComponent](Documentation/Component.md) | Base classes for all building blocks |
 | [Module](Documentation/Module.md) | Container hierarchy — `EquipmentModule` and `MachineModule` |
 | [Statemachine](Documentation/Statemachine.md) | Generic indexed state machine and `State` base class |
 | [Visitors](Documentation/Visitors.md) | Tree-traversal operations (reset, enable, mode change, HMI, …) |
+| [Interfaces](Documentation/Interfaces.md) | Standalone interface reference (`I_Base`, `I_Enablable`, `I_TaskResult`, …) |
+| [Collections & Buffers](Documentation/Collections.md) | `AnyBuffer`, `ComponentCollection`, `Collection` |
+| [Utilities](Documentation/Utilities.md) | `ForcibleBool/Int`, `AnalogScale`, `Stopwatch`, `RecipeManagement` |
+
+**I/O components**
+
+| Topic | Description |
+|-------|-------------|
 | [Digital I/O](Documentation/Digital.md) | `DigitalInput_NO/NC`, `DigitalOutput`, Combiner, Debounce |
 | [Analog I/O](Documentation/Analog.md) | `AnalogInput`, `AnalogOutput`, `AnalogScale` |
 | [Cylinder](Documentation/Cylinder.md) | Double-acting cylinder controller with state machine and fault detection |
-| [Collections & Buffers](Documentation/Collections.md) | `AnyBuffer`, `ComponentCollection`, `Collection` |
-| [Utilities](Documentation/Utilities.md) | `ForcibleBool/Int`, `AnalogScale`, `Stopwatch`, `RecipeManagement` |
 | [Safety](Documentation/Safety.md) | `SafetyBase`, `SafetyAndOrFB`, `SafetyModule`, `SafetyResetPulse` |
+
+**Communication**
+
+| Topic | Description |
+|-------|-------------|
 | [EtherCAT](Documentation/EtherCAT.md) | `EtherCatMaster`, `EtherCatIoDevice` |
 | [CoE](Documentation/CoE.md) | `CoeDevice`, `NullCoeDevice` — SDO read/write for EtherCAT slaves |
 | [ADS](Documentation/ADS.md) | `AdsReadWrite` — ADS read/write by index or symbol name |
 | [Serial](Documentation/Serial.md) | `SerialByteConnection`, `SerialStringConnection`, line control variants |
 | [TCP/IP](Documentation/TcpIp.md) | `TcpIpConnection`, `TcpIpCommandResultFilter` |
+
+**Operator interaction**
+
+| Topic | Description |
+|-------|-------------|
 | [Events](Documentation/Events.md) | `TcEventClass`, `I_EventClass`, `I_EventReaction`, `Trace` logging utility |
 | [HMI](Documentation/HMI.md) | `HmiFunction`, `Button`, `PermissiveInterlock` |
-| [Interfaces](Documentation/Interfaces.md) | Standalone interface reference (`I_Base`, `I_Enablable`, `I_TaskResult`, …) |
 
 ## Disclaimer
 
