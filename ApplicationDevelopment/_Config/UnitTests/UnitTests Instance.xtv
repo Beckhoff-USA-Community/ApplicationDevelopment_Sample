@@ -1005,7 +1005,7 @@ External Setpoint Generation:
 			</Relations>
 		</DataType>
 	</DataTypes>
-	<Instance TmcHash="{ECE1227C-A7A1-7565-F6F1-E09C5E930C67}">
+	<Instance TmcHash="{2CE7DC21-7D43-D973-927C-16A8C1A4CD93}">
 		<Vars VarGrpType="1">
 			<Name>TestsBaseTask Inputs</Name>
 			<Var>

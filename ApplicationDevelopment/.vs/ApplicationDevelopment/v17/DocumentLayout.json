@@ -13,15 +13,19 @@
           "Children": [
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{4b2fb114-ebcc-47aa-84f6-626b9526ee7c}"
+              "Name": "ST:0:0:{ed0bcd91-6645-4c98-a08d-0550d8ae7328}"
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:1:0:{4b2fb114-ebcc-47aa-84f6-626b9526ee7c}"
+              "Name": "ST:4:0:{4b2fb114-ebcc-47aa-84f6-626b9526ee7c}"
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{86ffb26f-af2d-4647-8db8-6983d79a7202}"
+              "Name": "ST:5:0:{4b2fb114-ebcc-47aa-84f6-626b9526ee7c}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:3:0:{4b2fb114-ebcc-47aa-84f6-626b9526ee7c}"
             },
             {
               "$type": "Bookmark",
@@ -30,6 +34,32 @@
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 250,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:3:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eda0c713-bb28-4234-9baf-5474d438e67a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1528276488:0:{a6f4fceb-1c71-4697-840a-c4fdf5060a5f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b8e2616d-3101-4d4e-8747-810e3849d560}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
             }
           ]
         }
