@@ -9,7 +9,7 @@
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>ApplicationBase</Name>
-    <ProgramVersion>3.1.4026.22</ProgramVersion>
+    <ProgramVersion>3.1.4026.24</ProgramVersion>
     <WriteBookmarksToFile>true</WriteBookmarksToFile>
     <Application>{81995358-ed92-41a6-998c-68a2712ffa29}</Application>
     <TypeSystem>{4cef5acc-5801-4b69-9cfc-2a3018d8a759}</TypeSystem>
@@ -21,7 +21,7 @@
     <VirtualLibrary>true</VirtualLibrary>
     <Company>Beckhoff Automation LLC</Company>
     <Title>ApplicationBase</Title>
-    <ProjectVersion>1.0.1</ProjectVersion>
+    <ProjectVersion>1.0.2</ProjectVersion>
     <DefaultNamespace>ApplicationBase</DefaultNamespace>
     <Author>FS</Author>
     <GlobalVersionStructureIncluded>true</GlobalVersionStructureIncluded>

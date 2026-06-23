@@ -9,6 +9,7 @@ END_VAR
 VAR
 	Initializable : ARRAY[0..MaxCount] OF I_Initializable;
 	InitializableCount : UDINT;
+	NotInitialized : I_Initializable;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -60,17 +61,18 @@ PROPERTY Initialized : BOOL]]></Declaration>
       <Get Name="Get" Id="{b9c8b2c4-4b3f-4be1-babd-28fc8f116fe7}">
         <Declaration><![CDATA[VAR
 	i		   : UDINT;
-	Initialize : I_Initializable;
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Initialized := TRUE;
+          <ST><![CDATA[Initialized	   := TRUE;
+NotInitialized := 0;
 FOR i := 0 TO MaxCount DO
 	IF Initializable[i] = 0 THEN
 		EXIT;
 	END_IF
 
 	IF NOT Initializable[i].Initialized THEN
-		Initialized := FALSE;
+		NotInitialized := Initializable[i];
+		Initialized	   := FALSE;
 	END_IF
 END_FOR]]></ST>
         </Implementation>
