@@ -21,7 +21,7 @@
     <VirtualLibrary>true</VirtualLibrary>
     <Company>Beckhoff Automation LLC</Company>
     <Title>ApplicationBase</Title>
-    <ProjectVersion>1.0.2</ProjectVersion>
+    <ProjectVersion>1.0.3</ProjectVersion>
     <DefaultNamespace>ApplicationBase</DefaultNamespace>
     <Author>FS</Author>
     <GlobalVersionStructureIncluded>true</GlobalVersionStructureIncluded>
@@ -1019,6 +1019,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="_Internal\Tracing\Interface\I_TraceSourceInfo.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\Tracing\LocalLogger.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="_Internal\Tracing\TcEventLogger.TcPOU">

@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="LocalLogger" Id="{16601270-5b17-4fbc-ba13-13dac222b1f7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK LocalLogger
+VAR_GENERIC CONSTANT
+	LogSize : UDINT := 5;
+END_VAR IMPLEMENTS I_TraceLogger
+VAR
+	_Messages : ARRAY[0..LogSize - 1] OF T_MaxString;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ClearLog" Id="{21847a78-09f1-4239-a6a8-f01a4ccf9f8e}">
+      <Declaration><![CDATA[METHOD ClearLog
+VAR_INPUT
+END_VAR
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO LogSize - 1 DO
+	_Messages[i] := '';
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="LogMessage" Id="{a01d6dd3-6873-442e-b705-ce03df83f57a}">
+      <Declaration><![CDATA[METHOD LogMessage
+VAR_INPUT
+	Key		  : T_MaxString;
+	Value	  : T_MaxString;
+	SourceId  : UDINT := 0;
+	TimeStamp : ULINT := 0;
+	MessageId : UDINT := 1;
+	Severity  : USINT := 1;
+END_VAR
+
+VAR
+	_TimeStamp  : T_FILETIME64;
+	TimeString : T_MaxString;
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TimeStamp = 0 THEN
+	_TimeStamp := F_GetSystemTime();
+ELSE
+	_TimeStamp := Timestamp;
+END_IF
+
+TimeString := SYSTEMTIME_TO_STRING(FILETIME64_TO_SYSTEMTIME(_TimeStamp));
+//shift messages down
+FOR i := 1 TO LogSize - 1 DO
+	_Messages[LogSize - i] := _Messages[LogSize - 1 - i];
+END_FOR
+
+_Messages[0] := CONCAT(TimeString, CONCAT(' ', CONCAT(Key, CONCAT('- Sev:', CONCAT(TO_STRING(Severity), CONCAT(' ', CONCAT(Key, CONCAT(': ', Value))))))));]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Messages" Id="{52d74c1a-5805-44c8-aaf3-5c1add693e4f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Messages : REFERENCE TO ARRAY[0..LogSize - 1] OF T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{8e2c6139-0287-459b-ab7f-a7ee49dc15ab}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Messages REF= _Messages;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>
