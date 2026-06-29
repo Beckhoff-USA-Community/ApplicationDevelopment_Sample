@@ -35,9 +35,13 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Method Name="CyclicLogic" Id="{61077c44-2c9d-4bea-a13f-74d5e9b3b5bb}">
-      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR
+    i : UDINT;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[McMoveAbsolute[Active](Axis			:= _Axis.Axis,
+        <ST><![CDATA[FOR i := 0 TO 1 DO
+    McMoveAbsolute[i](Axis			:= _Axis.Axis,
 					   Position		:= _TargetPosition,
 					   Velocity		:= _Axis.Velocity,
 					   Acceleration := _Axis.Acceleration,
@@ -46,7 +50,8 @@ END_VAR]]></Declaration>
 					   BufferMode	:= _McBufferMode,
 					   Options		:= _MoveOptions);
 
-McMoveAbsolute[Active].Execute := FALSE;]]></ST>
+    McMoveAbsolute[i].Execute := FALSE;
+END_FOR]]></ST>
       </Implementation>
     </Method>
     <Property Name="Error" Id="{226f39e2-be35-4b17-ada7-ec2ad7812c83}">

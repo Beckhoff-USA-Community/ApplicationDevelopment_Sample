@@ -36,19 +36,24 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Method Name="CyclicLogic" Id="{1ab634e9-e5e8-4361-aefb-53a4d29daae0}">
-      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR
+    i : UDINT;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[McMoveModulo[Active](Axis		  := _Axis.Axis,
-					 Position	  := _TargetPosition,
-					 Direction	  := _Direction,
-					 Velocity	  := _Axis.Velocity,
-					 Acceleration := _Axis.Acceleration,
-					 Deceleration := _Axis.Deceleration,
-					 Jerk		  := _Axis.Jerk,
-					 BufferMode	  := _McBufferMode,
-					 Options	  := _MoveOptions);
-
-McMoveModulo[Active].Execute := FALSE;]]></ST>
+        <ST><![CDATA[FOR i := 0 TO 1 DO
+    McMoveModulo[i](Axis		  := _Axis.Axis,
+                    Position	  := _TargetPosition,
+                    Direction	  := _Direction,
+                    Velocity	  := _Axis.Velocity,
+                    Acceleration := _Axis.Acceleration,
+                    Deceleration := _Axis.Deceleration,
+                    Jerk		  := _Axis.Jerk,
+                    BufferMode	  := _McBufferMode,
+                    Options	  := _MoveOptions);
+    
+    McMoveModulo[i].Execute := FALSE;
+END_FOR]]></ST>
       </Implementation>
     </Method>
     <Property Name="Direction" Id="{803ecd2e-14fd-4570-b166-79f035cfd335}">

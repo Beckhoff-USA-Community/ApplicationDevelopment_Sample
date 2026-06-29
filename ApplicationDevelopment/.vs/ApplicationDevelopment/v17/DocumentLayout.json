@@ -1,7 +1,24 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Visu\\V_Main.TcVIS||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|solutionrelative:VFFS\\Visu\\V_Main.TcVIS||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{660372F6-F56D-4FD0-9425-9DBCF25FC14F}|Template\\Template.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\Template\\Visu\\V_Main.TcVIS||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{660372F6-F56D-4FD0-9425-9DBCF25FC14F}|Template\\Template.plcproj|solutionrelative:Template\\Visu\\V_Main.TcVIS||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\MAIN.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|solutionrelative:VFFS\\MAIN.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{660372F6-F56D-4FD0-9425-9DBCF25FC14F}|Template\\Template.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\Template\\Machine\\Machine.TcPOU@OnCyclicCall||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}|ApplicationDevelopment.Template.MAIN.Machine.OnCyclicCall",
+      "RelativeMoniker": "D:0:0:{660372F6-F56D-4FD0-9425-9DBCF25FC14F}|Template\\Template.plcproj|solutionrelative:Template\\Machine\\Machine.TcPOU@OnCyclicCall||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}|ApplicationDevelopment.Template.MAIN.Machine.OnCyclicCall"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -39,7 +56,7 @@
         },
         {
           "DockedWidth": 250,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -58,8 +75,52 @@
               "Name": "ST:0:0:{b8e2616d-3101-4d4e-8747-810e3849d560}"
             },
             {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "V_Main",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Visu\\V_Main.TcVIS",
+              "RelativeDocumentMoniker": "VFFS\\Visu\\V_Main.TcVIS",
+              "ToolTip": "V_Main [ApplicationDevelopment.VFFS]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-06-29T12:04:56.361Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Machine.OnCyclicCall [Online]",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\Template\\Machine\\Machine.TcPOU@OnCyclicCall",
+              "RelativeDocumentMoniker": "Template\\Machine\\Machine.TcPOU@OnCyclicCall",
+              "ToolTip": "OnCyclicCall [ApplicationDevelopment.Template.Machine]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-06-29T12:04:17.773Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "V_Main",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\Template\\Visu\\V_Main.TcVIS",
+              "RelativeDocumentMoniker": "Template\\Visu\\V_Main.TcVIS",
+              "ToolTip": "V_Main [ApplicationDevelopment.Template]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-06-29T12:04:15.377Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MAIN",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\MAIN.TcPOU",
+              "RelativeDocumentMoniker": "VFFS\\MAIN.TcPOU",
+              "ToolTip": "MAIN [ApplicationDevelopment.VFFS]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-06-29T12:03:37.352Z",
+              "EditorCaption": ""
+            },
+            {
               "$type": "Bookmark",
-              "Name": "ST:2:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
+              "Name": "ST:1:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
             }
           ]
         }

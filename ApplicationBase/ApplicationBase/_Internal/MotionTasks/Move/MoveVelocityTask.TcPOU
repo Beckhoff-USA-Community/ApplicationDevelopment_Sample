@@ -35,17 +35,22 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Method Name="CyclicLogic" Id="{d50165cf-a947-4fb6-bb92-bba9143099c2}">
-      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR
+    i : UDINT;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[McMoveVelocity[Active](Axis			:= _Axis.Axis,
-					   Velocity		:= _TargetVelocity,
-					   Acceleration := _Axis.Acceleration,
-					   Deceleration := _Axis.Deceleration,
-					   Jerk			:= _Axis.Jerk,
-					   BufferMode	:= _McBufferMode,
-					   Options		:= _MoveOptions);
-
-McMoveVelocity[Active].Execute := FALSE;]]></ST>
+        <ST><![CDATA[FOR i := 0 TO 1 DO
+    McMoveVelocity[i](Axis			:= _Axis.Axis,
+                           Velocity		:= _TargetVelocity,
+                           Acceleration := _Axis.Acceleration,
+                           Deceleration := _Axis.Deceleration,
+                           Jerk			:= _Axis.Jerk,
+                           BufferMode	:= _McBufferMode,
+                           Options		:= _MoveOptions);
+    
+    McMoveVelocity[i].Execute := FALSE;
+END_FOR]]></ST>
       </Implementation>
     </Method>
     <Property Name="Error" Id="{7413c3d1-d094-459e-a74f-5e05ede91922}">
