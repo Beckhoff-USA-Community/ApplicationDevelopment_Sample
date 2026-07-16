@@ -3,7 +3,7 @@
   <POU Name="List_TEST" Id="{a848f4ac-0118-45a2-9c47-c6777ed9c090}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK List_TEST
 VAR
-	List  : List;
+	List  : List<5>;
 	Item1 : Item_Mockup;
 	Item2 : Item_Mockup;
 	Item3 : Item_Mockup;

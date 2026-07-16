@@ -1,7 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="List" Id="{af29319b-574f-4e46-9fab-e40ca5d32152}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK List EXTENDS Collection IMPLEMENTS I_List
+    <Declaration><![CDATA[FUNCTION_BLOCK List
+VAR_GENERIC CONSTANT
+	ListSize : UDINT := 2;
+END_VAR
+EXTENDS Collection<ListSize> IMPLEMENTS I_List
 VAR
 	_ListCount : UDINT := 0;
 END_VAR]]></Declaration>
@@ -48,8 +52,7 @@ IF _ListCount = 0 THEN
 END_IF
 
 FOR i := 0 TO (_ListCount - 1) DO
-	pItem := Collection.pBuffer + (i * SIZEOF(PVOID));
-	IF pItem^ = Item AND pItem^ <> 0 THEN
+	IF _Data[i] = Item AND _Data[i] <> 0 THEN
 		ContainsItem := TRUE;
 		RETURN;
 	END_IF
@@ -81,8 +84,7 @@ END_IF
 
 _ListCount := 0;
 FOR i := 0 TO (_Count - 1) DO
-	pItem := Collection.pBuffer + (i * SIZEOF(PVOID));
-	IF pItem^ <> 0 THEN
+	IF _Data[i] <> 0 THEN
 		_ListCount := _ListCount + 1;
 	END_IF
 END_FOR]]></ST>
@@ -108,8 +110,7 @@ IF Index > (_Count - 1) THEN
 	RETURN;
 END_IF
 
-pItem	   := Collection.pBuffer + (Index * SIZEOF(PVOID));
-GetAtIndex := pItem^;]]></ST>
+GetAtIndex := _Data[Index];]]></ST>
       </Implementation>
     </Method>
     <Method Name="InsertAtIndex" Id="{3d241dbc-f3ba-4d49-852a-1cfd8db3a81f}">
@@ -130,22 +131,12 @@ END_VAR]]></Declaration>
 	RETURN;
 END_IF
 
-IF _Count = 0 THEN
-	Collection.CreateBuffer(nSize := (1 * SIZEOF(PVOID)), bReset := TRUE);
-	pCollection := Collection.pBuffer;
-END_IF
-
 _Count := (_Count + 1);
-Collection.Resize(nSize := (_Count * SIZEOF(PVOID)), bPreserve := TRUE, bReset := TRUE);
-pCollection := Collection.pBuffer;
 FOR i := _Count TO Index + 1 BY -1 DO
-	pItem	  := Collection.pBuffer + (i * SIZEOF(PVOID));
-	pItemNext := Collection.pBuffer + ((i - 1) * SIZEOF(PVOID));
-	pItem^	  := pItemNext^;
+	_Data[i] := _Data[i - 1];
 END_FOR
 
-pItem  := Collection.pBuffer + (Index * SIZEOF(PVOID));
-pItem^ := Item;
+_Data[Index] := Item;
 CountListItems();]]></ST>
       </Implementation>
     </Method>
@@ -169,10 +160,10 @@ IF Index > (_Count - 1) THEN
 	RETURN;
 END_IF
 
-MEMMOVE(Collection.pBuffer + (Index * SIZEOF(PVOID)), Collection.pBuffer + ((Index + 1) * SIZEOF(PVOID)), (_Count - Index - 1) * SIZEOF(PVOID));
+MEMMOVE(ADR(_Data[Index]), ADR(_Data[Index + 1]), (_Count - Index - 1) * SIZEOF(PVOID));
 _Count := _Count - 1;
-Collection.Resize(nSize := (_Count * SIZEOF(PVOID)), bPreserve := TRUE, bReset := TRUE); //not sure if this is needed?
-pItem := Collection.pBuffer + (Index * SIZEOF(PVOID));
+
+//pItem  := Collection.pBuffer + (Index * SIZEOF(PVOID));
 CountListItems();]]></ST>
       </Implementation>
     </Method>
@@ -200,20 +191,17 @@ IF Item = 0 THEN
 END_IF
 
 FOR i := 0 TO (_Count - 1) DO
-	pItem := Collection.pBuffer + (i * SIZEOF(PVOID));
-	IF pItem^ = Item THEN
-		pItem^		 := 0;
+	IF _Data[i] = Item THEN
+		_Data[i]	 := 0;
 		removedItems := removedItems + 1;
 	END_IF
 END_FOR
 
 IF _Count > 1 THEN
 	FOR i := 0 TO (_Count - 2) DO
-		pItem	  := Collection.pBuffer + (i * SIZEOF(PVOID));
-		pItemNext := Collection.pBuffer + ((i + 1) * SIZEOF(PVOID));
-		IF pItem^ = 0 AND pItemNext^ <> 0 THEN
-			pItem^	   := pItemNext^;
-			pItemNext^ := 0;
+		IF _Data[i] = 0 AND _Data[i + 1] <> 0 THEN
+			_Data[i]	 := _Data[i + 1];
+			_Data[i + 1] := 0;
 		END_IF
 	END_FOR
 END_IF

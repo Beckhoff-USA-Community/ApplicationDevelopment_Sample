@@ -1,7 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="Collection_Mockup" Id="{0df1fef0-f1a2-4c84-94bd-311358ab686f}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Collection_Mockup EXTENDS Collection
+    <Declaration><![CDATA[FUNCTION_BLOCK Collection_Mockup
+VAR_GENERIC CONSTANT
+	MockupSize : UDINT := 2;
+END_VAR
+EXTENDS Collection<MockupSize>
 VAR
 END_VAR]]></Declaration>
     <Implementation>
@@ -12,13 +16,9 @@ END_VAR]]></Declaration>
 VAR_INPUT
 	Index : UDINT;
 END_VAR
-
-VAR
-	pItem : POINTER TO I_Base;
-END_VAR]]></Declaration>
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[pItem		   := Collection.pBuffer + (Index * SIZEOF(PVOID));
-GetItemByIndex := pItem^;]]></ST>
+        <ST><![CDATA[GetItemByIndex := _Data[Index];]]></ST>
       </Implementation>
     </Method>
   </POU>

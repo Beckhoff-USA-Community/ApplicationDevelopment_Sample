@@ -4,7 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK CollectionPeeker_Test
 VAR
 	ComponentArray : ARRAY[0..9] OF Component_Mockup[(Name := '1'), (Name := '2'), (Name := '3'), (Name := '4'), (Name := '5'), (Name := '6'), (Name := '7'), (Name := '8'), (Name := '9'), (Name := '10')];
-	AllComponents  : Collection;
+	AllComponents  : Collection<20>;
 	i			   : UDINT;
 END_VAR]]></Declaration>
     <Implementation>
