@@ -40,25 +40,31 @@ VAR_INPUT
 	Severity  : USINT := 1;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF TwinCAT_SystemInfoVarList._TaskInfo[GETCURTASKINDEXEX()].CycleCount <> CurrentCycle THEN
-	CurrentCycle	 := TwinCAT_SystemInfoVarList._TaskInfo[GETCURTASKINDEXEX()].CycleCount;
-	MessagesThisScan := 0;
+        <ST><![CDATA[IF GETCURTASKINDEXEX() > 0 THEN
+    IF TwinCAT_SystemInfoVarList._TaskInfo[GETCURTASKINDEXEX()].CycleCount <> CurrentCycle THEN
+        CurrentCycle	 := TwinCAT_SystemInfoVarList._TaskInfo[GETCURTASKINDEXEX()].CycleCount;
+        MessagesThisScan := 0;
+    END_IF
+    
+    IF NOT (MessagesThisScan < TO_DINT(TwinCAT_SystemInfoVarList._TaskInfo[GETCURTASKINDEXEX()].CycleTime / 2000)) THEN
+        RETURN;
+    END_IF
 END_IF
 
-IF MessagesThisScan < TO_DINT(TwinCAT_SystemInfoVarList._TaskInfo[GETCURTASKINDEXEX()].CycleTime / 2000) THEN
-	CASE Severity OF
-		0, 1:
-			ADSLOGSTR(ADSLOG_MSGTYPE_LOG OR ADSLOG_MSGTYPE_HINT, Concat(Value, ': %s'), Key);
 
-		2:
-			ADSLOGSTR(ADSLOG_MSGTYPE_LOG OR ADSLOG_MSGTYPE_WARN, Concat(Value, ': %s'), Key);
+CASE Severity OF
+	0, 1:
+		ADSLOGSTR(ADSLOG_MSGTYPE_LOG OR ADSLOG_MSGTYPE_HINT, Concat(Value, ': %s'), Key);
 
-		3, 4:
-			ADSLOGSTR(ADSLOG_MSGTYPE_LOG OR ADSLOG_MSGTYPE_ERROR, Concat(Value, ': %s'), Key);
-	END_CASE
+	2:
+		ADSLOGSTR(ADSLOG_MSGTYPE_LOG OR ADSLOG_MSGTYPE_WARN, Concat(Value, ': %s'), Key);
 
-	MessagesThisScan := MessagesThisScan + 1;
-END_IF]]></ST>
+	3, 4:
+		ADSLOGSTR(ADSLOG_MSGTYPE_LOG OR ADSLOG_MSGTYPE_ERROR, Concat(Value, ': %s'), Key);
+END_CASE
+
+MessagesThisScan := MessagesThisScan + 1;
+]]></ST>
       </Implementation>
     </Method>
   </POU>
