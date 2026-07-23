@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
 <TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.24" ClassName="CNestedPlcProjDef">
-	<Project GUID="{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}" Name="ApplicationBase" PrjFilePath="..\..\ApplicationBase\ApplicationBase.plcproj" TmcFilePath="..\..\ApplicationBase\ApplicationBase.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e"/>
+	<Project GUID="{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}" Name="ApplicationBase" PrjFilePath="..\..\ApplicationBase\ApplicationBase.plcproj" TmcFilePath="..\..\ApplicationBase\ApplicationBase.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e">
+		<Comment><![CDATA[All sample code provided by Beckhoff Automation LLC are for illustrative purposes only and are provided “as is” and without any warranties, express or implied. Actual implementations in applications will vary significantly. Beckhoff Automation LLC shall have no liability for, and does not waive any rights in relation to, any code samples that it provides or the use of such code samples for any purpose.]]></Comment>
+	</Project>
 </TcSmItem>
