@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
   <Itf Name="I_ComponentCollection" Id="{cadf997f-6bee-48d5-b8f4-0a4cf5e22c66}">
-    <Declaration><![CDATA[INTERFACE I_ComponentCollection]]></Declaration>
+    <Declaration><![CDATA[INTERFACE I_ComponentCollection EXTENDS I_Base]]></Declaration>
     <Method Name="Accept" Id="{beafdad1-ed76-4206-a17e-6ca7f63f3670}">
       <Declaration><![CDATA[METHOD Accept
 VAR_INPUT

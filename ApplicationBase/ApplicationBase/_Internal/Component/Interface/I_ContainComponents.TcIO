@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
   <Itf Name="I_ContainComponents" Id="{6bc694a1-f81e-491a-98a2-601cc8f3ebf8}">
-    <Declaration><![CDATA[INTERFACE I_ContainComponents]]></Declaration>
+    <Declaration><![CDATA[INTERFACE I_ContainComponents EXTENDS I_Base]]></Declaration>
     <Property Name="Components" Id="{c8f84fb0-b104-4221-8e49-38fa9d0fa737}">
       <Declaration><![CDATA[PROPERTY Components : I_ComponentCollection]]></Declaration>
       <Get Name="Get" Id="{4926c63d-9dcf-44b3-9a00-093bd6a620e6}">

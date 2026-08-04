@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
   <Itf Name="I_ContainModules" Id="{c14c7da0-b6c9-4ae1-b029-af7adfe80c60}">
-    <Declaration><![CDATA[INTERFACE I_ContainModules]]></Declaration>
+    <Declaration><![CDATA[INTERFACE I_ContainModules EXTENDS I_Base]]></Declaration>
     <Method Name="DeregisterCyclic" Id="{dc661aae-00ab-44cc-852c-bc30e0d16315}">
       <Declaration><![CDATA[METHOD DeregisterCyclic : RegistrationResult
 VAR_INPUT

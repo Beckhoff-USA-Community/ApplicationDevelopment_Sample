@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
   <GVL Name="Global_Version" Id="{ffd1fff3-c0ef-4501-985f-811a119b50ee}">
     <Declaration><![CDATA[{attribute 'TcGenerated'}
 {attribute 'no-analysis'}
@@ -7,7 +7,7 @@
 // This function has been automatically generated from the project information.
 VAR_GLOBAL CONSTANT
 	{attribute 'const_non_replaced'}
-	stLibVersion_ApplicationBase : ST_LibVersion := (iMajor := 1, iMinor := 0, iBuild := 7, iRevision := 0, nFlags := 0, sVersion := '1.0.7');
+	stLibVersion_ApplicationBase : ST_LibVersion := (iMajor := 1, iMinor := 0, iBuild := 8, iRevision := 0, nFlags := 0, sVersion := '1.0.8');
 END_VAR
 ]]></Declaration>
   </GVL>
