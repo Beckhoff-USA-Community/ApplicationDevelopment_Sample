@@ -1,0 +1,323 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
+  <POU Name="CalculateMotionDynamics" Id="{c1d4e8a7-3f62-4b09-9e15-6a2c8d0b7f31}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+    CalcMotionDynamics
+    ------------------
+    Calculates the "best" (= gentlest possible) set of dynamic parameters
+    Velocity / Acceleration / Deceleration / Jerk so that a given distance is
+    travelled in a given time, without ever exceeding the supplied maximum values.
+
+    Method
+    ------
+    1) The fastest possible move for the distance is calculated using the full
+       maximum dynamics. This gives TimeMin (7 phase jerk limited profile:
+       jerk up - const. acceleration - jerk down - const. velocity -
+       jerk up - const. deceleration - jerk down; phases collapse automatically
+       when the distance or the velocity limit does not allow them).
+
+    2) The requested time is reached by stretching exactly that profile in time.
+       For a time scaling factor Lambda = TimeMin / MoveTime the identical position
+       profile shape is obtained with
+            v ~ Lambda, a ~ Lambda^2, j ~ Lambda^3
+       This is exact: the resulting move time is TimeMin / Lambda = MoveTime, for
+       every profile shape, so no iteration over the requested time is needed.
+
+    Because the shape of the fastest profile is kept, the result is the smallest
+    set of dynamics that still meets the requested time, and the utilisation of
+    velocity, acceleration, deceleration and jerk stays balanced (no single value
+    is driven to its limit while the others idle).
+
+    Notes
+    -----
+    - JerkMax = 0 means "no jerk limitation": a trapezoidal velocity profile is
+      calculated and Jerk is returned as 0.
+    - Units are free but must be consistent: distance [u], time [s] =>
+      velocity [u/s], acceleration/deceleration [u/s2], jerk [u/s3].
+    - The model matches the standard jerk limited (trapezoidal acceleration)
+      profile of TwinCAT NC PTP. If the axis is parameterised with a different
+      acceleration characteristic (e.g. sin2 / smoothed), the achieved time
+      deviates slightly.
+    - The block is stateless, it recalculates on every call. Just call it
+      cyclically (or once in a step) and read the outputs in the same cycle.
+    - Very long requested times lead to very small dynamics (jerk scales with
+      Lambda^3). Check ScalingFactor if the axis has a lower dynamic limit.
+*)
+FUNCTION_BLOCK CalculateMotionDynamics
+VAR_INPUT
+    /// Distance to travel [u]. The sign is ignored, ABS() is used.
+    Distance : LREAL;
+    /// Time in which the distance shall be travelled [s]
+    MoveTime : LREAL;
+
+    /// Maximum allowed velocity [u/s]
+    VelocityMax : LREAL;
+    /// Maximum allowed acceleration [u/s2]
+    AccelerationMax : LREAL;
+    /// Maximum allowed deceleration [u/s2]
+    DecelerationMax : LREAL;
+    /// Maximum allowed jerk [u/s3]. 0 = no jerk limitation.
+    JerkMax : LREAL;
+END_VAR
+VAR_OUTPUT
+    /// TRUE: outputs contain a valid dynamic set for the requested distance/time
+    Valid : BOOL;
+    /// TRUE: an error occurred, see ErrorId
+    Error : BOOL;
+    ErrorId : MotionDynamicsError;
+    /// TRUE: MoveTime could not be met, the outputs contain the fastest possible profile
+    TimeLimited : BOOL;
+
+    (* --- results: feed these directly into MC_MoveAbsolute / MC_MoveRelative --- *)
+    Velocity : LREAL;
+    Acceleration : LREAL;
+    Deceleration : LREAL;
+    Jerk : LREAL;
+
+    (* --- information --- *)
+    /// Fastest possible time for Distance with the given maximum dynamics [s]
+    TimeMin : LREAL;
+    /// Time the calculated dynamics will actually need [s] (= MoveTime, or TimeMin if MoveTime was too short)
+    TimeResulting : LREAL;
+    /// Applied time scaling factor Lambda = TimeMin / MoveTime, range (0..1]
+    ScalingFactor : LREAL;
+    /// Highest velocity actually reached [u/s]. Lower than Velocity for short moves.
+    VelocityPeak : LREAL;
+    /// Duration of the acceleration phase (incl. both jerk phases) [s]
+    TimeAccelerate : LREAL;
+    /// Duration of the constant velocity phase [s]. 0 for short moves.
+    TimeConstantVelocity : LREAL;
+    /// Duration of the deceleration phase (incl. both jerk phases) [s]
+    TimeDecelerate : LREAL;
+END_VAR
+VAR
+    /// TRUE if JerkMax > 0, evaluated once per call and used by the methods
+    _JerkLimited : BOOL;
+    _AbsoluteDistance : LREAL;
+    /// Peak velocity of the fastest profile (Lambda = 1)
+    _PeakVelocityFull : LREAL;
+    /// Phase times of the fastest profile (Lambda = 1)
+    _TimeAccelerateFull : LREAL;
+    _TimeConstantVelocityFull : LREAL;
+    _TimeDecelerateFull : LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// ---------------------------------------------------------------- reset outputs
+Valid := FALSE;
+Error := FALSE;
+ErrorId := MotionDynamicsError.NoError;
+TimeLimited := FALSE;
+
+Velocity := 0.0;
+Acceleration := 0.0;
+Deceleration := 0.0;
+Jerk := 0.0;
+
+TimeMin := 0.0;
+TimeResulting := 0.0;
+ScalingFactor := 0.0;
+VelocityPeak := 0.0;
+TimeAccelerate := 0.0;
+TimeConstantVelocity := 0.0;
+TimeDecelerate := 0.0;
+
+// ------------------------------------------------------------------- validation
+_AbsoluteDistance := ABS(Distance);
+
+IF NOT (_AbsoluteDistance > 0.0) THEN
+    ErrorId := MotionDynamicsError.InvalidDistance;
+ELSIF NOT (MoveTime > 0.0) THEN
+    ErrorId := MotionDynamicsError.InvalidMoveTime;
+ELSIF NOT (VelocityMax > 0.0) THEN
+    ErrorId := MotionDynamicsError.InvalidVelocityMax;
+ELSIF NOT (AccelerationMax > 0.0) THEN
+    ErrorId := MotionDynamicsError.InvalidAccelerationMax;
+ELSIF NOT (DecelerationMax > 0.0) THEN
+    ErrorId := MotionDynamicsError.InvalidDecelerationMax;
+ELSIF JerkMax < 0.0 THEN
+    ErrorId := MotionDynamicsError.InvalidJerkMax;
+END_IF
+
+IF ErrorId <> MotionDynamicsError.NoError THEN
+    Error := TRUE;
+    RETURN;
+END_IF
+
+_JerkLimited := JerkMax > 0.0;
+
+// ------------------------------------------- fastest profile (full max dynamics)
+IF _AbsoluteDistance >= AccelDecelDistance(VelocityMax) THEN
+    // long move: VelocityMax is reached, a constant velocity phase exists
+    _PeakVelocityFull := VelocityMax;
+ELSE
+    // short move: velocity limit is never reached, acceleration/jerk limit the peak
+    _PeakVelocityFull := PeakVelocityForDistance(_AbsoluteDistance);
+
+    IF NOT (_PeakVelocityFull > 0.0) OR (_PeakVelocityFull > VelocityMax * (1.0 + 1E-9)) THEN
+        Error := TRUE;
+        ErrorId := MotionDynamicsError.CalculationFailed;
+        RETURN;
+    END_IF
+
+    // right at the boundary between short and long move the solver may return
+    // VelocityMax plus a rounding error
+    IF _PeakVelocityFull > VelocityMax THEN
+        _PeakVelocityFull := VelocityMax;
+    END_IF
+END_IF
+
+_TimeAccelerateFull := RampTime(_PeakVelocityFull, AccelerationMax);
+_TimeDecelerateFull := RampTime(_PeakVelocityFull, DecelerationMax);
+
+// distance of both ramps = PeakVelocity/2 * RampTime (velocity ramp is point symmetric)
+_TimeConstantVelocityFull :=
+    (_AbsoluteDistance - 0.5 * _PeakVelocityFull * (_TimeAccelerateFull + _TimeDecelerateFull))
+    / _PeakVelocityFull;
+
+IF _TimeConstantVelocityFull < 0.0 THEN
+    _TimeConstantVelocityFull := 0.0;   // rounding only, the branch above guarantees >= 0
+END_IF
+
+TimeMin := _TimeAccelerateFull + _TimeConstantVelocityFull + _TimeDecelerateFull;
+
+// --------------------------------------------------------- time scaling (Lambda)
+ScalingFactor := TimeMin / MoveTime;
+
+IF ScalingFactor > 1.0 THEN
+    // requested time is faster than physically possible -> return the fastest profile
+    IF ScalingFactor > (1.0 + 1E-9) THEN
+        TimeLimited := TRUE;
+        Error := TRUE;
+        ErrorId := MotionDynamicsError.TimeTooShort;
+    END_IF
+    ScalingFactor := 1.0;
+END_IF
+
+// v ~ Lambda, a ~ Lambda^2, j ~ Lambda^3, times ~ 1/Lambda
+Velocity := ScalingFactor * VelocityMax;
+Acceleration := ScalingFactor * ScalingFactor * AccelerationMax;
+Deceleration := ScalingFactor * ScalingFactor * DecelerationMax;
+IF _JerkLimited THEN
+    Jerk := ScalingFactor * ScalingFactor * ScalingFactor * JerkMax;
+END_IF
+
+VelocityPeak := ScalingFactor * _PeakVelocityFull;
+TimeAccelerate := _TimeAccelerateFull / ScalingFactor;
+TimeConstantVelocity := _TimeConstantVelocityFull / ScalingFactor;
+TimeDecelerate := _TimeDecelerateFull / ScalingFactor;
+TimeResulting := TimeMin / ScalingFactor;
+
+Valid := NOT Error;]]></ST>
+    </Implementation>
+    <Method Name="AccelDecelDistance" Id="{9e3a1b47-5c08-42df-8b71-3d6f2a9e0c85}">
+      <Declaration><![CDATA[(*
+    Distance needed to accelerate 0 -> TargetVelocity and decelerate back to 0
+    with AccelerationMax / DecelerationMax / JerkMax.
+    Strictly monotonically increasing over TargetVelocity.
+*)
+METHOD PRIVATE AccelDecelDistance : LREAL
+VAR_INPUT
+    TargetVelocity : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AccelDecelDistance := 0.5 * TargetVelocity
+                     * ( RampTime(TargetVelocity, AccelerationMax)
+                       + RampTime(TargetVelocity, DecelerationMax) );]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PeakVelocityForDistance" Id="{4d7c2e91-8a35-4f60-9c28-7b0e5f1a3d64}">
+      <Declaration><![CDATA[(*
+    Inverse of AccelDecelDistance(): peak velocity of a triangular move (no
+    constant velocity phase) that covers exactly DistanceToTravel.
+    Closed form where both ramps are in the same regime, bisection for the
+    mixed case (one ramp triangular, the other trapezoidal).
+*)
+METHOD PRIVATE PeakVelocityForDistance : LREAL
+VAR_INPUT
+    DistanceToTravel : LREAL;
+END_VAR
+VAR
+    /// velocities above which the acceleration / deceleration ramp becomes trapezoidal
+    VelocityAccelerationLimit : LREAL;
+    VelocityDecelerationLimit : LREAL;
+    Low : LREAL;
+    High : LREAL;
+    Mid : LREAL;
+    /// factors of QuadraticTerm*v^2 + LinearTerm*v - DistanceToTravel = 0
+    QuadraticTerm : LREAL;
+    LinearTerm : LREAL;
+    Iteration : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _JerkLimited THEN
+    // s = v^2/2 * (1/a + 1/d)
+    PeakVelocityForDistance := SQRT(2.0 * DistanceToTravel
+                                    / (1.0 / AccelerationMax + 1.0 / DecelerationMax));
+    RETURN;
+END_IF
+
+VelocityAccelerationLimit := AccelerationMax * AccelerationMax / JerkMax;
+VelocityDecelerationLimit := DecelerationMax * DecelerationMax / JerkMax;
+Low := MIN(VelocityAccelerationLimit, VelocityDecelerationLimit);
+High := MAX(VelocityAccelerationLimit, VelocityDecelerationLimit);
+
+IF DistanceToTravel <= AccelDecelDistance(Low) THEN
+    // both ramps triangular: s = 2 * v^1.5 / SQRT(j)
+    PeakVelocityForDistance := EXPT(DistanceToTravel * SQRT(JerkMax) / 2.0, 2.0 / 3.0);
+
+ELSIF DistanceToTravel >= AccelDecelDistance(High) THEN
+    // both ramps trapezoidal
+    QuadraticTerm := 0.5 * (1.0 / AccelerationMax + 1.0 / DecelerationMax);
+    LinearTerm := 0.5 * (AccelerationMax + DecelerationMax) / JerkMax;
+    PeakVelocityForDistance :=
+        (-LinearTerm + SQRT(LinearTerm * LinearTerm + 4.0 * QuadraticTerm * DistanceToTravel))
+        / (2.0 * QuadraticTerm);
+
+ELSE
+    // mixed regime, no closed form -> bisection on the monotonic distance function
+    // (Low / High bracket the solution because of the two branches above)
+    FOR Iteration := 1 TO 100 DO
+        Mid := 0.5 * (Low + High);
+        IF AccelDecelDistance(Mid) < DistanceToTravel THEN
+            Low := Mid;
+        ELSE
+            High := Mid;
+        END_IF
+        IF (High - Low) <= (1E-12 * High) THEN
+            EXIT;
+        END_IF
+    END_FOR
+    PeakVelocityForDistance := 0.5 * (Low + High);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RampTime" Id="{2b5f9c14-7d83-4e26-b0a9-4f1e6c3d8520}">
+      <Declaration><![CDATA[(*
+    Duration of a velocity ramp 0 -> RampVelocity (or RampVelocity -> 0) with the
+    given acceleration limit and JerkMax.
+      trapezoidal acceleration (limit reached):  v/a + a/j
+      triangular acceleration  (limit not hit):  2 * SQRT(v/j)
+*)
+METHOD PRIVATE RampTime : LREAL
+VAR_INPUT
+    RampVelocity : LREAL;
+    AccelerationLimit : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF RampVelocity <= 0.0 THEN
+    RampTime := 0.0;
+
+ELSIF NOT _JerkLimited THEN
+    RampTime := RampVelocity / AccelerationLimit;
+
+ELSIF (RampVelocity * JerkMax) >= (AccelerationLimit * AccelerationLimit) THEN
+    RampTime := RampVelocity / AccelerationLimit + AccelerationLimit / JerkMax;
+
+ELSE
+    RampTime := 2.0 * SQRT(RampVelocity / JerkMax);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

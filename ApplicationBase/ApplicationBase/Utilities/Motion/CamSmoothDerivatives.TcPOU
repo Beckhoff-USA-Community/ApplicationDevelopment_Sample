@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
+  <POU Name="CamSmoothDerivatives" Id="{b698207f-7c66-475a-8bc0-cccddbcad45c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CamSmoothDerivatives
+VAR_GENERIC CONSTANT
+    // Upper bound for the internal work arrays.
+    // Raise if a cam table ever carries more profile points than this.
+    CamMaxPoints : UINT := 53;
+END_VAR
+VAR_OUTPUT
+    /// Reason the last Execute failed
+    ErrorId : CamSmoothError;
+    /// Points processed
+    PointCount : INT;
+
+    (* --- commissioning diagnostics, per master unit --- *)
+    MaxSlaveVelocity : LREAL;
+    MaxSlaveAcceleration : LREAL;
+    MaxSlaveJerk : LREAL;
+END_VAR
+VAR
+    _MasterPos : ARRAY[0..CamMaxPoints-1] OF LREAL;
+    _SlavePos : ARRAY[0..CamMaxPoints-1] OF LREAL;
+    /// Segment lengths
+    _SegmentLength : ARRAY[0..CamMaxPoints-1] OF LREAL;
+    /// 2nd derivatives
+    _SecondDerivative : ARRAY[0..CamMaxPoints-1] OF LREAL;
+
+    (* --- tridiagonal system over the interior unknowns _SecondDerivative[1..Count-2] --- *)
+    _SubDiagonal : ARRAY[0..CamMaxPoints-1] OF LREAL;
+    _Diagonal : ARRAY[0..CamMaxPoints-1] OF LREAL;
+    _SuperDiagonal : ARRAY[0..CamMaxPoints-1] OF LREAL;
+    _RightHandSide : ARRAY[0..CamMaxPoints-1] OF LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Execute" Id="{81d4fadb-61fc-4890-828f-6ad7fa20cf1e}">
+      <Declaration><![CDATA[METHOD Execute : BOOL
+VAR_IN_OUT
+    Points : ARRAY[*] OF MC_MotionFunctionPoint;
+END_VAR
+VAR_INPUT
+    /// Index of the first profile point to fit
+    FirstIndex : DINT;
+    /// Index of the last profile point to fit
+    LastIndex : DINT;
+    /// Number of decimals the written derivatives are rounded to, 2 -> x.xx
+    Decimals : INT := 4;
+    Boundary : CamSplineBoundary := CamSplineBoundary.Natural;
+END_VAR
+VAR
+    /// Number of profile points
+    Count : DINT;
+    /// Number of interior unknowns, = Count - 2
+    InteriorCount : DINT;
+    /// Profile point index
+    Index : DINT;
+    /// Row of the tridiagonal system
+    Row : DINT;
+    Digit : INT;
+    /// Elimination factor of the Thomas algorithm
+    Factor : LREAL;
+    /// 10^Decimals
+    Scale : LREAL;
+    Velocity : LREAL;
+    Jerk : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Execute := FALSE;
+ErrorId := CamSmoothError.NoError;
+PointCount := 0;
+MaxSlaveVelocity := 0.0;
+MaxSlaveAcceleration := 0.0;
+MaxSlaveJerk := 0.0;
+
+// ---------- validate ---------------------------------------------------
+IF (Decimals < 0) OR (Decimals > 9) THEN
+    ErrorId := CamSmoothError.BadDecimals;
+    RETURN;
+END_IF
+
+IF     (FirstIndex < LOWER_BOUND(Points, 1))
+    OR (LastIndex  > UPPER_BOUND(Points, 1))
+    OR (LastIndex <= FirstIndex) THEN
+    ErrorId := CamSmoothError.RangeOutsideArray;
+    RETURN;
+END_IF
+
+Count := LastIndex - FirstIndex + 1;
+
+// The not-a-knot substitution references M[2] and M[Count-3], so it needs 4 points.
+IF Count < 4 THEN
+    ErrorId := CamSmoothError.TooFewPoints;
+    RETURN;
+END_IF
+
+IF Count > UINT_TO_DINT(CamMaxPoints) THEN
+    ErrorId := CamSmoothError.TooManyPoints;
+    RETURN;
+END_IF
+
+// ---------- read the master / slave columns ----------------------------
+FOR Index := 0 TO Count-1 DO
+    _MasterPos[Index] := Points[FirstIndex + Index].MasterPos;
+    _SlavePos[Index]  := Points[FirstIndex + Index].SlavePos;
+END_FOR
+
+// MasterPos must strictly increase or the spline is undefined.
+FOR Index := 0 TO Count-2 DO
+    _SegmentLength[Index] := _MasterPos[Index+1] - _MasterPos[Index];
+    IF _SegmentLength[Index] <= 0.0 THEN
+        ErrorId := CamSmoothError.MasterNotAscending;
+        RETURN;
+    END_IF
+END_FOR
+
+// ---------- build the tridiagonal system -------------------------------
+// Unknowns are the interior second derivatives M[1]..M[Count-2], held in rows
+// 0..InteriorCount-1. M[0] and M[Count-1] are NOT unknowns - the boundary
+// condition below eliminates them, which is what keeps the band strictly
+// tridiagonal.
+InteriorCount := Count - 2;
+
+FOR Row := 0 TO InteriorCount-1 DO
+    Index := Row + 1;
+    _SubDiagonal[Row]   := _SegmentLength[Index-1];
+    _Diagonal[Row]      := 2.0 * (_SegmentLength[Index-1] + _SegmentLength[Index]);
+    _SuperDiagonal[Row] := _SegmentLength[Index];
+    _RightHandSide[Row] := 6.0 * ( (_SlavePos[Index+1] - _SlavePos[Index]) / _SegmentLength[Index]
+                                 - (_SlavePos[Index] - _SlavePos[Index-1]) / _SegmentLength[Index-1] );
+END_FOR
+
+IF Boundary = CamSplineBoundary.Natural THEN
+    // M[0] = M[Count-1] = 0, so their coefficients simply drop out.
+    _SubDiagonal[0]                 := 0.0;
+    _SuperDiagonal[InteriorCount-1] := 0.0;
+ELSE
+    // Not-a-knot: segments 0 and 1 are one cubic, so M is linear across
+    // x[0..2]   ->   M[0] = M[1] + (M[1] - M[2]) * h[0]/h[1].
+    // Substituting that into row 0 folds M[0] away. Mirrored at the far end.
+    // Note: folding the raw not-a-knot row into the band instead would give
+    // _Diagonal[0] = 0 for uniform spacing and kill the Thomas pivot.
+    _SubDiagonal[0]   := 0.0;
+    _Diagonal[0]      := 3.0*_SegmentLength[0] + 2.0*_SegmentLength[1]
+                         + _SegmentLength[0]*_SegmentLength[0]/_SegmentLength[1];
+    _SuperDiagonal[0] := _SegmentLength[1] - _SegmentLength[0]*_SegmentLength[0]/_SegmentLength[1];
+
+    _SuperDiagonal[InteriorCount-1] := 0.0;
+    _Diagonal[InteriorCount-1]      := 2.0*_SegmentLength[Count-3] + 3.0*_SegmentLength[Count-2]
+                                       + _SegmentLength[Count-2]*_SegmentLength[Count-2]/_SegmentLength[Count-3];
+    _SubDiagonal[InteriorCount-1]   := _SegmentLength[Count-3]
+                                       - _SegmentLength[Count-2]*_SegmentLength[Count-2]/_SegmentLength[Count-3];
+END_IF
+
+// ---------- Thomas algorithm -------------------------------------------
+FOR Row := 1 TO InteriorCount-1 DO
+    IF ABS(_Diagonal[Row-1]) < 1.0E-30 THEN
+        ErrorId := CamSmoothError.SolverSingular;
+        RETURN;
+    END_IF
+    Factor              := _SubDiagonal[Row] / _Diagonal[Row-1];
+    _Diagonal[Row]      := _Diagonal[Row] - Factor * _SuperDiagonal[Row-1];
+    _RightHandSide[Row] := _RightHandSide[Row] - Factor * _RightHandSide[Row-1];
+END_FOR
+
+IF ABS(_Diagonal[InteriorCount-1]) < 1.0E-30 THEN
+    ErrorId := CamSmoothError.SolverSingular;
+    RETURN;
+END_IF
+
+// row Row holds M[Row+1]
+_SecondDerivative[InteriorCount] := _RightHandSide[InteriorCount-1] / _Diagonal[InteriorCount-1];
+FOR Row := InteriorCount-2 TO 0 BY -1 DO
+    _SecondDerivative[Row+1] := (_RightHandSide[Row] - _SuperDiagonal[Row] * _SecondDerivative[Row+2])
+                                / _Diagonal[Row];
+END_FOR
+
+// ---------- recover the two end values ---------------------------------
+IF Boundary = CamSplineBoundary.Natural THEN
+    _SecondDerivative[0]       := 0.0;
+    _SecondDerivative[Count-1] := 0.0;
+ELSE
+    _SecondDerivative[0]       := _SecondDerivative[1]
+                                  + (_SecondDerivative[1] - _SecondDerivative[2])
+                                    * _SegmentLength[0] / _SegmentLength[1];
+    _SecondDerivative[Count-1] := _SecondDerivative[Count-2]
+                                  + (_SecondDerivative[Count-2] - _SecondDerivative[Count-3])
+                                    * _SegmentLength[Count-2] / _SegmentLength[Count-3];
+END_IF
+
+// ---------- write the derivatives back ---------------------------------
+Scale := 1.0;
+FOR Digit := 1 TO Decimals DO
+    Scale := Scale * 10.0;
+END_FOR
+
+FOR Index := 0 TO Count-1 DO
+    IF Index < Count-1 THEN
+        Velocity := (_SlavePos[Index+1] - _SlavePos[Index]) / _SegmentLength[Index]
+                    - _SegmentLength[Index] * (2.0*_SecondDerivative[Index] + _SecondDerivative[Index+1]) / 6.0;
+        Jerk     := (_SecondDerivative[Index+1] - _SecondDerivative[Index]) / _SegmentLength[Index];
+    ELSE
+        // last point: evaluate the previous segment at its far end
+        Velocity := (_SlavePos[Count-1] - _SlavePos[Count-2]) / _SegmentLength[Count-2]
+                    + _SegmentLength[Count-2] * (_SecondDerivative[Count-2] + 2.0*_SecondDerivative[Count-1]) / 6.0;
+        Jerk     := (_SecondDerivative[Count-1] - _SecondDerivative[Count-2]) / _SegmentLength[Count-2];
+    END_IF
+
+    Points[FirstIndex + Index].SlaveVelo := RoundTo(Velocity, Scale);
+    Points[FirstIndex + Index].SlaveAcc  := RoundTo(_SecondDerivative[Index], Scale);
+    Points[FirstIndex + Index].SlaveJerk := RoundTo(Jerk, Scale);
+
+    MaxSlaveVelocity     := MAX(MaxSlaveVelocity,     ABS(Points[FirstIndex + Index].SlaveVelo));
+    MaxSlaveAcceleration := MAX(MaxSlaveAcceleration, ABS(Points[FirstIndex + Index].SlaveAcc));
+    MaxSlaveJerk         := MAX(MaxSlaveJerk,         ABS(Points[FirstIndex + Index].SlaveJerk));
+END_FOR
+
+PointCount := DINT_TO_INT(Count);
+Execute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RoundTo" Id="{1f7cae65-d496-46e8-9554-636dfa3c64ef}">
+      <Declaration><![CDATA[METHOD RoundTo : LREAL
+VAR_INPUT
+    Value : LREAL;
+    /// 10^Decimals
+    Scale : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// LREAL_TO_LINT rounds to the nearest integer under IEC 61131-3 conversion
+// semantics, so no explicit +/- 0.5 is needed. Any realistic cam derivative
+// scaled by 10^9 stays far inside the LINT range. Also normalises -0.0 to 0.0.
+RoundTo := LINT_TO_LREAL( LREAL_TO_LINT( Value * Scale ) ) / Scale;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

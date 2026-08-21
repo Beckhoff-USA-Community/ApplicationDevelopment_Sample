@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="MotionDynamicsError" Id="{7f1a4c02-9b3e-4d51-8a6c-2e1f5b7d9014}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE MotionDynamicsError :
+(
+    /// No error, the calculated dynamics are valid
+    NoError := 0,
+    /// ABS(Distance) is zero (or not a usable number) - nothing to move
+    InvalidDistance := 1,
+    /// MoveTime is zero or negative
+    InvalidMoveTime := 2,
+    /// VelocityMax is zero or negative
+    InvalidVelocityMax := 3,
+    /// AccelerationMax is zero or negative
+    InvalidAccelerationMax := 4,
+    /// DecelerationMax is zero or negative
+    InvalidDecelerationMax := 5,
+    /// JerkMax is negative (0 is allowed and means "no jerk limitation")
+    InvalidJerkMax := 6,
+    /// MoveTime is shorter than the fastest possible move (TimeMin).
+    /// The outputs still contain the fastest feasible profile (= the maximum dynamics).
+    TimeTooShort := 7,
+    /// Internal solver did not return a usable peak velocity
+    CalculationFailed := 8
+) DINT;
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

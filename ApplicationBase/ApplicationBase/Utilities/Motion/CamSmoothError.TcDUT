@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
+  <DUT Name="CamSmoothError" Id="{8dcf3fb6-1a8d-4765-8290-d29d124c13ce}">
+    <Declaration><![CDATA[TYPE CamSmoothError :
+(
+    NoError            := 0,
+    RangeOutsideArray  := 1,    // nFirst / nLast not inside aPoints
+    TooFewPoints       := 2,    // fewer than 4 points in the range
+    TooManyPoints      := 3,    // range exceeds GVL_Cam.CAM_MAX_POINTS
+    BadDecimals        := 4,    // nDecimals outside 0..9
+    MasterNotAscending := 5,    // MasterPos must strictly increase
+    SolverSingular     := 6     // zero pivot in the tridiagonal solve
+)
+INT;
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

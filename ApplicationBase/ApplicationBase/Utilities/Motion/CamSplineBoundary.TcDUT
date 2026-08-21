@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
+  <DUT Name="CamSplineBoundary" Id="{29b276bf-8d3d-4fbf-96df-487d5888c286}">
+    <Declaration><![CDATA[TYPE CamSplineBoundary :
+(
+    // 3rd derivative continuous across the 2nd and 2nd-last knot, so the
+    // spline follows the profile's own curvature at the ends.
+    // General-purpose default.
+    NotAKnot := 0,
+
+    // SlaveAcc forced to 0.0 at the first and last profile point.
+    // Use when the axis enters and leaves the profile with no acceleration,
+    // e.g. when a POLYNOM1 ramp sits on either side of the profile.
+    Natural  := 1
+)
+INT;
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -3,25 +3,7 @@
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@CyclicLogic||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@Execute||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@JogForward.Set||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@JogBackwards.Set||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@JogForward||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\Axis.TcPOU@Jog||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj@Library Manager||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,7 +13,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 12,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -59,79 +41,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "MoveJogTask",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU",
-              "ToolTip": "MoveJogTask [ApplicationBase.ApplicationBase]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-08-21T13:52:20.941Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "MoveJogTask.JogForward.Set",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@JogForward.Set",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@JogForward.Set",
-              "ToolTip": "Set [ApplicationBase.ApplicationBase.MoveJogTask.JogForward]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-08-21T13:51:48.326Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "MoveJogTask.JogBackwards.Set",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@JogBackwards.Set",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@JogBackwards.Set",
-              "ToolTip": "Set [ApplicationBase.ApplicationBase.MoveJogTask.JogBackwards]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-08-21T13:51:46.549Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "MoveJogTask.JogForward",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@JogForward",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@JogForward",
-              "ToolTip": "JogForward [ApplicationBase.ApplicationBase.MoveJogTask]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-08-21T13:51:45.912Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Axis.Jog",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\Axis.TcPOU@Jog",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Motion\\Axis.TcPOU@Jog",
-              "ToolTip": "Jog [ApplicationBase.ApplicationBase.Axis.Jog]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-08-21T13:51:35.941Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "MoveJogTask.Execute",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@Execute",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@Execute",
-              "ToolTip": "Execute [ApplicationBase.ApplicationBase.MoveJogTask]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-08-21T13:51:25.814Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "MoveJogTask.CyclicLogic",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@CyclicLogic",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\Move\\MoveJogTask.TcPOU@CyclicLogic",
-              "ToolTip": "CyclicLogic [ApplicationBase.ApplicationBase.MoveJogTask]",
+              "Title": "Library Manager",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj@Library Manager",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj@Library Manager",
+              "ToolTip": "References [ApplicationBase.ApplicationBase]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-08-21T13:51:22.033Z",
+              "WhenOpened": "2026-08-21T14:15:19.61Z",
               "EditorCaption": ""
             }
           ]

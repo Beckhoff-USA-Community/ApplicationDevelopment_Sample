@@ -21,7 +21,7 @@
     <VirtualLibrary>true</VirtualLibrary>
     <Company>Beckhoff Automation LLC</Company>
     <Title>ApplicationBase</Title>
-    <ProjectVersion>1.0.8</ProjectVersion>
+    <ProjectVersion>1.1.0</ProjectVersion>
     <DefaultNamespace>ApplicationBase</DefaultNamespace>
     <Author>FS</Author>
     <GlobalVersionStructureIncluded>true</GlobalVersionStructureIncluded>
@@ -101,6 +101,7 @@
     <Folder Include="Utilities\Force\DUT" />
     <Folder Include="Utilities\Force\Interface" />
     <Folder Include="Utilities\Functions" />
+    <Folder Include="Utilities\Motion" />
     <Folder Include="Utilities\Scaling" />
     <Folder Include="Utilities\Scaling\Interface" />
     <Folder Include="Utilities\Timing" />
@@ -723,6 +724,30 @@
     <Compile Include="Utilities\Functions\PercentToAnalog.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Utilities\Motion\ATAN2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Motion\CalculateHypotenuseAngle.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Motion\CalculateMotionDynamics.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Motion\CamSmoothError.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Motion\CamSplineBoundary.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Motion\CamSmoothDerivatives.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Motion\MotionDynamicsError.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Motion\XPlanar6DMoverToWorldTransform.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Utilities\Scaling\AnalogScale.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -1067,6 +1092,10 @@
       <DefaultResolution>Tc2_MC2, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_MC2</Namespace>
     </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_MC2_Camming">
+      <DefaultResolution>Tc2_MC2_Camming, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_MC2_Camming</Namespace>
+    </PlaceholderReference>
     <PlaceholderReference Include="Tc2_MC2_Drive">
       <DefaultResolution>Tc2_MC2_Drive, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_MC2_Drive</Namespace>
@@ -1184,8 +1213,8 @@
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-        <Data>
-          <o xml:space="preserve" t="OptionKey">
+  <Data>
+    <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
@@ -3754,16 +3783,16 @@
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-        </Data>
-        <TypeList>
-          <Type n="Boolean">System.Boolean</Type>
-          <Type n="Hashtable">System.Collections.Hashtable</Type>
-          <Type n="Int32">System.Int32</Type>
-          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-          <Type n="String">System.String</Type>
-          <Type n="UInt32">System.UInt32</Type>
-        </TypeList>
-      </XmlArchive>
+  </Data>
+  <TypeList>
+    <Type n="Boolean">System.Boolean</Type>
+    <Type n="Hashtable">System.Collections.Hashtable</Type>
+    <Type n="Int32">System.Int32</Type>
+    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+    <Type n="String">System.String</Type>
+    <Type n="UInt32">System.UInt32</Type>
+  </TypeList>
+</XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>

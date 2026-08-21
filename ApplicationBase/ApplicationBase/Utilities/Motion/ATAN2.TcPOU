@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
+  <POU Name="ATAN2" Id="{93d29a9c-c8ac-4e8e-ab4f-48ecc3f0aadc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION ATAN2 : LREAL
+VAR_INPUT
+    Y : LREAL;   // Numerator   (opposite)
+    X : LREAL;   // Denominator (adjacent)
+END_VAR
+VAR CONSTANT
+    Pi     : LREAL := 3.14159265358979;
+    HalfPi : LREAL := 1.57079632679490;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// --- Quadrant-aware arctangent, result range (-Pi .. +Pi] ---
+IF X > 0.0 THEN
+    // Right half-plane: direct arctangent
+    ATAN2 := ATAN(Y / X);
+
+ELSIF X < 0.0 THEN
+    // Left half-plane: shift by +/- Pi depending on sign of Y
+    IF Y >= 0.0 THEN
+        ATAN2 := ATAN(Y / X) + Pi;
+    ELSE
+        ATAN2 := ATAN(Y / X) - Pi;
+    END_IF
+
+ELSE
+    // X = 0: angle lies on the vertical axis
+    IF Y > 0.0 THEN
+        ATAN2 := HalfPi;        // +90 deg
+    ELSIF Y < 0.0 THEN
+        ATAN2 := -HalfPi;       // -90 deg
+    ELSE
+        ATAN2 := 0.0;           // Undefined (0,0) -> return 0
+    END_IF
+END_IF
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

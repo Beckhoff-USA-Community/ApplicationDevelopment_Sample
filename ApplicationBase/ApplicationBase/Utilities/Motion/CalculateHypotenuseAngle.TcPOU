@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
+  <POU Name="CalculateHypotenuseAngle" Id="{b4e5e568-6a82-43f4-bad5-7cc677a70725}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK CalculateHypotenuseAngle
+VAR_INPUT
+    a               : LREAL;   // opposite side (e.g. 0.002)
+    b               : LREAL;   // adjacent side (e.g. 50)
+    execute         : BOOL;
+END_VAR
+VAR_OUTPUT
+    c               : LREAL;   // hypotenuse = SQRT(a^2 + b^2)
+    angleRad        : LREAL;   // angle alpha in radians = ASIN(a / c)
+    angleDeg        : LREAL;   // angle alpha in decimal degrees
+END_VAR
+VAR
+    executeLast     : BOOL;
+    degWhole        : DINT;
+    degFraction     : LREAL;
+    minWhole        : DINT;
+    minFraction     : LREAL;
+    secWhole        : DINT;
+    degText         : STRING(8);
+    minText         : STRING(4);
+    secText         : STRING(4);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF execute THEN
+    c := SQRT(a * a + b * b);
+ 
+    IF c > 0.0 THEN
+        // angle alpha = ARCSIN(a / c)
+        angleRad := ASIN(a / c);
+        angleDeg := angleRad * 180.0 / PI;
+ 
+        // ---- convert decimal degrees to D° M' S" ----
+        degWhole    := TRUNC(angleDeg);
+        degFraction := ABS(angleDeg - DINT_TO_LREAL(degWhole)) * 60.0;
+ 
+        minWhole    := TRUNC(degFraction);
+        minFraction := (degFraction - DINT_TO_LREAL(minWhole)) * 60.0;
+ 
+        secWhole    := TRUNC(minFraction + 0.5); // round to nearest second
+ 
+        // handle rollover from rounding (60" -> next minute, 60' -> next degree)
+        IF secWhole >= 60 THEN
+            secWhole := secWhole - 60;
+            minWhole := minWhole + 1;
+        END_IF
+        IF minWhole >= 60 THEN
+            minWhole := minWhole - 60;
+            degWhole := degWhole + 1;
+        END_IF
+    ELSE
+        // c = 0 -> a = b = 0, angle undefined
+        angleRad := 0.0;
+        angleDeg := 0.0;
+    END_IF
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
