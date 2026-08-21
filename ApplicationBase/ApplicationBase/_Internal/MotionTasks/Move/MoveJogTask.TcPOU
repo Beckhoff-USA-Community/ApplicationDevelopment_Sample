@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
   <POU Name="MoveJogTask" Id="{949ec021-9e06-4765-b74e-0dd100d557b2}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK MoveJogTask EXTENDS MotionTask IMPLEMENTS I_MotionJogTask
 VAR
@@ -30,7 +30,12 @@ END_VAR]]></Declaration>
 	  Velocity	   := _Axis.Velocity,
 	  Acceleration := _Axis.Acceleration,
 	  Deceleration := _Axis.Deceleration,
-	  Jerk		   := _Axis.Jerk);]]></ST>
+	  Jerk		   := _Axis.Jerk);
+      
+IF McJog.Error OR _Axis.Error THEN
+    _JogForward := FALSE;
+    _JogBackwards := FALSE;
+END_IF      ]]></ST>
       </Implementation>
     </Method>
     <Property Name="Error" Id="{84420d75-ad24-4d3a-8cef-0d3144af0820}">
