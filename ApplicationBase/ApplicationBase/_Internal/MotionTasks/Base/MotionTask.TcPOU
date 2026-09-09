@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <POU Name="MotionTask" Id="{2a145b13-482c-4c39-9def-c2c0b08c225b}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT MotionTask IMPLEMENTS I_MotionTask
 VAR
 	_Name : T_MaxString;
-	_Axis : I_Axis;
+	_Axis : I_Mc2Axis;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Property Name="Axis" Id="{ed076f8d-b7d6-44f4-9870-51d18860c860}">
-      <Declaration><![CDATA[PROPERTY Axis : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Axis : I_Mc2Axis]]></Declaration>
       <Get Name="Get" Id="{eb8068a9-6508-4c8c-9d7f-0d7599a8988b}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>

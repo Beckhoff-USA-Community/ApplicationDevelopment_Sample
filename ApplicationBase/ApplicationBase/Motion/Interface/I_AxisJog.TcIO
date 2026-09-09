@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_AxisJog" Id="{df992832-c980-4799-ae8c-2a3f663445af}">
     <Declaration><![CDATA[INTERFACE I_AxisJog EXTENDS I_Base]]></Declaration>
     <Method Name="Jog" Id="{b693a4f3-d11a-4b29-bf9b-3b60c35546a3}">
@@ -7,7 +7,6 @@
 VAR_INPUT
 	JogForward	 : BOOL;
 	JogBackwards : BOOL;
-	JogMode		 : E_JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW;
 	Position	 : LREAL	 := 0;
 END_VAR]]></Declaration>
     </Method>

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <Itf Name="I_AxisGear" Id="{6c275f38-a60b-4115-a407-e89a6c7e3629}">
-    <Declaration><![CDATA[INTERFACE I_AxisGear EXTENDS I_Base]]></Declaration>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_Mc2AxisGear" Id="{6c275f38-a60b-4115-a407-e89a6c7e3629}">
+    <Declaration><![CDATA[INTERFACE I_Mc2AxisGear EXTENDS I_Base]]></Declaration>
     <Method Name="GearIn" Id="{38ea9e4e-cf72-4cc7-8c20-73160004533f}">
       <Declaration><![CDATA[METHOD GearIn
 VAR_INPUT
@@ -47,25 +47,25 @@ PROPERTY GearRatioMaster4 : LREAL]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master1" Id="{843a1922-1c9e-4cfe-bfc1-1ac03b6b18ae}">
-      <Declaration><![CDATA[PROPERTY Master1 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master1 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{f5ac2ce0-2c01-4041-83c2-c67e4a02ae09}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master2" Id="{cd1a16a8-2ae3-41bd-88ba-fb6123180948}">
-      <Declaration><![CDATA[PROPERTY Master2 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master2 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{43b7fa19-ad7f-4316-b2c3-ca00e459f34a}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master3" Id="{628628f6-c99d-4907-9b3f-945f9c7b9f75}">
-      <Declaration><![CDATA[PROPERTY Master3 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master3 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{867c7ce7-40a8-4e21-a4a1-642bf6c643ab}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master4" Id="{61c1edd3-cd5b-4fc2-8356-3ed01c07d3dd}">
-      <Declaration><![CDATA[PROPERTY Master4 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master4 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{31b5d25f-e1fb-42c1-b9c8-b368e3a69491}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>

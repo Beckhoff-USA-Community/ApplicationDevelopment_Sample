@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <POU Name="Axis_Test" Id="{5cab368b-ab80-4ef2-aa97-f3dde24c7634}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK Axis_Test
 VAR
 	AxisRef		: Tc2_MC2.AXIS_REF;
-	Axis		: AxisPTP('Unit Test Axis', AxisRef) := (Override := 100.0);
+	Axis		: Mc2AxisPTP('Unit Test Axis', AxisRef) := (Override := 100.0);
 	StartupTime : TON;
 END_VAR]]></Declaration>
     <Implementation>

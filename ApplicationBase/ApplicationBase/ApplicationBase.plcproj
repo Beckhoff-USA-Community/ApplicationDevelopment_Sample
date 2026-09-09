@@ -9,7 +9,7 @@
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>ApplicationBase</Name>
-    <ProgramVersion>3.1.4026.25</ProgramVersion>
+    <ProgramVersion>3.1.4026.26</ProgramVersion>
     <WriteBookmarksToFile>true</WriteBookmarksToFile>
     <Application>{81995358-ed92-41a6-998c-68a2712ffa29}</Application>
     <TypeSystem>{4cef5acc-5801-4b69-9cfc-2a3018d8a759}</TypeSystem>
@@ -78,6 +78,10 @@
     <Folder Include="Motion" />
     <Folder Include="Motion\DUT" />
     <Folder Include="Motion\Interface" />
+    <Folder Include="Motion\MC2" />
+    <Folder Include="Motion\MC2\Interface" />
+    <Folder Include="Motion\MC3" />
+    <Folder Include="Motion\MC3\Interface" />
     <Folder Include="Permissive Interlock" />
     <Folder Include="Project Information" />
     <Folder Include="Statemachine" />
@@ -523,34 +527,16 @@
     <Compile Include="Module\Module.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Motion\Axis.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Motion\AxisPTP.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Motion\AxisPTP_HMI.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Motion\Axis_TcEvents.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Motion\DUT\ST_AxisPTP_HMI.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\DUT\ST_MotionDefaults.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Motion\Interface\I_Axis.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Motion\Interface\I_AxisDynamics.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\Interface\I_AxisEnable.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Motion\Interface\I_AxisGear.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\Interface\I_AxisHome.TcIO">
@@ -574,13 +560,34 @@
     <Compile Include="Motion\Interface\I_AxisStatus.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Motion\Interface\I_Axis_PTP.TcIO">
+    <Compile Include="Motion\MC2\Interface\I_Mc2Axis.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Motion\Interface\I_SlaveAxis.TcIO">
+    <Compile Include="Motion\MC2\Interface\I_Mc2AxisGear.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Motion\SlaveAxisPTP.TcPOU">
+    <Compile Include="Motion\MC2\Interface\I_Mc2Axis_PTP.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC2\Interface\I_Mc2Settings.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC2\Interface\I_Mc2SlaveAxis.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC2\Mc2Axis.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC2\Mc2AxisPTP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC2\Mc2AxisPTP_HMI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC2\Mc2Axis_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC2\Mc2SlaveAxisPTP.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Permissive Interlock\PermissiveInterlock.TcPOU">
@@ -955,7 +962,7 @@
     <Compile Include="_Internal\MotionTasks\Home\MotionHomeTask_SetZeroHere.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Interface\I_AxisRef.TcIO">
+    <Compile Include="_Internal\MotionTasks\Interface\I_Mc2AxisRef.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="_Internal\MotionTasks\Interface\I_MotionJogTask.TcIO">

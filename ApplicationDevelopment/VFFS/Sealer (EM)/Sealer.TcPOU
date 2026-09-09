@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <POU Name="Sealer" Id="{56dd06c2-e02b-41a1-be93-e878ac17c4d3}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK Sealer EXTENDS PackMLModule IMPLEMENTS I_Sealer
 VAR
 	// Components
 	SealerAxisRef	  : AXIS_REF;
-	_SealerAxis		  : AxisPTP('Sealer Axis', SealerAxisRef);
-	SealerAxis_HMI	  : AxisPTP_HMI('Sealer Axis HMI', _SealerAxis, '°');
-	SealerAxis_Events : Axis_TcEvents('Sealer Axis Events', _SealerAxis);
+	_SealerAxis		  : Mc2AxisPTP('Sealer Axis', SealerAxisRef);
+	SealerAxis_HMI	  : Mc2AxisPTP_HMI('Sealer Axis HMI', _SealerAxis, '°');
+	SealerAxis_Events : Mc2Axis_TcEvents('Sealer Axis Events', _SealerAxis);
 	_SealBar		  : SealBar('Heat Bar');
 
 	// 
@@ -251,7 +251,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="SealerAxis" Id="{8d09bd86-cfdf-488c-9fc1-d67982da4da0}" FolderPath="Sealer\">
-      <Declaration><![CDATA[PROPERTY SealerAxis : I_Axis_PTP]]></Declaration>
+      <Declaration><![CDATA[PROPERTY SealerAxis : I_Mc2Axis_PTP]]></Declaration>
       <Get Name="Get" Id="{c368e095-59fb-4fe8-938e-4a909571c3e1}">
         <Declaration><![CDATA[VAR
 END_VAR

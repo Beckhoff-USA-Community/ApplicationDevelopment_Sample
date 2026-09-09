@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.19">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <GVL Name="Global_Version" Id="{ffd1fff3-c0ef-4501-985f-811a119b50ee}">
     <Declaration><![CDATA[{attribute 'TcGenerated'}
 {attribute 'no-analysis'}

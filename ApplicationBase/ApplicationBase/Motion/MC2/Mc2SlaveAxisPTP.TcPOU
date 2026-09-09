@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <POU Name="SlaveAxisPTP" Id="{f07e3533-8ef2-4fec-9a40-1320077b46e1}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK SlaveAxisPTP EXTENDS AxisPTP IMPLEMENTS I_SlaveAxis
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc2SlaveAxisPTP" Id="{f07e3533-8ef2-4fec-9a40-1320077b46e1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc2SlaveAxisPTP EXTENDS Mc2AxisPTP IMPLEMENTS I_Mc2SlaveAxis
 VAR
 	// Tasks
 	MotionCoupleTaskGearing : MotionCoupleTask_Gearing := (Name := 'MC GearIn Multimaster');
@@ -105,7 +105,7 @@ END_VAR]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master1" Id="{2bcfddc7-7c86-42ec-9ead-e61cb9da51c4}" FolderPath="Slave\">
-      <Declaration><![CDATA[PROPERTY Master1 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master1 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{f45f559b-448d-4134-b101-f1c4c1bbf216}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -115,7 +115,7 @@ END_VAR]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master2" Id="{0b49ac9c-50a2-475e-89d2-711d85e4ec05}" FolderPath="Slave\">
-      <Declaration><![CDATA[PROPERTY Master2 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master2 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{56c94714-3dd4-436d-a21a-e38dc267b7bd}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -125,7 +125,7 @@ END_VAR]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master3" Id="{4b2cbf9f-3671-4322-95b0-749fb2548772}" FolderPath="Slave\">
-      <Declaration><![CDATA[PROPERTY Master3 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master3 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{3016225c-aed5-41c9-a8bd-e724f583ebc9}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -135,7 +135,7 @@ END_VAR]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master4" Id="{3b2c84d9-7c7a-470a-a0f2-c6c2c1a9b2f1}" FolderPath="Slave\">
-      <Declaration><![CDATA[PROPERTY Master4 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master4 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{ab99842d-e79a-488d-bdb9-9ba36f591ec5}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>

@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <POU Name="Unwind" Id="{a0d8249b-183d-4a71-8f74-6eae7ceacca1}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK Unwind EXTENDS PackMLModule IMPLEMENTS I_Unwind
 VAR
 	// Components
 	UnwindAxisRef	  : AXIS_REF;
-	_UnwindAxis		  : AxisPTP('Unwind Axis', UnwindAxisRef);
-	UnwindAxis_HMI	  : AxisPTP_HMI('Unwind Axis HMI', _UnwindAxis, '°');
-	UnwindAxis_Events : Axis_TcEvents('Unwind Axis Events', _UnwindAxis);
+	_UnwindAxis		  : Mc2AxisPTP('Unwind Axis', UnwindAxisRef);
+	UnwindAxis_HMI	  : Mc2AxisPTP_HMI('Unwind Axis HMI', _UnwindAxis, '°');
+	UnwindAxis_Events : Mc2Axis_TcEvents('Unwind Axis Events', _UnwindAxis);
 
 	//
 	_Recipe			 : ST_UnwindRecipe;
@@ -204,7 +204,7 @@ END_CASE]]></ST>
       </Implementation>
     </Method>
     <Property Name="UnwindAxis" Id="{27f93244-a72b-479c-a51b-439cc466c480}" FolderPath="Unwind\">
-      <Declaration><![CDATA[PROPERTY UnwindAxis : I_Axis_PTP]]></Declaration>
+      <Declaration><![CDATA[PROPERTY UnwindAxis : I_Mc2Axis_PTP]]></Declaration>
       <Get Name="Get" Id="{5fa37d27-cf5e-4ffe-9741-3949f9b76339}">
         <Declaration><![CDATA[VAR
 END_VAR

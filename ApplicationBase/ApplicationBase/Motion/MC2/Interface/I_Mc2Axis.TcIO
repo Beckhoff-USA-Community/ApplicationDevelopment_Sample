@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <Itf Name="I_Axis" Id="{347e2aef-5611-452f-9ffc-b6ad926a510a}">
-    <Declaration><![CDATA[INTERFACE I_Axis EXTENDS I_Component, I_AxisEnable, I_AxisRef, I_Resettable, I_Stoppable, I_AxisDynamics, I_AxisStatus, I_AxisJog, I_AxisHome]]></Declaration>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_Mc2Axis" Id="{347e2aef-5611-452f-9ffc-b6ad926a510a}">
+    <Declaration><![CDATA[INTERFACE I_Mc2Axis EXTENDS I_Component, I_AxisEnable, I_Mc2AxisRef, I_Resettable, I_Stoppable, I_AxisDynamics, I_AxisStatus, I_AxisJog, I_AxisHome, I_Mc2Settings]]></Declaration>
     <Property Name="ErrorId" Id="{d56d1c5d-53c1-4373-b824-480679d3561e}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY ErrorId : UDINT]]></Declaration>

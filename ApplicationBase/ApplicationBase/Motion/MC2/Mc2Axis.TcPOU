@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <POU Name="Axis" Id="{c3c03e8a-759c-4ce9-bcae-63318d943e7c}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Axis EXTENDS CyclicComponent IMPLEMENTS I_Initializable, I_Axis
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc2Axis" Id="{c3c03e8a-759c-4ce9-bcae-63318d943e7c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc2Axis EXTENDS CyclicComponent IMPLEMENTS I_Initializable, I_Mc2Axis
 VAR
 	_Axis				 : REFERENCE TO AXIS_REF;
 	Defaults			 : ST_MotionDefaults;
@@ -35,6 +35,8 @@ VAR
 	_Jerk		  : LREAL;
 	_McBufferMode : MC_BufferMode;
 	_MoveOptions  : ST_MoveOptions;
+	_Direction	  : MC_Direction := MC_Direction.MC_Shortest_Way;
+	_JogMode	  : E_JogMode	 := E_JogMode.MC_JOGMODE_STANDARD_SLOW;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -47,6 +49,7 @@ END_VAR]]></Declaration>
     <Folder Name="Initialize" Id="{350a9f43-6c08-4c9b-bd16-bb4fcd640dda}" />
     <Folder Name="Jog" Id="{b440d357-8c50-41b7-97b2-91a6c011f5d6}" />
     <Folder Name="Reset" Id="{853c8cf9-dc4d-4635-94bf-40639ab6791d}" />
+    <Folder Name="Settings" Id="{389f54a4-61e3-409d-9208-76124937b102}" />
     <Folder Name="Status" Id="{72a29854-77b1-4e21-8c83-e6fb17183b47}" />
     <Folder Name="Stop" Id="{4b02773b-6d51-4517-a15d-46b46992d36e}" />
     <Property Name="Acceleration" Id="{bc2c3c5d-a4a9-4cb5-98d3-83a3191a9c81}" FolderPath="Dynamics\">
@@ -142,8 +145,8 @@ END_VAR]]></Declaration>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="BufferMode" Id="{a85af1da-9dee-46aa-bbbb-4758c84e4c91}" FolderPath="Dynamics\">
-      <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO MC_BufferMode]]></Declaration>
+    <Property Name="BufferMode" Id="{a85af1da-9dee-46aa-bbbb-4758c84e4c91}" FolderPath="Settings\">
+      <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO tc2_mc2.MC_BufferMode]]></Declaration>
       <Get Name="Get" Id="{d1e71bfd-219f-450d-bb9c-e263de4497af}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -193,6 +196,17 @@ END_VAR]]></Declaration>
           <ST><![CDATA[_Deceleration := Deceleration;]]></ST>
         </Implementation>
       </Set>
+    </Property>
+    <Property Name="Direction" Id="{0819c353-bb55-431e-93f0-dfbe5de167be}" FolderPath="Settings\">
+      <Declaration><![CDATA[PROPERTY Direction : REFERENCE TO TC2_Mc2.MC_Direction]]></Declaration>
+      <Get Name="Get" Id="{e3d98a30-b5c1-4e35-8bb1-d0b764c78925}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Direction REF= _Direction;]]></ST>
+        </Implementation>
+      </Get>
     </Property>
     <Method Name="Disable" Id="{3bab1b3b-29ff-4bfc-a4eb-0e0f42f5a5b7}" FolderPath="Enable\">
       <Declaration><![CDATA[METHOD Disable]]></Declaration>
@@ -393,8 +407,7 @@ END_VAR]]></Declaration>
 VAR_INPUT
 	JogForward	 : BOOL;
 	JogBackwards : BOOL;
-	JogMode		 : E_JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW;
-	Position	 : LREAL	 := 0;
+	Position	 : LREAL := 0;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF Error THEN
@@ -404,10 +417,21 @@ END_IF
 JogTask.JogBackwards := JogBackwards;
 JogTask.JogForward	 := JogForward;
 JogTask.Position	 := Position;
-JogTask.Mode		 := JogMode;
+JogTask.Mode		 := _JogMode;
 JogTask.Execute();]]></ST>
       </Implementation>
     </Method>
+    <Property Name="JogMode" Id="{cc91e9f8-9b64-407b-bfcb-72aff2578f80}" FolderPath="Settings\">
+      <Declaration><![CDATA[PROPERTY JogMode : REFERENCE TO tc2_mc2.MC_Direction]]></Declaration>
+      <Get Name="Get" Id="{543a0da7-d855-4288-9d69-02ff90a93b9b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[JogMode REF= _JogMode;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="MotionTasks" Id="{cf3fa9ca-401c-41ad-a41f-999b7718040b}">
       <Declaration><![CDATA[PROPERTY MotionTasks : I_MotionTaskCollection]]></Declaration>
       <Get Name="Get" Id="{af34f3a0-4554-4bf3-84b6-b53c62f02119}">
@@ -418,8 +442,8 @@ END_VAR]]></Declaration>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="MoveOptions" Id="{1da2f2ad-f531-47ad-aa4b-0b0f086322d9}" FolderPath="Dynamics\">
-      <Declaration><![CDATA[PROPERTY MoveOptions : REFERENCE TO ST_MoveOptions]]></Declaration>
+    <Property Name="MoveOptions" Id="{1da2f2ad-f531-47ad-aa4b-0b0f086322d9}" FolderPath="Settings\">
+      <Declaration><![CDATA[PROPERTY MoveOptions : REFERENCE TO tc2_mc2.ST_MoveOptions]]></Declaration>
       <Get Name="Get" Id="{52746be8-b5c1-425c-8447-3fc4d902eaf9}">
         <Declaration><![CDATA[VAR
 END_VAR

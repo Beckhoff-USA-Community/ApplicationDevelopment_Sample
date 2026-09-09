@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <POU Name="MotionCoupleTask_Gearing" Id="{74f9647a-a7fd-45e0-aef7-660b2cbe66d3}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK MotionCoupleTask_Gearing EXTENDS MotionTask
 VAR
@@ -25,10 +25,10 @@ VAR
 	MasterAxis3 : REFERENCE TO AXIS_REF;
 	{attribute 'hide'}
 	MasterAxis4				  : REFERENCE TO AXIS_REF;
-	_Master1				  : I_Axis;
-	_Master2				  : I_Axis;
-	_Master3				  : I_Axis;
-	_Master4				  : I_Axis;
+	_Master1				  : I_Mc2Axis;
+	_Master2				  : I_Mc2Axis;
+	_Master3				  : I_Mc2Axis;
+	_Master4				  : I_Mc2Axis;
 	_McBufferMode			  : MC_BufferMode;
 	_GearInMultiMasterOptions : ST_GearInMultiMasterOptions;
 END_VAR]]></Declaration>
@@ -210,7 +210,7 @@ END_VAR]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master1" Id="{5b51c838-677f-49cd-8a91-40bb7e9ebd30}">
-      <Declaration><![CDATA[PROPERTY Master1 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master1 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{836c077d-e18a-4e71-aa87-1a030ce21b21}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -220,7 +220,7 @@ END_VAR]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master2" Id="{a40720be-efee-44e5-b5a4-9dcc047d9008}">
-      <Declaration><![CDATA[PROPERTY Master2 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master2 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{408ab2c4-817f-4abd-b2d1-2dc5f1482779}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -230,7 +230,7 @@ END_VAR]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master3" Id="{c68cf7f2-97bc-47c9-9537-7ca2dfc9b608}">
-      <Declaration><![CDATA[PROPERTY Master3 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master3 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{be0cf3db-063c-4d52-b561-da2a37c8c263}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -240,7 +240,7 @@ END_VAR]]></Declaration>
       </Set>
     </Property>
     <Property Name="Master4" Id="{e882a3f4-e7cb-4587-97d0-e183c59ecbda}">
-      <Declaration><![CDATA[PROPERTY Master4 : I_Axis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Master4 : I_Mc2Axis]]></Declaration>
       <Set Name="Set" Id="{d502e88a-3b22-4c81-9e42-e5738559c3fe}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>

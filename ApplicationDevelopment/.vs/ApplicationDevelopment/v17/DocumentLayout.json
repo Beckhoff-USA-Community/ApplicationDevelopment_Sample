@@ -1,16 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Sealer (EM)\\Sealer.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
-      "RelativeMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|solutionrelative:VFFS\\Sealer (EM)\\Sealer.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Sealer (EM)\\Sealer.TcPOU@Starting||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
-      "RelativeMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|solutionrelative:VFFS\\Sealer (EM)\\Sealer.TcPOU@Starting||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -18,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -34,37 +25,11 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{ed0bcd91-6645-4c98-a08d-0550d8ae7328}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
               "$type": "Bookmark",
               "Name": "ST:1528276488:0:{a6f4fceb-1c71-4697-840a-c4fdf5060a5f}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Sealer",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Sealer (EM)\\Sealer.TcPOU",
-              "RelativeDocumentMoniker": "VFFS\\Sealer (EM)\\Sealer.TcPOU",
-              "ToolTip": "Sealer [ApplicationDevelopment.VFFS]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-08-21T16:13:19.902Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Sealer.Starting",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Sealer (EM)\\Sealer.TcPOU@Starting",
-              "RelativeDocumentMoniker": "VFFS\\Sealer (EM)\\Sealer.TcPOU@Starting",
-              "ToolTip": "Starting [ApplicationDevelopment.VFFS.Sealer.States]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-08-21T16:01:36.657Z",
-              "EditorCaption": ""
             }
           ]
         },

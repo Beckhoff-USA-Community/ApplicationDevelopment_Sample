@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <POU Name="Axis_TcEvents" Id="{a1c93d95-9ed6-43bf-b3d3-4e382ff3d20b}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Axis_TcEvents EXTENDS CyclicComponent IMPLEMENTS I_EventReactionTcEvents
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc2Axis_TcEvents" Id="{a1c93d95-9ed6-43bf-b3d3-4e382ff3d20b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc2Axis_TcEvents EXTENDS CyclicComponent IMPLEMENTS I_EventReactionTcEvents
 VAR
-	Axis   : I_Axis;
+	Axis   : I_Mc2Axis;
 	Events : TcEventClass(CONCAT(Name, ' Events'));
 END_VAR]]></Declaration>
     <Implementation>
@@ -32,7 +32,7 @@ VAR_INPUT
 	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
 	bInCopyCode : BOOL;
 	Name		: T_MaxString;
-	Axis		: I_Axis;
+	Axis		: I_Mc2Axis;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[THIS^.Axis := Axis;

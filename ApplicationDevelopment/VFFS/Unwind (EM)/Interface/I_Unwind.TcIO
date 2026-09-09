@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_Unwind" Id="{ec9a7ee6-9040-4ac9-9c55-4e24b124ad09}">
     <Declaration><![CDATA[INTERFACE I_Unwind EXTENDS I_Module, I_TaskResult, I_Resettable, I_Override, I_ContainStatemachine]]></Declaration>
     <Property Name="Recipe" Id="{c1a092a3-e4e2-4904-89df-e1ff57ca5e9e}">
@@ -9,7 +9,7 @@
       </Get>
     </Property>
     <Property Name="UnwindAxis" Id="{efb7c0fb-8d86-4c3a-a26b-dc8d600abb2b}">
-      <Declaration><![CDATA[PROPERTY UnwindAxis : I_Axis_PTP]]></Declaration>
+      <Declaration><![CDATA[PROPERTY UnwindAxis : I_Mc2Axis_PTP]]></Declaration>
       <Get Name="Get" Id="{9207b0b2-45f9-4b87-9d18-c85e1c95e304}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

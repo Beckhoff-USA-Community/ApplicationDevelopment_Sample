@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <POU Name="AxisPTP" Id="{5be2c738-7037-4e8c-a735-042de7b84995}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK AxisPTP EXTENDS Axis IMPLEMENTS I_Axis_PTP
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc2AxisPTP" Id="{5be2c738-7037-4e8c-a735-042de7b84995}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc2AxisPTP EXTENDS Mc2Axis IMPLEMENTS I_Mc2Axis_PTP
 VAR
 	// Tasks
 	{attribute 'hide'}
@@ -68,11 +68,9 @@ MoveAbsoluteTask.Execute();]]></ST>
     <Method Name="MoveModulo" Id="{ab4287a1-d74e-4e30-9726-1f69f75b2a60}" FolderPath="Move Modulo\">
       <Declaration><![CDATA[METHOD MoveModulo : BOOL
 VAR_INPUT
-	Position	: LREAL;
-	Direction	: MC_Direction := .MC_Direction.MC_Shortest_Way;
-	AbortPrevious	: BOOL := TRUE;
-END_VAR
-]]></Declaration>
+	Position	  : LREAL;
+	AbortPrevious : BOOL := TRUE;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF Error THEN
 	RETURN;
@@ -84,7 +82,7 @@ END_IF
 
 MoveModuloTask.BufferMode	  := _McBufferMode;
 MoveModuloTask.MoveOptions	  := _MoveOptions;
-MoveModuloTask.Direction	  := Direction;
+MoveModuloTask.Direction	  := _Direction;
 MoveModuloTask.TargetPosition := Position;
 MoveModuloTask.Execute();]]></ST>
       </Implementation>

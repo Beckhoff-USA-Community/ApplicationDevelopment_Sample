@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <POU Name="MotionTaskCollection" Id="{692242a6-5501-40e2-a3ed-25136ea31dd2}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK MotionTaskCollection
 VAR_GENERIC CONSTANT
@@ -7,7 +7,7 @@ VAR_GENERIC CONSTANT
 END_VAR IMPLEMENTS I_MotionTaskCollection, I_Cyclic, I_Resettable
 VAR
 	MotionTasks		   : ARRAY[0..MaxCount] OF I_MotionTask;
-	Axis			   : I_Axis;
+	Axis			   : I_Mc2Axis;
 	LastBusyTaskState  : ST_TaskState;
 	LastErrorTaskState : ST_TaskState;
 	CurrentTaskStates  : ARRAY[0..MaxCount] OF ST_TaskState;
@@ -141,7 +141,7 @@ METHOD FB_Init : BOOL
 VAR_INPUT
 	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
 	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)  
-	Axis		 : I_Axis;
+	Axis		 : I_Mc2Axis;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[THIS^.Axis := Axis;]]></ST>

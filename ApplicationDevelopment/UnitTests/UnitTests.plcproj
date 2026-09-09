@@ -9,7 +9,7 @@
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>UnitTests</Name>
-    <ProgramVersion>3.1.4026.25</ProgramVersion>
+    <ProgramVersion>3.1.4026.26</ProgramVersion>
     <WriteBookmarksToFile>true</WriteBookmarksToFile>
     <Application>{28c98e47-392f-4ae5-8727-5ae01afd9de3}</Application>
     <TypeSystem>{73a1b4ba-ee83-4965-b3e2-ae18f13d9fa5}</TypeSystem>
