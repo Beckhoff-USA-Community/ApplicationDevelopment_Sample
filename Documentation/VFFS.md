@@ -7,15 +7,17 @@ The VFFS (Vertical Form Fill Seal) demo is a sample application that models a pa
 ```
 VFFS  (MachineModule / PackMLModule)
 ├── Unwind  (EquipmentModule / PackMLModule)
-│   └── UnwindAxis  (AxisPTP)
+│   └── UnwindAxis  (Mc3AxisPTP)
 ├── Sealer  (EquipmentModule / PackMLModule)
-│   ├── SealerAxis  (AxisPTP)
+│   ├── SealerAxis  (Mc3AxisPTP)
 │   └── SealBar  (CyclicComponent — custom)
 └── PullWheels  (EquipmentModule / PackMLModule)
-    ├── PullWheelLeftAxis   (AxisPTP — master)
-    ├── PullWheelRightAxis  (SlaveAxisPTP — geared to left)
+    ├── PullWheelLeftAxis   (Mc3AxisPTP — master)
+    ├── PullWheelRightAxis  (Mc3SlaveAxisPTP — geared to left)
     └── PullWheelCylinder   (Cylinder)
 ```
+
+As of `ApplicationBase` V2.0.0 all VFFS axes use the **MC3** stack (`Mc3AxisPTP` / `Mc3SlaveAxisPTP`), each paired with an `Mc3AxisPTP_HMI` faceplate and an `Mc3Axis_TcEvents` reporter. See [Motion](Motion.md).
 
 ## Machine Module — `VFFS`
 
@@ -43,7 +45,7 @@ Controls the film unwind axis. Implements `I_Unwind`.
 
 | Component | Type | Purpose |
 |-----------|------|---------|
-| `UnwindAxis` | `AxisPTP` | Moves film at constant recipe velocity |
+| `UnwindAxis` | `Mc3AxisPTP` | Moves film at constant recipe velocity |
 
 **Recipe — `ST_UnwindRecipe`:**
 
@@ -57,7 +59,7 @@ Controls the jaw sealing station. Implements `I_Sealer`.
 
 | Component | Type | Purpose |
 |-----------|------|---------|
-| `SealerAxis` | `AxisPTP` | Opens and closes the sealing jaws |
+| `SealerAxis` | `Mc3AxisPTP` | Opens and closes the sealing jaws |
 | `SealBar` | `SealBar` (custom `CyclicComponent`) | Simulates heater; exposes `Heat`, `SetTemperature`, `ActualTemperature`, `InTempRange` |
 
 **Recipe — `ST_SealerRecipe`:**
@@ -78,8 +80,8 @@ Pulls the film by a fixed length per cycle using two geared axes and a pneumatic
 
 | Component | Type | Purpose |
 |-----------|------|---------|
-| `PullWheelLeftAxis` | `AxisPTP` | Master drive axis |
-| `PullWheelRightAxis` | `SlaveAxisPTP` | Slave axis, electronically geared to left |
+| `PullWheelLeftAxis` | `Mc3AxisPTP` | Master drive axis |
+| `PullWheelRightAxis` | `Mc3SlaveAxisPTP` | Slave axis, electronically geared to left |
 | `PullWheelCylinder` | `Cylinder` | Engages / disengages the pull wheels |
 
 **Starting sequence:** Extend cylinder → move axes by recipe `Length` → retract cylinder.

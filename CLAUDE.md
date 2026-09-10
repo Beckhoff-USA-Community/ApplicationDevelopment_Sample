@@ -63,6 +63,9 @@ The framework uses a **hierarchical, interface-driven component model**:
 | `Components/Analog/` | Analog I/O components |
 | `Components/Cylinder/` | Pneumatic/hydraulic cylinder control |
 | `Components/ADS/` | ADS (Automation Device Specification) communication |
+| `Motion/` | Axis components — `Motion/MC2/` (`Mc2Axis`, `Mc2AxisPTP`, `Mc2SlaveAxisPTP`) and `Motion/MC3/` (`Mc3Axis`, `Mc3AxisPTP`, `Mc3SlaveAxisPTP`), behind shared `Motion/Interface/` axis interfaces |
+| `_Internal/MotionTasks/` | Motion tasks driving the axes — `MC2/` and `MC3/` variants (move, power, home, reset, gearing) |
+| `Kinematic Group/` | `KinematicGroup` and its events |
 | `Statemachine/` | Generic state machine with mode control |
 | `Modes/` | `ModeControl` operating mode management |
 | `Tracing/` | Event logging and diagnostics |
@@ -80,8 +83,18 @@ Operations on the component/module hierarchy (reset, mode change, name enumerati
 `ApplicationBase/ApplicationBaseParameter.TcGVL`:
 - `MaxCountInCollections`: 50 — upper bound for all collections, runners, and initializers
 - `EnableAdsLogger`: TRUE
+- `EnableTcEventLogging`: FALSE
 - `TraceLevel`: Verbose
 - `ClearingTimeout`: 2 s
+
+`ApplicationBase/ApplicationBaseMotionParameter.TcGVL`:
+- `MaxMotionTasks`: 10 — upper bound for the motion task collection owned by each axis
+
+## Library Version
+
+The `ApplicationBase` version lives in `Version/Global_Version.TcGVL` and `Project Information/F_GetVersion.TcPOU` — both are generated from the project properties in XAE, so bump the version there rather than editing the files by hand. Record notable changes in the root `CHANGELOG.md`.
+
+Current version: **2.0.0**. V2.0.0 added the MC3 axis stack and renamed all pre-existing motion types with an `Mc2` prefix (breaking change) — see `Documentation/Motion.md`.
 
 ## Naming Conventions
 

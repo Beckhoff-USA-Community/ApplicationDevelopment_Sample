@@ -9,6 +9,8 @@
 - [Build & Run](#build--run)
 - [Component-Module Hierarchy for Modern Machine Design](#component-module-hierarchy-for-modern-machine-design)
   - [Documentation](#documentation)
+- [Versions](#versions)
+  - [What's New in V2.0.0](#whats-new-in-v200)
 - [Disclaimer](#disclaimer)
 
 ## Intent
@@ -105,6 +107,12 @@ Full reference docs live in [`Documentation/`](Documentation/README.md). Highlig
 | [Cylinder](Documentation/Cylinder.md) | Double-acting cylinder controller with state machine and fault detection |
 | [Safety](Documentation/Safety.md) | `SafetyBase`, `SafetyAndOrFB`, `SafetyModule`, `SafetyResetPulse` |
 
+**Motion**
+
+| Topic | Description |
+|-------|-------------|
+| [Motion](Documentation/Motion.md) | MC2 and MC3 axis stacks — `Mc3AxisPTP`, `Mc2AxisPTP`, geared slave axes, motion tasks, axis HMI and events |
+
 **Communication**
 
 | Topic | Description |
@@ -121,6 +129,31 @@ Full reference docs live in [`Documentation/`](Documentation/README.md). Highlig
 |-------|-------------|
 | [Events](Documentation/Events.md) | `TcEventClass`, `I_EventClass`, `I_EventReaction`, `Trace` logging utility |
 | [HMI](Documentation/HMI.md) | `HmiFunction`, `Button`, `PermissiveInterlock` |
+
+## Versions
+
+The library version is published at runtime through `Global_Version.stLibVersion_ApplicationBase` and
+`F_GetVersion()`. The full history lives in [CHANGELOG.md](CHANGELOG.md).
+
+**Current version: `ApplicationBase` 2.0.0**
+
+### What's New in V2.0.0
+
+V2.0.0 restructures the motion stack and is a **breaking change** for applications that use axes.
+
+- **MC3 axis stack added** — `Mc3Axis`, `Mc3AxisPTP`, `Mc3SlaveAxisPTP`, `Mc3AxisPTP_HMI` and
+  `Mc3Axis_TcEvents`, built on the current Beckhoff motion API (`Tc3_Mc3Base` / `Tc3_Mc3Ptp`), together with
+  a full set of MC3 motion tasks. This is the stack to use for new projects.
+- **MC2 axis updated and renamed** — every pre-existing motion type now carries an `Mc2` prefix and lives
+  under `Motion/MC2/` (`Axis` → `Mc2Axis`, `AxisPTP` → `Mc2AxisPTP`, `I_Axis` → `I_Mc2Axis`, …). `Mc2Axis`
+  also gained `Direction` and `JogMode` settings and a touch-probe homing task.
+- **Both stacks share the same technology-neutral interfaces** — `I_AxisStatus`, `I_AxisDynamics`,
+  `I_AxisJog`, `I_AxisMoveAbsolute`, … so application code written against those is portable between MC2
+  and MC3 and needed no change in this release.
+- **VFFS demo migrated to MC3.**
+
+The complete rename table and migration notes are in
+[Documentation/Motion.md](Documentation/Motion.md#migrating-from-v1x).
 
 ## Disclaimer
 

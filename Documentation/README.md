@@ -1,6 +1,6 @@
 # Documentation
 
-Reference docs for the `ApplicationBase` framework and the sample applications built on top of it. Start at the [root README](../README.md) for an overview of the repository.
+Reference docs for the `ApplicationBase` framework and the sample applications built on top of it. Start at the [root README](../README.md) for an overview of the repository, or the [changelog](../CHANGELOG.md) for what changed between library versions.
 
 ## Application Examples
 
@@ -29,6 +29,12 @@ Reference docs for the `ApplicationBase` framework and the sample applications b
 | [Analog I/O](Analog.md) | `AnalogInput`, `AnalogOutput`, `AnalogScale` |
 | [Cylinder](Cylinder.md) | Double-acting cylinder controller with state machine and fault detection |
 | [Safety](Safety.md) | `SafetyBase`, `SafetyAndOrFB`, `SafetyModule`, `SafetyResetPulse` |
+
+## Motion
+
+| Topic | Description |
+|-------|-------------|
+| [Motion](Motion.md) | MC2 and MC3 axis stacks — `Mc3AxisPTP`, `Mc2AxisPTP`, slave/geared axes, motion tasks, axis HMI and events, plus the V1.x → V2.0.0 rename table |
 
 ## Communication
 
