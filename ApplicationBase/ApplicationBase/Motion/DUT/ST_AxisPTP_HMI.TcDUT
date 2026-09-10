@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <DUT Name="ST_AxisPTP_HMI" Id="{0bb3d79d-9eeb-438f-8f11-84c0d598cbe1}">
     <Declaration><![CDATA[TYPE ST_AxisPTP_HMI EXTENDS ST_HmiFunction :
 	STRUCT
@@ -12,7 +12,7 @@
 		ActualPositionModulo : LREAL;
 		ActualTorque		 : LREAL;
 		ActualVelocity		 : LREAL;
-		Status				 : ST_AxisStatus;
+		Status				 : ST_NcAxisStatus;
 		Enable				 : Button;
 		Disable				 : Button;
 		Stop				 : Button;

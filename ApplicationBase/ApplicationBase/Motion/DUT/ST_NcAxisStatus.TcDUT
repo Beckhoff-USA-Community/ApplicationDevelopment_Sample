@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <DUT Name="ST_NcAxisStatus" Id="{cabe5152-d2bb-44d0-b22c-22252028b977}">
+    <Declaration><![CDATA[TYPE ST_NcAxisStatus :
+	STRUCT
+		Disabled		   : BOOL;
+		SynchronizedMotion : BOOL;
+		Coupled			   : BOOL;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

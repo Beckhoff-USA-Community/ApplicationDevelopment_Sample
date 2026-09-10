@@ -541,6 +541,9 @@
     <Compile Include="Motion\DUT\ST_AxisPTP_HMI.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Motion\DUT\ST_NcAxisStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Motion\Interface\I_AxisDynamics.TcIO">
       <SubType>Code</SubType>
     </Compile>

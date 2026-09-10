@@ -41,17 +41,19 @@ END_VAR]]></Declaration>
 	RETURN;
 END_IF
 
-AxisPTP_HMI.HmiEnabled			 := Enabled;
-AxisPTP_HMI.ActualAcceleration	 := Axis.ActualAcceleration;
-AxisPTP_HMI.ActualPosition		 := Axis.ActualPosition;
-AxisPTP_HMI.ActualPositionModulo := Axis.ActualPositionModulo;
-AxisPTP_HMI.ActualTorque		 := Axis.ActualTorque;
-AxisPTP_HMI.ActualVelocity		 := Axis.ActualVelocity;
-AxisPTP_HMI.Busy				 := Axis.Busy;
-AxisPTP_HMI.Error				 := Axis.Error;
-AxisPTP_HMI.ErrorId				 := Axis.ErrorId;
-AxisPTP_HMI.Name				 := Axis.Name;
-AxisPTP_HMI.Status				 := Axis.Axis.Status;
+AxisPTP_HMI.HmiEnabled				  := Enabled;
+AxisPTP_HMI.ActualAcceleration		  := Axis.ActualAcceleration;
+AxisPTP_HMI.ActualPosition			  := Axis.ActualPosition;
+AxisPTP_HMI.ActualPositionModulo	  := Axis.ActualPositionModulo;
+AxisPTP_HMI.ActualTorque			  := Axis.ActualTorque;
+AxisPTP_HMI.ActualVelocity			  := Axis.ActualVelocity;
+AxisPTP_HMI.Busy					  := Axis.Busy;
+AxisPTP_HMI.Error					  := Axis.Error;
+AxisPTP_HMI.ErrorId					  := Axis.ErrorId;
+AxisPTP_HMI.Name					  := Axis.Name;
+AxisPTP_HMI.Status.Coupled			  := Axis.Axis.Status.Coupled;
+AxisPTP_HMI.Status.Disabled			  := Axis.Axis.Status.Disabled;
+AxisPTP_HMI.Status.SynchronizedMotion := Axis.Axis.Status.SynchronizedMotion;
 
 // HMI Commands
 StopRT(CLK := AxisPTP_HMI.Stop.Active);
@@ -85,21 +87,21 @@ IF Enabled THEN
 
 	IF AxisPTP_HMI.JogBackwardSlow.Active THEN
 		IF AxisPTP_HMI.JogBackwardSlow.Permissive.OK THEN
-            Axis.JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW;
+			Axis.JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW;
 			Axis.Jog(JogForward := FALSE, JogBackwards := TRUE);
 		END_IF
 	ELSIF AxisPTP_HMI.JogForwardSlow.Active THEN
-        Axis.JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW;
-		Axis.Jog(JogForward := TRUE, JogBackwards := FALSE );
-	ELSIF AxisPTP_HMI.JogBackwardFast.Active THEN           
-        Axis.JogMode := E_JogMode.MC_JOGMODE_STANDARD_FAST; 
-		Axis.Jog(JogForward := FALSE, JogBackwards := TRUE );
-	ELSIF AxisPTP_HMI.JogForwardFast.Active THEN            
-        Axis.JogMode := E_JogMode.MC_JOGMODE_STANDARD_FAST; 
-		Axis.Jog(JogForward := TRUE, JogBackwards := FALSE );
-	ELSE                                                    
-        Axis.JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW; 
-		Axis.Jog(JogForward := FALSE, JogBackwards := FALSE );
+		Axis.JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW;
+		Axis.Jog(JogForward := TRUE, JogBackwards := FALSE);
+	ELSIF AxisPTP_HMI.JogBackwardFast.Active THEN
+		Axis.JogMode := E_JogMode.MC_JOGMODE_STANDARD_FAST;
+		Axis.Jog(JogForward := FALSE, JogBackwards := TRUE);
+	ELSIF AxisPTP_HMI.JogForwardFast.Active THEN
+		Axis.JogMode := E_JogMode.MC_JOGMODE_STANDARD_FAST;
+		Axis.Jog(JogForward := TRUE, JogBackwards := FALSE);
+	ELSE
+		Axis.JogMode := E_JogMode.MC_JOGMODE_STANDARD_SLOW;
+		Axis.Jog(JogForward := FALSE, JogBackwards := FALSE);
 	END_IF
 
 	HomeRT(CLK := AxisPTP_HMI.Home.Active);
