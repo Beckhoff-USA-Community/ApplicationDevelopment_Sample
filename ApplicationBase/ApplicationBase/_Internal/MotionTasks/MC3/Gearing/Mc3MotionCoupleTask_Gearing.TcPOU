@@ -45,21 +45,21 @@ ELSE
 	MasterAxis REF= DummyAxis;
 END_IF
 
-McGearIn(Master				   := MasterAxis,
-		 Slave				   := _Axis.Axis,
-		 Acceleration		   :=,
-		 Deceleration		   :=,
-		 Jerk				   :=,
-		 BufferMode			   := _McBufferMode,
-		 ReactionToMasterError :=,
-		 ReactionToSlaveError  :=,
-		 InGear				   => _InGear,
-		 Busy				   =>,
-		 Active				   =>,
-		 CommandAborted		   =>,
-		 Error				   =>,
-		 ErrorId			   =>,
-		 MasterHasError		   =>);]]></ST>
+McGearIn(Master			:= MasterAxis,
+		 Slave			:= _Axis.Axis,
+		 Acceleration	:= _Axis.Acceleration,
+		 Deceleration	:= _Axis.Deceleration,
+		 Jerk			:= _Axis.Jerk,
+		 BufferMode		:= _McBufferMode,
+		 InGear			=> _InGear,
+		 Busy			=>,
+		 Active			=>,
+		 CommandAborted =>,
+		 Error			=>,
+		 ErrorId		=>,
+		 MasterHasError =>);
+
+McGearIn.Execute := FALSE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="Error" Id="{c40afe1b-b7d4-42f8-8ee8-94335d915a03}">
@@ -92,27 +92,37 @@ END_VAR]]></Declaration>
 		RETURN;
 	END_IF
 
-	McGearIn.Execute := TRUE;
-ELSE
-	IF Busy THEN
-		RETURN;
-	END_IF
-
-	McGearIn.Execute := FALSE;
+	McGearIn(Master			:= MasterAxis,
+			 Execute		:= TRUE,
+			 Slave			:= _Axis.Axis,
+			 Acceleration	:= _Axis.Acceleration,
+			 Deceleration	:= _Axis.Deceleration,
+			 Jerk			:= _Axis.Jerk,
+			 BufferMode		:= _McBufferMode,
+			 InGear			=> _InGear,
+			 Busy			=>,
+			 Active			=>,
+			 CommandAborted =>,
+			 Error			=>,
+			 ErrorId		=>,
+			 MasterHasError =>);
 END_IF
 
 Execute := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="InGear" Id="{63aeaec5-6f7f-4ff2-8190-086b9f67ad44}">
-      <Declaration><![CDATA[PROPERTY InGear : BOOL]]></Declaration>
-      <Set Name="Set" Id="{46241fd3-4ea3-4d32-9cfa-fbd084e4eae3}">
-        <Declaration><![CDATA[VAR
-END_VAR]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InGear : BOOL]]></Declaration>
+      <Get Name="Get" Id="{93bdd8ba-23d4-4a46-99f3-f1db44ae0af9}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_InGear := InGear;]]></ST>
+          <ST><![CDATA[InGear := _InGear;]]></ST>
         </Implementation>
-      </Set>
+      </Get>
     </Property>
     <Property Name="Master" Id="{193f744e-04f2-4f86-ae67-cc9a2de68cc3}">
       <Declaration><![CDATA[PROPERTY Master : I_Mc3Axis]]></Declaration>
@@ -123,6 +133,18 @@ END_VAR]]></Declaration>
           <ST><![CDATA[_Master := Master;]]></ST>
         </Implementation>
       </Set>
+    </Property>
+    <Property Name="MasterHasError" Id="{73723358-b24a-447f-9873-159a29114431}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY MasterHasError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{858eb977-eaf1-41ac-8534-206c5e022461}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MasterHasError := McGearIn.MasterHasError;]]></ST>
+        </Implementation>
+      </Get>
     </Property>
     <Property Name="RatioDenominator" Id="{12c9ae14-9d32-434c-a275-1b3e82dbeafb}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
@@ -143,6 +165,29 @@ PROPERTY RatioNumerator : LREAL]]></Declaration>
 END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[_RatioNumerator := RatioNumerator;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ReactionToMasterError" Id="{d19df0f0-5909-491e-b473-7a9fa5f5aeb7}">
+      <Declaration><![CDATA[PROPERTY ReactionToMasterError : EReactionToMasterError]]></Declaration>
+      <Set Name="Set" Id="{5bfc2ff6-df72-4738-b4b8-4113eb5fef0e}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[McGearIn.ReactionToMasterError := ReactionToMasterError;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ReactionToSlaveError" Id="{af31d6c3-a8ca-435c-977f-9db4eb3cf1c9}">
+      <Declaration><![CDATA[PROPERTY ReactionToSlaveError : EReactionToSlaveError]]></Declaration>
+      <Set Name="Set" Id="{cc5a8f87-25fe-4f63-a8cf-61ac2b9f82a3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[McGearIn.ReactionToSlaveError := ReactionToSlaveError;]]></ST>
         </Implementation>
       </Set>
     </Property>

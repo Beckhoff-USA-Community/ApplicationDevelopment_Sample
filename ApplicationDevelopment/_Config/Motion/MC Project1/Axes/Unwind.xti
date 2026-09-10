@@ -1,0 +1,1455 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.26" ClassName="CTComMcAxisDef" SubType="71">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{F20289EE-8CFB-4862-83EA-993DF40C82DE}" Namespace="MC" TcBaseType="true">EPositionUnit</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+			<EnumInfo>
+				<Text><![CDATA[um]]></Text>
+				<Enum>0</Enum>
+				<Comment><![CDATA[Micrometers]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[mm]]></Text>
+				<Enum>1</Enum>
+				<Comment><![CDATA[Millimeters]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[m]]></Text>
+				<Enum>2</Enum>
+				<Comment><![CDATA[Meters]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[in]]></Text>
+				<Enum>3</Enum>
+				<Comment><![CDATA[Inches]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[deg]]></Text>
+				<Enum>11</Enum>
+				<Comment><![CDATA[Degrees (360 per revolution)]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[rad]]></Text>
+				<Enum>12</Enum>
+				<Comment><![CDATA[Radians (2*pi per revolution)]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[gon]]></Text>
+				<Enum>13</Enum>
+				<Comment><![CDATA[Gradians (400 per revolution)]]></Comment>
+			</EnumInfo>
+			<Properties>
+				<Property>
+					<Name>plcAttribute_qualified_only</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_strict</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_to_string</Name>
+				</Property>
+			</Properties>
+			<Hides>
+				<Hide GUID="{F8DF3D26-7348-4D82-B440-871A2569A9CA}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{275BA82D-1BAC-4C3A-8408-35D279770DBC}" Namespace="MC" TcBaseType="true">EAxisLicenseSetting</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+			<EnumInfo>
+				<Text><![CDATA[AutoBeckhoff]]></Text>
+				<Enum>1</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[AutoMultiVendor]]></Text>
+				<Enum>3</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[Beckhoff]]></Text>
+				<Enum>5</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[MultiVendor]]></Text>
+				<Enum>7</Enum>
+			</EnumInfo>
+			<Hides>
+				<Hide GUID="{96A4507A-2DFA-42BB-92D1-87BD27945C76}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{15F9F152-5D43-412E-AD2A-4BB310063E1F}" Namespace="MC" TcBaseType="true">EPositionLagSource</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+			<EnumInfo>
+				<Text><![CDATA[HardwareProvidedIfAvailable]]></Text>
+				<Enum>0</Enum>
+				<Comment><![CDATA[Uses hardware-provided position lag if available, otherwise falls back to internal calculation.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[InternallyCalculated]]></Text>
+				<Enum>1</Enum>
+				<Comment><![CDATA[Position lag is always calculated internally from position of setpoint and actual position.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[HardwareProvided]]></Text>
+				<Enum>2</Enum>
+				<Comment><![CDATA[Position lag is always taken from hardware. Requires hardware support and mapping.]]></Comment>
+			</EnumInfo>
+			<Properties>
+				<Property>
+					<Name>plcAttribute_qualified_only</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_strict</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_to_string</Name>
+				</Property>
+			</Properties>
+			<Hides>
+				<Hide GUID="{A34830D2-998F-4D0F-8700-2BD0F033CB00}"/>
+				<Hide GUID="{3842D0A6-F7A4-4C48-99A7-E3BD90CDDC18}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{97C908A3-4B5E-4ADC-A209-4870A43AE2BA}">OTCID_PositionEncoder</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-00000000000F}">OTCID</BaseType>
+			<Properties>
+				<Property>
+					<Name>OTCID</Name>
+				</Property>
+				<Property>
+					<Name>TcCategoryOID</Name>
+					<Value>McPositionEncoder</Value>
+				</Property>
+			</Properties>
+		</DataType>
+		<DataType>
+			<Name GUID="{CF9F9285-BE5D-469F-BB76-FE58A946F660}" Namespace="MC" TcBaseType="true">ELoadType</Name>
+			<Comment><![CDATA[Indicates the type of the currently selected load of the axis.]]></Comment>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+			<EnumInfo>
+				<Text><![CDATA[None]]></Text>
+				<Enum>0</Enum>
+				<Comment><![CDATA[No load control active.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[Force]]></Text>
+				<Enum>2</Enum>
+				<Comment><![CDATA[Load control based on force.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[PressureA]]></Text>
+				<Enum>3</Enum>
+				<Comment><![CDATA[Load control based on pressure at area A of the cylinder.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[PressureB]]></Text>
+				<Enum>4</Enum>
+				<Comment><![CDATA[Load control based on pressure at area B of the cylinder.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[DirectVelocityOutput]]></Text>
+				<Enum>5</Enum>
+				<Comment><![CDATA[Velocity setpoint is written directly to the drive output.]]></Comment>
+			</EnumInfo>
+			<Properties>
+				<Property>
+					<Name>plcAttribute_qualified_only</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_strict</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_to_string</Name>
+				</Property>
+			</Properties>
+			<Hides>
+				<Hide GUID="{C30BA4E3-B1A6-4607-B389-710F8A9F5693}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{9D7C5BB7-932E-4E77-B852-A62F4DED3D78}" Namespace="MC" TcBaseType="true">EControlErrorSetpointMode</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+			<EnumInfo>
+				<Text><![CDATA[HardStop]]></Text>
+				<Enum>1</Enum>
+				<Comment><![CDATA[The dynamics of the axis are set to zero.]]></Comment>
+			</EnumInfo>
+			<Properties>
+				<Property>
+					<Name>plcAttribute_qualified_only</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_strict</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_to_string</Name>
+				</Property>
+			</Properties>
+			<Hides>
+				<Hide GUID="{2E8170EA-B8F4-4F89-B712-A841CCD70CC8}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{928ACD6D-34F6-4728-BC12-CB3937EB34C2}" Namespace="MC" TcBaseType="true">CDT_PLCTOMC_AXIS_STD</Name>
+			<BitSize>192</BitSize>
+			<SubItem>
+				<Name>Enable</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[Enables the axis power stage.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>EnablePositive</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[Allows motion in positive direction when TRUE.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>EnableNegative</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[Allows motion in negative direction when TRUE.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>16</BitOffs>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{83F84DB6-EBE2-4013-96D4-729A54553EDC}"/>
+				<Hide GUID="{EC5954F8-EAC3-4E8C-BB06-1CA66ACC17DB}"/>
+				<Hide GUID="{5A944F05-2D7C-4FD6-9ABA-134068F48E38}"/>
+				<Hide GUID="{BDE5BC28-38E9-438E-81EF-FD1285D93E36}"/>
+				<Hide GUID="{EA17B579-BF0B-4FD1-AC82-39E95C687EDE}"/>
+			</Hides>
+			<Relations>
+				<Relation>
+					<Type GUID="{83F84DB6-EBE2-4013-96D4-729A54553EDC}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{EC5954F8-EAC3-4E8C-BB06-1CA66ACC17DB}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{5A944F05-2D7C-4FD6-9ABA-134068F48E38}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{BCDB9236-3F7A-4A33-A92B-72CBE038072B}">DeprecatedName</Type>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{4FF974A8-531B-49D0-8DF5-E3398C9DA9C3}" Namespace="MC" TcBaseType="true">EAxisState</Name>
+			<BitSize>16</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000005}">UINT</BaseType>
+			<EnumInfo>
+				<Text><![CDATA[Invalid]]></Text>
+				<Enum>0</Enum>
+				<Comment><![CDATA[Axis object is not initialized or in an undefined state.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[Disabled]]></Text>
+				<Enum>1</Enum>
+				<Comment><![CDATA[Axis is disabled and the drive power stage is off.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[Standstill]]></Text>
+				<Enum>2</Enum>
+				<Comment><![CDATA[Axis is enabled and at standstill, ready to accept motion commands.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[Homing]]></Text>
+				<Enum>3</Enum>
+				<Comment><![CDATA[Axis is performing a homing procedure to establish a reference position.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[ErrorStop]]></Text>
+				<Enum>4</Enum>
+				<Comment><![CDATA[Axis has stopped due to an error. Error must be reset before further motion.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[Stopping]]></Text>
+				<Enum>5</Enum>
+				<Comment><![CDATA[Axis is decelerating to standstill during a stop command and remains in this state until Execute for stop command is released.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[DiscreteMotion]]></Text>
+				<Enum>6</Enum>
+				<Comment><![CDATA[Axis is executing a point-to-point motion command with a defined target position.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[ContinuousMotion]]></Text>
+				<Enum>7</Enum>
+				<Comment><![CDATA[Axis is executing a continuous velocity motion without a defined end position.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[SynchronizedMotion]]></Text>
+				<Enum>8</Enum>
+				<Comment><![CDATA[Axis is coupled to a master axis and following synchronized setpoints (e.g. gearing, camming).]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[ResetPending]]></Text>
+				<Enum>10</Enum>
+				<Comment><![CDATA[An error reset has been requested and is being processed.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[Enabling]]></Text>
+				<Enum>11</Enum>
+				<Comment><![CDATA[Axis is in the process of being enabled (drive power stage is starting up).]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[Disabling]]></Text>
+				<Enum>12</Enum>
+				<Comment><![CDATA[Axis is in the process of being disabled (drive power stage is shutting down).]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[NotReady]]></Text>
+				<Enum>13</Enum>
+				<Comment><![CDATA[Axis is not ready for operation, e.g. waiting for required sub-modules to initialize or to start up.]]></Comment>
+			</EnumInfo>
+			<Properties>
+				<Property>
+					<Name>plcAttribute_qualified_only</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_strict</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_to_string</Name>
+				</Property>
+			</Properties>
+			<Hides>
+				<Hide GUID="{64ADA9A8-4EAE-4872-9C2D-E6B7FA96B984}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{E7BFE865-900F-4F3A-B607-76F75FE96459}" Namespace="MC" TcBaseType="true">CDT_MCTOPLC_AXIS_STD</Name>
+			<BitSize>192</BitSize>
+			<SubItem>
+				<Name>AxisOid</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000F}">OTCID</Type>
+				<Comment><![CDATA[Object ID of the axis for identification.]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>AxisState</Name>
+				<Type GUID="{4FF974A8-531B-49D0-8DF5-E3398C9DA9C3}" Namespace="MC">EAxisState</Type>
+				<Comment><![CDATA[Current state of the axis state machine.]]></Comment>
+				<BitSize>16</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>IsInControl</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[TRUE if the axis controller is actively controlling the drive (control loop closed).]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>48</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>HasError</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[TRUE if the axis is in an error state.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>56</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ErrorId</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<Comment><![CDATA[Error code of the current axis error (0 if no error).]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>IsPositionValid</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[TRUE if the reported position values are valid (e.g. after homing or with absolute encoder and drive/encoder signals a valid position).]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>DcTime</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000C}">LINT</Type>
+				<Comment><![CDATA[Distributed clock timestamp of the cyclic data exchange.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{A078A7A3-A581-4C4D-8E9A-775A3EEC1AA5}"/>
+				<Hide GUID="{1FDF4C99-95D5-41A1-806D-90D273DC6BDC}"/>
+			</Hides>
+			<Relations>
+				<Relation>
+					<Type GUID="{A078A7A3-A581-4C4D-8E9A-775A3EEC1AA5}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{1FDF4C99-95D5-41A1-806D-90D273DC6BDC}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{FC0F1ED3-B757-496F-A731-695F132347F1}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{15AA4A35-89E1-4010-9F48-5829ED5E1FAE}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{5FE66C5E-EDFE-4F45-B5D6-71C5D5DFCE52}">DeprecatedName</Type>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{0B0DBDAE-EDDB-492C-A6B1-EEFFED71DF0D}" Namespace="MC" TcBaseType="true">CDT_MCTOPLC_AXIS_SET</Name>
+			<Comment><![CDATA[CDT provides current set values.]]></Comment>
+			<BitSize>320</BitSize>
+			<SubItem>
+				<Name>IsConnected</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[TRUE if the data area is connected and data is beeing received from MC.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Position</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Current position setpoint of the axis.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Velocity</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Current velocity setpoint of the axis.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Acceleration</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Current acceleration setpoint of the axis.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>192</BitOffs>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{619A0C74-EA7E-46BA-B447-F4E8C97E41FB}"/>
+				<Hide GUID="{B65B9616-1A70-4169-8C7F-A3922AAEF977}"/>
+				<Hide GUID="{9A175119-C924-470E-A59B-B3308B6074FD}"/>
+				<Hide GUID="{1F4B8256-ECAF-4826-95C6-6C87421A4B84}"/>
+				<Hide GUID="{A0A77F18-6E2B-42A6-B3EB-30401CF54DB9}"/>
+				<Hide GUID="{6F6ECF0C-9E6F-4572-AE7D-9F4AE2251509}"/>
+			</Hides>
+			<Relations>
+				<Relation>
+					<Type GUID="{619A0C74-EA7E-46BA-B447-F4E8C97E41FB}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{6157947C-FCCA-47A4-B0AF-14C140F9A4E0}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{FFFA7E47-D7CC-46A1-BD5D-2388E1E1EA2C}">DeprecatedName</Type>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{B6A63539-66D5-4BB4-8876-F4726B259807}" Namespace="MC" TcBaseType="true">CDT_MCTOPLC_AXIS_ACT</Name>
+			<Comment><![CDATA[CDT provides current act values.]]></Comment>
+			<BitSize>448</BitSize>
+			<SubItem>
+				<Name>IsConnected</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[TRUE if the data area is connected and data is beeing received from MC.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Position</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Current actual position of the axis.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Velocity</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Current actual velocity of the axis.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Acceleration</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Current actual acceleration of the axis.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>192</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>PositionLag</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Difference between set position and actual position (position following error).]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>256</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Torque</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Current actual torque of the axis.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>320</BitOffs>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{A42D1F82-D46F-4C1C-8CEF-A7CF7DED130F}"/>
+			</Hides>
+			<Relations>
+				<Relation>
+					<Type GUID="{A42D1F82-D46F-4C1C-8CEF-A7CF7DED130F}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{3869B447-3ED4-4AD3-95FE-C2CD8EFE449B}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{A51CD06C-D220-42E1-A2B9-936658C09A1A}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{D27F3152-C087-4D28-8C07-DBCD0A6C21D7}">DeprecatedName</Type>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{A44CE81F-76FF-4B9B-9906-BBAF0C1247D2}" Namespace="MC" TcBaseType="true">CDT_MCTOPLC_AXIS_MODULO</Name>
+			<Comment><![CDATA[CDT provides information about modulo positioning.]]></Comment>
+			<BitSize>320</BitSize>
+			<SubItem>
+				<Name>IsConnected</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[TRUE if the data area is connected and data is beeing received from MC.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SetPosition</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Modulo set position within one modulo period.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SetTurns</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000C}">LINT</Type>
+				<Comment><![CDATA[Number of complete modulo turns for the set position.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActPosition</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Modulo actual position within one modulo period.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>192</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActTurns</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000C}">LINT</Type>
+				<Comment><![CDATA[Number of complete modulo turns for the actual position.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>256</BitOffs>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{D0D202B0-695B-4EBE-A25A-AE633C79AA06}"/>
+				<Hide GUID="{026571D6-A448-4788-8757-4CF182F433BA}"/>
+			</Hides>
+			<Relations>
+				<Relation>
+					<Type GUID="{D0D202B0-695B-4EBE-A25A-AE633C79AA06}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{94C5E2EE-D9E5-47CE-9992-C7194EF71430}">DeprecatedName</Type>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{49CA3172-48CF-4AF2-88AD-7F479944AB64}" Namespace="MC" TcBaseType="true">LoadData</Name>
+			<BitSize>192</BitSize>
+			<SubItem>
+				<Name>Value</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Current load value in the configured load unit.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>0</BitOffs>
+				<Unit><![CDATA[[Unit]]]></Unit>
+			</SubItem>
+			<SubItem>
+				<Name>Derivative</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[First time derivative of the load value.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>64</BitOffs>
+				<Unit><![CDATA[[Unit]/s]]></Unit>
+			</SubItem>
+			<SubItem>
+				<Name HideItem="true">SecondDerivative</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<Comment><![CDATA[Second time derivative of the load value.]]></Comment>
+				<BitSize>64</BitSize>
+				<BitOffs>128</BitOffs>
+				<Unit><![CDATA[[Unit]/s^2]]></Unit>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{F7620BC4-20C0-4D21-9ECB-42FABAF0E6E7}"/>
+				<Hide GUID="{710C97BB-58DA-489A-822C-39B2F054620C}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{FAA1A803-EAD7-4A75-B851-39DA12582F94}" Namespace="MC" TcBaseType="true">CDT_MCTOPLC_AXIS_LOADCONTROL</Name>
+			<Comment><![CDATA[CDT provides load setpoint and actpoint.]]></Comment>
+			<BitSize>512</BitSize>
+			<SubItem>
+				<Name>IsConnected</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[TRUE if the data area is connected and data is beeing received from MC.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>IsInLoadMode</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[True if the axis is producing load setpoints, false otherwise.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>LoadType</Name>
+				<Type GUID="{CF9F9285-BE5D-469F-BB76-FE58A946F660}" Namespace="MC">ELoadType</Type>
+				<Comment><![CDATA[Load selected for load control.]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Set</Name>
+				<Type GUID="{49CA3172-48CF-4AF2-88AD-7F479944AB64}" Namespace="MC">LoadData</Type>
+				<Comment><![CDATA[Current load setpoint.]]></Comment>
+				<BitSize>192</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Act</Name>
+				<Type GUID="{49CA3172-48CF-4AF2-88AD-7F479944AB64}" Namespace="MC">LoadData</Type>
+				<Comment><![CDATA[Current load actpoint.]]></Comment>
+				<BitSize>192</BitSize>
+				<BitOffs>320</BitOffs>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{852492A4-8E0A-4240-80C1-72535FF50AB0}"/>
+				<Hide GUID="{5AB529E5-CBAB-4F1F-A4C0-220BBDAFC4AB}"/>
+				<Hide GUID="{222F7CA1-43FF-474A-AC84-1035F5DA7F7A}"/>
+				<Hide GUID="{E58BA6D8-3C3D-4895-A782-1CDC94475AF5}"/>
+			</Hides>
+			<Relations>
+				<Relation>
+					<Type GUID="{852492A4-8E0A-4240-80C1-72535FF50AB0}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{5AB529E5-CBAB-4F1F-A4C0-220BBDAFC4AB}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{222F7CA1-43FF-474A-AC84-1035F5DA7F7A}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{61EBD633-E0CB-46B0-BCB0-0F8ED671A8BB}">DeprecatedName</Type>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{ABD7A116-8AB9-4E1A-99C3-07858EE414A0}" Namespace="MC" TcBaseType="true">CDT_MCTOPLC_AXIS_FLUIDPOWER</Name>
+			<Comment><![CDATA[CDT provides fluid power specific setpoint and actpoint.]]></Comment>
+			<BitSize>640</BitSize>
+			<SubItem>
+				<Name>IsConnected</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<Comment><![CDATA[TRUE if the data area is connected and data is being received from MC.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActPressureA</Name>
+				<Type GUID="{49CA3172-48CF-4AF2-88AD-7F479944AB64}" Namespace="MC">LoadData</Type>
+				<Comment><![CDATA[PressureA actpoint]]></Comment>
+				<BitSize>192</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActPressureB</Name>
+				<Type GUID="{49CA3172-48CF-4AF2-88AD-7F479944AB64}" Namespace="MC">LoadData</Type>
+				<Comment><![CDATA[PressureB actpoint]]></Comment>
+				<BitSize>192</BitSize>
+				<BitOffs>256</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActForce</Name>
+				<Type GUID="{49CA3172-48CF-4AF2-88AD-7F479944AB64}" Namespace="MC">LoadData</Type>
+				<Comment><![CDATA[Force actpoint]]></Comment>
+				<BitSize>192</BitSize>
+				<BitOffs>448</BitOffs>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{32948C53-AA4E-4E48-90AC-028D26625240}"/>
+				<Hide GUID="{FF85C83C-7A68-4103-B383-EFF835275DAB}"/>
+				<Hide GUID="{9241897A-CED2-4E9D-BD2F-317B77963A3D}"/>
+			</Hides>
+			<Relations>
+				<Relation>
+					<Type GUID="{32948C53-AA4E-4E48-90AC-028D26625240}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{FF85C83C-7A68-4103-B383-EFF835275DAB}">DeprecatedName</Type>
+				</Relation>
+				<Relation>
+					<Type GUID="{771D2D76-9701-4F27-B1A2-237E2D38EC01}">DeprecatedName</Type>
+				</Relation>
+			</Relations>
+		</DataType>
+	</DataTypes>
+	<ModuleTmcs>
+		<ModuleTmc GUID="{1437754E-F772-4FD4-AD2D-3E16CDF29D72}" TcSmClass="TComMcAxisObj">
+			<Name>Axis</Name>
+			<CLSID ClassFactory="Tc3_Mc3Ptp_Core">{050300B8-0000-0000-F000-000000000064}</CLSID>
+			<Info>
+				<TabExtension Url="motion\ptp\views\axisui.html">
+					<Url>Motion UI</Url><![CDATA[Motion UI]]></TabExtension>
+			</Info>
+			<Parameters>
+				<Group><![CDATA[General]]></Group>
+				<Group><![CDATA[Maximum Dynamics]]></Group>
+				<Group><![CDATA[Default Dynamics]]></Group>
+				<Group Collapsed="true"><![CDATA[Manual Motion]]></Group>
+				<Group Collapsed="true"><![CDATA[Monitoring]]></Group>
+				<Group Collapsed="true"><![CDATA[Error Event Handling]]></Group>
+				<Group Collapsed="true"><![CDATA[Diagnostics]]></Group>
+				<Group Collapsed="true"><![CDATA[Additional Error Event Information]]></Group>
+				<Group Collapsed="true"><![CDATA[Additional Encoder]]></Group>
+				<Group Collapsed="true"><![CDATA[Override]]></Group>
+				<Group Collapsed="true"><![CDATA[Internal]]></Group>
+				<Parameter Group="General">
+					<Name>Simulation Mode</Name>
+					<Comment><![CDATA[Whether I/O connection to drive and encoder should be active (FALSE) or simulated (TRUE). Parameter can also be written during runtime if axis state is 'Disabled'.]]></Comment>
+					<BitSize>8</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+					<Default>
+						<Bool>false</Bool>
+					</Default>
+					<PTCID>#x050300b1</PTCID>
+				</Parameter>
+				<Parameter Group="General">
+					<Name>Position Unit</Name>
+					<Comment><![CDATA[The Position Unit is used for display purposes e.g. on the Motion UI. Inputs/outputs to/from e.g. FBs are not converted. ]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{F20289EE-8CFB-4862-83EA-993DF40C82DE}" Namespace="MC">EPositionUnit</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<Default>
+						<Value>1</Value>
+					</Default>
+					<PTCID>#x050301a0</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="General">
+					<Name>Is Modulo Axis</Name>
+					<Comment><![CDATA[Activate this parameter to use modulo functionalities on FBs. Setpoint and actpoint are calculated as absolute and modulo value in cyclic interface.]]></Comment>
+					<BitSize>8</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+					<Default>
+						<Value>0</Value>
+					</Default>
+					<PTCID>#x05030101</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="General">
+					<Name>Position Modulus</Name>
+					<Comment><![CDATA[Modulo period to calculate the modulo position]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<Default>
+						<Value>360.0</Value>
+					</Default>
+					<PTCID>#x05030107</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+					<DependOn>
+						<PTCID>#x05030101</PTCID>
+						<Equals>
+							<Bool>true</Bool>
+						</Equals>
+					</DependOn>
+				</Parameter>
+				<Parameter Group="General">
+					<Name>Position Modulo Tolerance Window</Name>
+					<Comment><![CDATA[A movement against the specified direction is allowed if the target position is within this position tolerance of the start position. The final behavior depends on 'PositionInterpretation' input of FBs.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<Default>
+						<Value>0.0</Value>
+					</Default>
+					<PTCID>#x05030108</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+					<DependOn>
+						<PTCID>#x05030101</PTCID>
+						<Equals>
+							<Bool>true</Bool>
+						</Equals>
+					</DependOn>
+				</Parameter>
+				<Parameter Group="General">
+					<Name>Axis License Mode</Name>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{275BA82D-1BAC-4C3A-8408-35D279770DBC}" Namespace="MC">EAxisLicenseSetting</BaseType>
+					<Default>
+						<EnumText>Beckhoff (auto)</EnumText>
+					</Default>
+					<PTCID>#x050381f2</PTCID>
+				</Parameter>
+				<Parameter Group="Maximum Dynamics">
+					<Name>Maximum Velocity</Name>
+					<Comment><![CDATA[Maximum limit for velocity that is considered by profile generation. Inputs of FBs might be reduced to this limit automatically. Named constant '#Maximum' will be replaced by this value as FB input for the velocity value.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]/s]]></Unit>
+					<Default>
+						<Value>2000</Value>
+					</Default>
+					<PTCID>#x05093009</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Maximum Dynamics">
+					<Name>Maximum Acceleration</Name>
+					<Comment><![CDATA[Maximum limit for acceleration that is considered by profile generation. Inputs of FBs might be reduced to this limit automatically. Named constant '#Maximum' will be replaced by this value as FB input for the acceleration value.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]/s^2]]></Unit>
+					<Default>
+						<Value>10000</Value>
+					</Default>
+					<PTCID>#x0509300a</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Maximum Dynamics">
+					<Name>Maximum Deceleration</Name>
+					<Comment><![CDATA[Maximum limit for deceleration that is considered by profile generation. Inputs of FBs might be reduced to this limit automatically. Named constant '#Maximum' will be replaced by this value as FB input for the deceleration value.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]/s^2]]></Unit>
+					<Default>
+						<Value>10000</Value>
+					</Default>
+					<PTCID>#x0509300b</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Maximum Dynamics">
+					<Name>Maximum Jerk</Name>
+					<Comment><![CDATA[Maximum limit for jerk that is considered by profile generation. Inputs of FBs might be reduced to this limit automatically. Named constant '#Maximum' will be replaced by this value as FB input for the jerk value.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]/s^3]]></Unit>
+					<Default>
+						<Value>100000</Value>
+					</Default>
+					<PTCID>#x05093015</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Default Dynamics">
+					<Name>Default Acceleration</Name>
+					<Comment><![CDATA[This value is used for input 'Acceleration' of FBs as acceleration limit if the value is not set explicitly. Named constant '#Default' will be replaced by this value as FB input for the acceleration value.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]/s^2]]></Unit>
+					<Default>
+						<Value>2000</Value>
+					</Default>
+					<PTCID>#x0509300c</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Default Dynamics">
+					<Name>Default Deceleration</Name>
+					<Comment><![CDATA[This value is used for input 'Deceleration' of FBs as deceleration limit if the value is not set explicitly. Named constant '#Default' will be replaced by this value as FB input for the deceleration value.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]/s^2]]></Unit>
+					<Default>
+						<Value>2000</Value>
+					</Default>
+					<PTCID>#x0509300d</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Default Dynamics">
+					<Name>Default Jerk</Name>
+					<Comment><![CDATA[This value is used for input 'Jerk' of FBs as jerk limit if the value is not set explicitly. Named constant '#Default' will be replaced by this value as FB input for the jerk value.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]/s^3]]></Unit>
+					<Default>
+						<Value>4000</Value>
+					</Default>
+					<PTCID>#x0509300e</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Manual Motion">
+					<Name>Jog Velocity Slow</Name>
+					<Comment><![CDATA[This target velocity is used for jog commands with reduced velocity e.g. for jog commands '>' and '<' on the Motion UI.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]/s]]></Unit>
+					<Default>
+						<Value>100</Value>
+					</Default>
+					<PTCID>#x0503019e</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Manual Motion">
+					<Name>Jog Velocity Fast</Name>
+					<Comment><![CDATA[This target velocity is used for jog commands with high velocity e.g. for jog commands '> >' and '< <' on the Motion UI.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]/s]]></Unit>
+					<Default>
+						<Value>250</Value>
+					</Default>
+					<PTCID>#x0503019f</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Monitoring">
+					<Name>Position Limit Enforcement Enabled</Name>
+					<Comment><![CDATA[Whether position limits for the axis are enforced]]></Comment>
+					<BitSize>8</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+					<Default>
+						<Value>0</Value>
+					</Default>
+					<PTCID>#x0503015d</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Monitoring">
+					<Name>Minimum Position</Name>
+					<Comment><![CDATA[Minimum position allowed for the axis. Use #Ignore to not enforce this limit.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<Default>
+						<Constant><![CDATA[#Ignore]]></Constant>
+					</Default>
+					<PTCID>#x05093021</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+					<DependOn>
+						<PTCID>#x0503015d</PTCID>
+						<Equals>
+							<Bool>true</Bool>
+						</Equals>
+					</DependOn>
+				</Parameter>
+				<Parameter Group="Monitoring">
+					<Name>Maximum Position</Name>
+					<Comment><![CDATA[Maximum position allowed for the axis. Use #Ignore to not enforce this limit.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<Default>
+						<Constant><![CDATA[#Ignore]]></Constant>
+					</Default>
+					<PTCID>#x05093023</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+					<DependOn>
+						<PTCID>#x0503015d</PTCID>
+						<Equals>
+							<Bool>true</Bool>
+						</Equals>
+					</DependOn>
+				</Parameter>
+				<Parameter Group="Monitoring">
+					<Name>Position Lag Monitoring Enabled</Name>
+					<Comment><![CDATA[Whether position lag value is monitored]]></Comment>
+					<BitSize>8</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+					<Default>
+						<Value>1</Value>
+					</Default>
+					<PTCID>#x0503011a</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Monitoring">
+					<Name>Maximum Position Lag Value</Name>
+					<Comment><![CDATA[Maximum position lag value allowed for this axis]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<Default>
+						<Value>5.0</Value>
+					</Default>
+					<PTCID>#x0503011b</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+					<DependOn>
+						<PTCID>#x0503011a</PTCID>
+						<Equals>
+							<Bool>true</Bool>
+						</Equals>
+					</DependOn>
+				</Parameter>
+				<Parameter Group="Monitoring">
+					<Name>Maximum Position Lag Filter Time</Name>
+					<Comment><![CDATA[This parameter specifies the time span after a lag distance error is triggered if the calculated position lag distance is still greater than 'Maximum Position Lag Value'.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[s]]></Unit>
+					<Default>
+						<Value>0.02</Value>
+					</Default>
+					<PTCID>#x0503011c</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+					<DependOn>
+						<PTCID>#x0503011a</PTCID>
+						<Equals>
+							<Bool>true</Bool>
+						</Equals>
+					</DependOn>
+				</Parameter>
+				<Parameter Group="Monitoring">
+					<Name>Position Lag Calculation</Name>
+					<Comment><![CDATA[Whether position lag distance is calculated by the MC axis or is read from mapping to I/O device]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{15F9F152-5D43-412E-AD2A-4BB310063E1F}" Namespace="MC">EPositionLagSource</BaseType>
+					<Default>
+						<EnumText>AutomaticallyCalculated</EnumText>
+					</Default>
+					<PTCID>#x05030138</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter OnlineParameter="true" ReadOnly="true" Group="Monitoring">
+					<Name>Minimum Position Lag</Name>
+					<Comment><![CDATA[This read only online parameter contains the detected minimum position lag value for debug or information purposes.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<PTCID>#x050301a1</PTCID>
+				</Parameter>
+				<Parameter OnlineParameter="true" ReadOnly="true" Group="Monitoring">
+					<Name>Maximum Position Lag</Name>
+					<Comment><![CDATA[This read only online parameter contains the detected maximum position lag value for debug or information purposes.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<PTCID>#x050301a2</PTCID>
+				</Parameter>
+				<Parameter OnlineParameter="true" Group="Monitoring">
+					<Name>Trigger Minimum/Maximum Position Lag Reset</Name>
+					<Comment><![CDATA[Download parameter to reset stored minimum and maximum position lag values.]]></Comment>
+					<BitSize>0</BitSize>
+					<BaseType GUID="{FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF}"/>
+					<PTCID>#x050301a3</PTCID>
+				</Parameter>
+				<Parameter OnlineParameter="true" CreateSymbol="true" ReadOnly="true" Group="Override">
+					<Name>Velocity Override Factor</Name>
+					<Comment><![CDATA[Scaling factor applied to the commanded velocity during motion. Valid range is [0.0, 1.0]. A value of 1.0 means 100% of the commanded velocity.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Default>
+						<Value>1.0</Value>
+					</Default>
+					<PTCID>#x05030231</PTCID>
+				</Parameter>
+				<Parameter Group="Additional Encoder">
+					<Name>Main Position Encoder</Name>
+					<Comment><![CDATA[If there is an additional encoder, select the object id here.]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{97C908A3-4B5E-4ADC-A209-4870A43AE2BA}">OTCID_PositionEncoder</BaseType>
+					<Default>
+						<Value>0</Value>
+					</Default>
+					<PTCID>#x05030132</PTCID>
+				</Parameter>
+				<Parameter Group="Additional Encoder">
+					<Name>Load Control Type</Name>
+					<Comment><![CDATA[If there is an additional load controller, set the type of load controlled by load controller here.]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{CF9F9285-BE5D-469F-BB76-FE58A946F660}" Namespace="MC">ELoadType</BaseType>
+					<Default>
+						<Value>#x0</Value>
+					</Default>
+					<PTCID>#x05030133</PTCID>
+				</Parameter>
+				<Parameter HideParameter="true" Group="Internal" RefreshableValue="true">
+					<Name>Ctx_TaskOidMET</Name>
+					<Comment><![CDATA[TwinCAT system information - no manual configuration required.]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000F}">OTCID</BaseType>
+					<PTCID>#x03002060</PTCID>
+				</Parameter>
+				<Parameter HideParameter="true" ReadOnly="true" Group="Internal" RefreshableValue="true">
+					<Name>ChildAreaLocation</Name>
+					<Comment><![CDATA[TwinCAT system information - no manual configuration required.]]></Comment>
+					<BitSize>256</BitSize>
+					<BaseType GUID="{C5711B60-10CA-42F2-8DE1-6039CB261CCF}" Namespace="IO">TcIoChildAreaLocation</BaseType>
+					<ArrayInfo>
+						<LBound>0</LBound>
+						<Elements Min="0" MaxUnbounded="true">2</Elements>
+					</ArrayInfo>
+					<PTCID>#x03000029</PTCID>
+				</Parameter>
+				<Parameter HideParameter="true" ReadOnly="true" Group="Internal" RefreshableValue="true">
+					<Name>PlcInputsCfg</Name>
+					<Comment><![CDATA[TwinCAT system information - no manual configuration required.]]></Comment>
+					<BitSize>128</BitSize>
+					<BaseType GUID="{BD3BA8A6-FB59-4197-B6BA-A3B09FFC369C}" Namespace="IO">TcIoDataAreaCfg</BaseType>
+					<ArrayInfo>
+						<LBound>0</LBound>
+						<Elements Min="0" MaxUnbounded="true">1</Elements>
+					</ArrayInfo>
+					<PTCID>#x03007000</PTCID>
+				</Parameter>
+				<Parameter HideParameter="true" ReadOnly="true" Group="Internal" RefreshableValue="true">
+					<Name>PlcOutputsCfg</Name>
+					<Comment><![CDATA[TwinCAT system information - no manual configuration required.]]></Comment>
+					<BitSize>384</BitSize>
+					<BaseType GUID="{BD3BA8A6-FB59-4197-B6BA-A3B09FFC369C}" Namespace="IO">TcIoDataAreaCfg</BaseType>
+					<ArrayInfo>
+						<LBound>0</LBound>
+						<Elements Min="0" MaxUnbounded="true">3</Elements>
+					</ArrayInfo>
+					<PTCID>#x03007001</PTCID>
+				</Parameter>
+				<Parameter Group="Error Event Handling">
+					<Name>Control Error Setpoint Mode</Name>
+					<Comment><![CDATA[If there is an error on the hardware side (e.g. control loop) and the MC does not have the control on the axis anymore you can set the behavior of setpoint generation.]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{9D7C5BB7-932E-4E77-B852-A62F4DED3D78}" Namespace="MC">EControlErrorSetpointMode</BaseType>
+					<Default>
+						<Value>1</Value>
+					</Default>
+					<PTCID>#x05030167</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter Group="Diagnostics">
+					<Name>TraceLevel</Name>
+					<Comment><![CDATA[Set which messages should be sent to TwinCAT Error List]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{8007AE3B-86BB-40F2-B385-EF87FCC239A4}">TcTraceLevel</BaseType>
+					<Default>
+						<Value>2</Value>
+					</Default>
+					<PTCID>#x03002103</PTCID>
+				</Parameter>
+				<Parameter OnlineParameter="true" ReadOnly="true" Group="Additional Error Event Information">
+					<Name>Originating Error Event Sender Oid</Name>
+					<Comment><![CDATA[If there is a consequential error e.g. due to coupling, this online parameter shows the object ID of the axis from which the error originated.]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000F}">OTCID</BaseType>
+					<PTCID>#x05030168</PTCID>
+				</Parameter>
+				<Parameter OnlineParameter="true" ReadOnly="true" Group="Additional Error Event Information">
+					<Name>Original Error Id</Name>
+					<Comment><![CDATA[If there is a consequential error e.g. due to coupling, this online parameter shows the error ID of the triggering error.]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</BaseType>
+					<PTCID>#x05030169</PTCID>
+				</Parameter>
+			</Parameters>
+			<DataAreas>
+				<DataArea>
+					<AreaNo AreaType="InputDst" ChildArea="true" CreateSymbols="true">0</AreaNo>
+					<Name>PlcToMc</Name>
+					<ContextId>0</ContextId>
+					<ByteSize X64="8">4</ByteSize>
+					<Symbol>
+						<Name>Std</Name>
+						<BitSize X64="64">32</BitSize>
+						<BaseType GUID="{928ACD6D-34F6-4728-BC12-CB3937EB34C2}" Namespace="MC" PointerTo="1">CDT_PLCTOMC_AXIS_STD</BaseType>
+						<Properties>
+							<Property>
+								<Name>TcPointerMapping</Name>
+							</Property>
+						</Properties>
+						<PTCID>#x0503c011</PTCID>
+						<BitOffs>0</BitOffs>
+					</Symbol>
+					<Properties>
+						<Property>
+							<Name>TcMappingDataArea</Name>
+							<Value>PLC2MC</Value>
+						</Property>
+					</Properties>
+				</DataArea>
+				<DataArea>
+					<AreaNo AreaType="OutputSrc" ChildArea="true" CreateSymbols="true" FlexibleArea="true">1</AreaNo>
+					<Name>McToPlc</Name>
+					<ContextId>0</ContextId>
+					<ByteSize X64="24">12</ByteSize>
+					<Symbol FixedSymbol="true">
+						<Name>Std</Name>
+						<BitSize X64="64">32</BitSize>
+						<BaseType GUID="{E7BFE865-900F-4F3A-B607-76F75FE96459}" Namespace="MC" PointerTo="1">CDT_MCTOPLC_AXIS_STD</BaseType>
+						<Properties>
+							<Property>
+								<Name>TcPointerMapping</Name>
+							</Property>
+						</Properties>
+						<PTCID>#x0503c012</PTCID>
+						<BitOffs>0</BitOffs>
+					</Symbol>
+					<Symbol>
+						<Name>Set</Name>
+						<BitSize X64="64">32</BitSize>
+						<BaseType GUID="{0B0DBDAE-EDDB-492C-A6B1-EEFFED71DF0D}" Namespace="MC" PointerTo="1">CDT_MCTOPLC_AXIS_SET</BaseType>
+						<Properties>
+							<Property>
+								<Name>TcPointerMapping</Name>
+							</Property>
+						</Properties>
+						<PTCID>#x0503c013</PTCID>
+						<BitOffs X64="64">32</BitOffs>
+					</Symbol>
+					<Symbol>
+						<Name>Act</Name>
+						<BitSize X64="64">32</BitSize>
+						<BaseType GUID="{B6A63539-66D5-4BB4-8876-F4726B259807}" Namespace="MC" PointerTo="1">CDT_MCTOPLC_AXIS_ACT</BaseType>
+						<Properties>
+							<Property>
+								<Name>TcPointerMapping</Name>
+							</Property>
+						</Properties>
+						<PTCID>#x0503c014</PTCID>
+						<BitOffs X64="128">64</BitOffs>
+					</Symbol>
+					<Symbol Disabled="true">
+						<Name>Modulo</Name>
+						<BitSize X64="64">32</BitSize>
+						<BaseType GUID="{A44CE81F-76FF-4B9B-9906-BBAF0C1247D2}" Namespace="MC" PointerTo="1">CDT_MCTOPLC_AXIS_MODULO</BaseType>
+						<Properties>
+							<Property>
+								<Name>TcPointerMapping</Name>
+							</Property>
+						</Properties>
+						<PTCID>#x0503c019</PTCID>
+					</Symbol>
+					<Symbol Disabled="true">
+						<Name>LoadControl</Name>
+						<BitSize X64="64">32</BitSize>
+						<BaseType GUID="{FAA1A803-EAD7-4A75-B851-39DA12582F94}" Namespace="MC" PointerTo="1">CDT_MCTOPLC_AXIS_LOADCONTROL</BaseType>
+						<Properties>
+							<Property>
+								<Name>TcPointerMapping</Name>
+							</Property>
+						</Properties>
+						<PTCID>#x0503c016</PTCID>
+					</Symbol>
+					<Symbol Disabled="true">
+						<Name>FluidPower</Name>
+						<BitSize X64="64">32</BitSize>
+						<BaseType GUID="{ABD7A116-8AB9-4E1A-99C3-07858EE414A0}" Namespace="MC" PointerTo="1">CDT_MCTOPLC_AXIS_FLUIDPOWER</BaseType>
+						<Properties>
+							<Property>
+								<Name>TcPointerMapping</Name>
+							</Property>
+						</Properties>
+						<PTCID>#x0503c00e</PTCID>
+					</Symbol>
+					<Properties>
+						<Property>
+							<Name>TcMappingDataArea</Name>
+							<Value>MC2PLC</Value>
+						</Property>
+					</Properties>
+				</DataArea>
+			</DataAreas>
+			<Properties>
+				<Property>
+					<Name>ChildCategory</Name>
+					<Value>AxisChild</Value>
+				</Property>
+				<Property>
+					<Name>Category</Name>
+					<Value>MC Object</Value>
+				</Property>
+				<Property>
+					<Name>Category</Name>
+					<Value>MC AxisModule</Value>
+				</Property>
+				<Property>
+					<Name>Category</Name>
+					<Value>McDefaultAxis</Value>
+				</Property>
+				<Property>
+					<Name>Category</Name>
+					<Value>McEncoderAxisSimulationDataSource</Value>
+				</Property>
+				<Property>
+					<Name>Category</Name>
+					<Value>TcMcPlcAxis</Value>
+				</Property>
+				<Property>
+					<Name>Category</Name>
+					<Value>McCmAxis</Value>
+				</Property>
+				<Property>
+					<Name>Category</Name>
+					<Value>HideTcComContextPP</Value>
+				</Property>
+			</Properties>
+		</ModuleTmc>
+		<ModuleTmc GUID="{48F33D24-2A1B-4C09-8503-9500E9D277B5}">
+			<Name>Simulation Drive</Name>
+			<CLSID ClassFactory="Tc3_Mc3Ptp_Core">{050300B5-0000-0000-F000-000000000064}</CLSID>
+			<Info>
+				<ImageData>424dd6020000000000003600000028000000100000000e00000001001800000000000000000000000000000000000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff858585858585858585858585858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3c5c3c3c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3c5c3c3c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ff131313ff00ffff00ffff00ffc5c3c3ff0000ff0000ff0000858585ff00ff4444443c3c3c3434342c2c2c2424241d1d1d1d1d1dff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ff4b4b4b8a8a8a8a8a8a8585858585857c7c7c1d1d1d0000ff0000ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ff4b4b4b4444444444443c3c3c3434342c2c2c242424ff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ffff00ffff00ffff00ff3c3c3cff00ffff00ff2c2c2cff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ff5d5c5c5454544b4b4b444444ff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3c5c3c3c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3c5c3c3c5c3c3858585ff00ff</ImageData>
+			</Info>
+			<Parameters>
+				<Group Collapsed="true"><![CDATA[Scaling]]></Group>
+				<Parameter Group="Scaling">
+					<Name>Encoder Mounting Offset</Name>
+					<Comment><![CDATA[Defines the permanent correction value for the physical encoder alignment. Set once during commissioning.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<Default>
+						<Value>0.0</Value>
+					</Default>
+					<PTCID>#x05030106</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter OnlineParameter="true" Group="Scaling">
+					<Name>Work Zero Offset</Name>
+					<Comment><![CDATA[User-defined shift relative to the machine zero point. Used to define the product start or specific work coordinates.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<Default>
+						<Value>0.0</Value>
+					</Default>
+					<PTCID>#x050301d1</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter OnlineParameter="true" ReadOnly="true" Group="Scaling">
+					<Name>Active Homing Offset</Name>
+					<Comment><![CDATA[Displays the temporary offset calculated during the last homing sequence. This value is not stored persistently.]]></Comment>
+					<BitSize>64</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</BaseType>
+					<Unit><![CDATA[[PosUnit]]]></Unit>
+					<Default>
+						<Value>0.0</Value>
+					</Default>
+					<PTCID>#x05030224</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter OnlineParameter="true" HideParameter="true" ReadOnly="true" Group="Is Position Valid">
+					<Name>Is Homed</Name>
+					<Comment><![CDATA[Displays whether the drive is homed. This value is not stored persistently.]]></Comment>
+					<BitSize>8</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+					<Default>
+						<Value>0</Value>
+					</Default>
+					<PTCID>#x0503d070</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+				<Parameter OnlineParameter="true" HideParameter="true" ReadOnly="true" Group="Is Position Valid">
+					<Name>Is Absolute Position Valid</Name>
+					<Comment><![CDATA[Displays whether the absolute position is valid. This value is not stored persistently.]]></Comment>
+					<BitSize>8</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+					<Default>
+						<Value>0</Value>
+					</Default>
+					<PTCID>#x0503d071</PTCID>
+					<ContextId OnlineAccess="true">0</ContextId>
+				</Parameter>
+			</Parameters>
+			<Properties>
+				<Property>
+					<Name>Category</Name>
+					<Value>AxisChild</Value>
+				</Property>
+				<Property>
+					<Name>ChildCategory</Name>
+					<Value>SimDriveChild</Value>
+				</Property>
+				<Property>
+					<Name>Category</Name>
+					<Value>HideTcComContextPP</Value>
+				</Property>
+				<Property>
+					<Name>Category</Name>
+					<Value>McAxisSimulationEncoderDrive</Value>
+				</Property>
+			</Properties>
+		</ModuleTmc>
+	</ModuleTmcs>
+	<ImageDatas>
+		<ImageData Id="1000">424dd6020000000000003600000028000000100000000e00000001001800000000000000000000000000000000000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff858585858585858585858585858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3c5c3c3c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3c5c3c3c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ff131313ff00ffff00ffff00ffc5c3c3ff0000ff0000ff0000858585ff00ff4444443c3c3c3434342c2c2c2424241d1d1d1d1d1dff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ff4b4b4b8a8a8a8a8a8a8585858585857c7c7c1d1d1d0000ff0000ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ff4b4b4b4444444444443c3c3c3434342c2c2c242424ff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ffff00ffff00ffff00ff3c3c3cff00ffff00ff2c2c2cff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ff5d5c5c5454544b4b4b444444ff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3ff0000c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3c5c3c3c5c3c3858585ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc5c3c3c5c3c3c5c3c3c5c3c3858585ff00ff</ImageData>
+	</ImageDatas>
+	<AxisModule Id="#x05110010" ShareTmcDesc="true" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|Tc3_Mc3Ptp_Core|4.0.17.0">
+		<Name>__FILENAME__</Name>
+		<TmcDesc GUID="{1437754E-F772-4FD4-AD2D-3E16CDF29D72}" TcSmClass="TComMcAxisObj" ClassFactoryId="Beckhoff Automation GmbH|Tc3_Mc3Ptp_Core|4.0.17.0">
+			<Name>Axis</Name>
+			<InitSequence>PSO</InitSequence>
+			<Contexts>
+				<Context>
+					<Id>0</Id>
+					<Name>MET</Name>
+					<ManualConfig>
+						<OTCID>#x02010090</OTCID>
+					</ManualConfig>
+					<Priority>3</Priority>
+					<CycleTime>2000000</CycleTime>
+					<DependOn>ParentObject</DependOn>
+				</Context>
+				<Context>
+					<Id>1</Id>
+					<Name>MPT</Name>
+					<ManualConfig>
+						<OTCID>#x020100a0</OTCID>
+					</ManualConfig>
+					<Priority>9</Priority>
+					<CycleTime>10000000</CycleTime>
+					<DependOn>ParentObject</DependOn>
+				</Context>
+			</Contexts>
+			<ParentOTCID>#x05100010</ParentOTCID>
+			<ParameterValues>
+				<Value>
+					<Name>Simulation Mode</Name>
+					<EnumText>TRUE</EnumText>
+				</Value>
+				<Value>
+					<Name>Axis License Mode</Name>
+					<EnumText>AutoBeckhoff</EnumText>
+				</Value>
+			</ParameterValues>
+		</TmcDesc>
+		<Module Id="#x01010010" ShareTmcDesc="true" KeepUnrestoredLinks="2" HideInstance="true" ClassFactoryId="Beckhoff Automation GmbH|Tc3_Mc3Ptp_Core|4.0.17.0">
+			<Name>SimEncoderDrive (Simulation Drive)</Name>
+			<ImageId>1000</ImageId>
+			<TmcDesc GUID="{48F33D24-2A1B-4C09-8503-9500E9D277B5}" ClassFactoryId="Beckhoff Automation GmbH|Tc3_Mc3Ptp_Core|4.0.17.0">
+				<Name>Simulation Drive</Name>
+				<InitSequence>PSO</InitSequence>
+				<Contexts>
+					<Context>
+						<Id>0</Id>
+						<ManualConfig>
+							<OTCID>#x02010090</OTCID>
+						</ManualConfig>
+						<Priority>3</Priority>
+						<CycleTime>2000000</CycleTime>
+						<DependOn>ParentObject</DependOn>
+					</Context>
+					<Context>
+						<Id>1</Id>
+						<ManualConfig>
+							<OTCID>#x020100a0</OTCID>
+						</ManualConfig>
+						<Priority>9</Priority>
+						<CycleTime>10000000</CycleTime>
+						<DependOn>ParentObject</DependOn>
+					</Context>
+				</Contexts>
+				<ParentOTCID>#x05110010</ParentOTCID>
+			</TmcDesc>
+		</Module>
+	</AxisModule>
+</TcSmItem>

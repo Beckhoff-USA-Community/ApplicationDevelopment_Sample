@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_Mc3SlaveAxis" Id="{2ca40060-2e90-4534-bf74-e0726c3baae4}">
+    <Declaration><![CDATA[INTERFACE I_Mc3SlaveAxis EXTENDS I_Mc3Axis_PTP, I_Mc3AxisGear]]></Declaration>
+  </Itf>
+</TcPlcObject>

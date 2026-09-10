@@ -5,9 +5,9 @@
 VAR
 	// Components
 	SealerAxisRef	  : AXIS_REF;
-	_SealerAxis		  : Mc2AxisPTP('Sealer Axis', SealerAxisRef);
-	SealerAxis_HMI	  : Mc2AxisPTP_HMI('Sealer Axis HMI', _SealerAxis, '°');
-	SealerAxis_Events : Mc2Axis_TcEvents('Sealer Axis Events', _SealerAxis);
+	_SealerAxis		  : Mc3AxisPTP('Sealer Axis', SealerAxisRef);
+	SealerAxis_HMI	  : Mc3AxisPTP_HMI('Sealer Axis HMI', _SealerAxis, '°');
+	SealerAxis_Events : Mc3Axis_TcEvents('Sealer Axis Events', _SealerAxis);
 	_SealBar		  : SealBar('Heat Bar');
 
 	// 
@@ -124,7 +124,7 @@ END_VAR]]></Declaration>
 	E_PMLProtectedUnitMode.Production:
 		CASE SequenceState OF
 			0:
-				IF SealerAxis.Axis.Status.InTargetPosition AND NOT SealerAxis.Busy THEN
+				IF NOT SealerAxis.Busy THEN
 					DwellTime.IN  := TRUE;
 					NextStep(SequenceState);
 				END_IF
@@ -139,7 +139,7 @@ END_VAR]]></Declaration>
 				END_IF
 
 			20:
-				IF SealerAxis.Axis.Status.InTargetPosition AND NOT SealerAxis.Busy THEN
+				IF NOT SealerAxis.Busy THEN
 					Statemachine.ChangeState(E_PmlCommand.Complete);
 					Execute := TRUE;
 				END_IF
@@ -251,7 +251,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="SealerAxis" Id="{8d09bd86-cfdf-488c-9fc1-d67982da4da0}" FolderPath="Sealer\">
-      <Declaration><![CDATA[PROPERTY SealerAxis : I_Mc2Axis_PTP]]></Declaration>
+      <Declaration><![CDATA[PROPERTY SealerAxis : I_Mc3Axis_PTP]]></Declaration>
       <Get Name="Get" Id="{c368e095-59fb-4fe8-938e-4a909571c3e1}">
         <Declaration><![CDATA[VAR
 END_VAR

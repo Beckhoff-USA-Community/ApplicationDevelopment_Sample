@@ -5,13 +5,13 @@
 VAR
 	// Components
 	PullWheelLeftAxisRef	  : AXIS_REF;
-	_PullWheelLeftAxis		  : Mc2AxisPTP('Pull Wheel Left Axis', PullWheelLeftAxisRef);
-	PullWheelLeftAxis_HMI	  : MC2AxisPTP_HMI('Pull Wheel Left Axis HMI', _PullWheelLeftAxis, '°');
-	PullWheelLeftAxis_Events  : MC2Axis_TcEvents('Pul lWheel Left Axis Events', _PullWheelLeftAxis);
+	_PullWheelLeftAxis		  : Mc3AxisPTP('Pull Wheel Left Axis', PullWheelLeftAxisRef);
+	PullWheelLeftAxis_HMI	  : MC3AxisPTP_HMI('Pull Wheel Left Axis HMI', _PullWheelLeftAxis, '°');
+	PullWheelLeftAxis_Events  : MC3Axis_TcEvents('Pul lWheel Left Axis Events', _PullWheelLeftAxis);
 	PullWheelRightAxisRef	  : AXIS_REF;
-	_PullWheelRightAxis		  : Mc2SlaveAxisPTP('Pull Wheel Right Axis', PullWheelRightAxisRef);
-	PullWheelRightAxis_HMI	  : Mc2AxisPTP_HMI('Pull Wheel Right Axis HMI', _PullWheelRightAxis, '°');
-	PullWheelRightAxis_Events : Mc2Axis_TcEvents('Pull Wheel Right Axis Events', _PullWheelRightAxis);
+	_PullWheelRightAxis		  : Mc3SlaveAxisPTP('Pull Wheel Right Axis', PullWheelRightAxisRef);
+	PullWheelRightAxis_HMI	  : Mc3AxisPTP_HMI('Pull Wheel Right Axis HMI', _PullWheelRightAxis, '°');
+	PullWheelRightAxis_Events : Mc3Axis_TcEvents('Pull Wheel Right Axis Events', _PullWheelRightAxis);
 	_PullWheelCylinder		  : Cylinder('Cylinder', 0, 0, 0, 0);
 	PullWheelCylinder_HMI	  : Cylinder_HMI('Cylinder HMI', _PullWheelCylinder) := (ExtendedName := 'Extended', RetractedName := 'Retracted', ExtendCommandName := 'Extend', RetractCommandName := 'Retract');
 	PullWheelCylinder_Events  : Cylinder_TcEvents('Cylinder Events', _PullWheelCylinder);
@@ -121,11 +121,13 @@ END_VAR
     </Property>
     <Method Name="Execute" Id="{abd97491-0f39-44fa-9587-20035a55c042}" FolderPath="States\">
       <Declaration><![CDATA[METHOD Execute : BOOL
-]]></Declaration>
+VAR_INST
+    WaitForStableActualPosition : MC_WaitForStableActualPosition;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
 	E_PMLProtectedUnitMode.Production:
-		IF PullWheelLeftAxis.Axis.Status.InTargetPosition AND NOT PullWheelLeftAxis.Busy THEN
+		IF NOT PullWheelLeftAxis.Busy THEN
 			PullWheelCylinder.Retract();
 			IF PullWheelCylinder.Retracted THEN
 				Statemachine.ChangeState(E_PmlCommand.Complete);
@@ -211,7 +213,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="PullWheelLeftAxis" Id="{65feab3a-ecc9-4b79-98f2-9f85773e8c13}" FolderPath="PullWheel\">
-      <Declaration><![CDATA[PROPERTY PullWheelLeftAxis : I_Mc2Axis_PTP]]></Declaration>
+      <Declaration><![CDATA[PROPERTY PullWheelLeftAxis : I_Mc3Axis_PTP]]></Declaration>
       <Get Name="Get" Id="{83ac05be-817f-4069-b29e-2e8d236ce1da}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -222,7 +224,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="PullWheelRightAxis" Id="{9363d5c1-5201-43d8-ae8d-7e316ded4486}" FolderPath="PullWheel\">
-      <Declaration><![CDATA[PROPERTY PullWheelRightAxis : I_Mc2SlaveAxis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY PullWheelRightAxis : I_Mc3SlaveAxis]]></Declaration>
       <Get Name="Get" Id="{e0e282cb-ae2c-4fea-b3b6-52a3bdfafea4}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -257,10 +259,11 @@ _ErrorId := 0;]]></ST>
       <Implementation>
         <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
 	E_PMLProtectedUnitMode.Production:
-		PullWheelRightAxis.Master1			:= PullWheelLeftAxis;
-		PullWheelRightAxis.GearRatioMaster1 := 1.0;
+		PullWheelRightAxis.Master			:= PullWheelLeftAxis;
+		PullWheelRightAxis.RatioDenominator := 1.0;
+		PullWheelRightAxis.RatioNumerator	:= 1.0;
 		PullWheelRightAxis.GearIn();
-		Resetting := PullWheelRightAxis.Axis.Status.Coupled;
+		Resetting := PullWheelRightAxis.InGear;
 
 	E_PMLProtectedUnitMode.Maintenance, E_PMLProtectedUnitMode.Manual:
 		Resetting := TRUE;

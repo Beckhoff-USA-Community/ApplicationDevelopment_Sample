@@ -9,7 +9,7 @@
       </Get>
     </Property>
     <Property Name="UnwindAxis" Id="{efb7c0fb-8d86-4c3a-a26b-dc8d600abb2b}">
-      <Declaration><![CDATA[PROPERTY UnwindAxis : I_Mc2Axis_PTP]]></Declaration>
+      <Declaration><![CDATA[PROPERTY UnwindAxis : I_Mc3Axis_PTP]]></Declaration>
       <Get Name="Get" Id="{9207b0b2-45f9-4b87-9d18-c85e1c95e304}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

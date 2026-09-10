@@ -7,9 +7,51 @@
 VAR_INPUT
 END_VAR]]></Declaration>
     </Method>
+    <Property Name="InGear" Id="{477a68fb-b013-4f11-b369-e829532ccd42}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InGear : BOOL]]></Declaration>
+      <Get Name="Get" Id="{0d83443b-d03c-49f4-af8f-d976f5920319}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Get>
+    </Property>
     <Property Name="Master" Id="{40f93b2a-edfa-450d-9f18-31964f978c98}">
       <Declaration><![CDATA[PROPERTY Master : I_Mc3Axis]]></Declaration>
       <Set Name="Set" Id="{8b8f6ac5-82f5-4ba2-85de-b9363b38e497}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="MasterHasError" Id="{50a08d54-bdad-4d75-a2a1-99e068da0f00}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY MasterHasError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{a3ceb87e-40fa-49ae-802f-2ea6f87d2d36}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="RatioDenominator" Id="{6c960b2d-55ca-4259-bab1-2bb43e8d3b26}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY RatioDenominator : LREAL]]></Declaration>
+      <Set Name="Set" Id="{f352ee05-edf1-46c9-9418-59d099d895a8}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="RatioNumerator" Id="{40c83ab7-7a1a-46c5-b615-72864b70aaaf}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY RatioNumerator : LREAL]]></Declaration>
+      <Set Name="Set" Id="{b572cd86-f9d1-441a-8ae9-7582f49142d5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="ReactionToMasterError" Id="{d4d8710c-028b-4ec3-8577-b21f192ddb9d}">
+      <Declaration><![CDATA[PROPERTY ReactionToMasterError : EReactionToMasterError]]></Declaration>
+      <Set Name="Set" Id="{080e3ee7-2f0a-4786-aebe-ee3a955ec697}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="ReactionToSlaveError" Id="{8d086f56-f964-4b28-998e-30b6a17dc26c}">
+      <Declaration><![CDATA[PROPERTY ReactionToSlaveError : EReactionToSlaveError]]></Declaration>
+      <Set Name="Set" Id="{bff48700-6202-4be6-8aeb-971b5950d703}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>

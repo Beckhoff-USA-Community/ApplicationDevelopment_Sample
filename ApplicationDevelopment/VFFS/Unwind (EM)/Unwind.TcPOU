@@ -5,9 +5,9 @@
 VAR
 	// Components
 	UnwindAxisRef	  : AXIS_REF;
-	_UnwindAxis		  : Mc2AxisPTP('Unwind Axis', UnwindAxisRef);
-	UnwindAxis_HMI	  : Mc2AxisPTP_HMI('Unwind Axis HMI', _UnwindAxis, '°');
-	UnwindAxis_Events : Mc2Axis_TcEvents('Unwind Axis Events', _UnwindAxis);
+	_UnwindAxis		  : Mc3AxisPTP('Unwind Axis', UnwindAxisRef);
+	UnwindAxis_HMI	  : Mc3AxisPTP_HMI('Unwind Axis HMI', _UnwindAxis, '°');
+	UnwindAxis_Events : Mc3Axis_TcEvents('Unwind Axis Events', _UnwindAxis);
 
 	//
 	_Recipe			 : ST_UnwindRecipe;
@@ -204,7 +204,7 @@ END_CASE]]></ST>
       </Implementation>
     </Method>
     <Property Name="UnwindAxis" Id="{27f93244-a72b-479c-a51b-439cc466c480}" FolderPath="Unwind\">
-      <Declaration><![CDATA[PROPERTY UnwindAxis : I_Mc2Axis_PTP]]></Declaration>
+      <Declaration><![CDATA[PROPERTY UnwindAxis : I_Mc3Axis_PTP]]></Declaration>
       <Get Name="Get" Id="{5fa37d27-cf5e-4ffe-9741-3949f9b76339}">
         <Declaration><![CDATA[VAR
 END_VAR

@@ -1,0 +1,214 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.26" ClassName="CMcPrjDef" SubType="70">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{2719D350-A47B-4785-A4FF-7C5A014A4ACB}" Namespace="MC" TcBaseType="true">EMcTaskInternalSequence</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+			<EnumInfo>
+				<Text><![CDATA[FastReaction]]></Text>
+				<Enum>0</Enum>
+				<Comment><![CDATA[Execution order: Commands - Exec - Output. Processes new commands before output update, providing the fastest reaction to new commands.]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[Stable]]></Text>
+				<Enum>1</Enum>
+				<Comment><![CDATA[Execution order: Output - Commands - Exec. Output update is executed first, then new commands are processed, providing less jitter for output update.]]></Comment>
+			</EnumInfo>
+			<Properties>
+				<Property>
+					<Name>plcAttribute_qualified_only</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_strict</Name>
+				</Property>
+				<Property>
+					<Name>plcAttribute_to_string</Name>
+				</Property>
+			</Properties>
+			<Hides>
+				<Hide GUID="{B4BE03D8-1304-440C-AA14-D00591C7909E}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+	<ModuleTmcs>
+		<ModuleTmc GUID="{6445FBA6-B920-4AD2-873B-8C61DD652099}" TcSmClass="TComMcCtxObj">
+			<Name>MC Instance</Name>
+			<CLSID ClassFactory="Tc3_Mc3Base_Core">{05030084-0000-0000-F000-000000000064}</CLSID>
+			<Parameters>
+				<Parameter>
+					<Name>Execution-Task OID (MET)</Name>
+					<Comment><![CDATA[Object ID of task used for very time-critical command execution (Motion-Execution-Task)]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000F}">OTCID</BaseType>
+					<PTCID>#x03002060</PTCID>
+				</Parameter>
+				<Parameter>
+					<Name>Preparation-Task OID (MPT)</Name>
+					<Comment><![CDATA[Object ID of task used for less time-critical command preparation (Motion-Preparation-Task)]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000F}">OTCID</BaseType>
+					<PTCID>#x03002061</PTCID>
+				</Parameter>
+				<Parameter>
+					<Name>Job-Task OID (MJT)</Name>
+					<Comment><![CDATA[Object ID of JobTask for asynchronous processing (Motion-Job-Task)]]></Comment>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{18071995-0000-0000-0000-00000000000F}">OTCID</BaseType>
+					<Properties>
+						<Property>
+							<Name>TcJobTaskOID</Name>
+						</Property>
+					</Properties>
+					<PTCID>#x0300a11b</PTCID>
+				</Parameter>
+				<Parameter HideParameter="true">
+					<Name>Scheduling</Name>
+					<BitSize>32</BitSize>
+					<BaseType GUID="{2719D350-A47B-4785-A4FF-7C5A014A4ACB}" Namespace="MC">EMcTaskInternalSequence</BaseType>
+					<Default>
+						<EnumText>Stable</EnumText>
+					</Default>
+					<PTCID>#x0503009d</PTCID>
+				</Parameter>
+				<Parameter HideParameter="true" ReadOnly="true">
+					<Name>DataAreaSizes</Name>
+					<BitSize>256</BitSize>
+					<BaseType GUID="{C636B456-B483-42A5-BD8A-58753433F375}" Namespace="IO">TcIoDataAreaSize</BaseType>
+					<ArrayInfo>
+						<LBound>0</LBound>
+						<Elements Min="0" MaxUnbounded="true">4</Elements>
+					</ArrayInfo>
+					<PTCID>#x0300002a</PTCID>
+				</Parameter>
+			</Parameters>
+			<DataAreas>
+				<DataArea>
+					<AreaNo AreaType="InputDst" AllowChildAreas="true">0</AreaNo>
+					<Name>PlcToMc</Name>
+					<ContextId>0</ContextId>
+					<ByteSize X64="32">16</ByteSize>
+				</DataArea>
+				<DataArea>
+					<AreaNo AreaType="OutputSrc" AllowChildAreas="true">1</AreaNo>
+					<Name>McToPlc</Name>
+					<ContextId>0</ContextId>
+					<ByteSize X64="96">48</ByteSize>
+				</DataArea>
+				<DataArea>
+					<AreaNo AreaType="OutputSrc">2</AreaNo>
+					<Name>FromPlc</Name>
+					<ContextId>0</ContextId>
+					<ByteSize X64="32">16</ByteSize>
+				</DataArea>
+				<DataArea>
+					<AreaNo AreaType="InputDst">3</AreaNo>
+					<Name>ToPlc</Name>
+					<ContextId>0</ContextId>
+					<ByteSize X64="96">48</ByteSize>
+				</DataArea>
+			</DataAreas>
+			<Properties>
+				<Property>
+					<Name>Category</Name>
+					<Value>TcNc3Instance</Value>
+				</Property>
+				<Property>
+					<Name>Category</Name>
+					<Value>HideTcComContextPP</Value>
+				</Property>
+				<Property>
+					<Name>ChildCategory</Name>
+					<Value>MC Object</Value>
+				</Property>
+			</Properties>
+		</ModuleTmc>
+	</ModuleTmcs>
+	<MC Id="#x051f0010">
+		<Name>__FILENAME__</Name>
+		<MET Priority="3" CycleTimeNS="2000000" OTCID="#x02010090" Scheduling="1"/>
+		<MPT Priority="9" CycleTimeNS="10000000" OTCID="#x020100a0"/>
+		<MJT Priority="32" OTCID="#x02010080"/>
+		<Instance Id="#x05100010" ShareTmcDesc="true" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|Tc3_Mc3Base_Core|4.0.17.0">
+			<Name>Context1</Name>
+			<TmcDesc GUID="{6445FBA6-B920-4AD2-873B-8C61DD652099}" TcSmClass="TComMcCtxObj" ClassFactoryId="Beckhoff Automation GmbH|Tc3_Mc3Base_Core|4.0.17.0">
+				<Name>MC Instance</Name>
+				<InitSequence>PSO</InitSequence>
+				<Contexts>
+					<Context>
+						<Id>0</Id>
+						<Name>MET</Name>
+						<ManualConfig>
+							<OTCID>#x02010090</OTCID>
+						</ManualConfig>
+						<Priority>3</Priority>
+						<CycleTime>2000000</CycleTime>
+					</Context>
+					<Context>
+						<Id>1</Id>
+						<Name>MPT</Name>
+						<ManualConfig>
+							<OTCID>#x020100a0</OTCID>
+						</ManualConfig>
+						<Priority>9</Priority>
+						<CycleTime>10000000</CycleTime>
+					</Context>
+					<Context>
+						<Id>2</Id>
+						<Name>MJT</Name>
+						<ManualConfig>
+							<OTCID>#x02010080</OTCID>
+						</ManualConfig>
+						<Priority>32</Priority>
+					</Context>
+				</Contexts>
+				<ParameterValues>
+					<Value>
+						<Name>Execution-Task OID (MET)</Name>
+						<Value>33620112</Value>
+					</Value>
+					<Value>
+						<Name>Preparation-Task OID (MPT)</Name>
+						<Value>33620128</Value>
+					</Value>
+					<Value>
+						<Name>Job-Task OID (MJT)</Name>
+						<Value>33620096</Value>
+					</Value>
+					<Value>
+						<Name>DataAreaSizes[0].size</Name>
+						<Value>32</Value>
+					</Value>
+					<Value>
+						<Name>DataAreaSizes[1].area</Name>
+						<Value>1</Value>
+					</Value>
+					<Value>
+						<Name>DataAreaSizes[1].size</Name>
+						<Value>96</Value>
+					</Value>
+					<Value>
+						<Name>DataAreaSizes[2].area</Name>
+						<Value>2</Value>
+					</Value>
+					<Value>
+						<Name>DataAreaSizes[2].size</Name>
+						<Value>32</Value>
+					</Value>
+					<Value>
+						<Name>DataAreaSizes[3].area</Name>
+						<Value>3</Value>
+					</Value>
+					<Value>
+						<Name>DataAreaSizes[3].size</Name>
+						<Value>96</Value>
+					</Value>
+				</ParameterValues>
+			</TmcDesc>
+		</Instance>
+		<Axis File="Unwind.xti"/>
+		<Axis File="Seal.xti"/>
+		<Axis File="Pull Wheel Left.xti"/>
+		<Axis File="Pull Wheel Right.xti"/>
+	</MC>
+</TcSmItem>

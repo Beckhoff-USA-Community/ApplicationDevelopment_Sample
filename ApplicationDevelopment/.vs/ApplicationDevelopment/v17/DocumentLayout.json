@@ -1,29 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3Axis.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3AxisPTP.TcPOU@MoveAbsolute||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3AxisPTP.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3Axis.TcPOU@BufferMode.Get||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Interface\\I_Mc3Settings.TcIO@BufferMode||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3Axis.TcPOU@BufferMode||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -31,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -52,83 +30,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:1528276488:0:{a6f4fceb-1c71-4697-840a-c4fdf5060a5f}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Mc3MotionCoupleTask_Gearing",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU",
-              "ToolTip": "Mc3MotionCoupleTask_Gearing [ApplicationBase.ApplicationBase]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T17:34:32.037Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Mc3Axis.BufferMode.Get",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3Axis.TcPOU@BufferMode.Get",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3Axis.TcPOU@BufferMode.Get",
-              "ToolTip": "Get [ApplicationBase.ApplicationBase.Mc3Axis.Settings.BufferMode]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T17:35:05.554Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Mc3Axis.BufferMode",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3Axis.TcPOU@BufferMode",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3Axis.TcPOU@BufferMode",
-              "ToolTip": "BufferMode [ApplicationBase.ApplicationBase.Mc3Axis.Settings]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T17:35:09.164Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "I_Mc3Settings.BufferMode",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Interface\\I_Mc3Settings.TcIO@BufferMode",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Interface\\I_Mc3Settings.TcIO@BufferMode",
-              "ToolTip": "BufferMode [ApplicationBase.ApplicationBase.I_Mc3Settings]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T17:35:19.876Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Mc3Axis",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3Axis.TcPOU",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3Axis.TcPOU",
-              "ToolTip": "Mc3Axis [ApplicationBase.ApplicationBase]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T17:35:25.473Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Mc3AxisPTP",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3AxisPTP.TcPOU",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3AxisPTP.TcPOU",
-              "ToolTip": "Mc3AxisPTP [ApplicationBase.ApplicationBase]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T17:35:42.306Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Mc3AxisPTP.MoveAbsolute",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3AxisPTP.TcPOU@MoveAbsolute",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Motion\\MC3\\Mc3AxisPTP.TcPOU@MoveAbsolute",
-              "ToolTip": "MoveAbsolute [ApplicationBase.ApplicationBase.Mc3AxisPTP.Move Absolute]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T17:35:50.552Z",
-              "EditorCaption": ""
             }
           ]
         },
@@ -147,6 +48,10 @@
             {
               "$type": "Bookmark",
               "Name": "ST:3:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
             }
           ]
         }

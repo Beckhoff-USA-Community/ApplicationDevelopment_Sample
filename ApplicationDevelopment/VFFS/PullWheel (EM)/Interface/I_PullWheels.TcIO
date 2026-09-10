@@ -9,13 +9,13 @@
       </Get>
     </Property>
     <Property Name="PullWheelLeftAxis" Id="{e3c7b426-2737-40e2-992f-f86fc3f0cc6a}">
-      <Declaration><![CDATA[PROPERTY PullWheelLeftAxis : I_Mc2Axis_PTP]]></Declaration>
+      <Declaration><![CDATA[PROPERTY PullWheelLeftAxis : I_Mc3Axis_PTP]]></Declaration>
       <Get Name="Get" Id="{294fd62f-f942-49dc-9c33-59b971441ebd}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
     <Property Name="PullWheelRightAxis" Id="{46e7cce9-ba13-40ee-a7e9-ad3978f4489a}">
-      <Declaration><![CDATA[PROPERTY PullWheelRightAxis : I_Mc2SlaveAxis]]></Declaration>
+      <Declaration><![CDATA[PROPERTY PullWheelRightAxis : I_Mc3SlaveAxis]]></Declaration>
       <Get Name="Get" Id="{994c8324-d3a4-4433-950e-b3c118effcbf}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
