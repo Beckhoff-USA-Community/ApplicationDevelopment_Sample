@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_AxisEnable" Id="{73aa81ef-0a82-4a2d-aafa-259a7a2e1a2b}">
-    <Declaration><![CDATA[INTERFACE I_AxisEnable EXTENDS I_Enablable, I_Override]]></Declaration>
+    <Declaration><![CDATA[INTERFACE I_AxisEnable EXTENDS I_Enablable]]></Declaration>
     <Property Name="InhibitFeedBackward" Id="{f78063d2-25c6-4eb4-8d5b-65b6b29beef9}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY InhibitFeedBackward : BOOL]]></Declaration>

@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc3StopTask" Id="{d77fbe87-6105-464c-9436-a66cec7c7ae4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc3StopTask EXTENDS Mc3MotionTask IMPLEMENTS I_Mc3MotionTask
+VAR
+	McHalt : Tc3_Mc3Ptp.MC_Halt;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{a4d84e5c-eaba-4869-8701-28bac64cc300}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{9d27e6ef-8c3c-4ebf-82b7-773d6240a069}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := McHalt.Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{c3e780ea-a070-4cf4-b6da-5aef2c425231}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McHalt(Axis			  := _Axis.Axis,
+	   Deceleration	  := _Axis.Deceleration,
+	   Jerk			  := _Axis.Jerk,
+	   Done			  =>,
+	   Busy			  =>,
+	   Active		  =>,
+	   CommandAborted =>,
+	   Error		  =>,
+	   ErrorId		  =>);
+
+McHalt.Execute := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{7bd9da7b-7384-4b09-9be8-e5c1e5b31669}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{9acc4f28-6d6b-43f1-b85e-aa81549dc3f4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := McHalt.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{44e53075-5f67-4ffb-a2d7-f77d2823e989}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{dcd257a6-ad9d-4683-a829-13f2c33d098d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := McHalt.ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{4e7ea144-6046-4cf7-80d9-8af8a6a3f982}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McHalt(Axis			:= _Axis.Axis,
+	   Execute		:= TRUE,
+	   Deceleration := _Axis.Deceleration,
+	   Jerk			:= _Axis.Jerk);
+
+Execute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

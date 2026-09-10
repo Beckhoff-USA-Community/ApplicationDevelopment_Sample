@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <DUT Name="ST_Mc3MotionDefaults" Id="{755e4d70-5252-4d17-a248-b39844bf0c36}">
+    <Declaration><![CDATA[TYPE ST_Mc3MotionDefaults :
+	STRUCT
+		DefaultResetTask : Mc3CoEResetTask				 := (Name := 'MC Reset (CoE)');
+		DefaultHomeTask	 : Mc3MotionHomeTask_SetZeroHere := (Name := 'MC Home');
+		DefaultStopTask	 : Mc3StopTask					 := (Name := 'MC Stop');
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -3,6 +3,12 @@
   <Itf Name="I_Mc2Settings" Id="{1929287d-762f-4697-b228-a921f106d254}">
     <Declaration><![CDATA[INTERFACE I_Mc2Settings EXTENDS I_Base
 ]]></Declaration>
+    <Property Name="AxisParameterSet" Id="{b284cead-b969-4f6c-9773-7963f9005c12}">
+      <Declaration><![CDATA[PROPERTY AxisParameterSet : REFERENCE TO ST_AxisParameterSet]]></Declaration>
+      <Get Name="Get" Id="{c6aa4e52-9e0f-453f-9793-e3bdcfa19bdd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
     <Property Name="BufferMode" Id="{05df24fc-69fa-4e39-a654-c7cd76fc9c9b}">
       <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO tc2_mc2.MC_BufferMode]]></Declaration>
       <Get Name="Get" Id="{10ae332f-3121-4540-a039-8b90b9bd5e0b}">

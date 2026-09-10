@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc3CoEResetTask" Id="{f13ca445-471b-4a26-8273-dfb222aef217}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc3CoEResetTask EXTENDS Mc3MotionTask
+VAR
+	MCReset		  : Tc3_Mc3Ptp.MC_Reset;
+	SequenceState : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{0db3c0bf-0cd8-48a7-992b-1c256f9efc7e}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2993bb61-b645-44d6-b479-a100f0948d4f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := SequenceState <> 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{b4936990-0358-4d9f-b559-3a71779efb3c}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0: // Wait for Execute()
+	10:
+		MCReset.Execute := TRUE;
+		SequenceState	:= SequenceState + 10;
+
+	20:
+		IF NOT MCReset.Busy THEN
+			SequenceState := 0;
+		END_IF
+END_CASE
+
+MCReset(Axis := _Axis.Axis);
+MCReset.Execute := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{811ec312-5eec-46f2-8d85-ed0e72b5d702}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{a4ecfffc-a755-47a9-848e-d02523fa0df9}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := MCReset.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{0439d030-f7d2-4a82-a8e5-bac4abc3a7be}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{7e6f7536-7df3-4bb7-95ea-bf2ad470bbbb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := MCReset.ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{1b7c1dd0-a23c-42f5-a201-1ab2e7f40971}">
+      <Declaration><![CDATA[METHOD Execute : BOOL
+VAR
+    Coupled : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Coupled := _Axis.Axis.McToPlc.Std.AxisState = EAxisState.SynchronizedMotion;
+IF Coupled AND NOT _Axis.Axis.McToPlc.Std.HasError THEN
+	Execute := TRUE;
+	RETURN;
+ELSIF Busy OR Coupled THEN
+	Execute := TRUE;
+	RETURN;
+END_IF
+
+SequenceState := 10;
+Execute		  := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

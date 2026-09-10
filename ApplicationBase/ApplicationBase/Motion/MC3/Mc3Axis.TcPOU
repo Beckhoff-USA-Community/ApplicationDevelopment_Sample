@@ -1,68 +1,55 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
-  <POU Name="Mc2Axis" Id="{c3c03e8a-759c-4ce9-bcae-63318d943e7c}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Mc2Axis EXTENDS CyclicComponent IMPLEMENTS I_Initializable, I_Mc2Axis
+  <POU Name="Mc3Axis" Id="{7b755d12-bde7-47e4-872e-d19b5ce399e8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc3Axis EXTENDS CyclicComponent IMPLEMENTS I_Initializable, I_Mc3Axis
 VAR
-	_Axis				 : REFERENCE TO Tc2_MC2.AXIS_REF;
-	Defaults			 : ST_Mc2MotionDefaults;
-	MotionTaskCollection : Mc2MotionTaskCollection<ApplicationBaseMotionParameter.MaxMotionTasks>(THIS^);
+	_Axis				 : REFERENCE TO Tc3_Mc3Ptp.AXIS_REF;
+	Defaults			 : ST_Mc3MotionDefaults;
+	MotionTaskCollection : Mc3MotionTaskCollection<ApplicationBaseMotionParameter.MaxMotionTasks>(THIS^);
 
 	// Tasks
-	{attribute 'hide'}
-	PowerTask : Mc2PowerTask := (Name := 'MC Power');
-	{attribute 'hide'}
-	JogTask : Mc2MoveJogTask := (Name := 'MC Jog');
-	{attribute 'hide'}
-	_StopTask : I_Mc2MotionTask := Defaults.DefaultStopTask;
-	{attribute 'hide'}
-	_ResetTask : I_Mc2MotionTask := Defaults.DefaultResetTask;
-	{attribute 'hide'}
-	_HomeTask : I_Mc2MotionTask := Defaults.DefaultHomeTask;
+	PowerTask  : Mc3PowerTask	 := (Name := 'MC Power');
+	JogTask	   : Mc3MoveJogTask	 := (Name := 'MC Jog');
+	_StopTask  : I_Mc3MotionTask := Defaults.DefaultStopTask;
+	_ResetTask : I_Mc3MotionTask := Defaults.DefaultResetTask;
+	_HomeTask  : I_Mc3MotionTask := Defaults.DefaultHomeTask;
+	SetOverride : Tc3_Mc3Ptp.MC_SetOverride;
 
 	//
-	{attribute 'hide'}
-	MCReadParameterSet : Tc2_MC2.MC_ReadParameterSet;
-	_AxisParameters	   : Tc2_MC2.ST_AxisParameterSet;
-	{attribute 'hide'}
-	_Initialized : BOOL;
-	{attribute 'hide'}
+	_Initialized  : BOOL;
 	_Acceleration : LREAL;
-	{attribute 'hide'}
 	_Deceleration : LREAL;
-	{attribute 'hide'}
-	_Velocity : LREAL;
-	{attribute 'hide'}
+	_Velocity	  : LREAL;
 	_Jerk		  : LREAL;
-	_McBufferMode : Tc2_MC2.MC_BufferMode;
-	_MoveOptions  : Tc2_MC2.ST_MoveOptions;
-	_Direction	  : Tc2_MC2.MC_Direction := Tc2_MC2.MC_Direction.MC_Shortest_Way;
-	_JogMode	  : Tc2_MC2.E_JogMode	 := Tc2_MC2.E_JogMode.MC_JOGMODE_STANDARD_SLOW;
+	_McBufferMode : Tc3_Mc3Ptp.EBufferMode		:= Tc3_Mc3Ptp.EBufferMode.Aborting;
+	_Direction	  : Tc3_Mc3Ptp.EModuloDirection := Tc3_Mc3Ptp.EModuloDirection.ShortestDistance;
+	_JogMode	  : Tc3_Mc3Ptp.EJogMode			:= Tc3_Mc3Ptp.EJogMode.StandardSlow;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Folder Name="Component" Id="{b9674294-e5e8-4857-b2dd-bb9605b4f949}" />
-    <Folder Name="Cyclic" Id="{cd62d491-a87a-4c24-ab53-621ad021711e}" />
-    <Folder Name="Dynamics" Id="{393c3e99-a69d-4243-96b4-7490d06ba075}" />
-    <Folder Name="Enable" Id="{a996dd7a-39c8-423c-9839-645e36a4c7ae}" />
-    <Folder Name="Home" Id="{e215008b-3961-4321-9331-07c098f36434}" />
-    <Folder Name="Initialize" Id="{350a9f43-6c08-4c9b-bd16-bb4fcd640dda}" />
-    <Folder Name="Jog" Id="{b440d357-8c50-41b7-97b2-91a6c011f5d6}" />
-    <Folder Name="Reset" Id="{853c8cf9-dc4d-4635-94bf-40639ab6791d}" />
-    <Folder Name="Settings" Id="{389f54a4-61e3-409d-9208-76124937b102}" />
-    <Folder Name="Status" Id="{72a29854-77b1-4e21-8c83-e6fb17183b47}" />
-    <Folder Name="Stop" Id="{4b02773b-6d51-4517-a15d-46b46992d36e}" />
-    <Property Name="Acceleration" Id="{bc2c3c5d-a4a9-4cb5-98d3-83a3191a9c81}" FolderPath="Dynamics\">
+    <Folder Name="Component" Id="{322cdc66-c83d-4d9b-9af6-4b312045b224}" />
+    <Folder Name="Cyclic" Id="{4b13e22a-4196-4a05-adb9-1b8de6fccecd}" />
+    <Folder Name="Dynamics" Id="{e2766f4c-42ae-4035-911a-b08116ad2b8a}" />
+    <Folder Name="Enable" Id="{4cdfffe3-dd1a-4d83-9acb-8a813977eb21}" />
+    <Folder Name="Home" Id="{eef3d813-e6dc-43c8-b0f5-1b08f421564b}" />
+    <Folder Name="Initialize" Id="{62352c75-da34-4b3e-8f62-c1be973a80c7}" />
+    <Folder Name="Jog" Id="{c1111c46-74c9-4ed7-9895-f3e9272bb9a1}" />
+    <Folder Name="Reset" Id="{060ef385-0f6f-4a71-9be6-6e13daa0e2b0}" />
+    <Folder Name="Settings" Id="{11a9e707-af28-41b0-b73b-50567406e53e}" />
+    <Folder Name="Status" Id="{9db6bbc4-5585-49f4-9346-a377cc94d40b}" />
+    <Folder Name="Stop" Id="{aeb5218d-d539-40f1-82ca-5ac3c0a9a74b}" />
+    <Property Name="Acceleration" Id="{769983d4-87f4-42d4-8989-724adc2b60a7}" FolderPath="Dynamics\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Acceleration : LREAL]]></Declaration>
-      <Get Name="Get" Id="{6ebbb80e-267f-48b6-bb39-8d2ca4223844}">
+      <Get Name="Get" Id="{72c60dbb-fe8b-4d09-bf78-6cb7453f610f}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[Acceleration := _Acceleration;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{e0a62beb-1801-4bb4-a76f-99346623f4b9}">
+      <Set Name="Set" Id="{ac74071f-664b-432a-836b-9d75bd3351e9}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -70,64 +57,64 @@ END_VAR]]></Declaration>
         </Implementation>
       </Set>
     </Property>
-    <Property Name="ActualAcceleration" Id="{b5647fbd-a9d3-4882-8ed1-a0b72765d3b5}" FolderPath="Status\">
+    <Property Name="ActualAcceleration" Id="{23c7248a-c8bf-4851-b8f9-71291b83143d}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY ActualAcceleration : LREAL]]></Declaration>
-      <Get Name="Get" Id="{e67bd821-4a1a-44ed-9dc1-bf2f8ef16b0a}">
+      <Get Name="Get" Id="{3a174ff1-284a-479d-9ac4-07b44fb20cfb}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualAcceleration := _Axis.NcToPlc.ActAcc;]]></ST>
+          <ST><![CDATA[ActualAcceleration := _Axis.McToPlc.Act.Acceleration;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="ActualPosition" Id="{e1f48912-a935-4b3e-be97-eaceec9cb795}" FolderPath="Status\">
+    <Property Name="ActualPosition" Id="{19e750d4-f1cd-4c9b-bb34-2e48adf53784}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY ActualPosition : LREAL]]></Declaration>
-      <Get Name="Get" Id="{772eda12-44c2-48fc-8116-a610cf9a6ed0}">
+      <Get Name="Get" Id="{d101b096-8c5a-4fb5-b886-817964d844e9}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualPosition := _Axis.NcToPlc.ActPos;]]></ST>
+          <ST><![CDATA[ActualPosition := _Axis.McToPlc.Act.Position;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="ActualPositionModulo" Id="{84d10871-a74d-4aa2-a671-8ede5ee35065}" FolderPath="Status\">
+    <Property Name="ActualPositionModulo" Id="{9fbb5c11-401f-420c-b020-03adcd2c94a1}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY ActualPositionModulo : LREAL]]></Declaration>
-      <Get Name="Get" Id="{80852d1b-ae4a-43a1-9703-1746633973f5}">
+      <Get Name="Get" Id="{70460fff-1d82-40ed-8db5-b2e528bbc5b6}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualPositionModulo := _Axis.NcToPlc.ModuloActPos;]]></ST>
+          <ST><![CDATA[ActualPositionModulo := _Axis.McToPlc.Modulo.ActPosition;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="ActualTorque" Id="{89530b95-2ff6-4521-a671-66d5316590a2}" FolderPath="Status\">
+    <Property Name="ActualTorque" Id="{c43f5d3e-0ed2-4b82-bf9e-091c7cf38874}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY ActualTorque : LREAL]]></Declaration>
-      <Get Name="Get" Id="{f1b6f872-58a2-4329-a84d-fe2f48b53e4b}">
+      <Get Name="Get" Id="{455ce93c-6575-40d2-9122-33f462e9a7ac}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualTorque := _Axis.NcToPlc.ActTorque;]]></ST>
+          <ST><![CDATA[ActualTorque := _Axis.McToPlc.Act.Torque;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="ActualVelocity" Id="{ba440947-68a9-4883-9276-0375868b0a94}" FolderPath="Status\">
+    <Property Name="ActualVelocity" Id="{3b99aa67-8ab1-42e5-9016-243f9aa2a68a}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY ActualVelocity : LREAL]]></Declaration>
-      <Get Name="Get" Id="{a2f8b812-092f-410b-a402-b7a33bf5b797}">
+      <Get Name="Get" Id="{a495d40d-c89d-444c-a200-d292f92c3974}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualVelocity := _Axis.NcToPlc.ActVelo;]]></ST>
+          <ST><![CDATA[ActualVelocity := _Axis.McToPlc.Act.Velocity;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="Axis" Id="{38c79dbc-ba31-4d4e-8888-4e408cffe3bb}">
-      <Declaration><![CDATA[PROPERTY Axis : REFERENCE TO Tc2_MC2.AXIS_REF]]></Declaration>
-      <Get Name="Get" Id="{df4e8fb7-b017-47e2-827b-4155fa44ffd8}">
+    <Property Name="Axis" Id="{1b536b5b-75af-4f37-9d3d-09ea16becb3f}">
+      <Declaration><![CDATA[PROPERTY Axis : REFERENCE TO Tc3_Mc3Ptp.AXIS_REF]]></Declaration>
+      <Get Name="Get" Id="{92eb01af-a8cf-40dd-b37a-8435422f578e}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -135,19 +122,9 @@ END_VAR]]></Declaration>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="AxisParameterSet" Id="{601137f1-5425-4fd4-9a0f-19df82a67e6e}" FolderPath="Status\">
-      <Declaration><![CDATA[PROPERTY AxisParameterSet : REFERENCE TO ST_AxisParameterSet]]></Declaration>
-      <Get Name="Get" Id="{0e4a2256-1fee-412f-9dac-1fa4f795cf21}">
-        <Declaration><![CDATA[VAR
-END_VAR]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[AxisParameterSet REF= _AxisParameters;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="BufferMode" Id="{a85af1da-9dee-46aa-bbbb-4758c84e4c91}" FolderPath="Settings\">
-      <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO tc2_mc2.MC_BufferMode]]></Declaration>
-      <Get Name="Get" Id="{d1e71bfd-219f-450d-bb9c-e263de4497af}">
+    <Property Name="BufferMode" Id="{eb13e1b9-36ab-4361-b502-46be0db4c87f}" FolderPath="Settings\">
+      <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO Tc3_Mc3Ptp.EBufferMode]]></Declaration>
+      <Get Name="Get" Id="{3983d167-90da-4b79-8471-54cba0705403}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
@@ -156,10 +133,10 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Property Name="Busy" Id="{6794a53b-7ced-4307-bcd9-3477d559ac82}" FolderPath="Status\">
+    <Property Name="Busy" Id="{d0c93c5c-e4a6-4b4e-b0f9-a120e269ff0c}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Busy : BOOL]]></Declaration>
-      <Get Name="Get" Id="{d665c90f-e0eb-4c0b-94cf-47eaad5875d3}">
+      <Get Name="Get" Id="{b0e16ae3-cf1c-4632-a624-9afcff0db000}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -167,7 +144,7 @@ END_VAR]]></Declaration>
         </Implementation>
       </Get>
     </Property>
-    <Method Name="CyclicLogic" Id="{10fc0310-6f8d-455a-992b-f31a600e3e01}" FolderPath="Cyclic\">
+    <Method Name="CyclicLogic" Id="{2e485cf4-3831-408a-8c77-152a2e60cb26}" FolderPath="Cyclic\">
       <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF NOT _Initialized THEN
@@ -175,21 +152,20 @@ END_VAR]]></Declaration>
 	RETURN;
 END_IF
 
-_Axis.ReadStatus();
 MotionTaskCollection.CyclicLogic();]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Deceleration" Id="{db89bb8c-0dcc-4b5f-8969-ffbccd3ee048}" FolderPath="Dynamics\">
+    <Property Name="Deceleration" Id="{3d46c410-fae9-4c59-b378-b7f0dab0d969}" FolderPath="Dynamics\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Deceleration : LREAL]]></Declaration>
-      <Get Name="Get" Id="{3800a40e-864f-4a8e-a36e-7c389c14756b}">
+      <Get Name="Get" Id="{4c4b2afa-d77e-4403-a571-2cb85045e375}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[Deceleration := _Deceleration;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{f0482c1d-fb99-4838-a7a8-a7156e0a7edc}">
+      <Set Name="Set" Id="{4d46e0af-a7a0-4fa3-a38d-902306c471b8}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -197,9 +173,9 @@ END_VAR]]></Declaration>
         </Implementation>
       </Set>
     </Property>
-    <Property Name="Direction" Id="{0819c353-bb55-431e-93f0-dfbe5de167be}" FolderPath="Settings\">
-      <Declaration><![CDATA[PROPERTY Direction : REFERENCE TO TC2_Mc2.MC_Direction]]></Declaration>
-      <Get Name="Get" Id="{e3d98a30-b5c1-4e35-8bb1-d0b764c78925}">
+    <Property Name="Direction" Id="{6359c944-3f7f-48ff-834f-4e1a441228c7}" FolderPath="Settings\">
+      <Declaration><![CDATA[PROPERTY Direction : REFERENCE TO Tc3_Mc3Ptp.EModuloDirection]]></Declaration>
+      <Get Name="Get" Id="{95eca431-f2f6-4bdb-84b2-2369b5373842}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
@@ -208,13 +184,13 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Method Name="Disable" Id="{3bab1b3b-29ff-4bfc-a4eb-0e0f42f5a5b7}" FolderPath="Enable\">
+    <Method Name="Disable" Id="{1c391817-fa31-4646-9aa7-e76158a7ec55}" FolderPath="Enable\">
       <Declaration><![CDATA[METHOD Disable]]></Declaration>
       <Implementation>
         <ST><![CDATA[PowerTask.Disable();]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Enable" Id="{28103e05-76eb-4b6e-8ca3-aa04ca488039}" FolderPath="Enable\">
+    <Method Name="Enable" Id="{d365fc40-1ca8-4d17-b6b1-068ccea94484}" FolderPath="Enable\">
       <Declaration><![CDATA[METHOD Enable]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF Error THEN
@@ -224,10 +200,10 @@ END_IF
 PowerTask.Enable();]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Enabled" Id="{9c73b2c8-514b-4a7c-998d-28369f5fdf7e}" FolderPath="Enable\">
+    <Property Name="Enabled" Id="{277af7f8-31d4-4ab0-9d0b-257701ccb54c}" FolderPath="Enable\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Enabled : BOOL]]></Declaration>
-      <Get Name="Get" Id="{e85a3e15-6839-4f5c-bb24-c2c90ccdc5cf}">
+      <Get Name="Get" Id="{c1a39a02-e71d-459d-9c26-91db453b53a1}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -235,26 +211,26 @@ END_VAR]]></Declaration>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="Error" Id="{08e691a3-f406-4de1-a788-658111b7a523}" FolderPath="Status\">
+    <Property Name="Error" Id="{63ed2f73-0c9d-4d89-a4c9-210f8ba35c0d}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Error : BOOL]]></Declaration>
-      <Get Name="Get" Id="{d40a494c-772e-46b9-8af6-4d69798bcac7}">
+      <Get Name="Get" Id="{ef37721a-45c9-45ef-b64b-df7b08b0dd37}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Error := MotionTaskCollection.Error OR _Axis.Status.Error;]]></ST>
+          <ST><![CDATA[Error := MotionTaskCollection.Error OR (_Axis.McToPlc.Std.AxisState = EAxisState.ErrorStop);]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="ErrorId" Id="{84e4c405-d99b-418e-a3e1-8c72ca915f1b}" FolderPath="Status\">
+    <Property Name="ErrorId" Id="{93bf609f-fde5-49e8-8458-8115896361c9}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY ErrorId : UDINT]]></Declaration>
-      <Get Name="Get" Id="{ad9aed7a-a7d0-420f-ad7a-1525a3bd7600}">
+      <Get Name="Get" Id="{8f63c5f0-46d3-4102-a8a5-b9f47d776859}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[IF _Axis.Status.ErrorID <> 0 THEN
-	ErrorId := _Axis.Status.ErrorID;
+          <ST><![CDATA[IF _Axis.McToPlc.Std.ErrorId <> 0 THEN
+	ErrorId := _Axis.McToPlc.Std.ErrorId;
 	RETURN;
 END_IF
 
@@ -262,7 +238,7 @@ ErrorId := MotionTaskCollection.ErrorId;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Method Name="FB_Init" Id="{408d8b84-e8bf-4975-a51d-b75b6eec471d}" FolderPath="Component\">
+    <Method Name="FB_Init" Id="{a5d95788-2be0-4ce4-a9c8-702b9ad6f90d}" FolderPath="Component\">
       <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
 The return value is not evaluated. For a specific influence, you can also declare the
 methods explicitly and provide additional code there with the standard initialization
@@ -275,7 +251,7 @@ VAR_INPUT
 	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
 	bInCopyCode : BOOL;
 	Name		: T_MaxString;
-	Axis		: REFERENCE TO Tc2_MC2.AXIS_REF;
+	Axis		: REFERENCE TO Tc3_Mc3Ptp.AXIS_REF;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_Axis REF= Axis;
@@ -288,7 +264,7 @@ MotionTaskCollection.AddTask(_HomeTask);
 MotionTaskCollection.AddTask(JogTask);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Home" Id="{03b59bd2-3edb-4006-8ed9-515960b2d71c}" FolderPath="Home\">
+    <Method Name="Home" Id="{0a68f58c-2676-4c91-8b90-f5954f6894f1}" FolderPath="Home\">
       <Declaration><![CDATA[METHOD Home
 VAR_INPUT
 END_VAR]]></Declaration>
@@ -296,9 +272,9 @@ END_VAR]]></Declaration>
         <ST><![CDATA[_HomeTask.Execute();]]></ST>
       </Implementation>
     </Method>
-    <Property Name="HomeTask" Id="{853ef4ec-dfa5-43fb-8ffc-aded749a9947}" FolderPath="Home\">
-      <Declaration><![CDATA[PROPERTY HomeTask : I_Mc2MotionTask]]></Declaration>
-      <Set Name="Set" Id="{90777a80-d32c-44e9-9bf9-563776acb7bf}">
+    <Property Name="HomeTask" Id="{dac77fcc-8403-449c-8461-5b9445bfbef1}" FolderPath="Home\">
+      <Declaration><![CDATA[PROPERTY HomeTask : I_Mc3MotionTask]]></Declaration>
+      <Set Name="Set" Id="{e2d829d9-c303-4f13-9b01-f9fca43f5442}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -308,17 +284,17 @@ MotionTaskCollection.AddTask(_HomeTask);]]></ST>
         </Implementation>
       </Set>
     </Property>
-    <Property Name="InhibitFeedBackward" Id="{c5c0191f-dbb6-41bc-9c36-d1160afdeefd}" FolderPath="Enable\">
+    <Property Name="InhibitFeedBackward" Id="{698fde17-7a44-4025-9df6-09500bda8a2d}" FolderPath="Enable\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY InhibitFeedBackward : BOOL]]></Declaration>
-      <Get Name="Get" Id="{6acb7c40-b74c-4342-8a4f-ca2fab6e2892}">
+      <Get Name="Get" Id="{da9dfdd5-4c0f-4cfe-bafc-37d632e54688}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[InhibitFeedBackward := PowerTask.InhibitFeedBackward;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{e7024f53-ca04-40e3-a02f-2dfeb6e4123c}">
+      <Set Name="Set" Id="{55e9c50e-7070-4be9-872e-6aa8e5036779}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -326,17 +302,17 @@ END_VAR]]></Declaration>
         </Implementation>
       </Set>
     </Property>
-    <Property Name="InhibitFeedForward" Id="{8959307e-de91-43e2-8d9a-51e4095b0214}" FolderPath="Enable\">
+    <Property Name="InhibitFeedForward" Id="{032b9373-0060-4019-9c6a-aa3a88e7966b}" FolderPath="Enable\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY InhibitFeedForward : BOOL]]></Declaration>
-      <Get Name="Get" Id="{abd49421-29f4-4b77-b708-f285eb3600d1}">
+      <Get Name="Get" Id="{7d019883-5cdb-4ad1-8fa4-c6f56ee3bde4}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[InhibitFeedForward := PowerTask.InhibitFeedForward;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{1297ae4d-20eb-4797-a6e0-c57453058912}">
+      <Set Name="Set" Id="{893cac39-541e-48ed-8a76-92a6f129b6a9}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -344,39 +320,107 @@ END_VAR]]></Declaration>
         </Implementation>
       </Set>
     </Property>
-    <Method Name="Initialize" Id="{66bade57-0863-4af8-8c50-55eb772839b1}" FolderPath="Initialize\">
-      <Declaration><![CDATA[METHOD Initialize]]></Declaration>
+    <Method Name="Initialize" Id="{48b8ddc2-531b-4ffa-afa5-b9951fa039dc}" FolderPath="Initialize\">
+      <Declaration><![CDATA[METHOD Initialize
+VAR_INST
+    Sequence : UDINT;
+    ReadParameter : Tc3_Mc3Ptp.MC_ReadParameter;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF NOT _Initialized THEN
-	MCReadParameterSet(Parameter := _AxisParameters, Axis := _Axis, Execute := TRUE);
-	IF NOT MCReadParameterSet.Busy THEN
-		IF MCReadParameterSet.Error THEN
-			Trace.LogMessage(_Name, 'Axis not initialized - McReadParameter failed!');
-		ELSIF MCReadParameterSet.Done THEN
-			_Velocity	  := _AxisParameters.fVeloSlowManual;
-			_Acceleration := _AxisParameters.fAcceleration;
-			_Deceleration := _AxisParameters.fDeceleration;
-			_Jerk		  := _AxisParameters.fJerk;
-			Trace.LogMessage(_Name, 'Axis initialization complete');
-			_Initialized := TRUE;
-		END_IF
+        <ST><![CDATA[IF NOT _Initialized AND (_Axis.McToPlc.Std.AxisState <> EAxisState.Invalid) THEN
+	CASE Sequence OF
+		0:
+			ReadParameter(Axis		  := _Axis,
+						  Enable	  := TRUE,
+						  ParameterId := EAxisParameterId.DefaultAcceleration,
+						  Mode		  := EReadMode.Once,
+						  Valid		  =>,
+						  Busy		  =>,
+						  Error		  =>,
+						  ErrorId	  =>,
+						  Value		  => _Acceleration);
 
-		MCReadParameterSet(Parameter := _AxisParameters, Axis := _Axis, Execute := FALSE);
+			IF ReadParameter.Valid THEN
+				ReadParameter(Axis := _Axis, Enable := FALSE);
+				NextStep(Sequence);
+			END_IF
+
+		10:
+			ReadParameter(Axis		  := _Axis,
+						  Enable	  := TRUE,
+						  ParameterId := EAxisParameterId.DefaultDeceleration,
+						  Mode		  := EReadMode.Once,
+						  Valid		  =>,
+						  Busy		  =>,
+						  Error		  =>,
+						  ErrorId	  =>,
+						  Value		  => _Deceleration);
+
+			IF ReadParameter.Valid THEN
+				ReadParameter(Axis := _Axis, Enable := FALSE);
+				NextStep(Sequence);
+			END_IF
+
+		20:
+			ReadParameter(Axis		  := _Axis,
+						  Enable	  := TRUE,
+						  ParameterId := EAxisParameterId.DefaultJerk,
+						  Mode		  := EReadMode.Once,
+						  Valid		  =>,
+						  Busy		  =>,
+						  Error		  =>,
+						  ErrorId	  =>,
+						  Value		  => _Jerk);
+
+			IF ReadParameter.Valid THEN
+				ReadParameter(Axis := _Axis, Enable := FALSE);
+				NextStep(Sequence);
+			END_IF
+
+		30:
+			ReadParameter(Axis		  := _Axis,
+						  Enable	  := TRUE,
+						  ParameterId := EAxisParameterId.MaximumVelocity,
+						  Mode		  := EReadMode.Once,
+						  Valid		  =>,
+						  Busy		  =>,
+						  Error		  =>,
+						  ErrorId	  =>,
+						  Value		  => _Velocity);
+
+			IF ReadParameter.Valid THEN
+				ReadParameter(Axis := _Axis, Enable := FALSE);
+				NextStep(Sequence);
+			END_IF
+
+		40:
+			Trace.LogMessage(_Name, 'Axis initialization complete');
+			NextStep(Sequence);
+
+		50:
+			_Initialized := TRUE;
+
+		999: // Error :-(
+	END_CASE
+
+	IF ReadParameter.Error AND Sequence <> 999 THEN
+		Trace.LogMessage(_Name, 'Axis not initialized - error reading parameter - check links!');
+		Sequence := 999;
 	END_IF
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Initialized" Id="{ebd44c64-aad6-4960-8b2f-81d5f43b19d3}" FolderPath="Initialize\">
+    <Property Name="Initialized" Id="{8378163c-34a4-41ca-b66f-85ed51788085}" FolderPath="Initialize\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Initialized : BOOL]]></Declaration>
-      <Get Name="Get" Id="{aeebcb0e-1628-4ae8-a555-fcbd0a81bd80}">
+      <Get Name="Get" Id="{d5047218-2a28-4fa4-87fd-cd4d7d72e302}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[Initialized := _Initialized;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{d711cfec-da17-49cd-b426-000de5c3217f}">
+      <Set Name="Set" Id="{6668a0ab-36b3-4bd2-a45f-e98e00387112}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -384,17 +428,17 @@ END_VAR]]></Declaration>
         </Implementation>
       </Set>
     </Property>
-    <Property Name="Jerk" Id="{96ffb255-e0ba-4312-a90f-7dd965cf71b0}" FolderPath="Dynamics\">
+    <Property Name="Jerk" Id="{ca39533f-d6aa-41be-8675-918ebe2fbddb}" FolderPath="Dynamics\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Jerk : LREAL]]></Declaration>
-      <Get Name="Get" Id="{e557ad60-384a-47e9-b9d7-d4f472924031}">
+      <Get Name="Get" Id="{2c202c5a-496c-407f-9cd3-26633ce78fe6}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[Jerk := _Jerk;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{d4cca97a-3aef-4baf-b25b-1a7f540a5b6d}">
+      <Set Name="Set" Id="{ce64be9f-b543-4361-b63b-56401e4d1e0b}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -402,7 +446,7 @@ END_VAR]]></Declaration>
         </Implementation>
       </Set>
     </Property>
-    <Method Name="Jog" Id="{c855961c-fd72-4b30-bb3c-30f7dfb030f5}" FolderPath="Jog\">
+    <Method Name="Jog" Id="{bd10ad3a-a14e-42a8-a8e2-938896daa865}" FolderPath="Jog\">
       <Declaration><![CDATA[METHOD Jog
 VAR_INPUT
 	JogForward	 : BOOL;
@@ -416,14 +460,14 @@ END_IF
 
 JogTask.JogBackwards := JogBackwards;
 JogTask.JogForward	 := JogForward;
-JogTask.Position	 := Distance;
+JogTask.Distance	 := Distance;
 JogTask.Mode		 := _JogMode;
 JogTask.Execute();]]></ST>
       </Implementation>
     </Method>
-    <Property Name="JogMode" Id="{cc91e9f8-9b64-407b-bfcb-72aff2578f80}" FolderPath="Settings\">
-      <Declaration><![CDATA[PROPERTY JogMode : REFERENCE TO tc2_mc2.MC_Direction]]></Declaration>
-      <Get Name="Get" Id="{543a0da7-d855-4288-9d69-02ff90a93b9b}">
+    <Property Name="JogMode" Id="{d72d3c00-19e9-4b99-881b-c351d4a98668}" FolderPath="Settings\">
+      <Declaration><![CDATA[PROPERTY JogMode : REFERENCE TO Tc3_Mc3Ptp.EJogMode]]></Declaration>
+      <Get Name="Get" Id="{bd597374-40b6-4f74-9668-0b84e5db94e8}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
@@ -432,9 +476,9 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Property Name="MotionTasks" Id="{cf3fa9ca-401c-41ad-a41f-999b7718040b}">
-      <Declaration><![CDATA[PROPERTY MotionTasks : I_Mc2MotionTaskCollection]]></Declaration>
-      <Get Name="Get" Id="{af34f3a0-4554-4bf3-84b6-b53c62f02119}">
+    <Property Name="MotionTasks" Id="{8c7bb04a-df98-42d8-b950-3fc8c31ac293}">
+      <Declaration><![CDATA[PROPERTY MotionTasks : I_Mc3MotionTaskCollection]]></Declaration>
+      <Get Name="Get" Id="{45c069d1-a30d-4cce-b63e-950d3d777bc7}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -442,40 +486,34 @@ END_VAR]]></Declaration>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="MoveOptions" Id="{1da2f2ad-f531-47ad-aa4b-0b0f086322d9}" FolderPath="Settings\">
-      <Declaration><![CDATA[PROPERTY MoveOptions : REFERENCE TO tc2_mc2.ST_MoveOptions]]></Declaration>
-      <Get Name="Get" Id="{52746be8-b5c1-425c-8447-3fc4d902eaf9}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[MoveOptions REF= _MoveOptions;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="Override" Id="{c74d8be7-5bb5-4058-b076-f4ab4c78f08d}" FolderPath="Enable\">
+    <Property Name="Override" Id="{079ee53b-9370-4491-afb1-0b7f309a6f57}" FolderPath="Enable\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
-PROPERTY Override : LREAL]]></Declaration>
-      <Set Name="Set" Id="{6d85d497-c707-42cc-96c7-77ba644e0f08}">
+PROPERTY Override : LREAL // 0-100%]]></Declaration>
+      <Set Name="Set" Id="{0ab2cf3c-ec7e-4f4a-8a18-33c61f8048b0}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[PowerTask.Override := Override;]]></ST>
+          <ST><![CDATA[SetOverride(Axis		   := _Axis,
+			Enable		   := TRUE,
+			VelocityFactor := (Override / 100.0),
+			Enabled		   =>,
+			Error		   =>,
+			ErrorId		   =>);]]></ST>
         </Implementation>
       </Set>
     </Property>
-    <Property Name="PositionLag" Id="{f7f4f353-aa5d-44bc-b83d-404ab44f3971}" FolderPath="Status\">
+    <Property Name="PositionLag" Id="{8b3d61d1-c373-4f78-91fc-7b3a7f9ff790}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY PositionLag : LREAL]]></Declaration>
-      <Get Name="Get" Id="{8d18bf9c-762e-4eb3-abdd-d1b7a4ac6007}">
+      <Get Name="Get" Id="{e94900ad-6939-450e-9fad-6bbdf3a27e44}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[PositionLag := _Axis.NcToPlc.PosDiff;]]></ST>
+          <ST><![CDATA[PositionLag := _Axis.McToPlc.Act.PositionLag;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Method Name="RegisterWithParent" Id="{7c253cad-8e86-46be-a1de-97f3fe4d6992}" FolderPath="Component\">
+    <Method Name="RegisterWithParent" Id="{40d8dd85-8c4d-4f78-9eb0-0f01f278fd9e}" FolderPath="Component\">
       <Declaration><![CDATA[METHOD RegisterWithParent
 VAR_INPUT
 	Parent : I_ContainComponents;
@@ -485,7 +523,7 @@ END_VAR]]></Declaration>
 Parent.RegisterInitialize(THIS^);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Reset" Id="{4345ab78-8abd-4dc4-8462-07064700c600}" FolderPath="Reset\">
+    <Method Name="Reset" Id="{28ba2381-ae5a-4fff-ac92-decbdbee0afe}" FolderPath="Reset\">
       <Declaration><![CDATA[METHOD Reset]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _ResetTask.Execute() THEN
@@ -493,9 +531,9 @@ Parent.RegisterInitialize(THIS^);]]></ST>
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Property Name="ResetTask" Id="{b49f90e4-bf55-4e04-8fe2-be9f3fad9f2b}" FolderPath="Reset\">
-      <Declaration><![CDATA[PROPERTY ResetTask : I_Mc2MotionTask]]></Declaration>
-      <Set Name="Set" Id="{fdd59bab-1a03-4da3-9a94-3abd49a82240}">
+    <Property Name="ResetTask" Id="{6429039c-8bcc-4f20-8071-2f53bec22a1b}" FolderPath="Reset\">
+      <Declaration><![CDATA[PROPERTY ResetTask : I_Mc3MotionTask]]></Declaration>
+      <Set Name="Set" Id="{fb4317fc-0b94-4bc0-9403-5ae0652dfb52}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -505,54 +543,54 @@ MotionTaskCollection.AddTask(_ResetTask);]]></ST>
         </Implementation>
       </Set>
     </Property>
-    <Property Name="SetAcceleration" Id="{9bd86b21-0a70-46d7-952f-db9b168b0ce1}" FolderPath="Status\">
+    <Property Name="SetAcceleration" Id="{9b8139e6-fe0e-4210-88ee-404034908859}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY SetAcceleration : LREAL]]></Declaration>
-      <Get Name="Get" Id="{d7cebf73-953d-4a28-8c6d-d0400f45a387}">
+      <Get Name="Get" Id="{74f087f2-1f55-4492-be35-989e136f7185}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[SetAcceleration := _Axis.NcToPlc.SetAcc;]]></ST>
+          <ST><![CDATA[SetAcceleration := _Axis.McToPlc.Set.Acceleration;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="SetPosition" Id="{5d119d9f-00a0-4eca-a9bd-7cd52817e416}" FolderPath="Status\">
+    <Property Name="SetPosition" Id="{9b96b125-7e67-4dad-b5de-89800cf5fe24}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY SetPosition : LREAL]]></Declaration>
-      <Get Name="Get" Id="{bab013fd-a2b7-43d7-8d0a-cac9d0832d87}">
+      <Get Name="Get" Id="{e2536a92-71eb-4205-9d4a-0871a4986682}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[SetPosition := _Axis.NcToPlc.SetPos;]]></ST>
+          <ST><![CDATA[SetPosition := _Axis.McToPlc.Set.Position;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="SetPositionModulo" Id="{b3028874-b09c-4bc2-b47a-1f949c20e5ac}" FolderPath="Status\">
+    <Property Name="SetPositionModulo" Id="{82f1c47e-d7aa-49d3-94a6-b3fab97dcfce}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY SetPositionModulo : LREAL]]></Declaration>
-      <Get Name="Get" Id="{fa858776-d532-4176-9043-6194dab02039}">
+      <Get Name="Get" Id="{1383557a-d136-4b26-a7aa-e105c4b25690}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[SetPositionModulo := _Axis.NcToPlc.ModuloSetPos;]]></ST>
+          <ST><![CDATA[SetPositionModulo := _Axis.McToPlc.Modulo.SetPosition;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="SetVelocity" Id="{3e4ef1ab-63fe-4ccd-aebe-27b7551635ad}" FolderPath="Status\">
+    <Property Name="SetVelocity" Id="{a604cfe7-f1c8-4cde-8e44-9e828b1a9a65}" FolderPath="Status\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY SetVelocity : LREAL]]></Declaration>
-      <Get Name="Get" Id="{3aa45f93-0793-4119-be6b-a60ae9d4d15f}">
+      <Get Name="Get" Id="{a7210f18-ea98-49c3-ac73-7ef9ba518fe6}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[SetVelocity := _Axis.NcToPlc.SetVelo;]]></ST>
+          <ST><![CDATA[SetVelocity := _Axis.McToPlc.Set.Velocity;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Method Name="Stop" Id="{0be87652-03f5-4e18-8106-42910ca0c5b3}" FolderPath="Stop\">
+    <Method Name="Stop" Id="{a6e1f9e7-a7dc-4ce9-9d10-71a0c88fda01}" FolderPath="Stop\">
       <Declaration><![CDATA[METHOD Stop]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF Error AND _Axis.Status.Error THEN
+        <ST><![CDATA[IF Error AND _Axis.McToPlc.Std.HasError THEN
 	(* It's possible that a function block errored but
 	not the NC itself--in this case we can allow a stop command.
 	If the NC Axis has a real fault then we want a successful reset first *)
@@ -562,20 +600,20 @@ END_IF
 _StopTask.Execute();]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Stopped" Id="{766a8887-0006-457a-a31d-6ae62af64552}" FolderPath="Stop\">
+    <Property Name="Stopped" Id="{eb504364-1142-4d8a-aeaf-e6c339ec2b03}" FolderPath="Stop\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Stopped : BOOL]]></Declaration>
-      <Get Name="Get" Id="{6eaf65ce-c6c7-44f6-af26-5e9711f1e1c8}">
+      <Get Name="Get" Id="{61398e68-c2d5-41a6-a473-8f47af6975cd}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Stopped := _Axis.Status.NotMoving;]]></ST>
+          <ST><![CDATA[Stopped := (_Axis.McToPlc.Std.AxisState = EAxisState.Standstill) OR ((_Axis.McToPlc.Std.AxisState = EAxisState.SynchronizedMotion) AND (SetVelocity = 0.0));]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="StopTask" Id="{9f0111fe-5c48-4077-a88d-28d745c064e6}" FolderPath="Stop\">
-      <Declaration><![CDATA[PROPERTY StopTask : I_Mc2MotionTask]]></Declaration>
-      <Set Name="Set" Id="{515b1767-8ac6-4ab4-8df1-e6f6fe4b06b0}">
+    <Property Name="StopTask" Id="{83aabd6c-04dc-4c57-ac8f-c297822a2fe5}" FolderPath="Stop\">
+      <Declaration><![CDATA[PROPERTY StopTask : I_Mc3MotionTask]]></Declaration>
+      <Set Name="Set" Id="{4d7620a7-cb64-423e-b169-666c783e0917}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -585,17 +623,17 @@ MotionTaskCollection.AddTask(_ResetTask);]]></ST>
         </Implementation>
       </Set>
     </Property>
-    <Property Name="Velocity" Id="{942585ae-0bea-4380-ad19-28b1e6ed294f}" FolderPath="Dynamics\">
+    <Property Name="Velocity" Id="{ee6b5cf8-e661-417f-b1b6-de5624668e88}" FolderPath="Dynamics\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Velocity : LREAL]]></Declaration>
-      <Get Name="Get" Id="{6ff1ab23-d51f-46cd-9b07-d111af3c7808}">
+      <Get Name="Get" Id="{fb9f768d-b4fd-4639-b7fa-f3b33e59759a}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[Velocity := _Velocity;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{8f7749c3-203e-4b0b-acd3-8f08a5d8d204}">
+      <Set Name="Set" Id="{23174272-7941-41d8-925b-ffd67208b74b}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>

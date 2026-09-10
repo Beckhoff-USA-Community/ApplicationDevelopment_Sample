@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc3MoveRelativeTask" Id="{747564a4-0c65-4429-b7a7-317eab0d9d62}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc3MoveRelativeTask EXTENDS Mc3MotionTask
+VAR
+	_TargetDistance : LREAL;
+	McMoveRelative	: ARRAY[0..1] OF Tc3_Mc3Ptp.MC_MoveRelative;
+	Active			: UDINT;
+    _McBufferMode	: Tc3_Mc3Ptp.EBufferMode;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="BufferMode" Id="{cf6af077-c467-4459-98e8-05335da0940f}">
+      <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO Tc3_Mc3Ptp.EBufferMode]]></Declaration>
+      <Get Name="Get" Id="{d37a5b63-be04-4ae1-8719-21a7a111e319}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[BufferMode REF= _McBufferMode;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Busy" Id="{5d4330f2-e64a-4de5-b48d-004294a79bb7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c18237b4-3a61-4e79-bc45-2ed4e922e456}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := McMoveRelative[Active].Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{f422cf3f-402d-410e-9eb3-c26e5cc02780}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR
+    i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO 1 DO
+	McMoveRelative[i](Axis		   := _Axis.Axis,
+					  Distance	   := _TargetDistance,
+					  Velocity	   := _Axis.Velocity,
+					  Acceleration := _Axis.Acceleration,
+					  Deceleration := _Axis.Deceleration,
+					  Jerk		   := _Axis.Jerk,
+					  BufferMode   := _McBufferMode);
+
+	McMoveRelative[i].Execute := FALSE;
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{8e1cf5c6-2c3f-4052-9585-3184d387e1f7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7a8d35b3-9c80-4747-afa2-3b6c31517e34}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := McMoveRelative[Active].Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{ce6bb234-f6e3-4271-895c-20e6ff8650ad}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{0e762977-7f5f-43d0-808f-8c2a3aac8e5d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := McMoveRelative[Active].ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{db9ca5b3-a0ca-43f1-ab12-88b704590577}">
+      <Declaration><![CDATA[METHOD Execute : BOOL;]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Active = 0 THEN
+	Active := 1;
+	McMoveRelative[Active](Axis			:= _Axis.Axis,
+						   Execute		:= TRUE,
+						   Distance		:= _TargetDistance,
+						   Velocity		:= _Axis.Velocity,
+						   Acceleration := _Axis.Acceleration,
+						   Deceleration := _Axis.Deceleration,
+						   Jerk			:= _Axis.Jerk,
+						   BufferMode	:= _McBufferMode);
+ELSE
+	Active := 0;
+	McMoveRelative[Active](Axis			:= _Axis.Axis,
+						   Execute		:= TRUE,
+						   Distance		:= _TargetDistance,
+						   Velocity		:= _Axis.Velocity,
+						   Acceleration := _Axis.Acceleration,
+						   Deceleration := _Axis.Deceleration,
+						   Jerk			:= _Axis.Jerk,
+						   BufferMode	:= _McBufferMode);
+END_IF
+
+Execute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="TargetDistance" Id="{5a06b370-fc7b-47e4-ac8f-01725796dc66}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY TargetDistance : LREAL]]></Declaration>
+      <Set Name="Set" Id="{69b37b4c-ebca-4b16-9d7d-723a280393e3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TargetDistance := TargetDistance;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

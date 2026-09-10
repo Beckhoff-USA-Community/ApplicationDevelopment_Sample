@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc3MotionCoupleTask_Gearing" Id="{2f4484a1-c944-4a29-90ac-f5924635f2f1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc3MotionCoupleTask_Gearing EXTENDS Mc3MotionTask
+VAR
+	McGearIn				  : Tc3_Mc3Ptp.MC_GearIn;
+	_InGear					  : BOOL;
+	_RatioNumerator			  : LREAL := 1.0;
+	_RatioDenominator		  : LREAL := 1.0;
+	DummyAxis				  : Tc3_Mc3Ptp.AXIS_REF;
+	MasterAxis				  : REFERENCE TO Tc3_Mc3Ptp.AXIS_REF;
+	_Master					  : I_Mc3Axis;
+	_McBufferMode			  : Tc3_Mc3Ptp.EBufferMode;
+	_GearInMultiMasterOptions : Tc2_MC2.ST_GearInMultiMasterOptions;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="BufferMode" Id="{fc1ef0f7-3adf-4392-8119-101122a63baf}">
+      <Declaration><![CDATA[PROPERTY BufferMode : Tc3_Mc3Ptp.EBufferMode]]></Declaration>
+      <Set Name="Set" Id="{c1b84a64-70f6-438d-a446-e4c0d65bff1b}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_McBufferMode := BufferMode;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Busy" Id="{f0016e11-0a74-43bb-a633-efb15fa73cf6}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{0e4c5633-d901-4fac-a304-b0ec3843442e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := McGearIn.Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{337e3a01-93fb-4c7e-a97e-13d009ee1a39}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Master <> 0 THEN
+	MasterAxis REF= _Master.Axis;
+ELSE
+	MasterAxis REF= DummyAxis;
+END_IF
+
+McGearIn(Master				   := MasterAxis,
+		 Slave				   := _Axis.Axis,
+		 Acceleration		   :=,
+		 Deceleration		   :=,
+		 Jerk				   :=,
+		 BufferMode			   := _McBufferMode,
+		 ReactionToMasterError :=,
+		 ReactionToSlaveError  :=,
+		 InGear				   => _InGear,
+		 Busy				   =>,
+		 Active				   =>,
+		 CommandAborted		   =>,
+		 Error				   =>,
+		 ErrorId			   =>,
+		 MasterHasError		   =>);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{c40afe1b-b7d4-42f8-8ee8-94335d915a03}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{379b9653-db4f-4788-9bd4-12200b00c6f5}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := McGearIn.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{4041ce7a-adf8-4ec3-99f0-ac2439b34c6f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{f8c988ab-a175-46a9-9eb4-4e5bc221e9e7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := McGearIn.ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{ed28c839-8f67-40eb-aaad-6b389c70ca56}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF McGearIn.Active THEN
+	IF _Axis.Error OR Busy THEN
+		RETURN;
+	END_IF
+
+	McGearIn.Execute := TRUE;
+ELSE
+	IF Busy THEN
+		RETURN;
+	END_IF
+
+	McGearIn.Execute := FALSE;
+END_IF
+
+Execute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="GearInMultiMasterOptions" Id="{0c0f055e-ebee-4217-af0b-6a362d5d602d}">
+      <Declaration><![CDATA[PROPERTY GearInMultiMasterOptions : ST_GearInMultiMasterOptions]]></Declaration>
+      <Set Name="Set" Id="{f6b36707-df7c-4617-b6ed-510e98f9ba40}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_GearInMultiMasterOptions := GearInMultiMasterOptions;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="InGear" Id="{63aeaec5-6f7f-4ff2-8190-086b9f67ad44}">
+      <Declaration><![CDATA[PROPERTY InGear : BOOL]]></Declaration>
+      <Set Name="Set" Id="{46241fd3-4ea3-4d32-9cfa-fbd084e4eae3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_InGear := InGear;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Master" Id="{193f744e-04f2-4f86-ae67-cc9a2de68cc3}">
+      <Declaration><![CDATA[PROPERTY Master : I_Mc3Axis]]></Declaration>
+      <Set Name="Set" Id="{51cd390a-4966-47b3-bd0a-66643001bc22}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Master := Master;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="RatioDenominator" Id="{12c9ae14-9d32-434c-a275-1b3e82dbeafb}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY RatioDenominator : LREAL]]></Declaration>
+      <Set Name="Set" Id="{99467d9a-fbd5-4581-897d-65ef07609208}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_RatioDenominator := RatioDenominator;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="RatioNumerator" Id="{348ae990-2cef-4379-aa55-ad15c8a94ccf}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY RatioNumerator : LREAL]]></Declaration>
+      <Set Name="Set" Id="{51db2914-c08e-49f1-adff-1504aed61cf3}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_RatioNumerator := RatioNumerator;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc3AxisPTP" Id="{fe4d0bc7-bf01-49bf-b7b4-fdff2a7d4424}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc3AxisPTP EXTENDS Mc3Axis IMPLEMENTS I_Mc3Axis_PTP
+VAR
+	// Tasks
+	{attribute 'hide'}
+	MoveAbsoluteTask : Mc3MoveAbsoluteTask := (Name := 'MC Move Absolute');
+	{attribute 'hide'}
+	MoveRelativeTask : Mc3MoveRelativeTask := (Name := 'MC Move Relative');
+	{attribute 'hide'}
+	MoveModuloTask : Mc3MoveModuloTask := (Name := 'MC Move Modulo');
+	{attribute 'hide'}
+	MoveVelocityTask : Mc3MoveVelocityTask := (Name := 'MC Move Velocity');
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Component" Id="{d3bf3729-c6ca-4e7a-afad-3ed5215d3eaf}" />
+    <Folder Name="Move Absolute" Id="{527c44a1-4b63-45ba-b1f0-dae17f2d1f9a}" />
+    <Folder Name="Move Modulo" Id="{0b4dc9d7-6c97-4b07-8ee9-71ee84cad9ae}" />
+    <Folder Name="Move Relative" Id="{501f3d31-5d2c-4e9a-8410-028271cb1f39}" />
+    <Folder Name="Move Velocity" Id="{956d0d82-45d6-4a7f-87b7-41971b80dd77}" />
+    <Method Name="FB_Init" Id="{4f55d448-0e3d-4dd2-bd74-364b4da55178}" FolderPath="Component\">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains : BOOL;
+
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode : BOOL;
+	Name		: T_MaxString;
+	Axis		: REFERENCE TO Tc3_Mc3Ptp.AXIS_REF;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Register all Motion Tasks to Collection
+MotionTaskCollection.AddTask(MoveAbsoluteTask);
+MotionTaskCollection.AddTask(MoveRelativeTask);
+MotionTaskCollection.AddTask(MoveModuloTask);
+MotionTaskCollection.AddTask(MoveVelocityTask);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveAbsolute" Id="{faef6511-969b-4550-b3a0-dfdb5580479e}" FolderPath="Move Absolute\">
+      <Declaration><![CDATA[METHOD MoveAbsolute
+VAR_INPUT
+	TargetPosition : LREAL;
+	AbortPrevious  : BOOL := TRUE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Error THEN
+	RETURN;
+ELSE
+	IF Busy AND NOT AbortPrevious THEN
+		RETURN;
+	END_IF
+END_IF
+
+MoveAbsoluteTask.BufferMode		:= _McBufferMode;
+MoveAbsoluteTask.TargetPosition := TargetPosition;
+MoveAbsoluteTask.Execute();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveModulo" Id="{9c0b21a6-659f-4a20-b891-b96bb2da84aa}" FolderPath="Move Modulo\">
+      <Declaration><![CDATA[METHOD MoveModulo : BOOL
+VAR_INPUT
+	Position	  : LREAL;
+	AbortPrevious : BOOL := TRUE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Error THEN
+	RETURN;
+ELSE
+	IF Busy AND NOT AbortPrevious THEN
+		RETURN;
+	END_IF
+END_IF
+
+MoveModuloTask.BufferMode	  := _McBufferMode;
+MoveModuloTask.Direction	  := _Direction;
+MoveModuloTask.TargetPosition := Position;
+MoveModuloTask.Execute();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveRelative" Id="{7c864533-4656-479d-9c66-a12c0cc9e43d}" FolderPath="Move Relative\">
+      <Declaration><![CDATA[METHOD MoveRelative : BOOL
+VAR_INPUT
+	Distance	  : LREAL;
+	AbortPrevious : BOOL := TRUE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Error THEN
+	RETURN;
+ELSE
+	IF Busy AND NOT AbortPrevious THEN
+		RETURN;
+	END_IF
+END_IF
+
+MoveRelativeTask.BufferMode		:= _McBufferMode;
+MoveRelativeTask.TargetDistance := Distance;
+MoveRelativeTask.Execute();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveVelocity" Id="{d2931b8e-2478-4373-82d7-006839dc61ef}" FolderPath="Move Velocity\">
+      <Declaration><![CDATA[METHOD MoveVelocity : BOOL
+VAR_INPUT
+	Velocity	  : LREAL;
+	AbortPrevious : BOOL := TRUE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Error THEN
+	RETURN;
+ELSE
+	IF Busy AND NOT AbortPrevious THEN
+		RETURN;
+	END_IF
+END_IF
+
+MoveVelocityTask.BufferMode		:= _McBufferMode;
+MoveVelocityTask.TargetVelocity := Velocity;
+MoveVelocityTask.Execute();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

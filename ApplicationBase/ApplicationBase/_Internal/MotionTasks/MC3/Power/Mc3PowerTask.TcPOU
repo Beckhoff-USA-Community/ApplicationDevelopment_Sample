@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc3PowerTask" Id="{528aff7d-2ac2-4059-9be3-84ea8b07a33b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc3PowerTask EXTENDS Mc3MotionTask IMPLEMENTS I_Mc3MotionPowerTask
+VAR
+	McPower : Tc3_Mc3Ptp.MC_Power;
+	{attribute 'hide'}
+	_InhibitFeedForward : BOOL;
+	{attribute 'hide'}
+	_InhibitFeedBackward : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{67d24c38-7f44-4500-ba47-3e92a4f494e0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f49604cb-2fef-4ca3-afbf-5f0b809e9ae8}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := FALSE; (*MC Power Busy behaves busy as long as enabled*)]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{45ec0260-008f-41a0-b1cb-855471040b1c}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McPower(Axis		   := _Axis.Axis,
+		EnablePositive := NOT _InhibitFeedForward,
+		EnableNegative := NOT _InhibitFeedBackward,
+		Status		   =>,
+		Error		   =>,
+		ErrorId		   =>);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Disable" Id="{425b6077-39b7-4e3f-87bf-15c1e2cf7794}">
+      <Declaration><![CDATA[METHOD Disable]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McPower(Axis		   := _Axis.Axis,
+		Enable		   := FALSE,
+		EnablePositive := NOT _InhibitFeedForward,
+		EnableNegative := NOT _InhibitFeedBackward,
+		Status		   =>,
+		Error		   =>,
+		ErrorId		   =>);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Enable" Id="{cf3b7966-332c-4c90-9e1d-37b45483782d}">
+      <Declaration><![CDATA[METHOD Enable]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McPower(Axis		   := _Axis.Axis,
+		Enable		   := TRUE,
+		EnablePositive := NOT _InhibitFeedForward,
+		EnableNegative := NOT _InhibitFeedBackward,
+		Status		   =>,
+		Error		   =>,
+		ErrorId		   =>);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Enabled" Id="{cb81a41b-c7d8-4f97-a340-988ac93abe86}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Enabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{d806f328-4cc0-4ade-90e6-346575177d89}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Enabled := McPower.Status;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Error" Id="{dff57e68-d286-4291-83fc-63a983822675}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{586025c6-adc2-472f-b3f8-634c662a2018}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := McPower.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{f68ef8b5-37a0-484a-bbba-63bf3473a40c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{486de060-3292-4a93-ac2a-df1e9a983680}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := McPower.ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{94401452-db2b-46f4-8663-2c7aa986b368}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Execute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="InhibitFeedBackward" Id="{0b9124cf-68de-42e8-bd02-f769409f1730}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InhibitFeedBackward : BOOL]]></Declaration>
+      <Get Name="Get" Id="{86a9d4dd-4801-4204-9244-2aee4991ff99}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InhibitFeedBackward := _InhibitFeedBackward;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d68227af-54d5-44cf-aa6d-153c0cc9744c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_InhibitFeedBackward := InhibitFeedBackward;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="InhibitFeedForward" Id="{4e0c2982-5d87-4221-867e-869425609ab3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY InhibitFeedForward : BOOL]]></Declaration>
+      <Get Name="Get" Id="{4774d7f1-b4c4-462b-a3ef-13bc98f983ca}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InhibitFeedForward := _InhibitFeedForward;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b08605c7-2264-4daa-b7b9-738ff5a4dde0}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_InhibitFeedForward := InhibitFeedForward;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

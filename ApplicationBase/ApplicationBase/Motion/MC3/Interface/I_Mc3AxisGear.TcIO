@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_Mc3AxisGear" Id="{d29e25bc-0997-4b31-a6fa-9701978da8b1}">
+    <Declaration><![CDATA[INTERFACE I_Mc3AxisGear EXTENDS I_Base]]></Declaration>
+    <Method Name="GearIn" Id="{378a3fc8-f6d1-4f03-9d39-02b7fa888478}">
+      <Declaration><![CDATA[METHOD GearIn
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="Master" Id="{40f93b2a-edfa-450d-9f18-31964f978c98}">
+      <Declaration><![CDATA[PROPERTY Master : I_Mc3Axis]]></Declaration>
+      <Set Name="Set" Id="{8b8f6ac5-82f5-4ba2-85de-b9363b38e497}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.21">
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.26">
 	<Project ProjectGUID="{DB140D9A-7084-4706-B88E-C9D709B92FB8}" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
 			<TypeSystem>
@@ -9,7 +9,7 @@
 				<AdditionalTmcFile Name="Events_IO" File="Events_IO.tmc"/>
 				<AdditionalTmcFile Name="Events_Safety" File="Events_Safety.tmc"/>
 				<AdditionalTmcFile Name="Events_Kinematic" File="Events_Kinematic.tmc"/>
-				<AdditionalTmcFile Name="Events_Nc2" File="Events_Nc2.tmc"/>
+				<AdditionalTmcFile Name="Events_MC" File="Events_MC.tmc"/>
 			</TypeSystem>
 		</System>
 		<Plc>

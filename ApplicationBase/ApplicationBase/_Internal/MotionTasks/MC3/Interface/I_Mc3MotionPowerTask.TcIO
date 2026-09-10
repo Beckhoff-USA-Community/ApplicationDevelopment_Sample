@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_Mc3MotionPowerTask" Id="{dc7d1f9a-718d-4cce-a7ad-66e6fbe71707}">
-    <Declaration><![CDATA[INTERFACE I_Mc3MotionPowerTask EXTENDS I_Mc2MotionTask, I_AxisEnable]]></Declaration>
+    <Declaration><![CDATA[INTERFACE I_Mc3MotionPowerTask EXTENDS I_Mc3MotionTask, I_AxisEnable]]></Declaration>
   </Itf>
 </TcPlcObject>

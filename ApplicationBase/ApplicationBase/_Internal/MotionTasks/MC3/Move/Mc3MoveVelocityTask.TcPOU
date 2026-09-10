@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc3MoveVelocityTask" Id="{bd0ee06a-1e66-4837-b725-c224e7aaf68d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc3MoveVelocityTask EXTENDS Mc3MotionTask
+VAR
+	_TargetVelocity : LREAL;
+	McMoveVelocity	: ARRAY[0..1] OF Tc3_Mc3Ptp.MC_MoveVelocity;
+	Active			: UDINT;
+	_McBufferMode	: Tc3_Mc3Ptp.EBufferMode;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="BufferMode" Id="{f74642bb-089f-402f-8387-a6f849c14a62}">
+      <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO Tc3_Mc3Ptp.EBufferMode]]></Declaration>
+      <Get Name="Get" Id="{6c3c0fb4-a0a1-4b4f-a361-d1796eee54bc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[BufferMode REF= _McBufferMode;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Busy" Id="{27d9f99d-4462-4176-b47b-e317a6ba89f0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b620416b-1da0-4fa8-a1ff-53d750bb82b4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := McMoveVelocity[Active].Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{bdb743f2-ef4b-49f3-804c-a677508d205b}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR
+    i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO 1 DO
+	McMoveVelocity[i](Axis		   := _Axis.Axis,
+					  Velocity	   := _TargetVelocity,
+					  Acceleration := _Axis.Acceleration,
+					  Deceleration := _Axis.Deceleration,
+					  Jerk		   := _Axis.Jerk,
+					  BufferMode   := _McBufferMode);
+
+	McMoveVelocity[i].Execute := FALSE;
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{381002b5-441c-4515-8220-8743cb85c337}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{d3686b92-700d-4d05-bb18-2f30db4633e2}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := McMoveVelocity[Active].Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{7c202154-dbf2-4e35-bd42-4e774339c1f2}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{893ba4fe-3687-4387-b8ef-3426a423c3d7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorID := McMoveVelocity[Active].ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{ca421f7d-254d-4a03-aba1-a0d508c8a55b}">
+      <Declaration><![CDATA[METHOD Execute : BOOL;]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Active = 0 THEN
+	Active := 1;
+	McMoveVelocity[Active](Axis			:= _Axis.Axis,
+						   Execute		:= TRUE,
+						   Velocity		:= _TargetVelocity,
+						   Acceleration := _Axis.Acceleration,
+						   Deceleration := _Axis.Deceleration,
+						   Jerk			:= _Axis.Jerk,
+						   BufferMode	:= _McBufferMode);
+ELSE
+	Active := 0;
+	McMoveVelocity[Active](Axis			:= _Axis.Axis,
+						   Execute		:= TRUE,
+						   Velocity		:= _TargetVelocity,
+						   Acceleration := _Axis.Acceleration,
+						   Deceleration := _Axis.Deceleration,
+						   Jerk			:= _Axis.Jerk,
+						   BufferMode	:= _McBufferMode);
+END_IF
+
+Execute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="TargetVelocity" Id="{a4e5d071-c12a-4223-9567-78281b54abb7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY TargetVelocity : LREAL]]></Declaration>
+      <Set Name="Set" Id="{f4da5916-4516-420b-9949-cec2340759db}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TargetVelocity := TargetVelocity;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

@@ -83,6 +83,7 @@
     <Folder Include="Motion\MC2\DUT" />
     <Folder Include="Motion\MC3" />
     <Folder Include="Motion\MC3\Interface" />
+    <Folder Include="Motion\MC3\DUT" />
     <Folder Include="Permissive Interlock" />
     <Folder Include="Project Information" />
     <Folder Include="Statemachine" />
@@ -153,6 +154,11 @@
     <Folder Include="_Internal\MotionTasks\MC3" />
     <Folder Include="_Internal\MotionTasks\MC3\Base" />
     <Folder Include="_Internal\MotionTasks\MC3\Interface" />
+    <Folder Include="_Internal\MotionTasks\MC3\Home" />
+    <Folder Include="_Internal\MotionTasks\MC3\Move" />
+    <Folder Include="_Internal\MotionTasks\MC3\Gearing" />
+    <Folder Include="_Internal\MotionTasks\MC3\Reset" />
+    <Folder Include="_Internal\MotionTasks\MC3\Power" />
     <Folder Include="_Internal\Null" />
     <Folder Include="_Internal\Statemachine" />
     <Folder Include="_Internal\Statemachine\Interface" />
@@ -459,7 +465,7 @@
     <Compile Include="ApplicationBaseParameter.TcGVL">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ApplicationBaseMotionParameterNc2.TcGVL">
+    <Compile Include="ApplicationBaseMotionParameter.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
     </Compile>
@@ -595,10 +601,31 @@
     <Compile Include="Motion\MC2\Mc2SlaveAxisPTP.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Motion\MC3\DUT\ST_Mc3MotionDefaults.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC3\Interface\I_Mc3AxisGear.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC3\Interface\I_Mc3Axis_PTP.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Motion\MC3\Interface\I_Mc3Settings.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\MC3\Interface\I_Mc3Axis.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC3\Mc3AxisPTP_HMI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC3\Mc3AxisPTP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC3\Mc3Axis_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC3\Mc3Axis.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Permissive Interlock\PermissiveInterlock.TcPOU">
@@ -973,6 +1000,9 @@
     <Compile Include="_Internal\MotionTasks\MC2\Home\Mc2MotionHomeTask_SetZeroHere.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="_Internal\MotionTasks\MC2\Home\Mc2MotionHomeTask_TouchProbe.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="_Internal\MotionTasks\MC2\Interface\I_Mc2AxisRef.TcIO">
       <SubType>Code</SubType>
     </Compile>
@@ -1024,6 +1054,15 @@
     <Compile Include="_Internal\MotionTasks\MC3\Base\Mc3MotionTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Gearing\Mc3MotionCoupleTask_Gearing.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Home\Mc3MotionHomeTask_SetPosition.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Home\Mc3MotionHomeTask_SetZeroHere.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="_Internal\MotionTasks\MC3\Interface\I_Mc3AxisRef.TcIO">
       <SubType>Code</SubType>
     </Compile>
@@ -1037,6 +1076,30 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="_Internal\MotionTasks\MC3\Interface\I_Mc3MotionTask.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Move\Mc3MoveAbsoluteTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Move\Mc3MoveModuloTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Move\Mc3MoveRelativeTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Move\Mc3MoveVelocityTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Move\Mc3MoveJogTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Power\Mc3PowerTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Power\Mc3StopTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Reset\Mc3CoEResetTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="_Internal\Null\NullComponent.TcPOU">
@@ -1174,6 +1237,10 @@
     <PlaceholderReference Include="Tc3_JsonXml">
       <DefaultResolution>Tc3_JsonXml, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc3_JsonXml</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_MC2_AdvancedHoming">
+      <DefaultResolution>Tc3_MC2_AdvancedHoming, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_MC2_AdvancedHoming</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc3_Mc3Ptp">
       <DefaultResolution>Tc3_Mc3Ptp, * (Beckhoff Automation GmbH)</DefaultResolution>

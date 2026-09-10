@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <GVL Name="ApplicationBaseMotionParameterNc2" Id="{148acb86-38c9-4166-99d7-19cdb7d01c87}" ParameterList="True">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <GVL Name="ApplicationBaseMotionParameter" Id="{148acb86-38c9-4166-99d7-19cdb7d01c87}" ParameterList="True">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL CONSTANT
 	MaxMotionTasks : UDINT := 10;

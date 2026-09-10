@@ -7,7 +7,7 @@
 VAR_INPUT
 	JogForward	 : BOOL;
 	JogBackwards : BOOL;
-	Position	 : LREAL	 := 0;
+	Distance	 : LREAL := 0;
 END_VAR]]></Declaration>
     </Method>
   </Itf>

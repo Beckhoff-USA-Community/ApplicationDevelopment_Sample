@@ -584,7 +584,7 @@
       </Hides>
     </DataType>
     <DataType>
-      <Name GUID="{670BED62-70D8-4757-89AF-53283251429E}">Nc2Axis</Name>
+      <Name GUID="{C638375C-F04B-430D-9E36-93CB81B96D1B}">MCAxis</Name>
       <DisplayName TxtId=""><![CDATA[EventClass1_DisplayText]]></DisplayName>
       <EventId>
         <Name Id="1">AxisError</Name>
@@ -607,6 +607,7 @@
       <Hides>
         <Hide GUID="{51417159-46C6-4D27-A36F-6810A06DC684}" />
         <Hide GUID="{A5B0650F-5329-4FC4-BA59-ED654CC7A041}" />
+        <Hide GUID="{670BED62-70D8-4757-89AF-53283251429E}" />
       </Hides>
     </DataType>
   </DataTypes>

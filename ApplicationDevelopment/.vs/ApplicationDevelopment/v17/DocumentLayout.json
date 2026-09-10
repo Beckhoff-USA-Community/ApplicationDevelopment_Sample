@@ -3,40 +3,28 @@
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3MotionTaskCollection.TcIO@AddTask||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3MotionTaskCollection.TcIO@RemoveTaskByInstance||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@CyclicLogic||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU@AddTask||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@TorqueLimit.Get||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3AxisRef.TcIO@Axis||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@Execute||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3MotionTask.TcIO@Axis||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@ErrorId.Get||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU@Axis||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@Error.Get||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@Busy.Get||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU@RemoveTaskByInstance||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU@Axis.Get||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU@Axis.Set||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU@FB_Init||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_CoESetEncoderOffset.TcPOU@CyclicLogic||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -46,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 15,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -71,133 +59,89 @@
             {
               "$type": "Document",
               "DocumentIndex": 7,
-              "Title": "Mc3MotionTaskCollection.RemoveTaskByInstance",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU@RemoveTaskByInstance",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU@RemoveTaskByInstance",
-              "ToolTip": "RemoveTaskByInstance [ApplicationBase.ApplicationBase.Mc3MotionTaskCollection]",
+              "Title": "Mc2MotionHomeTask_CoESetEncoderOffset.CyclicLogic",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_CoESetEncoderOffset.TcPOU@CyclicLogic",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_CoESetEncoderOffset.TcPOU@CyclicLogic",
+              "ToolTip": "CyclicLogic [ApplicationBase.ApplicationBase.Mc2MotionHomeTask_CoESetEncoderOffset]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:12:53.575Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "Mc3MotionTask.Axis.Set",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU@Axis.Set",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU@Axis.Set",
-              "ToolTip": "Set [ApplicationBase.ApplicationBase.Mc3MotionTask.Axis]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:13:06.026Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Mc3MotionTask.Axis",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU@Axis",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU@Axis",
-              "ToolTip": "Axis [ApplicationBase.ApplicationBase.Mc3MotionTask]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:13:08.092Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "Mc3MotionTaskCollection.FB_Init",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU@FB_Init",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU@FB_Init",
-              "ToolTip": "FB_Init [ApplicationBase.ApplicationBase.Mc3MotionTaskCollection]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:13:19.021Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Mc3MotionTaskCollection.AddTask",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU@AddTask",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU@AddTask",
-              "ToolTip": "AddTask [ApplicationBase.ApplicationBase.Mc3MotionTaskCollection]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:13:26.585Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "Mc3MotionTask.Axis.Get",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU@Axis.Get",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU@Axis.Get",
-              "ToolTip": "Get [ApplicationBase.ApplicationBase.Mc3MotionTask.Axis]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:13:35.293Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Mc3MotionTaskCollection",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTaskCollection.TcPOU",
-              "ToolTip": "Mc3MotionTaskCollection [ApplicationBase.ApplicationBase]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:13:46.55Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Mc3MotionTask",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Base\\Mc3MotionTask.TcPOU",
-              "ToolTip": "Mc3MotionTask [ApplicationBase.ApplicationBase]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:14:00.974Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "I_Mc3MotionTask.Axis",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3MotionTask.TcIO@Axis",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3MotionTask.TcIO@Axis",
-              "ToolTip": "Axis [ApplicationBase.ApplicationBase.I_Mc3MotionTask]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:14:49.493Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "I_Mc3AxisRef.Axis",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3AxisRef.TcIO@Axis",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3AxisRef.TcIO@Axis",
-              "ToolTip": "Axis [ApplicationBase.ApplicationBase.I_Mc3AxisRef]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:14:59.789Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "I_Mc3MotionTaskCollection.AddTask",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3MotionTaskCollection.TcIO@AddTask",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3MotionTaskCollection.TcIO@AddTask",
-              "ToolTip": "AddTask [ApplicationBase.ApplicationBase.I_Mc3MotionTaskCollection]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:15:17.871Z",
+              "WhenOpened": "2026-09-10T17:18:43.54Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "I_Mc3MotionTaskCollection.RemoveTaskByInstance",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3MotionTaskCollection.TcIO@RemoveTaskByInstance",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Interface\\I_Mc3MotionTaskCollection.TcIO@RemoveTaskByInstance",
-              "ToolTip": "RemoveTaskByInstance [ApplicationBase.ApplicationBase.I_Mc3MotionTaskCollection]",
+              "Title": "Mc2MotionHomeTask_TouchProbe.CyclicLogic",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@CyclicLogic",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@CyclicLogic",
+              "ToolTip": "CyclicLogic [ApplicationBase.ApplicationBase.Mc2MotionHomeTask_TouchProbe]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-10T14:15:21.729Z",
+              "WhenOpened": "2026-09-10T17:19:16.429Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Mc2MotionHomeTask_TouchProbe",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU",
+              "ToolTip": "Mc2MotionHomeTask_TouchProbe [ApplicationBase.ApplicationBase]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T17:19:18.471Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Mc2MotionHomeTask_TouchProbe.Busy.Get",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@Busy.Get",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@Busy.Get",
+              "ToolTip": "Get [ApplicationBase.ApplicationBase.Mc2MotionHomeTask_TouchProbe.Busy]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T17:22:46.317Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Mc2MotionHomeTask_TouchProbe.Error.Get",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@Error.Get",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@Error.Get",
+              "ToolTip": "Get [ApplicationBase.ApplicationBase.Mc2MotionHomeTask_TouchProbe.Error]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T17:22:55.023Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Mc2MotionHomeTask_TouchProbe.ErrorId.Get",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@ErrorId.Get",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@ErrorId.Get",
+              "ToolTip": "Get [ApplicationBase.ApplicationBase.Mc2MotionHomeTask_TouchProbe.ErrorId]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T17:23:03.577Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Mc2MotionHomeTask_TouchProbe.Execute",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@Execute",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@Execute",
+              "ToolTip": "Execute [ApplicationBase.ApplicationBase.Mc2MotionHomeTask_TouchProbe]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T17:23:11.995Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Mc2MotionHomeTask_TouchProbe.TorqueLimit.Get",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@TorqueLimit.Get",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC2\\Home\\Mc2MotionHomeTask_TouchProbe.TcPOU@TorqueLimit.Get",
+              "ToolTip": "Get [ApplicationBase.ApplicationBase.Mc2MotionHomeTask_TouchProbe.TorqueLimit]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T17:23:29.365Z",
               "EditorCaption": ""
             }
           ]

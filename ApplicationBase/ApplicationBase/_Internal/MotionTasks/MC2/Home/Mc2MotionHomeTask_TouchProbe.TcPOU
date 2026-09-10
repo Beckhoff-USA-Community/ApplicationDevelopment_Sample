@@ -1,0 +1,260 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc2MotionHomeTask_TouchProbe" Id="{0582bbfb-5ad5-4771-99fb-a7c8d4492ed4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc2MotionHomeTask_TouchProbe EXTENDS Mc2MotionTask
+VAR
+	InputState AT %I*	 : BOOL;
+	SequenceState		 : UDINT;
+	MCStepAbsoluteSwitch : MC_StepAbsoluteSwitchDetection;
+	MCFinishHoming		 : MC_FinishHoming;
+	MCAbortHoming		 : MC_AbortHoming;
+	HomingParameters	 : MC_HomingParameter;
+	SignalRef			 : MC_Ref_Signal_Ref := (SignalSource := E_SignalSource.SignalSource_Default, TouchProbe := E_TouchProbe.PlcEvent);
+	SetPositionOffset	 : FB_SetPositionOffset;
+	MCMoveRelative		 : Tc2_MC2.MC_MoveRelative;
+	SensorPosition		 : LREAL;
+	NewFinalPosition	 : LREAL;
+	_ErrorId			 : UDINT;
+	_HomePosition		 : LREAL := 0.0;
+	_TorqueLimit		 : LREAL := 40.0;
+	_Velocity			 : LREAL := 20.0;
+END_VAR
+
+VAR CONSTANT
+	IDLE_STATE	: UDINT := 0;
+	ERROR_STATE : UDINT := 999;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{5c033a8b-630a-43d0-95e4-e77ef43842f0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{37c5df71-b3cd-480a-bf5d-12483bd4a5f8}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := SequenceState <> IDLE_STATE AND SequenceState <> ERROR_STATE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{0895c7a6-2ede-495b-832e-a120ab3d618d}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	ipEnablable : I_Enablable;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Axis <> 0 THEN
+    SignalRef.Level := InputState;
+	CASE SequenceState OF
+		10:
+			IF NOT __QUERYINTERFACE(Axis, ipEnablable) THEN
+				_ErrorId	  := E_AdsErr.DEVICE_SRVNOTSUPP;
+				SequenceState := ERROR_STATE;
+			ELSE
+				NextMinorStep(SequenceState);
+			END_IF
+
+		11:
+			IF NOT ipEnablable.Enabled THEN
+				SequenceState := ERROR_STATE;
+			ELSE
+				NextMinorStep(SequenceState);
+			END_IF
+
+		12:
+			IF InputState THEN
+				NextMinorStep(SequenceState);
+			ELSE
+				NextStep(SequenceState);
+			END_IF
+
+		13:
+			MCMoveRelative(Axis		:= _Axis.Axis,
+						   Execute	:= TRUE,
+						   Distance := 25.0,
+						   Velocity := _Velocity);
+
+			IF NOT MCMoveRelative.Busy THEN
+				IF MCMoveRelative.Error THEN
+					_ErrorId	  := MCMoveRelative.ErrorID;
+					SequenceState := ERROR_STATE;
+				ELSIF MCMoveRelative.Done THEN
+					NextStep(SequenceState);
+				END_IF
+
+				MCMoveRelative(Axis := _Axis.Axis, Execute := FALSE);
+			END_IF
+
+		20:
+			MCStepAbsoluteSwitch(Axis			 := _Axis.Axis,
+								 Parameter		 := HomingParameters,
+								 Execute		 := TRUE,
+								 Direction		 := MC_Home_Direction.mcSwitchNegative,
+								 SwitchMode		 := MC_Switch_Mode.mcEdgeSwitchNegative,
+								 ReferenceSignal := SignalRef,
+								 Velocity		 := _Velocity,
+								 TimeLimit		 := TO_TIME((540.0 / _Velocity) * 1000.0),
+								 TorqueLimit	 := _TorqueLimit);
+
+			IF NOT MCStepAbsoluteSwitch.Busy THEN
+				IF MCStepAbsoluteSwitch.Error THEN
+					_ErrorId	  := MCStepAbsoluteSwitch.ErrorID;
+					SequenceState := ERROR_STATE;
+				ELSIF MCStepAbsoluteSwitch.Done THEN
+					SensorPosition := MCStepAbsoluteSwitch.RecordedPosition;
+					NextMinorStep(SequenceState);
+				END_IF
+
+				MCStepAbsoluteSwitch(Axis := _Axis.Axis, Parameter := HomingParameters, Execute := FALSE);
+			END_IF
+
+		21:
+			IF _Axis.Axis.NcToPlc.SetVelo = 0.0 THEN
+				NewFinalPosition := (_Axis.Axis.NcToPlc.SetPos - SensorPosition) + _HomePosition;
+				NextStep(SequenceState);
+			END_IF
+
+		30:
+			ipEnablable.Disable();
+			IF NOT ipEnablable.Enabled THEN
+				NextMinorStep(SequenceState);
+			END_IF
+
+		31:
+			SetPositionOffset(Axis	   := _Axis.Axis,
+							  Execute  := TRUE,
+							  Position := NewFinalPosition,
+							  Relative := FALSE,
+							  Feedback := ePositionOffsetFeedback1,
+							  Memory   := ePositionOffsetMemory_Drive);
+
+			IF NOT SetPositionOffset.Busy THEN
+				IF SetPositionOffset.Error THEN
+					_ErrorId	  := SetPositionOffset.ErrorID;
+					SequenceState := ERROR_STATE;
+				ELSE
+					NextStep(SequenceState);
+				END_IF
+
+				SetPositionOffset(Axis := _Axis.Axis, Execute := FALSE);
+			END_IF
+
+		40:
+			ipEnablable.Enable();
+			IF ipEnablable.Enabled THEN
+				NextMinorStep(SequenceState);
+			END_IF
+
+		41:
+			MCFinishHoming(Axis		 := _Axis.Axis,
+						   Parameter := HomingParameters,
+						   Execute	 := TRUE,
+						   Distance	 := _Axis.Axis.NcToPlc.SetPos * -1.0,
+						   Velocity	 := _Velocity);
+
+			IF NOT MCFinishHoming.Busy THEN
+				IF MCFinishHoming.Error THEN
+					_ErrorId	  := MCFinishHoming.ErrorID;
+					SequenceState := ERROR_STATE;
+				ELSE
+					SequenceState := IDLE_STATE;
+				END_IF
+
+				MCFinishHoming(Axis := _Axis.Axis, Parameter := HomingParameters, Execute := FALSE);
+			END_IF
+
+		ERROR_STATE:
+			MCAbortHoming(Axis := _Axis.Axis, Parameter := HomingParameters, Execute := TRUE);
+	END_CASE
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{64c079ac-18a3-4c9c-a1e1-4df79ecb4ec6}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{72b9fe65-e1ad-4499-9f0a-ef08c6e9a778}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := SequenceState = ERROR_STATE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{4e7c335c-9f82-43fc-8c53-e62aeba94114}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{4e1cdd99-876f-45fe-b37b-bef9b42c8ce1}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := _ErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{8b2fcdf9-f716-473f-9f55-e40cd88bd072}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (_Axis = 0) OR Busy THEN
+	RETURN;
+END_IF
+
+MCAbortHoming(Axis := _Axis.Axis, Parameter := HomingParameters, Execute := FALSE);
+SequenceState := 10;
+_ErrorID	  := 0;
+Execute		  := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="HomePosition" Id="{c0c8fc6c-4a42-422b-9512-fde7372a8060}">
+      <Declaration><![CDATA[PROPERTY HomePosition : LREAL]]></Declaration>
+      <Get Name="Get" Id="{d7d25fab-559e-4d60-a14e-9d2df7f5c1ce}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HomePosition := _HomePosition;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{8343b08e-b33e-48e0-8b10-22383299df65}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_HomePosition := HomePosition;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TorqueLimit" Id="{ff215ef7-2bf6-4f72-b2fe-7c61cc6bb9c2}">
+      <Declaration><![CDATA[PROPERTY TorqueLimit : LREAL]]></Declaration>
+      <Get Name="Get" Id="{ffc420f5-3279-403d-8f30-0aa18bee6186}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TorqueLimit := _TorqueLimit;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{95f9c5c6-1b67-4bc0-bd07-1c389d795281}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TorqueLimit := TorqueLimit;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Velocity" Id="{3ea59adf-a868-46e2-b24a-89aef40443c7}">
+      <Declaration><![CDATA[PROPERTY Velocity : LREAL]]></Declaration>
+      <Get Name="Get" Id="{e3d8a9b1-4998-4c8c-abb1-a61ec5af7b2a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Velocity := _Velocity;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ad1f17e3-91ff-4aa8-bb82-53ea23f4f9dc}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Velocity := Velocity;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

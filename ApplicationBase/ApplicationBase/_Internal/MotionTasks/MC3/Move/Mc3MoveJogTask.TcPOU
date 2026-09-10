@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc3MoveJogTask" Id="{81f4d9b6-6874-4516-9cd2-f8ce470d2b92}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc3MoveJogTask EXTENDS Mc3MotionTask IMPLEMENTS I_Mc3MotionJogTask
+VAR
+	McJog		  : Tc3_Mc3Ptp.MC_Jog;
+	_JogForward	  : BOOL;
+	_JogBackwards : BOOL;
+	_Mode		  : Tc3_Mc3Ptp.EJogMode;
+	_Distance	  : LREAL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{dfd290b9-c504-4b0e-bc10-b3d0274bdbe9}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3381c375-d8bd-4381-97f1-cc00a90595ac}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := MCJog.Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{9635d997-8ad8-463e-9669-9ba70b504974}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF McJog.Error OR _Axis.Error THEN
+	_JogForward	  := FALSE;
+	_JogBackwards := FALSE;
+END_IF
+
+McJog(Axis			 := _Axis.Axis,
+	  JogForward	 := _JogForward,
+	  JogBackward	 := _JogBackwards,
+	  Mode			 := _Mode,
+	  Distance		 := _Distance,
+	  Velocity		 := _Axis.Velocity,
+	  Acceleration	 := _Axis.Acceleration,
+	  Deceleration	 := _Axis.Deceleration,
+	  Jerk			 := _Axis.Jerk,
+	  Done			 =>,
+	  Busy			 =>,
+	  Active		 =>,
+	  CommandAborted =>,
+	  Error			 =>,
+	  ErrorId		 =>);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Distance" Id="{2131729b-af86-4dd8-98e1-d889e9d4bcdf}">
+      <Declaration><![CDATA[PROPERTY Distance : LREAL]]></Declaration>
+      <Set Name="Set" Id="{91a5be4a-0073-4f97-a096-26fbb3ea3606}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Distance:= Distance;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Error" Id="{2cfbf500-5197-4eb6-80ad-94653bcf1d02}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b0af1959-7100-44fc-836f-4f4786c4d36d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := MCJog.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{ad376364-72f6-40b8-9a56-109334278427}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{c14bd7f2-cf89-4667-9fe2-1ee43695e57e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := MCJog.ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{4d3b4869-1581-4fc5-8056-822daa34bed7}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McJog(Axis			 := _Axis.Axis,
+	  JogForward	 := _JogForward,
+	  JogBackward	 := _JogBackwards,
+	  Mode			 := _Mode,
+	  Distance		 := _Distance,
+	  Velocity		 := _Axis.Velocity,
+	  Acceleration	 := _Axis.Acceleration,
+	  Deceleration	 := _Axis.Deceleration,
+	  Jerk			 := _Axis.Jerk,
+	  Done			 =>,
+	  Busy			 =>,
+	  Active		 =>,
+	  CommandAborted =>,
+	  Error			 =>,
+	  ErrorId		 =>);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="JogBackwards" Id="{6a630e5d-fdca-490f-8f1e-772f0fabdb9e}">
+      <Declaration><![CDATA[PROPERTY JogBackwards : BOOL]]></Declaration>
+      <Set Name="Set" Id="{af3e5185-8c6d-42c2-8035-b6f24d5d1bde}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_JogBackwards := JogBackwards;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="JogForward" Id="{ef79b8bc-32a0-4572-bd85-81d8d591ff16}">
+      <Declaration><![CDATA[PROPERTY JogForward : BOOL]]></Declaration>
+      <Set Name="Set" Id="{8dc4d4c1-bc99-43fa-85ce-b5a6da4801c4}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_JogForward := JogForward;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Mode" Id="{2fa5d714-de83-48b6-be4a-100641f98405}">
+      <Declaration><![CDATA[PROPERTY Mode : Tc3_Mc3Ptp.EJogMode]]></Declaration>
+      <Set Name="Set" Id="{23ca6000-3269-45c3-b842-137e704c20eb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Mode := Mode;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>
