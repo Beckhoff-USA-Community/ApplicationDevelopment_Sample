@@ -607,7 +607,7 @@ PROPERTY Stopped : BOOL]]></Declaration>
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Stopped := (_Axis.McToPlc.Std.AxisState = EAxisState.Standstill) OR ((_Axis.McToPlc.Std.AxisState = EAxisState.SynchronizedMotion) AND (SetVelocity = 0.0));]]></ST>
+          <ST><![CDATA[Stopped := (_Axis.McToPlc.Std.AxisState <= EAxisState.Standstill) OR ((_Axis.McToPlc.Std.AxisState = EAxisState.SynchronizedMotion) AND (SetVelocity = 0.0));]]></ST>
         </Implementation>
       </Get>
     </Property>

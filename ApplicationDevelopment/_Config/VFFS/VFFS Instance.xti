@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.25" ClassName="CTComPlcObjDef">
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.26" ClassName="CTComPlcObjDef">
 	<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" XtvPath="VFFS\VFFS Instance.xtv" TmcPath="VFFS\VFFS.tmc">
 		<Name>__FILENAME__</Name>
 		<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
@@ -21,21 +21,29 @@
 	</Instance>
 	<Mappings>
 		<OwnerA>
-			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull Wheel Left">
-				<Link VarA="PlcTask Inputs^MAIN.VFFS._PullWheels.PullWheelLeftAxisRef.NcToPlc" VarB="Outputs^ToPlc"/>
-				<Link VarA="PlcTask Outputs^MAIN.VFFS._PullWheels.PullWheelLeftAxisRef.PlcToNc" VarB="Inputs^FromPlc"/>
+			<OwnerB Name="TINC^MC Project1^Axes^Pull Wheel Left">
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._PullWheels.PullWheelLeftAxisRef.McToPlc^Act" VarB="McToPlc^Act" Size="448"/>
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._PullWheels.PullWheelLeftAxisRef.McToPlc^Set" VarB="McToPlc^Set" Size="320"/>
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._PullWheels.PullWheelLeftAxisRef.McToPlc^Std" VarB="McToPlc^Std" Size="192"/>
+				<Link VarA="PlcTask Outputs^MAIN.VFFS._PullWheels.PullWheelLeftAxisRef.PlcToMc^Std" VarB="PlcToMc^Std"/>
 			</OwnerB>
-			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Pull Wheel Right">
-				<Link VarA="PlcTask Inputs^MAIN.VFFS._PullWheels.PullWheelRightAxisRef.NcToPlc" VarB="Outputs^ToPlc"/>
-				<Link VarA="PlcTask Outputs^MAIN.VFFS._PullWheels.PullWheelRightAxisRef.PlcToNc" VarB="Inputs^FromPlc"/>
+			<OwnerB Name="TINC^MC Project1^Axes^Pull Wheel Right">
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._PullWheels.PullWheelRightAxisRef.McToPlc^Act" VarB="McToPlc^Act" Size="448"/>
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._PullWheels.PullWheelRightAxisRef.McToPlc^Set" VarB="McToPlc^Set" Size="320"/>
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._PullWheels.PullWheelRightAxisRef.McToPlc^Std" VarB="McToPlc^Std" Size="192"/>
+				<Link VarA="PlcTask Outputs^MAIN.VFFS._PullWheels.PullWheelRightAxisRef.PlcToMc^Std" VarB="PlcToMc^Std"/>
 			</OwnerB>
-			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Seal">
-				<Link VarA="PlcTask Inputs^MAIN.VFFS._Sealer.SealerAxisRef.NcToPlc" VarB="Outputs^ToPlc"/>
-				<Link VarA="PlcTask Outputs^MAIN.VFFS._Sealer.SealerAxisRef.PlcToNc" VarB="Inputs^FromPlc"/>
+			<OwnerB Name="TINC^MC Project1^Axes^Seal">
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._Sealer.SealerAxisRef.McToPlc^Act" VarB="McToPlc^Act" Size="448"/>
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._Sealer.SealerAxisRef.McToPlc^Set" VarB="McToPlc^Set" Size="320"/>
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._Sealer.SealerAxisRef.McToPlc^Std" VarB="McToPlc^Std" Size="192"/>
+				<Link VarA="PlcTask Outputs^MAIN.VFFS._Sealer.SealerAxisRef.PlcToMc^Std" VarB="PlcToMc^Std"/>
 			</OwnerB>
-			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^Unwind">
-				<Link VarA="PlcTask Inputs^MAIN.VFFS._Unwind.UnwindAxisRef.NcToPlc" VarB="Outputs^ToPlc"/>
-				<Link VarA="PlcTask Outputs^MAIN.VFFS._Unwind.UnwindAxisRef.PlcToNc" VarB="Inputs^FromPlc"/>
+			<OwnerB Name="TINC^MC Project1^Axes^Unwind">
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._Unwind.UnwindAxisRef.McToPlc^Act" VarB="McToPlc^Act" Size="448"/>
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._Unwind.UnwindAxisRef.McToPlc^Set" VarB="McToPlc^Set" Size="320"/>
+				<Link VarA="PlcTask Inputs^MAIN.VFFS._Unwind.UnwindAxisRef.McToPlc^Std" VarB="McToPlc^Std" Size="192"/>
+				<Link VarA="PlcTask Outputs^MAIN.VFFS._Unwind.UnwindAxisRef.PlcToMc^Std" VarB="PlcToMc^Std"/>
 			</OwnerB>
 		</OwnerA>
 	</Mappings>

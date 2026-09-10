@@ -39,13 +39,7 @@ END_VAR]]></Declaration>
     <Method Name="CyclicLogic" Id="{337e3a01-93fb-4c7e-a97e-13d009ee1a39}">
       <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF _Master <> 0 THEN
-	MasterAxis REF= _Master.Axis;
-ELSE
-	MasterAxis REF= DummyAxis;
-END_IF
-
-McGearIn(Master			:= MasterAxis,
+        <ST><![CDATA[McGearIn(Master			:= MasterAxis,
 		 Slave			:= _Axis.Axis,
 		 Acceleration	:= _Axis.Acceleration,
 		 Deceleration	:= _Axis.Deceleration,
@@ -87,7 +81,7 @@ END_VAR]]></Declaration>
     <Method Name="Execute" Id="{ed28c839-8f67-40eb-aaad-6b389c70ca56}">
       <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF McGearIn.Active THEN
+        <ST><![CDATA[IF NOT McGearIn.Active THEN
 	IF _Axis.Error OR Busy THEN
 		RETURN;
 	END_IF
@@ -130,7 +124,13 @@ END_VAR
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_Master := Master;]]></ST>
+          <ST><![CDATA[_Master := Master;
+IF _Master <> 0 THEN
+	MasterAxis REF= _Master.Axis;
+ELSE
+	MasterAxis REF= DummyAxis;
+END_IF
+]]></ST>
         </Implementation>
       </Set>
     </Property>

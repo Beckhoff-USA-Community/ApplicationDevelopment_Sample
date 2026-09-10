@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.25">
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.26">
 	<Project ProjectGUID="{ECA3A4B9-9FB4-4F0E-BB54-840FA2DAC3E8}" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
 			<Settings MaxCpus="20" NonWinCpus="2" RouterMemory="67108864" MaxStackSize="512" PCoreAffinity="4095" ECoreAffinity="1044480">
@@ -16,6 +16,16 @@
 				<Task Id="7" Priority="22" CycleTime="100000" AmsPort="352" AdtTasks="true">
 					<Name>PlcTask</Name>
 				</Task>
+				<Task Id="8" Priority="32" AdtTasks="true" JobTask="true">
+					<Name>Job Task</Name>
+					<ImageId>327</ImageId>
+				</Task>
+				<Task Id="9" Priority="3" CycleTime="20000" AmsPort="521" AdtTasks="true">
+					<Name>MC-Task (MET)</Name>
+				</Task>
+				<Task Id="10" Priority="9" CycleTime="100000" AmsPort="531" AdtTasks="true">
+					<Name>MC-Task (MPT)</Name>
+				</Task>
 			</Tasks>
 			<TypeSystem>
 				<AdditionalTmcFile Name="Events_UnitTest" File="Events_UnitTest.tmc"/>
@@ -25,6 +35,7 @@
 		</System>
 		<Motion>
 			<NC File="NC.xti"/>
+			<MC File="MC Project1.xti"/>
 		</Motion>
 		<Plc>
 			<Project File="UnitTests.xti"/>
@@ -36,6 +47,6 @@
 	<Mappings>
 		<MappingInfo Identifier="{00000000-2001-0850-0020-500800205008}" Id="#x02030010"/>
 		<MappingInfo Identifier="{05000010-2001-0850-1000-040300205008}" Id="#x02030020" Watchdog="14000000040000000400000004000000"/>
-		<MappingInfo Identifier="{05000010-2041-0850-1000-040340205008}" Id="#x02030030" Watchdog="14000000040000000400000004000000"/>
+		<MappingInfo Identifier="{02010090-2041-0850-1000-100540205008}" Id="#x02030030" Watchdog="14000000040000000400000004000000"/>
 	</Mappings>
 </TcSmProject>

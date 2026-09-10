@@ -1,7 +1,29 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\PullWheel (EM)\\PullWheels.TcPOU@Starting||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|solutionrelative:VFFS\\PullWheel (EM)\\PullWheels.TcPOU@Starting||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU@Master.Set||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU@CyclicLogic||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU@Execute||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Visu\\V_Main.TcVIS||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|solutionrelative:VFFS\\Visu\\V_Main.TcVIS||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Sealer (EM)\\Sealer.TcPOU@Reset||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{01D3F4FB-3285-4D52-8C4F-ECF82898044B}|VFFS\\VFFS.plcproj|solutionrelative:VFFS\\Sealer (EM)\\Sealer.TcPOU@Reset||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +31,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 10,
           "Children": [
             {
               "$type": "Bookmark",
@@ -30,6 +52,72 @@
             {
               "$type": "Bookmark",
               "Name": "ST:1528276488:0:{a6f4fceb-1c71-4697-840a-c4fdf5060a5f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Sealer.Reset",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Sealer (EM)\\Sealer.TcPOU@Reset",
+              "RelativeDocumentMoniker": "VFFS\\Sealer (EM)\\Sealer.TcPOU@Reset",
+              "ToolTip": "Reset [ApplicationDevelopment.VFFS.Sealer.Sealer]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T18:30:28.115Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "V_Main",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\Visu\\V_Main.TcVIS",
+              "RelativeDocumentMoniker": "VFFS\\Visu\\V_Main.TcVIS",
+              "ToolTip": "V_Main [ApplicationDevelopment.VFFS]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T18:30:36.776Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Mc3MotionCoupleTask_Gearing.Execute",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU@Execute",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU@Execute",
+              "ToolTip": "Execute [ApplicationBase.ApplicationBase.Mc3MotionCoupleTask_Gearing]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T18:32:24.576Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Mc3MotionCoupleTask_Gearing.Master.Set",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU@Master.Set",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU@Master.Set",
+              "ToolTip": "Set [ApplicationBase.ApplicationBase.Mc3MotionCoupleTask_Gearing.Master]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T18:32:31.676Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Mc3MotionCoupleTask_Gearing.CyclicLogic",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU@CyclicLogic",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\_Internal\\MotionTasks\\MC3\\Gearing\\Mc3MotionCoupleTask_Gearing.TcPOU@CyclicLogic",
+              "ToolTip": "CyclicLogic [ApplicationBase.ApplicationBase.Mc3MotionCoupleTask_Gearing]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T18:32:37.277Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PullWheels.Starting",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\VFFS\\PullWheel (EM)\\PullWheels.TcPOU@Starting",
+              "RelativeDocumentMoniker": "VFFS\\PullWheel (EM)\\PullWheels.TcPOU@Starting",
+              "ToolTip": "Starting [ApplicationDevelopment.VFFS.PullWheels.States]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-10T18:33:03.327Z",
+              "EditorCaption": ""
             }
           ]
         },
@@ -48,10 +136,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:3:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:1:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
             }
           ]
         }

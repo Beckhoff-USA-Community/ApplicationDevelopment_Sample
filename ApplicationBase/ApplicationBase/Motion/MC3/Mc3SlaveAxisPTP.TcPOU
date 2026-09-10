@@ -4,7 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK Mc3SlaveAxisPTP EXTENDS Mc3AxisPTP IMPLEMENTS I_Mc3SlaveAxis
 VAR
 	// Tasks
-	MotionCoupleTaskGearing : Mc3MotionCoupleTask_Gearing := (Name := 'MC GearIn Multimaster');
+	MotionCoupleTaskGearing : Mc3MotionCoupleTask_Gearing := (Name := 'MC GearIn');
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>

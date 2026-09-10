@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <POU Name="StopAllComponentsVisitor" Id="{ee4ec0b3-4c2a-44b2-a6fe-73a91a90a035}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK StopAllComponentsVisitor IMPLEMENTS I_ComponentVisitor
 VAR
@@ -37,8 +37,8 @@ VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF __QUERYINTERFACE(Component, Stoppable) THEN
-	Stoppable.Stop();
 	IF NOT Stoppable.Stopped THEN
+		Stoppable.Stop();
 		_Stopped := FALSE;
 	END_IF
 END_IF]]></ST>
