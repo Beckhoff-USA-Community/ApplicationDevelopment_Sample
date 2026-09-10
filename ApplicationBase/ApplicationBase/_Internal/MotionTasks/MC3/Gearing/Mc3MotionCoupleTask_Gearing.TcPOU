@@ -11,7 +11,6 @@ VAR
 	MasterAxis				  : REFERENCE TO Tc3_Mc3Ptp.AXIS_REF;
 	_Master					  : I_Mc3Axis;
 	_McBufferMode			  : Tc3_Mc3Ptp.EBufferMode;
-	_GearInMultiMasterOptions : Tc2_MC2.ST_GearInMultiMasterOptions;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -105,16 +104,6 @@ END_IF
 Execute := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="GearInMultiMasterOptions" Id="{0c0f055e-ebee-4217-af0b-6a362d5d602d}">
-      <Declaration><![CDATA[PROPERTY GearInMultiMasterOptions : ST_GearInMultiMasterOptions]]></Declaration>
-      <Set Name="Set" Id="{f6b36707-df7c-4617-b6ed-510e98f9ba40}">
-        <Declaration><![CDATA[VAR
-END_VAR]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_GearInMultiMasterOptions := GearInMultiMasterOptions;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <Property Name="InGear" Id="{63aeaec5-6f7f-4ff2-8190-086b9f67ad44}">
       <Declaration><![CDATA[PROPERTY InGear : BOOL]]></Declaration>
       <Set Name="Set" Id="{46241fd3-4ea3-4d32-9cfa-fbd084e4eae3}">

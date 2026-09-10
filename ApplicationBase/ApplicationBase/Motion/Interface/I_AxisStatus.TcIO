@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_AxisStatus" Id="{e6232ba5-de73-4c77-b4c2-2fff77b67506}">
     <Declaration><![CDATA[INTERFACE I_AxisStatus EXTENDS I_Base, I_TaskResult]]></Declaration>
     <Property Name="ActualAcceleration" Id="{ca12734a-32e2-44f0-8c7a-851e73da9a0f}">
@@ -34,12 +34,6 @@ PROPERTY ActualTorque : LREAL]]></Declaration>
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY ActualVelocity : LREAL]]></Declaration>
       <Get Name="Get" Id="{dd4f2026-dfbf-4b11-a53a-2c4d300dd3cb}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-    </Property>
-    <Property Name="AxisParameterSet" Id="{b284cead-b969-4f6c-9773-7963f9005c12}">
-      <Declaration><![CDATA[PROPERTY AxisParameterSet : REFERENCE TO ST_AxisParameterSet]]></Declaration>
-      <Get Name="Get" Id="{c6aa4e52-9e0f-453f-9793-e3bdcfa19bdd}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>

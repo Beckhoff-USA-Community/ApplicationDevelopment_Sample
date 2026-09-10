@@ -3,9 +3,9 @@
   <Itf Name="I_Mc2Settings" Id="{1929287d-762f-4697-b228-a921f106d254}">
     <Declaration><![CDATA[INTERFACE I_Mc2Settings EXTENDS I_Base
 ]]></Declaration>
-    <Property Name="AxisParameterSet" Id="{b284cead-b969-4f6c-9773-7963f9005c12}">
+    <Property Name="AxisParameterSet" Id="{b6f76d57-6925-4afe-ab48-db911ba1076f}">
       <Declaration><![CDATA[PROPERTY AxisParameterSet : REFERENCE TO ST_AxisParameterSet]]></Declaration>
-      <Get Name="Get" Id="{c6aa4e52-9e0f-453f-9793-e3bdcfa19bdd}">
+      <Get Name="Get" Id="{797801cf-29ff-4518-922f-21ff1c4ba53f}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
