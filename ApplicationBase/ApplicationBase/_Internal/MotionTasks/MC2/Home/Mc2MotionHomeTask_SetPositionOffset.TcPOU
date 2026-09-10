@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc2MotionHomeTask_SetPositionOffset" Id="{dfb91c6a-f16e-45dc-81d6-bae1ad765394}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc2MotionHomeTask_SetPositionOffset EXTENDS Mc2MotionTask
+VAR
+	SequenceState	  : UDINT;
+	SetPositionOffset : Tc2_MC2_Drive.FB_SetPositionOffset;
+	_HomePosition	  : LREAL := 0.0;
+	_ErrorId		  : UDINT;
+	_Feedback		  : Tc2_MC2_Drive.E_PositionOffsetFeedback := Tc2_MC2_Drive.E_PositionOffsetFeedback.ePositionOffsetFeedback1;
+	_Memory			  : Tc2_MC2_Drive.E_PositionOffsetMemory   := Tc2_MC2_Drive.E_PositionOffsetMemory.ePositionOffsetMemory_Encoder;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{aa755727-f91f-4027-9c2f-5ff03f56cfaf}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c35e9fc6-7ca8-4953-b58e-dd5628cad4b6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := SequenceState <> 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{ff6ee77d-5fe4-4f34-b3c1-70995b931759}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	DriveEnabledAtBeginning : BOOL;
+	AxisRef					: REFERENCE TO Tc2_MC2.AXIS_REF;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0: // Wait for Execute();
+	10:
+		IF Axis.Enabled THEN
+			DriveEnabledAtBeginning := TRUE;
+			SequenceState			:= 20;
+		ELSE
+			DriveEnabledAtBeginning := FALSE;
+			SequenceState			:= 30;
+		END_IF
+
+	20:
+		Axis.Disable();
+		IF NOT Axis.Enabled THEN
+			SequenceState := 30;
+		END_IF
+
+	30:
+		AxisRef REF= Axis.Axis;
+		SetPositionOffset(Axis	   := AxisRef,
+						  Execute  := TRUE,
+						  Position := _HomePosition,
+						  Relative := FALSE,
+						  Feedback := _Feedback,
+						  Memory   := _Memory);
+
+		IF NOT SetPositionOffset.Busy THEN
+			IF SetPositionOffset.Error THEN
+				_ErrorId	  := SetPositionOffset.ErrorID;
+				SequenceState := 999;
+			ELSE
+				SequenceState := 40;
+			END_IF
+
+			SetPositionOffset(Axis := AxisRef, Execute := FALSE);
+		END_IF
+
+	40:
+		IF DriveEnabledAtBeginning THEN
+			SequenceState := 50;
+		ELSE
+			SequenceState := 0;
+		END_IF
+
+	50:
+		Axis.Enable();
+		IF Axis.Enabled THEN
+			SequenceState := 0;
+		END_IF
+
+	999:
+		_ErrorId	  := 0;
+		SequenceState := 0;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{516b8930-24fe-4134-97f7-1eee688638c6}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{cb7a367f-57fc-46f3-8a74-599e7842fc9d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := SequenceState = 999;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{a8a771c8-19ac-452f-aaee-fa560d8f4a60}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{59cba5a1-5da1-4e18-9140-ff0a358f5f58}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := _ErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{af74c19a-7124-40e3-97a3-19e08826202c}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Axis.Busy OR Axis.Error THEN
+	RETURN;
+END_IF
+
+SequenceState := 10;
+_ErrorID	  := 0;
+Execute		  := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Feedback" Id="{9b160498-33df-438e-992e-0ea6ed2ae7f7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Feedback : E_PositionOffsetFeedback]]></Declaration>
+      <Set Name="Set" Id="{f85e6734-333d-4f75-9918-cf18ecdfd648}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Feedback := Feedback;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="HomePosition" Id="{cc270f98-fe4b-4c16-9dfb-c536c44bf40f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY HomePosition : LREAL]]></Declaration>
+      <Get Name="Get" Id="{ac0e6477-5227-4fa8-86c3-ff9d2068bf03}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HomePosition := _HomePosition;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{8d4b1839-4a4d-4f72-bdde-809cbf06c558}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_HomePosition := HomePosition;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Memory" Id="{c5628fd5-11a8-427b-b8f4-fdc5f85d96aa}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Memory : E_PositionOffsetMemory]]></Declaration>
+      <Set Name="Set" Id="{52f3c4ff-de3a-4bb8-914c-d6dbb93d8603}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Memory := Memory;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

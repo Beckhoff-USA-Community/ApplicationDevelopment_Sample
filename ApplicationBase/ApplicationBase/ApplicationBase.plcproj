@@ -80,6 +80,7 @@
     <Folder Include="Motion\Interface" />
     <Folder Include="Motion\MC2" />
     <Folder Include="Motion\MC2\Interface" />
+    <Folder Include="Motion\MC2\DUT" />
     <Folder Include="Motion\MC3" />
     <Folder Include="Motion\MC3\Interface" />
     <Folder Include="Permissive Interlock" />
@@ -136,18 +137,22 @@
     <Folder Include="_Internal\Module" />
     <Folder Include="_Internal\Module\Interface" />
     <Folder Include="_Internal\MotionTasks" />
-    <Folder Include="_Internal\MotionTasks\AX5000" />
-    <Folder Include="_Internal\MotionTasks\AX5000\DUT" />
-    <Folder Include="_Internal\MotionTasks\AX5000\DUT\P_0_0074" />
-    <Folder Include="_Internal\MotionTasks\AX5000\DUT\P_0_0074_LREAL" />
-    <Folder Include="_Internal\MotionTasks\Base" />
-    <Folder Include="_Internal\MotionTasks\Base\DUT" />
-    <Folder Include="_Internal\MotionTasks\Coupling" />
-    <Folder Include="_Internal\MotionTasks\Home" />
-    <Folder Include="_Internal\MotionTasks\Interface" />
-    <Folder Include="_Internal\MotionTasks\Move" />
-    <Folder Include="_Internal\MotionTasks\Power" />
-    <Folder Include="_Internal\MotionTasks\Reset" />
+    <Folder Include="_Internal\MotionTasks\DUT" />
+    <Folder Include="_Internal\MotionTasks\MC2\AX5000" />
+    <Folder Include="_Internal\MotionTasks\MC2\AX5000\DUT" />
+    <Folder Include="_Internal\MotionTasks\MC2\AX5000\DUT\P_0_0074" />
+    <Folder Include="_Internal\MotionTasks\MC2\AX5000\DUT\P_0_0074_LREAL" />
+    <Folder Include="_Internal\MotionTasks\MC2\Base" />
+    <Folder Include="_Internal\MotionTasks\MC2\Coupling" />
+    <Folder Include="_Internal\MotionTasks\MC2\Home" />
+    <Folder Include="_Internal\MotionTasks\MC2\Interface" />
+    <Folder Include="_Internal\MotionTasks\MC2\Move" />
+    <Folder Include="_Internal\MotionTasks\MC2\Power" />
+    <Folder Include="_Internal\MotionTasks\MC2" />
+    <Folder Include="_Internal\MotionTasks\MC2\Reset" />
+    <Folder Include="_Internal\MotionTasks\MC3" />
+    <Folder Include="_Internal\MotionTasks\MC3\Base" />
+    <Folder Include="_Internal\MotionTasks\MC3\Interface" />
     <Folder Include="_Internal\Null" />
     <Folder Include="_Internal\Statemachine" />
     <Folder Include="_Internal\Statemachine\Interface" />
@@ -530,9 +535,6 @@
     <Compile Include="Motion\DUT\ST_AxisPTP_HMI.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Motion\DUT\ST_MotionDefaults.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Motion\Interface\I_AxisDynamics.TcIO">
       <SubType>Code</SubType>
     </Compile>
@@ -558,6 +560,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\Interface\I_AxisStatus.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC2\DUT\ST_Mc2MotionDefaults.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\MC2\Interface\I_Mc2Axis.TcIO">
@@ -588,6 +593,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\MC2\Mc2SlaveAxisPTP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC3\Interface\I_Mc3Settings.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC3\Interface\I_Mc3Axis.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Permissive Interlock\PermissiveInterlock.TcPOU">
@@ -923,88 +934,109 @@
     <Compile Include="_Internal\Module\ModuleCollection.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\AX5000\DUT\P_0_0074\ST_IDN_P_0_0074.TcDUT">
+    <Compile Include="_Internal\MotionTasks\DUT\ST_TaskState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\AX5000\DUT\P_0_0074\ST_IDN_P_0_0074_UDINT.TcDUT">
+    <Compile Include="_Internal\MotionTasks\MC2\AX5000\DUT\P_0_0074\ST_IDN_P_0_0074.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\AX5000\DUT\P_0_0074_LREAL\ST_IDN_P_0_0074_LREAL.TcDUT">
+    <Compile Include="_Internal\MotionTasks\MC2\AX5000\DUT\P_0_0074\ST_IDN_P_0_0074_UDINT.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\AX5000\DUT\ST_AX5000AmpToNm.TcDUT">
+    <Compile Include="_Internal\MotionTasks\MC2\AX5000\DUT\P_0_0074_LREAL\ST_IDN_P_0_0074_LREAL.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\AX5000\MotionTask_AX5000AmpToNm.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\AX5000\DUT\ST_AX5000AmpToNm.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Base\DUT\ST_TaskState.TcDUT">
+    <Compile Include="_Internal\MotionTasks\MC2\AX5000\Mc2MotionTask_AX5000AmpToNm.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Base\MotionTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Base\Mc2MotionTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Base\MotionTaskCollection.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Base\Mc2MotionTaskCollection.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Coupling\MotionCoupleTask_Gearing.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Coupling\Mc2MotionCoupleTask_Gearing.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Home\MotionHomeTask_CoESetEncoderOffset.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Home\Mc2MotionHomeTask_CoESetEncoderOffset.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Home\MotionHomeTask_SetPosition.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Home\Mc2MotionHomeTask_SetPosition.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Home\MotionHomeTask_SetPositionOffset.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Home\Mc2MotionHomeTask_SetPositionOffset.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Home\MotionHomeTask_SetZeroHere.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Home\Mc2MotionHomeTask_SetZeroHere.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Interface\I_Mc2AxisRef.TcIO">
+    <Compile Include="_Internal\MotionTasks\MC2\Interface\I_Mc2AxisRef.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Interface\I_MotionJogTask.TcIO">
+    <Compile Include="_Internal\MotionTasks\MC2\Interface\I_Mc2MotionJogTask.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Interface\I_MotionPowerTask.TcIO">
+    <Compile Include="_Internal\MotionTasks\MC2\Interface\I_Mc2MotionPowerTask.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Interface\I_MotionTask.TcIO">
+    <Compile Include="_Internal\MotionTasks\MC2\Interface\I_Mc2MotionTask.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Interface\I_MotionTaskCollection.TcIO">
+    <Compile Include="_Internal\MotionTasks\MC2\Interface\I_Mc2MotionTaskCollection.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Move\MoveAbsoluteTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Move\Mc2MoveAbsoluteTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Move\MoveJogTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Move\Mc2MoveJogTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Move\MoveModuloTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Move\Mc2MoveModuloTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Move\MoveRelativeTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Move\Mc2MoveRelativeTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Move\MoveVelocityTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Move\Mc2MoveVelocityTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Power\PowerTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Power\Mc2PowerTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Power\StopTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Power\Mc2StopTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Reset\CoEExtendedResetTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Reset\Mc2CoEExtendedResetTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Reset\CoEResetTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Reset\Mc2CoEResetTask.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="_Internal\MotionTasks\Reset\SoEResetTask.TcPOU">
+    <Compile Include="_Internal\MotionTasks\MC2\Reset\Mc2SoEResetTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Base\Mc3MotionTaskCollection.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Base\Mc3MotionTask.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Interface\I_Mc3AxisRef.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Interface\I_Mc3MotionJogTask.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Interface\I_Mc3MotionPowerTask.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Interface\I_Mc3MotionTaskCollection.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Internal\MotionTasks\MC3\Interface\I_Mc3MotionTask.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="_Internal\Null\NullComponent.TcPOU">
@@ -1142,6 +1174,10 @@
     <PlaceholderReference Include="Tc3_JsonXml">
       <DefaultResolution>Tc3_JsonXml, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc3_JsonXml</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_Mc3Ptp">
+      <DefaultResolution>Tc3_Mc3Ptp, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_Mc3Ptp</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc3_Module">
       <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>

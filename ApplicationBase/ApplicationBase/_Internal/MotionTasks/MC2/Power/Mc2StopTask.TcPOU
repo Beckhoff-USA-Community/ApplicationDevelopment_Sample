@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc2StopTask" Id="{9a6b8d8e-a659-47bd-980a-87ba4fadf676}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc2StopTask EXTENDS Mc2MotionTask IMPLEMENTS I_Mc2MotionTask
+VAR
+	McHalt		  : Tc2_MC2.MC_Halt;
+	_McBufferMode : Tc2_MC2.MC_BufferMode;
+	_MoveOptions  : Tc2_MC2.ST_MoveOptions;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="BufferMode" Id="{f011db3d-f3e3-4de2-bb74-8bb86a10aaa5}">
+      <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO MC_BufferMode]]></Declaration>
+      <Get Name="Get" Id="{072b694e-6637-403d-9d5a-8e27438a46ae}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[BufferMode REF= _McBufferMode;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Busy" Id="{d81b57df-1d5a-4e22-a700-80e24d83bf48}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{43b8abd4-d74d-46a6-8b7c-f0b79805720a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := McHalt.Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{9e96c630-e29c-480d-a2a3-bd48eaa0b545}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McHalt(Axis			:= _Axis.Axis,
+	   Deceleration := _Axis.Deceleration,
+	   Jerk			:= _Axis.Jerk,
+	   BufferMode	:= _McBufferMode,
+	   Options		:= _MoveOptions);
+
+McHalt.Execute := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{a036a230-83af-49dd-8d79-11a5509a5434}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1c7e877f-b790-4bbb-9b4c-1774ee7e65a1}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := McHalt.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{687e7b07-e3b6-4ce9-bd4f-b06c77b74f11}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{756ae493-9f7f-4f18-a93d-f87fe03e9ed2}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := McHalt.ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{cf9ec3ae-3953-44dd-96a8-6aac0346277b}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[McHalt(Axis			:= _Axis.Axis,
+	   Execute		:= TRUE,
+	   Deceleration := _Axis.Deceleration,
+	   Jerk			:= _Axis.Jerk,
+	   BufferMode	:= _McBufferMode,
+	   Options		:= _MoveOptions);
+
+Execute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="MoveOptions" Id="{1144f10b-404d-49b2-9659-a36e49a5fbe2}">
+      <Declaration><![CDATA[PROPERTY MoveOptions : REFERENCE TO ST_MoveOptions]]></Declaration>
+      <Get Name="Get" Id="{82078bdd-a39c-4f83-a658-84d97b4caad1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MoveOptions REF= _MoveOptions;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

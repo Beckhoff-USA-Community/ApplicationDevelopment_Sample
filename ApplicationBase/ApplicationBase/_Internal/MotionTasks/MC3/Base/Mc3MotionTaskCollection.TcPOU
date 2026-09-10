@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc3MotionTaskCollection" Id="{89bc8bf2-2db5-49ad-9618-79ae910bf10e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc3MotionTaskCollection
+VAR_GENERIC CONSTANT
+	MaxCount : UDINT := 10;
+END_VAR IMPLEMENTS I_Mc3MotionTaskCollection, I_Cyclic, I_Resettable
+VAR
+	MotionTasks		   : ARRAY[0..MaxCount] OF I_Mc3MotionTask;
+	Axis			   : I_Mc3Axis;
+	LastBusyTaskState  : ST_TaskState;
+	LastErrorTaskState : ST_TaskState;
+	CurrentTaskStates  : ARRAY[0..MaxCount] OF ST_TaskState;
+	{attribute 'hide'}
+	_Busy : BOOL;
+	{attribute 'hide'}
+	_Error : BOOL;
+	{attribute 'hide'}
+	_ErrorId : UDINT;
+	{attribute 'hide'}
+	_ErrorTask : T_MaxString;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Status" Id="{adb32ce4-358d-4c85-a0db-e532dd0f53ab}" />
+    <Method Name="AddTask" Id="{d1de8e5c-7bb7-467d-b6de-f2c30687cda0}">
+      <Declaration><![CDATA[METHOD AddTask
+VAR_INPUT
+	Task : I_Mc3MotionTask;
+END_VAR
+
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Task.Axis := Axis;
+FOR i := 0 TO MaxCount DO
+	IF MotionTasks[i] = 0 THEN
+		MotionTasks[i] := Task;
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Busy" Id="{3d246669-0aa4-460f-8258-022526baa54e}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b333ecbd-a0f9-4337-9bc7-edf3f5b50171}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := _Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{02b5aa11-05f7-45f5-a6ca-e52e5218dcb2}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR
+	MotionTask : I_Mc2MotionTask;
+END_VAR
+
+VAR_INST
+	i				: UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Busy := FALSE;
+FOR i := 0 TO MaxCount DO
+	IF MotionTasks[i] = 0 THEN
+		EXIT;
+	END_IF
+
+	MotionTasks[i].CyclicLogic();
+	IF MotionTasks[i].Busy THEN
+		LastBusyTaskState.Name	  := MotionTasks[i].Name;
+		LastBusyTaskState.Busy	  := MotionTasks[i].Busy;
+		LastBusyTaskState.Error	  := MotionTasks[i].Error;
+		LastBusyTaskState.ErrorId := MotionTasks[i].ErrorId;
+		_Busy					  := TRUE;
+	END_IF
+
+	IF MotionTasks[i].Error AND NOT _Error THEN
+		LastErrorTaskState.Name	   := MotionTasks[i].Name;
+		LastErrorTaskState.Busy	   := MotionTasks[i].Busy;
+		LastErrorTaskState.Error   := MotionTasks[i].Error;
+		LastErrorTaskState.ErrorId := MotionTasks[i].ErrorId;
+		_Error					   := TRUE;
+		_ErrorId				   := MotionTasks[i].ErrorId;
+		_ErrorTask				   := MotionTasks[i].Name;
+	END_IF
+
+	CurrentTaskStates[i].Name	 := MotionTasks[i].Name;
+	CurrentTaskStates[i].Busy	 := MotionTasks[i].Busy;
+	CurrentTaskStates[i].Error	 := MotionTasks[i].Error;
+	CurrentTaskStates[i].ErrorId := MotionTasks[i].ErrorId;
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{2aad6fa8-4b68-4b08-b211-b9e1c8b0a133}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{37772251-ed47-4e7a-8ea8-dddbfb338ce7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{c6bf53c1-dbf8-4e6f-a43a-afc099b8f5e7}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{17294219-703f-4946-b0d2-66f2ac116a82}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := _ErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorTask" Id="{e84bb482-b182-4673-aa71-b67947b97b55}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorTask : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{20e6b70e-ce82-4c31-bb72-1b880a46fadd}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorTask := _ErrorTask;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_Init" Id="{210cd97a-bb7f-467c-91ea-153d2a2b0dfc}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+
+//The return value is not evaluated. For a specific influence, you can also declare the
+
+//methods explicitly and provide additional code there with the standard initialization
+
+//code. You can evaluate the return value.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode	 : BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)  
+	Axis		 : I_Mc3Axis;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Axis := Axis;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveTaskByInstance" Id="{0d521f83-db05-4bdb-88ed-ea0436b0ea1c}">
+      <Declaration><![CDATA[METHOD RemoveTaskByInstance
+VAR_INPUT
+	Task : I_Mc3MotionTask;
+END_VAR
+
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 0 TO MaxCount DO
+	IF MotionTasks[i] = Task THEN
+		MotionTasks[i] := 0;
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{3a64bd6d-0636-47d2-abaa-b1b74dec34c7}">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error	   := FALSE;
+_ErrorId   := 0;
+_ErrorTask := '';]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

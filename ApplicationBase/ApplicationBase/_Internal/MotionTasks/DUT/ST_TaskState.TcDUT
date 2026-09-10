@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <DUT Name="ST_TaskState" Id="{ad6158ba-433c-4120-bd8a-72b9dc1ed2d2}">
+    <Declaration><![CDATA[TYPE ST_TaskState :
+	STRUCT
+		Name	: T_MaxString;
+		Busy	: BOOL;
+		Error	: BOOL;
+		ErrorId : UDINT;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

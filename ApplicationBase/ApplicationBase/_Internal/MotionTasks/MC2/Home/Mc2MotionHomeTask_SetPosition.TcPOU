@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc2MotionHomeTask_SetPosition" Id="{36e3b1af-a538-4071-b57a-110a0fb18286}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc2MotionHomeTask_SetPosition EXTENDS Mc2MotionTask
+VAR
+	MCSetPosition : Tc2_MC2.MC_SetPosition;
+	_HomePosition : LREAL := 0.0;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{f62a5ad5-354d-4105-8e8c-fd8aca8a98cd}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b6c34564-2782-4882-bd1e-4b7e068cc146}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := MCSetPosition.Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{32673a50-c144-44c2-a132-31c2ac673426}">
+      <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MCSetPosition(Axis := _Axis.Axis, Position := HomePosition);
+MCSetPosition.Execute := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{f9a392ad-d49e-4415-86a7-088a77538a73}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8e1cbf89-92d9-4110-be91-1319981a0aed}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := MCSetPosition.Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{15d81a79-eb5b-4538-9c50-70c34f41e726}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{2527f9d5-84a9-4e31-89d3-b40cc60e38e8}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := MCSetPosition.ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{5fc1fe41-e37a-402b-988c-7c0c21d06a59}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Axis.Busy OR Axis.Error THEN
+	RETURN;
+END_IF
+
+MCSetPosition.Execute := TRUE;
+Execute				  := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="HomePosition" Id="{e766dddc-6268-4f76-b119-4fc28e3ba458}">
+      <Declaration><![CDATA[PROPERTY HomePosition : LREAL]]></Declaration>
+      <Get Name="Get" Id="{929e8644-b641-4bc7-987b-b2e796ef6cf6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HomePosition := MCSetPosition.Position;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{7354fc6d-2653-4553-b59c-3d5aca9f7e27}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MCSetPosition.Position := HomePosition;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

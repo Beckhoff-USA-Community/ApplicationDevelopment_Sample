@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_Mc3MotionTask" Id="{37bd11d1-3d73-46bc-bea5-ad6542fe87f6}">
+    <Declaration><![CDATA[INTERFACE I_Mc3MotionTask EXTENDS I_Cyclic, I_TaskResult, I_Command]]></Declaration>
+    <Property Name="Axis" Id="{aa138f53-4110-455a-b8f0-7c2bbcc518e7}">
+      <Declaration><![CDATA[PROPERTY Axis : I_Mc3Axis]]></Declaration>
+      <Get Name="Get" Id="{8f6b11a0-3ade-4c14-a817-d68c1b146963}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{26d2a37f-0f65-42d6-a32c-8804022d3b41}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="Name" Id="{c5d75d76-2793-4d3e-9b95-b37f76083a55}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Name : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{b9db9ae6-d032-4c7c-b208-880e87d9d480}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{9fc477d4-4d44-4955-ae14-8eaa12ab71dd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

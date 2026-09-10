@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc2SoEResetTask" Id="{a4029f03-da29-499a-8a31-90f906357274}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Mc2SoEResetTask EXTENDS Mc2MotionTask
+VAR
+	MCReset		  : Tc2_MC2.MC_Reset;
+	SoEReset	  : FB_SoEReset;
+	SequenceState : UDINT;
+	_ErrorId	  : UDINT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Busy" Id="{df5f5594-c2f0-45eb-8c41-a46528514a04}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2ca8d20b-bc7e-4bbe-aac0-4569f63d3aec}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := SequenceState <> 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CyclicLogic" Id="{87b7dbcf-25a4-4e1b-9b0e-af7893f9abde}">
+      <Declaration><![CDATA[METHOD CyclicLogic
+VAR_INST
+	ResetDelay : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE SequenceState OF
+	0: // Wait for Execute()
+	10:
+		SoEReset.Execute := TRUE;
+		SequenceState	 := SequenceState + 10;
+
+	20:
+		IF NOT SoEReset.Busy THEN
+			IF SoEReset.Error THEN
+				IF SoEReset.SercosErrId < 0 THEN
+					_ErrorID := SoEReset.SercosErrId;
+				ELSE
+					_ErrorID := SoEReset.AdsErrId;
+				END_IF
+
+				SequenceState := 999;
+			ELSE
+				//No error occurred
+				SequenceState := SequenceState + 10;
+			END_IF
+		END_IF
+
+	30:
+		MCReset.Execute := TRUE;
+		SequenceState	:= SequenceState + 10;
+
+	40:
+		IF NOT MCReset.Busy THEN
+			SequenceState := SequenceState + 10;
+		END_IF
+
+	50:
+		ResetDelay(IN := TRUE);
+		IF ResetDelay.Q OR NOT _Axis.Axis.Status.DriveDeviceError THEN
+			ResetDelay(IN := FALSE);
+			SequenceState := 0;
+		END_IF
+
+	999:
+		_ErrorId	  := 0;
+		SequenceState := 0;
+END_CASE
+
+SoEReset(Axis := _Axis.Axis);
+MCReset(Axis := _Axis.Axis);
+SoEReset.Execute := FALSE;
+MCReset.Execute	 := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{be9415bb-02ef-440c-9837-9d51faf7f484}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{588ad0fa-77b6-49f9-a14b-e8ecc8e06722}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := SequenceState = 999;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{92db1792-5023-4d1e-b5c0-24036945bfd4}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{2a3ea7a7-1737-4c28-87ce-9f467aab7c77}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := _ErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Execute" Id="{faff7964-02d4-4e99-a5b9-8c8aeb63b2d4}">
+      <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Axis.Axis.Status.Coupled AND NOT _Axis.Axis.Status.Error THEN
+	Execute := TRUE;
+	RETURN;
+ELSIF Busy OR _Axis.Axis.Status.Coupled THEN
+	Execute := TRUE;
+	RETURN;
+END_IF
+
+SequenceState := 10;
+Execute		  := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -10,7 +10,7 @@ PROPERTY ErrorId : UDINT]]></Declaration>
       </Get>
     </Property>
     <Property Name="MotionTasks" Id="{6914240b-1882-4d81-a55f-46a091800bfd}">
-      <Declaration><![CDATA[PROPERTY MotionTasks : I_MotionTaskCollection]]></Declaration>
+      <Declaration><![CDATA[PROPERTY MotionTasks : I_Mc2MotionTaskCollection]]></Declaration>
       <Get Name="Get" Id="{526ff234-4916-45a3-8e29-4a9ed0e2f45f}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

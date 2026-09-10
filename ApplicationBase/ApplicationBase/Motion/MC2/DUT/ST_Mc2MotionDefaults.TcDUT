@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <DUT Name="ST_Mc2MotionDefaults" Id="{c9d96df1-da2a-43a5-8f71-11090870ce3d}">
+    <Declaration><![CDATA[TYPE ST_Mc2MotionDefaults :
+	STRUCT
+		DefaultResetTask : Mc2CoEResetTask				 := (Name := 'MC Reset (CoE)');
+		DefaultHomeTask	 : Mc2MotionHomeTask_SetZeroHere := (Name := 'MC Home');
+		DefaultStopTask	 : Mc2StopTask					 := (Name := 'MC Stop');
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -3,26 +3,26 @@
   <POU Name="Mc2Axis" Id="{c3c03e8a-759c-4ce9-bcae-63318d943e7c}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK Mc2Axis EXTENDS CyclicComponent IMPLEMENTS I_Initializable, I_Mc2Axis
 VAR
-	_Axis				 : REFERENCE TO AXIS_REF;
-	Defaults			 : ST_MotionDefaults;
-	MotionTaskCollection : MotionTaskCollection<ApplicationBaseMotionParameterNc2.MaxMotionTasks>(THIS^);
+	_Axis				 : REFERENCE TO Tc2_MC2.AXIS_REF;
+	Defaults			 : ST_Mc2MotionDefaults;
+	MotionTaskCollection : Mc2MotionTaskCollection<ApplicationBaseMotionParameterNc2.MaxMotionTasks>(THIS^);
 
 	// Tasks
 	{attribute 'hide'}
-	PowerTask : PowerTask := (Name := 'MC Power');
+	PowerTask : Mc2PowerTask := (Name := 'MC Power');
 	{attribute 'hide'}
-	JogTask : MoveJogTask := (Name := 'MC Jog');
+	JogTask : Mc2MoveJogTask := (Name := 'MC Jog');
 	{attribute 'hide'}
-	_StopTask : I_MotionTask := Defaults.DefaultStopTask;
+	_StopTask : I_Mc2MotionTask := Defaults.DefaultStopTask;
 	{attribute 'hide'}
-	_ResetTask : I_MotionTask := Defaults.DefaultResetTask;
+	_ResetTask : I_Mc2MotionTask := Defaults.DefaultResetTask;
 	{attribute 'hide'}
-	_HomeTask : I_MotionTask := Defaults.DefaultHomeTask;
+	_HomeTask : I_Mc2MotionTask := Defaults.DefaultHomeTask;
 
 	//
 	{attribute 'hide'}
-	MCReadParameterSet : MC_ReadParameterSet;
-	_AxisParameters	   : ST_AxisParameterSet;
+	MCReadParameterSet : Tc2_MC2.MC_ReadParameterSet;
+	_AxisParameters	   : Tc2_MC2.ST_AxisParameterSet;
 	{attribute 'hide'}
 	_Initialized : BOOL;
 	{attribute 'hide'}
@@ -33,10 +33,10 @@ VAR
 	_Velocity : LREAL;
 	{attribute 'hide'}
 	_Jerk		  : LREAL;
-	_McBufferMode : MC_BufferMode;
-	_MoveOptions  : ST_MoveOptions;
-	_Direction	  : MC_Direction := MC_Direction.MC_Shortest_Way;
-	_JogMode	  : E_JogMode	 := E_JogMode.MC_JOGMODE_STANDARD_SLOW;
+	_McBufferMode : Tc2_MC2.MC_BufferMode;
+	_MoveOptions  : Tc2_MC2.ST_MoveOptions;
+	_Direction	  : Tc2_MC2.MC_Direction := Tc2_MC2.MC_Direction.MC_Shortest_Way;
+	_JogMode	  : Tc2_MC2.E_JogMode	 := Tc2_MC2.E_JogMode.MC_JOGMODE_STANDARD_SLOW;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -126,7 +126,7 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Property Name="Axis" Id="{38c79dbc-ba31-4d4e-8888-4e408cffe3bb}">
-      <Declaration><![CDATA[PROPERTY Axis : REFERENCE TO AXIS_REF]]></Declaration>
+      <Declaration><![CDATA[PROPERTY Axis : REFERENCE TO Tc2_MC2.AXIS_REF]]></Declaration>
       <Get Name="Get" Id="{df4e8fb7-b017-47e2-827b-4155fa44ffd8}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -275,7 +275,7 @@ VAR_INPUT
 	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
 	bInCopyCode : BOOL;
 	Name		: T_MaxString;
-	Axis		: REFERENCE TO AXIS_REF;
+	Axis		: REFERENCE TO Tc2_MC2.AXIS_REF;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_Axis REF= Axis;
@@ -297,7 +297,7 @@ END_VAR]]></Declaration>
       </Implementation>
     </Method>
     <Property Name="HomeTask" Id="{853ef4ec-dfa5-43fb-8ffc-aded749a9947}" FolderPath="Home\">
-      <Declaration><![CDATA[PROPERTY HomeTask : I_MotionTask]]></Declaration>
+      <Declaration><![CDATA[PROPERTY HomeTask : I_Mc2MotionTask]]></Declaration>
       <Set Name="Set" Id="{90777a80-d32c-44e9-9bf9-563776acb7bf}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -433,7 +433,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="MotionTasks" Id="{cf3fa9ca-401c-41ad-a41f-999b7718040b}">
-      <Declaration><![CDATA[PROPERTY MotionTasks : I_MotionTaskCollection]]></Declaration>
+      <Declaration><![CDATA[PROPERTY MotionTasks : I_Mc2MotionTaskCollection]]></Declaration>
       <Get Name="Get" Id="{af34f3a0-4554-4bf3-84b6-b53c62f02119}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -494,7 +494,7 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="ResetTask" Id="{b49f90e4-bf55-4e04-8fe2-be9f3fad9f2b}" FolderPath="Reset\">
-      <Declaration><![CDATA[PROPERTY ResetTask : I_MotionTask]]></Declaration>
+      <Declaration><![CDATA[PROPERTY ResetTask : I_Mc2MotionTask]]></Declaration>
       <Set Name="Set" Id="{fdd59bab-1a03-4da3-9a94-3abd49a82240}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -574,7 +574,7 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Property Name="StopTask" Id="{9f0111fe-5c48-4077-a88d-28d745c064e6}" FolderPath="Stop\">
-      <Declaration><![CDATA[PROPERTY StopTask : I_MotionTask]]></Declaration>
+      <Declaration><![CDATA[PROPERTY StopTask : I_Mc2MotionTask]]></Declaration>
       <Set Name="Set" Id="{515b1767-8ac6-4ab4-8df1-e6f6fe4b06b0}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>

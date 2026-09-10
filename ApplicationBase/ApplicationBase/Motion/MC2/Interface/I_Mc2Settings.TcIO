@@ -3,9 +3,9 @@
   <Itf Name="I_Mc2Settings" Id="{1929287d-762f-4697-b228-a921f106d254}">
     <Declaration><![CDATA[INTERFACE I_Mc2Settings EXTENDS I_Base
 ]]></Declaration>
-    <Property Name="BufferMode" Id="{f9cd230e-b9ee-42f9-bcfc-74725d90540c}">
+    <Property Name="BufferMode" Id="{05df24fc-69fa-4e39-a654-c7cd76fc9c9b}">
       <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO tc2_mc2.MC_BufferMode]]></Declaration>
-      <Get Name="Get" Id="{0473fb52-094a-4a04-b49b-da4c5c0db185}">
+      <Get Name="Get" Id="{10ae332f-3121-4540-a039-8b90b9bd5e0b}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
@@ -21,9 +21,9 @@
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Property Name="MoveOptions" Id="{67a6f129-1458-4c62-8a45-ca1066833f2b}">
+    <Property Name="MoveOptions" Id="{068c4f44-a810-4da1-b347-71bbd19091ff}">
       <Declaration><![CDATA[PROPERTY MoveOptions : REFERENCE TO tc2_mc2.ST_MoveOptions]]></Declaration>
-      <Get Name="Get" Id="{4322c0bb-7fc2-441c-a425-34d56ed57c27}">
+      <Get Name="Get" Id="{1d97e725-4057-418c-bbc4-f75d96ae5796}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>

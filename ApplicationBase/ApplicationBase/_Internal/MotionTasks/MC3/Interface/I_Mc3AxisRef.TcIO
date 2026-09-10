@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_Mc3AxisRef" Id="{cfa22f24-7e51-4c91-b465-c94480e085c3}">
+    <Declaration><![CDATA[INTERFACE I_Mc3AxisRef]]></Declaration>
+    <Property Name="Axis" Id="{3b2e3525-5303-4a8c-8754-780624ae36ff}">
+      <Declaration><![CDATA[PROPERTY Axis : REFERENCE TO Tc3_Mc3Ptp.AXIS_REF]]></Declaration>
+      <Get Name="Get" Id="{edf8c2c5-ddc4-42ed-a80a-1a48f11c4518}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>
