@@ -18,7 +18,7 @@ The framework provides two concrete module types:
 | `RegisterComponent(Component)` | Method | Adds a component to the component collection |
 | `RegisterCyclic(Cyclic)` | Method | Registers an `I_Cyclic` for dispatch each scan |
 | `RegisterModule(Module)` | Method | Adds a sub-module |
-| `RegisterInitialize(Item)` | Method | Adds an `I_Initializable` to the init sequence |
+| `RegisterInitialize(Item)` | Method | Adds an `I_Initializable` to the init sequence. Registering also makes the module the **sole** driver of that item's `Initialize()` |
 | `DeregisterComponent(Component)` | Method | Removes a component |
 | `DeregisterModule(Module)` | Method | Removes a sub-module |
 | `Initialize()` | Method | Runs the initialization sequence |

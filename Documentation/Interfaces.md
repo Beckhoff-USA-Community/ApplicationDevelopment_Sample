@@ -2,6 +2,10 @@
 
 Standalone interface definitions used throughout the framework. All functional interfaces extend `I_Base` to enable runtime interface casting via `__QueryInterface()`.
 
+This catalogue covers the cross-cutting interfaces only. Domain interfaces are documented with their subsystem — see [Motion](Motion.md) for the axis interfaces, [Component](Component.md) for `I_Component` and `I_Cyclic`, and [Module](Module.md) for `I_Module`.
+
+`__QueryInterface()` is also how the framework models **optional capabilities**: rather than pushing a feature into a subtype, the feature gets its own small interface and consumers query for it. `I_AxisGear` is the worked example — see [Gearing is a capability, not a subtype](Motion.md#gearing-is-a-capability-not-a-subtype).
+
 ---
 
 ## I_Base
@@ -42,6 +46,8 @@ Foundation interface for all functional interfaces in the framework. Extending `
 |--------|------|-------------|
 | `Initialized` | `BOOL` (Get/Set) | `TRUE` after initialization completes |
 | `Initialize()` | Method | Run the initialization sequence |
+
+`Initialize()` is expected to be idempotent and is normally driven by the owning `Module`'s `Initializer` — see [Module](Module.md). A component that can also run unregistered should drive itself from `CyclicLogic()` **only** when it has no parent, so the call keeps a single owner; [`Mc3Axis`](Motion.md#who-drives-initialize) does exactly that.
 
 ---
 

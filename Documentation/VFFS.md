@@ -81,10 +81,14 @@ Pulls the film by a fixed length per cycle using two geared axes and a pneumatic
 | Component | Type | Purpose |
 |-----------|------|---------|
 | `PullWheelLeftAxis` | `Mc3AxisPTP` | Master drive axis |
-| `PullWheelRightAxis` | `Mc3SlaveAxisPTP` | Slave axis, electronically geared to left |
+| `PullWheelRightAxis` | `Mc3SlaveAxisPTP` | Slave axis, electronically geared to left via `GearIn()` / `GearOut()` |
 | `PullWheelCylinder` | `Cylinder` | Engages / disengages the pull wheels |
 
 **Starting sequence:** Extend cylinder → move axes by recipe `Length` → retract cylinder.
+
+Only the master is commanded: `PullWheelLeftAxis.MoveRelative(Recipe.Length)` drives both wheels through the
+gearing. Since V2.1.0 a PTP command on the coupled right axis returns `FALSE` rather than reaching the NC, so
+its HMI move buttons are inert while it is geared — the faceplate's `Status.Coupled` shows why.
 
 **Recipe — `ST_PullWheelsRecipe`:**
 

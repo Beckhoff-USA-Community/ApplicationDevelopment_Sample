@@ -6,8 +6,11 @@ Every axis is a `CyclicComponent`, so it registers with its parent module, parti
 
 > **New in V2.0.0** — the MC3 stack was added and all pre-existing motion types were renamed with an `Mc2` prefix. See [Migrating from V1.x](#migrating-from-v1x) for the full rename table.
 >
-> **New in V2.1.0** — the shared abstraction no longer exposes `AXIS_REF` or any motion-library enum, so the
-> HMI and event-reaction function blocks are now generation-agnostic and shared. See
+> **New in V2.1.0** — three structural changes. The *shared* abstraction (`I_Axis` / `I_Axis_PTP`) no longer
+> carries `AXIS_REF` or any motion-library enum, so the HMI and event-reaction function blocks are now
+> generation-agnostic and shared — though `I_Mc2Axis` / `I_Mc3Axis` still expose the raw `AXIS_REF`.
+> Axis initialization moved into `Mc2AxisParameterLoader` / `Mc3AxisParameterLoader`. Gearing became a
+> queryable `I_AxisGear` role, and every PTP command now refuses while the axis is coupled. See
 > [Migrating from V2.0.x](#migrating-from-v20x).
 
 ## Folder Layout
@@ -49,9 +52,9 @@ These live in `Motion/Interface/` and are implemented by both `Mc2Axis` and `Mc3
 | `I_AxisJog` | `I_Base` | `Jog(JogForward, JogBackwards, Distance := 0)` |
 | `I_AxisGear` | `I_Base` | `GearIn()`, `GearOut()` — the optional gearing role |
 | `I_AxisMoveAbsolute` | `I_Base` | `MoveAbsolute(TargetPosition, AbortPrevious := TRUE) : BOOL` |
-| `I_AxisMoveRelative` | `I_Base` | `MoveRelative(Distance, AbortPrevious := TRUE)` |
-| `I_AxisMoveVelocity` | `I_Base` | `MoveVelocity(Velocity, AbortPrevious := TRUE)` |
-| `I_AxisMoveModulo` | `I_Base` | `MoveModulo(Position, AbortPrevious := TRUE)` |
+| `I_AxisMoveRelative` | `I_Base` | `MoveRelative(Distance, AbortPrevious := TRUE) : BOOL` |
+| `I_AxisMoveVelocity` | `I_Base` | `MoveVelocity(Velocity, AbortPrevious := TRUE) : BOOL` |
+| `I_AxisMoveModulo` | `I_Base` | `MoveModulo(Position, AbortPrevious := TRUE) : BOOL` |
 
 `I_TaskResult` contributes `Busy`, `Error` and `ErrorId` — the same result contract used by the motion tasks themselves.
 
@@ -85,7 +88,8 @@ settings enums from `I_Mc3Settings`, so the axis reference adds no new coupling.
 
 ## Function Blocks
 
-Both stacks follow an identical three-level inheritance chain.
+Both stacks follow an identical three-level axis inheritance chain, plus a parameter loader per axis and
+two shared function blocks that serve either stack.
 
 | MC2 | MC3 | Extends | Adds |
 |-----|-----|---------|------|
@@ -107,10 +111,10 @@ Implements: `I_Initializable`, `I_Mc3Axis` / `I_Mc2Axis`
 | `Initialize()` | Method | Delegates to the axis's `ParameterLoader`, then copies the result into the dynamics properties. Driven by the parent module's `Initializer`, or by `CyclicLogic()` when the axis has no parent — see [Who drives `Initialize()`](#who-drives-initialize) |
 | `CyclicLogic()` | Method | Initializes on the first scans, then runs the motion task collection. Must be called each scan |
 | `Enable()` / `Disable()` | Method | Power on / off via the internal power task. `Enable()` is ignored while `Error` is set |
-| `Stop()` | Method | Runs the stop task. Refused while the NC axis itself is in `ErrorStop` — reset first |
+| `Stop()` | Method | Runs the stop task. Refused while the NC axis itself is in `ErrorStop` — reset first. Deliberately **not** blocked while `Coupled`, since halting is how MC3 decouples a slave |
 | `Reset()` | Method | Runs the reset task, then clears the task collection |
-| `Home()` | Method | Runs the home task |
-| `Jog(JogForward, JogBackwards, Distance)` | Method | Runs the jog task using the configured `JogMode` |
+| `Home()` | Method | Runs the home task. No-op while `Coupled` |
+| `Jog(JogForward, JogBackwards, Distance)` | Method | Runs the jog task using the configured `JogMode`. No-op while `Error` or `Coupled` |
 | `Velocity`, `Acceleration`, `Deceleration`, `Jerk` | `LREAL` (Get/Set) | Dynamics applied to every subsequent move |
 | `Override` | `LREAL` (Get/Set) | Velocity override in percent (0–100) |
 | `Busy`, `Error`, `ErrorId` | Get | Aggregated from the motion task collection; `Error` also covers the NC axis being in `ErrorStop` |
@@ -120,7 +124,7 @@ Implements: `I_Initializable`, `I_Mc3Axis` / `I_Mc2Axis`
 | `JogMode` | `E_AxisJogMode` (Get/Set) | `Slow` or `Fast`; mapped onto the generation's own jog enum |
 | `Axis` | `REFERENCE TO AXIS_REF` (Get) | The underlying NC axis reference, for raw access to the NC structure. On `I_Mc3Axis` / `I_Mc2Axis`, not on the shared `I_Axis` |
 | `InhibitFeedForward` / `InhibitFeedBackward` | `BOOL` (Get/Set) | Travel-direction inhibits |
-| `Initialized` | `BOOL` (Get) | TRUE once the parameter read has completed |
+| `Initialized` | `BOOL` (Get/Set) | TRUE once the parameter read has completed |
 | `ParameterLoader` | `Mc3AxisParameterLoader` / `Mc2AxisParameterLoader` | Owns the NC parameter read — see [below](#mc3axisparameterloader--mc2axisparameterloader) |
 
 **Generation-specific settings** (`I_Mc3Settings` / `I_Mc2Settings`) are exposed as references, so they can be
@@ -135,6 +139,31 @@ written in place. Reaching them means typing the variable as `I_Mc3Axis` / `I_Mc
 
 `JogMode` is **not** here — it moved to the shared `I_AxisSettings` as a generation-neutral `E_AxisJogMode`
 (`Slow` / `Fast`), passed by value, and each axis maps it onto its own library enum.
+
+### `Mc3AxisPTP` / `Mc2AxisPTP`
+
+Extends: `Mc3Axis` / `Mc2Axis`
+Implements: `I_Mc3Axis_PTP` / `I_Mc2Axis_PTP` (and therefore the shared `I_Axis_PTP`)
+
+Adds the four point-to-point moves. Each dispatches a motion task using the axis's current dynamics and
+`BufferMode`, and each returns whether the command was actually accepted.
+
+| Member | Type | Description |
+|--------|------|-------------|
+| `MoveAbsolute(TargetPosition, AbortPrevious := TRUE)` | `BOOL` | Move to an absolute position |
+| `MoveRelative(Distance, AbortPrevious := TRUE)` | `BOOL` | Move by a distance from the current position |
+| `MoveVelocity(Velocity, AbortPrevious := TRUE)` | `BOOL` | Move continuously at a velocity |
+| `MoveModulo(Position, AbortPrevious := TRUE)` | `BOOL` | Move to a modulo position using the configured `Direction` |
+
+All four return `FALSE` without dispatching when the axis is in `Error`, is `Coupled` to a master, or is
+`Busy` and `AbortPrevious` is `FALSE`. Otherwise they return `TRUE`. `AbortPrevious := FALSE` makes a move
+yield to one already running instead of aborting it.
+
+```pascal
+IF NOT SealerAxis.MoveAbsolute(TargetPosition := 90.0) THEN
+    // errored, coupled, or already busy with AbortPrevious := FALSE
+END_IF
+```
 
 ### `Mc3SlaveAxisPTP` / `Mc2SlaveAxisPTP`
 
@@ -195,8 +224,13 @@ ParameterLoader.AddParameter(EAxisParameterId.DefaultJerk, ADR(_Jerk));
 ParameterLoader.AddParameter(EAxisParameterId.MaximumVelocity, ADR(_Velocity));
 ```
 
-Reading one more parameter is one more `AddParameter()` line — there is no sequence to renumber. A derived axis
-can add its own in its `FB_Init`, up to `MaxAxisParameters`.
+Each entry is an `ST_Mc3ParameterBinding` (`ParameterId` + `POINTER TO LREAL` target). Reading one more
+parameter is one more `AddParameter()` line — there is no sequence to renumber. A derived axis can add its
+own in its `FB_Init`, up to `MaxAxisParameters`.
+
+`AddParameter()` is idempotent on `ParameterId`: re-registering one updates its target pointer instead of
+appending a second entry. That matters because a TwinCAT online change re-runs `FB_Init` over copied
+instance data, which would otherwise grow the table on every download.
 
 | Member | Type | Description |
 |--------|------|-------------|
@@ -274,15 +308,18 @@ MC3's single master and ratio). Code that needs only couple/decouple can depend 
 
 Every axis command is implemented as a **motion task** — a small function block wrapping one `Tc2_MC2` / `Tc3_Mc3Ptp` function block. Tasks are registered in a generic `Mc3MotionTaskCollection<MaxMotionTasks>` (or `Mc2…`) owned by the axis, which calls each task cyclically and aggregates their results.
 
-| Member | Description |
-|--------|-------------|
-| `AddTask(Task)` / `RemoveTaskByInstance(Task)` | Register / unregister a task |
-| `CyclicLogic()` | Runs every registered task; called from the axis |
-| `Busy`, `Error`, `ErrorId` | Aggregated result across all tasks |
-| `ErrorTask` | Name of the task that faulted |
-| `Reset()` | Clears the aggregated error state |
+| Member | Description | Reachable via |
+|--------|-------------|---------------|
+| `Busy`, `Error`, `ErrorId` | Aggregated result across all tasks | `I_MotionTaskCollection` |
+| `ErrorTask` | Name of the task that faulted | `I_MotionTaskCollection` |
+| `AddTask(Task)` / `RemoveTaskByInstance(Task)` | Register / unregister a task | `I_Mc2MotionTaskCollection` / `I_Mc3MotionTaskCollection` |
+| `CyclicLogic()` | Runs every registered task; called from the axis | the concrete collection |
+| `Reset()` | Clears the aggregated error state | the concrete collection |
 
-Tasks derive from the abstract `Mc3MotionTask` / `Mc2MotionTask`, which implements `I_Mc3MotionTask` (`EXTENDS I_Cyclic, I_TaskResult, I_Command`). A project can therefore add its own task with `MotionTasks.AddTask()`, or substitute one of the defaults via the `StopTask` / `ResetTask` / `HomeTask` properties.
+The axis's `MotionTasks` property returns the **read-only** `I_MotionTaskCollection` — status only. Adding
+and removing tasks is generation-specific and stays on the concrete collection the axis owns.
+
+Tasks derive from the abstract `Mc3MotionTask` / `Mc2MotionTask`, which implements `I_Mc3MotionTask` (`EXTENDS I_Cyclic, I_TaskResult, I_Command`). A project substitutes one of the defaults via the `StopTask` / `ResetTask` / `HomeTask` properties, or adds a task of its own from inside a derived axis, where the concrete `MotionTaskCollection` is in scope.
 
 Defaults come from `ST_Mc3MotionDefaults` / `ST_Mc2MotionDefaults`: CoE reset, set-zero-here homing, and stop.
 

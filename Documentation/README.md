@@ -34,7 +34,7 @@ Reference docs for the `ApplicationBase` framework and the sample applications b
 
 | Topic | Description |
 |-------|-------------|
-| [Motion](Motion.md) | MC2 and MC3 axis stacks — `Mc3AxisPTP`, `Mc2AxisPTP`, slave/geared axes, motion tasks, axis HMI and events, plus the V1.x → V2.0.0 rename table |
+| [Motion](Motion.md) | MC2 and MC3 axis stacks — `Mc3AxisPTP`, `Mc2AxisPTP`, slave/geared axes, parameter loaders, motion tasks, the shared `AxisPTP_HMI` / `Axis_TcEvents`, the generation-neutral `I_Axis` / `I_Axis_PTP` / `I_AxisGear` interfaces, plus the V1.x and V2.0.x migration tables |
 
 ## Communication
 
