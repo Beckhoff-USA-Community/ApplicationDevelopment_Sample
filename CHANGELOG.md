@@ -14,6 +14,13 @@ merged into a single shared pair.
 
 ### Added
 
+- `Mc2AxisParameterLoader` and `Mc3AxisParameterLoader` — the NC parameter read is now its own
+  `I_Initializable` component instead of a state machine inside the axis. The MC3 loader is table-driven:
+  `AddParameter(ParameterId, ADR(Target))` per value, so reading one more parameter is one more line rather
+  than an edit to a `CASE` ladder. The MC2 loader has no table because `MC_ReadParameterSet` reads the whole
+  `ST_AxisParameterSet` in one call
+- `ST_Mc3ParameterBinding` — one entry in the MC3 loader's table
+- `ApplicationBaseMotionParameter.MaxAxisParameters` (10) — generic bound on `Mc3AxisParameterLoader`
 - `I_Axis` and `I_Axis_PTP` — generation-agnostic axis abstractions in `Motion/Interface/`. `I_Mc2Axis` and
   `I_Mc3Axis` now extend `I_Axis`; `I_Mc2Axis_PTP` and `I_Mc3Axis_PTP` extend `I_Axis_PTP`
 - `I_AxisSettings` — holds the generation-neutral `JogMode`
@@ -34,6 +41,11 @@ merged into a single shared pair.
 - `Mc2Axis.MotionTasks` / `Mc3Axis.MotionTasks` return `I_MotionTaskCollection`. `AddTask()` and
   `RemoveTaskByInstance()` remain on the generation-specific interfaces for internal use
 - VFFS was updated to the shared `AxisPTP_HMI` / `Axis_TcEvents`
+- `Mc2Axis.Initialize()` / `Mc3Axis.Initialize()` no longer contain the read sequence; they delegate to the
+  parameter loader and copy the result into the dynamics properties
+- `Initialize()` now has exactly one driver. A registered axis is driven by its parent module's
+  `Initializer`; an axis with no parent self-initializes from `CyclicLogic()`. Previously both paths were
+  live, and only the `RETURN` in `MAIN` before `CyclicLogic()` kept them from overlapping
 
 ### Removed
 

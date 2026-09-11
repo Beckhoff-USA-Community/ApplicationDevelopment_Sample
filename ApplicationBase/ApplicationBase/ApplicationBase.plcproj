@@ -616,10 +616,16 @@
     <Compile Include="Motion\MC2\Mc2AxisPTP.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Motion\MC2\Mc2AxisParameterLoader.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Motion\MC2\Mc2SlaveAxisPTP.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\MC3\DUT\ST_Mc3MotionDefaults.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC3\DUT\ST_Mc3ParameterBinding.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\MC3\Interface\I_Mc3SlaveAxis.TcIO">
@@ -641,6 +647,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\MC3\Mc3AxisPTP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\MC3\Mc3AxisParameterLoader.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\MC3\Mc3Axis.TcPOU">

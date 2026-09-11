@@ -15,8 +15,16 @@ VAR
 	_HomeTask  : I_Mc3MotionTask := Defaults.DefaultHomeTask;
 	SetOverride : Tc3_Mc3Ptp.MC_SetOverride;
 
+	// Initialization is delegated to its own component
+	ParameterLoader : Mc3AxisParameterLoader<ApplicationBaseMotionParameter.MaxAxisParameters>;
+	_Initialized		: BOOL;
+	// TRUE once a parent module owns our Initialize() call
+	{attribute 'hide'}
+	_InitializeDrivenByParent : BOOL;
+	{attribute 'hide'}
+	_LoadErrorLogged		  : BOOL;
+
 	//
-	_Initialized  : BOOL;
 	_Acceleration : LREAL;
 	_Deceleration : LREAL;
 	_Velocity	  : LREAL;
@@ -148,7 +156,12 @@ END_VAR]]></Declaration>
       <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF NOT _Initialized THEN
-	Initialize();
+	// A parent module drives Initialize() through its Initializer. Only
+	// self-initialize when there is no parent, so the call has one owner.
+	IF NOT _InitializeDrivenByParent THEN
+		Initialize();
+	END_IF
+
 	RETURN;
 END_IF
 
@@ -278,6 +291,14 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_Axis REF= Axis;
 
+// Declare which NC parameters pre-load the dynamics properties.
+// Adding one is a single line here - there is no sequence to edit.
+ParameterLoader.Configure(_Axis);
+ParameterLoader.AddParameter(EAxisParameterId.DefaultAcceleration, ADR(_Acceleration));
+ParameterLoader.AddParameter(EAxisParameterId.DefaultDeceleration, ADR(_Deceleration));
+ParameterLoader.AddParameter(EAxisParameterId.DefaultJerk, ADR(_Jerk));
+ParameterLoader.AddParameter(EAxisParameterId.MaximumVelocity, ADR(_Velocity));
+
 // Register all Motion Tasks to Collection
 MotionTaskCollection.AddTask(PowerTask);
 MotionTaskCollection.AddTask(_StopTask);
@@ -343,92 +364,23 @@ END_VAR]]></Declaration>
       </Set>
     </Property>
     <Method Name="Initialize" Id="{48b8ddc2-531b-4ffa-afa5-b9951fa039dc}" FolderPath="Initialize\">
-      <Declaration><![CDATA[METHOD Initialize
-VAR_INST
-    Sequence : UDINT;
-    ReadParameter : Tc3_Mc3Ptp.MC_ReadParameter;
-END_VAR]]></Declaration>
+      <Declaration><![CDATA[METHOD Initialize]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF NOT _Initialized AND (_Axis.McToPlc.Std.AxisState <> EAxisState.Invalid) THEN
-	CASE Sequence OF
-		0:
-			ReadParameter(Axis		  := _Axis,
-						  Enable	  := TRUE,
-						  ParameterId := EAxisParameterId.DefaultAcceleration,
-						  Mode		  := EReadMode.Once,
-						  Valid		  =>,
-						  Busy		  =>,
-						  Error		  =>,
-						  ErrorId	  =>,
-						  Value		  => _Acceleration);
+        <ST><![CDATA[IF _Initialized THEN
+	RETURN;
+END_IF
 
-			IF ReadParameter.Valid THEN
-				ReadParameter(Axis := _Axis, Enable := FALSE);
-				NextStep(Sequence);
-			END_IF
+ParameterLoader.Initialize();
 
-		10:
-			ReadParameter(Axis		  := _Axis,
-						  Enable	  := TRUE,
-						  ParameterId := EAxisParameterId.DefaultDeceleration,
-						  Mode		  := EReadMode.Once,
-						  Valid		  =>,
-						  Busy		  =>,
-						  Error		  =>,
-						  ErrorId	  =>,
-						  Value		  => _Deceleration);
+IF ParameterLoader.Initialized THEN
+	Trace.LogMessage(_Name, 'Axis initialization complete');
+	_Initialized := TRUE;
+	RETURN;
+END_IF
 
-			IF ReadParameter.Valid THEN
-				ReadParameter(Axis := _Axis, Enable := FALSE);
-				NextStep(Sequence);
-			END_IF
-
-		20:
-			ReadParameter(Axis		  := _Axis,
-						  Enable	  := TRUE,
-						  ParameterId := EAxisParameterId.DefaultJerk,
-						  Mode		  := EReadMode.Once,
-						  Valid		  =>,
-						  Busy		  =>,
-						  Error		  =>,
-						  ErrorId	  =>,
-						  Value		  => _Jerk);
-
-			IF ReadParameter.Valid THEN
-				ReadParameter(Axis := _Axis, Enable := FALSE);
-				NextStep(Sequence);
-			END_IF
-
-		30:
-			ReadParameter(Axis		  := _Axis,
-						  Enable	  := TRUE,
-						  ParameterId := EAxisParameterId.MaximumVelocity,
-						  Mode		  := EReadMode.Once,
-						  Valid		  =>,
-						  Busy		  =>,
-						  Error		  =>,
-						  ErrorId	  =>,
-						  Value		  => _Velocity);
-
-			IF ReadParameter.Valid THEN
-				ReadParameter(Axis := _Axis, Enable := FALSE);
-				NextStep(Sequence);
-			END_IF
-
-		40:
-			Trace.LogMessage(_Name, 'Axis initialization complete');
-			NextStep(Sequence);
-
-		50:
-			_Initialized := TRUE;
-
-		999: // Error :-(
-	END_CASE
-
-	IF ReadParameter.Error AND Sequence <> 999 THEN
-		Trace.LogMessage(_Name, 'Axis not initialized - error reading parameter - check links!');
-		Sequence := 999;
-	END_IF
+IF ParameterLoader.Error AND NOT _LoadErrorLogged THEN
+	_LoadErrorLogged := TRUE;
+	Trace.LogMessage(_Name, 'Axis not initialized - error reading parameter - check links!');
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -559,7 +511,8 @@ VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[SUPER^.RegisterWithParent(Parent);
-Parent.RegisterInitialize(THIS^);]]></ST>
+Parent.RegisterInitialize(THIS^);
+_InitializeDrivenByParent := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="Reset" Id="{28ba2381-ae5a-4fff-ac92-decbdbee0afe}" FolderPath="Reset\">

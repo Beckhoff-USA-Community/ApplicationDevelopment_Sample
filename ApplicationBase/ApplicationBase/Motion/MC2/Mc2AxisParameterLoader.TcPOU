@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc2AxisParameterLoader" Id="{daa43417-7960-4f86-8309-739dd27116f0}" SpecialFunc="None">
+    <Declaration><![CDATA[(* Reads the NC axis parameter set for the owning axis and reports completion
+   through I_Initializable.
+
+   Unlike Mc3AxisParameterLoader this has no parameter table: MC_ReadParameterSet
+   fetches the whole ST_AxisParameterSet in one call, so there is nothing to
+   enumerate. The owning axis picks the fields it needs off AxisParameterSet.
+   Call Configure() once with the axis reference, then Initialize() cyclically
+   until Initialized or Error. *)
+FUNCTION_BLOCK Mc2AxisParameterLoader IMPLEMENTS I_Initializable
+VAR
+	_Axis			   : REFERENCE TO Tc2_MC2.AXIS_REF;
+	_AxisParameters	   : Tc2_MC2.ST_AxisParameterSet;
+	_Initialized	   : BOOL;
+	_Error			   : BOOL;
+	MCReadParameterSet : Tc2_MC2.MC_ReadParameterSet;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="AxisParameterSet" Id="{e076ed6d-a824-4d9a-8c49-deb2e2b4b2c7}">
+      <Declaration><![CDATA[(* The parameter set as read from the NC. Only meaningful once Initialized. *)
+PROPERTY AxisParameterSet : REFERENCE TO Tc2_MC2.ST_AxisParameterSet]]></Declaration>
+      <Get Name="Get" Id="{bb81b6f9-374e-4f10-a430-5b01e455c93f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AxisParameterSet REF= _AxisParameters;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Configure" Id="{a4acdc71-ec24-43fc-a075-d187cd28f20e}">
+      <Declaration><![CDATA[(* Binds the loader to the NC axis it should read from. *)
+METHOD Configure
+VAR_INPUT
+	Axis : REFERENCE TO Tc2_MC2.AXIS_REF;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Axis REF= Axis;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{4a9b1614-d1ae-42c5-904a-1f6a61e6586b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1c808876-14d5-4b6d-9374-c8e16891960f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Initialize" Id="{09a31372-7751-4d69-9a4f-08fb3fe65391}">
+      <Declaration><![CDATA[METHOD Initialize]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Initialized OR _Error THEN
+	RETURN;
+END_IF
+
+IF NOT __ISVALIDREF(_Axis) THEN
+	RETURN;
+END_IF
+
+MCReadParameterSet(Parameter := _AxisParameters, Axis := _Axis, Execute := TRUE);
+
+IF MCReadParameterSet.Busy THEN
+	RETURN;
+END_IF
+
+IF MCReadParameterSet.Error THEN
+	_Error := TRUE;
+ELSIF MCReadParameterSet.Done THEN
+	_Initialized := TRUE;
+END_IF
+
+MCReadParameterSet(Parameter := _AxisParameters, Axis := _Axis, Execute := FALSE);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Initialized" Id="{397ef0f0-64ff-4203-8cda-1e72e5fb6492}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Initialized : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6c063041-7fa5-48d5-9f5e-557a98b25826}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Initialized := _Initialized;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{29b55b76-9669-4d72-b3bd-dc12f7de8a34}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Initialized := Initialized;
+
+// Clearing the flag restarts the read
+IF NOT Initialized THEN
+	_Error := FALSE;
+	MCReadParameterSet(Parameter := _AxisParameters, Axis := _Axis, Execute := FALSE);
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

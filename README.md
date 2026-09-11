@@ -152,6 +152,10 @@ that reached through an axis interface to the NC.
   longer decode `AxisState` themselves.
 - **`JogMode` is generation-neutral** — an `E_AxisJogMode` (`Slow` / `Fast`) passed by value, mapped
   internally onto each library's own enum.
+- **Axis initialization is its own component** — `Mc2AxisParameterLoader` / `Mc3AxisParameterLoader` own
+  the NC parameter read. The MC3 loader is table-driven, so pre-loading another parameter is one
+  `AddParameter()` call instead of a new step in a `CASE` ladder. `Initialize()` also has a single driver
+  now: the parent module's `Initializer`, or `CyclicLogic()` for an axis with no parent.
 
 See [CHANGELOG.md](CHANGELOG.md) and
 [Documentation/Motion.md](Documentation/Motion.md#migrating-from-v20x) for the migration table.

@@ -17,8 +17,8 @@ Every axis is a `CyclicComponent`, so it registers with its parent module, parti
 | `Motion/` | `AxisPTP_HMI`, `Axis_TcEvents` — generation-agnostic, shared by MC2 and MC3 |
 | `Motion/Interface/` | Technology-neutral axis interfaces (`I_Axis`, `I_Axis_PTP`, `I_AxisStatus`, `I_AxisJog`, …) — shared by MC2 and MC3 |
 | `Motion/DUT/` | `ST_AxisPTP_HMI` — shared HMI symbol struct; `E_AxisJogMode` — generation-neutral jog mode |
-| `Motion/MC2/` | `Mc2Axis`, `Mc2AxisPTP`, `Mc2SlaveAxisPTP` + `I_Mc2*` |
-| `Motion/MC3/` | `Mc3Axis`, `Mc3AxisPTP`, `Mc3SlaveAxisPTP` + `I_Mc3*` |
+| `Motion/MC2/` | `Mc2Axis`, `Mc2AxisPTP`, `Mc2SlaveAxisPTP`, `Mc2AxisParameterLoader` + `I_Mc2*` |
+| `Motion/MC3/` | `Mc3Axis`, `Mc3AxisPTP`, `Mc3SlaveAxisPTP`, `Mc3AxisParameterLoader` + `I_Mc3*` |
 | `_Internal/MotionTasks/MC2/` | MC2 motion tasks (move, power, home, reset, coupling) |
 | `_Internal/MotionTasks/MC3/` | MC3 motion tasks (move, power, home, reset, gearing) |
 | `Utilities/Motion/` | Standalone motion maths helpers (see [Motion Helpers](#motion-helpers)) |
@@ -91,6 +91,7 @@ Both stacks follow an identical three-level inheritance chain.
 | `Mc2Axis` | `Mc3Axis` | `CyclicComponent` | Enable/disable, stop, reset, home, jog, dynamics, status, override |
 | `Mc2AxisPTP` | `Mc3AxisPTP` | `…Axis` | `MoveAbsolute`, `MoveRelative`, `MoveVelocity`, `MoveModulo` |
 | `Mc2SlaveAxisPTP` | `Mc3SlaveAxisPTP` | `…AxisPTP` | Electronic gearing to a master axis |
+| `Mc2AxisParameterLoader` | `Mc3AxisParameterLoader` | — | Pre-loads the dynamics properties from the NC |
 | `AxisPTP_HMI` (shared) | `AxisPTP_HMI` (shared) | `HmiFunction` | Operator faceplate with permissives |
 | `Axis_TcEvents` (shared) | `Axis_TcEvents` (shared) | `CyclicComponent` | Raises a TwinCAT event when a motion task faults |
 
@@ -102,7 +103,7 @@ Implements: `I_Initializable`, `I_Mc3Axis` / `I_Mc2Axis`
 | Member | Type | Description |
 |--------|------|-------------|
 | `FB_Init(Name, Axis)` | Constructor | `Axis` is a `REFERENCE TO Tc3_Mc3Ptp.AXIS_REF` (MC3) or `Tc2_MC2.AXIS_REF` (MC2) |
-| `Initialize()` | Method | Reads `DefaultAcceleration`, `DefaultDeceleration`, `DefaultJerk` and `MaximumVelocity` from the NC axis and pre-loads the dynamics properties. Driven automatically from `CyclicLogic()` until complete |
+| `Initialize()` | Method | Delegates to the axis's `ParameterLoader`, then copies the result into the dynamics properties. Driven by the parent module's `Initializer`, or by `CyclicLogic()` when the axis has no parent — see [Who drives `Initialize()`](#who-drives-initialize) |
 | `CyclicLogic()` | Method | Initializes on the first scans, then runs the motion task collection. Must be called each scan |
 | `Enable()` / `Disable()` | Method | Power on / off via the internal power task. `Enable()` is ignored while `Error` is set |
 | `Stop()` | Method | Runs the stop task. Refused while the NC axis itself is in `ErrorStop` — reset first |
@@ -119,6 +120,7 @@ Implements: `I_Initializable`, `I_Mc3Axis` / `I_Mc2Axis`
 | `Axis` | `REFERENCE TO AXIS_REF` (Get) | The underlying NC axis reference, for raw access to the NC structure. On `I_Mc3Axis` / `I_Mc2Axis`, not on the shared `I_Axis` |
 | `InhibitFeedForward` / `InhibitFeedBackward` | `BOOL` (Get/Set) | Travel-direction inhibits |
 | `Initialized` | `BOOL` (Get) | TRUE once the parameter read has completed |
+| `ParameterLoader` | `Mc3AxisParameterLoader` / `Mc2AxisParameterLoader` | Owns the NC parameter read — see [below](#mc3axisparameterloader--mc2axisparameterloader) |
 
 **Generation-specific settings** (`I_Mc3Settings` / `I_Mc2Settings`) are exposed as references, so they can be
 written in place. Reaching them means typing the variable as `I_Mc3Axis` / `I_Mc2Axis` rather than `I_Axis`:
@@ -128,7 +130,7 @@ written in place. Reaching them means typing the variable as `I_Mc3Axis` / `I_Mc
 | `BufferMode` | `Tc3_Mc3Ptp.EBufferMode` (default `Aborting`) | `Tc2_MC2.MC_BufferMode` |
 | `Direction` | `Tc3_Mc3Ptp.EModuloDirection` (default `ShortestDistance`) | `Tc2_MC2.MC_Direction` (default `MC_Shortest_Way`) |
 | `MoveOptions` | — | `Tc2_MC2.ST_MoveOptions` |
-| `AxisParameterSet` | — | `Tc2_MC2.ST_AxisParameterSet`, read during `Initialize()` |
+| `AxisParameterSet` | — | `Tc2_MC2.ST_AxisParameterSet`, read by `Mc2AxisParameterLoader` during `Initialize()` |
 
 `JogMode` is **not** here — it moved to the shared `I_AxisSettings` as a generation-neutral `E_AxisJogMode`
 (`Slow` / `Fast`), passed by value, and each axis maps it onto its own library enum.
@@ -170,6 +172,55 @@ Implements: `I_EventReactionTcEvents`
 One function block for both stacks — it depends only on `I_Axis`.
 
 `FB_Init(Name, Axis)` — `Axis` is an `I_Axis`. Each scan it checks `Axis.MotionTasks.Error` and raises `E_McAxis.AxisError` with the failing task name and error id as arguments. `SetEventReactions()` maps severities as with any other `TcEventClass` consumer. See [Events](Events.md).
+
+### `Mc3AxisParameterLoader` / `Mc2AxisParameterLoader`
+
+Implements: `I_Initializable`
+
+Each axis owns a parameter loader that pre-loads the dynamics properties from the NC before the axis reports
+`Initialized`. The axis itself no longer contains the read sequence — it only coordinates.
+
+**MC3** is table-driven. The axis declares its parameters once in `FB_Init`, and the loader walks the table one
+`MC_ReadParameter` at a time:
+
+```pascal
+ParameterLoader.Configure(_Axis);
+ParameterLoader.AddParameter(EAxisParameterId.DefaultAcceleration, ADR(_Acceleration));
+ParameterLoader.AddParameter(EAxisParameterId.DefaultDeceleration, ADR(_Deceleration));
+ParameterLoader.AddParameter(EAxisParameterId.DefaultJerk, ADR(_Jerk));
+ParameterLoader.AddParameter(EAxisParameterId.MaximumVelocity, ADR(_Velocity));
+```
+
+Reading one more parameter is one more `AddParameter()` line — there is no sequence to renumber. A derived axis
+can add its own in its `FB_Init`, up to `MaxAxisParameters`.
+
+| Member | Type | Description |
+|--------|------|-------------|
+| `Configure(Axis)` | Method | Binds the loader to the NC axis reference. Call once, from the owner's `FB_Init` |
+| `AddParameter(ParameterId, Target)` | Method | Registers one `EAxisParameterId` to be read into a `POINTER TO LREAL`. Returns FALSE if the table is full (MC3 only) |
+| `Initialize()` | Method | Advances the read. Call cyclically until `Initialized` or `Error` |
+| `Initialized` | `BOOL` (Get/Set) | TRUE when every parameter has been read. Setting it FALSE restarts the read from the first binding |
+| `Error`, `ErrorId` | Get | The read failed — usually an unlinked axis |
+| `FailedParameterId` | `EAxisParameterId` (Get) | Which parameter the loader stopped on (MC3 only) |
+| `ParameterCount` | `UDINT` (Get) | Number of registered bindings (MC3 only) |
+| `AxisParameterSet` | `REFERENCE TO ST_AxisParameterSet` (Get) | The whole set as read from the NC (MC2 only) |
+
+**MC2 has no table**, and that is deliberate: `MC_ReadParameterSet` fetches the entire `ST_AxisParameterSet` in a
+single call, so there is nothing to enumerate. `Mc2AxisParameterLoader` performs that one read and publishes the
+result through `AxisParameterSet`; `Mc2Axis` picks the four dynamics fields off it.
+
+### Who drives `Initialize()`
+
+Exactly one caller, decided by whether the axis has a parent:
+
+| Configuration | Driver |
+|---------------|--------|
+| Axis registered with a module (the normal case) | The module's `Initializer`, via `Module.Initialize()` |
+| Standalone axis, no parent | The axis's own `CyclicLogic()` |
+
+`RegisterWithParent()` records that a parent exists, and `CyclicLogic()` only self-initializes when there is
+none. Before V2.1.0 both paths were live and the split was implicit — it happened to work only because
+`MAIN` returns before calling `CyclicLogic()` while the machine is still initializing.
 
 ## Motion Tasks
 
@@ -214,6 +265,7 @@ Defaults come from `ST_Mc3MotionDefaults` / `ST_Mc2MotionDefaults`: CoE reset, s
 `ApplicationBase/ApplicationBaseMotionParameter.TcGVL`:
 
 - `MaxMotionTasks`: 10 — the generic bound on `Mc2MotionTaskCollection` / `Mc3MotionTaskCollection`. Raise it if an axis carries more than ten registered tasks.
+- `MaxAxisParameters`: 10 — the generic bound on `Mc3AxisParameterLoader`. Raise it if an axis pre-loads more than ten NC parameters.
 
 ## Example
 
@@ -249,7 +301,7 @@ IF NOT _PullWheelLeftAxis.Busy AND NOT _PullWheelLeftAxis.Error THEN
 END_IF
 ```
 
-Axes are components: register them with the owning module so `Initialize()` and `CyclicLogic()` are driven for you, exactly as for any other `CyclicComponent`. See [Module](Module.md).
+Axes are components: register them with the owning module so `Initialize()` and `CyclicLogic()` are driven for you, exactly as for any other `CyclicComponent`. An unregistered axis initializes itself from `CyclicLogic()` instead. See [Module](Module.md).
 
 ## Motion Helpers
 

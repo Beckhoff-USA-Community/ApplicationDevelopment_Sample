@@ -89,6 +89,7 @@ Operations on the component/module hierarchy (reset, mode change, name enumerati
 
 `ApplicationBase/ApplicationBaseMotionParameter.TcGVL`:
 - `MaxMotionTasks`: 10 — upper bound for the motion task collection owned by each axis
+- `MaxAxisParameters`: 10 — upper bound for the NC parameter table each `Mc3Axis` pre-loads
 
 ## Library Version
 

@@ -19,12 +19,17 @@ VAR
 	{attribute 'hide'}
 	_HomeTask : I_Mc2MotionTask := Defaults.DefaultHomeTask;
 
-	//
-	{attribute 'hide'}
-	MCReadParameterSet : Tc2_MC2.MC_ReadParameterSet;
-	_AxisParameters	   : Tc2_MC2.ST_AxisParameterSet;
+	// Initialization is delegated to its own component
+	ParameterLoader : Mc2AxisParameterLoader;
 	{attribute 'hide'}
 	_Initialized : BOOL;
+	// TRUE once a parent module owns our Initialize() call
+	{attribute 'hide'}
+	_InitializeDrivenByParent : BOOL;
+	{attribute 'hide'}
+	_LoadErrorLogged : BOOL;
+
+	//
 	{attribute 'hide'}
 	_Acceleration : LREAL;
 	{attribute 'hide'}
@@ -141,7 +146,7 @@ END_VAR]]></Declaration>
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[AxisParameterSet REF= _AxisParameters;]]></ST>
+          <ST><![CDATA[AxisParameterSet REF= ParameterLoader.AxisParameterSet;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -171,7 +176,12 @@ END_VAR]]></Declaration>
       <Declaration><![CDATA[METHOD CyclicLogic]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF NOT _Initialized THEN
-	Initialize();
+	// A parent module drives Initialize() through its Initializer. Only
+	// self-initialize when there is no parent, so the call has one owner.
+	IF NOT _InitializeDrivenByParent THEN
+		Initialize();
+	END_IF
+
 	RETURN;
 END_IF
 
@@ -302,6 +312,8 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_Axis REF= Axis;
 
+ParameterLoader.Configure(_Axis);
+
 // Register all Motion Tasks to Collection
 MotionTaskCollection.AddTask(PowerTask);
 MotionTaskCollection.AddTask(_StopTask);
@@ -369,22 +381,25 @@ END_VAR]]></Declaration>
     <Method Name="Initialize" Id="{66bade57-0863-4af8-8c50-55eb772839b1}" FolderPath="Initialize\">
       <Declaration><![CDATA[METHOD Initialize]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF NOT _Initialized THEN
-	MCReadParameterSet(Parameter := _AxisParameters, Axis := _Axis, Execute := TRUE);
-	IF NOT MCReadParameterSet.Busy THEN
-		IF MCReadParameterSet.Error THEN
-			Trace.LogMessage(_Name, 'Axis not initialized - McReadParameter failed!');
-		ELSIF MCReadParameterSet.Done THEN
-			_Velocity	  := _AxisParameters.fVeloSlowManual;
-			_Acceleration := _AxisParameters.fAcceleration;
-			_Deceleration := _AxisParameters.fDeceleration;
-			_Jerk		  := _AxisParameters.fJerk;
-			Trace.LogMessage(_Name, 'Axis initialization complete');
-			_Initialized := TRUE;
-		END_IF
+        <ST><![CDATA[IF _Initialized THEN
+	RETURN;
+END_IF
 
-		MCReadParameterSet(Parameter := _AxisParameters, Axis := _Axis, Execute := FALSE);
-	END_IF
+ParameterLoader.Initialize();
+
+IF ParameterLoader.Initialized THEN
+	_Velocity	  := ParameterLoader.AxisParameterSet.fVeloSlowManual;
+	_Acceleration := ParameterLoader.AxisParameterSet.fAcceleration;
+	_Deceleration := ParameterLoader.AxisParameterSet.fDeceleration;
+	_Jerk		  := ParameterLoader.AxisParameterSet.fJerk;
+	Trace.LogMessage(_Name, 'Axis initialization complete');
+	_Initialized := TRUE;
+	RETURN;
+END_IF
+
+IF ParameterLoader.Error AND NOT _LoadErrorLogged THEN
+	_LoadErrorLogged := TRUE;
+	Trace.LogMessage(_Name, 'Axis not initialized - McReadParameter failed!');
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -521,7 +536,8 @@ VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[SUPER^.RegisterWithParent(Parent);
-Parent.RegisterInitialize(THIS^);]]></ST>
+Parent.RegisterInitialize(THIS^);
+_InitializeDrivenByParent := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="Reset" Id="{4345ab78-8abd-4dc4-8462-07064700c600}" FolderPath="Reset\">

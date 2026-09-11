@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <POU Name="Mc3AxisParameterLoader" Id="{e521e5d8-48ee-489e-8321-c40fd5fe8601}" SpecialFunc="None">
+    <Declaration><![CDATA[(* Reads a table of NC axis parameters into the owning axis, one parameter per
+   MC_ReadParameter call, and reports completion through I_Initializable.
+
+   Adding a parameter is a single AddParameter() call at construction time -
+   there is no sequence to edit. Call Configure() once with the axis reference,
+   then AddParameter() for each value, then Initialize() cyclically until
+   Initialized or Error. *)
+FUNCTION_BLOCK Mc3AxisParameterLoader
+VAR_GENERIC CONSTANT
+	MaxParameters : UDINT := 10;
+END_VAR IMPLEMENTS I_Initializable
+VAR
+	_Axis		  : REFERENCE TO Tc3_Mc3Ptp.AXIS_REF;
+	_Bindings	  : ARRAY[1..MaxParameters] OF ST_Mc3ParameterBinding;
+	_Count		  : UDINT;
+	_Index		  : UDINT := 1;
+	_Initialized  : BOOL;
+	_Error		  : BOOL;
+	_ErrorId	  : UDINT;
+	_Overflow	  : BOOL;
+	_Value		  : LREAL;
+	ReadParameter : Tc3_Mc3Ptp.MC_ReadParameter;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AddParameter" Id="{6fb72fd3-5530-4e7f-b545-ad715f94e6d6}">
+      <Declaration><![CDATA[(* Registers one parameter to be read into Target.
+   Idempotent: re-registering a ParameterId updates its Target rather than
+   adding a second entry, so an online change re-running FB_Init refreshes the
+   pointers instead of growing the table.
+   Returns FALSE when the table is full or Target is invalid. *)
+METHOD AddParameter : BOOL
+VAR_INPUT
+	ParameterId : Tc3_Mc3Ptp.EAxisParameterId;
+	Target		: POINTER TO LREAL;
+END_VAR
+
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Target = 0 THEN
+	RETURN;
+END_IF
+
+// Already registered - just refresh the target pointer
+FOR i := 1 TO _Count DO
+	IF _Bindings[i].ParameterId = ParameterId THEN
+		_Bindings[i].Target := Target;
+		AddParameter		:= TRUE;
+		RETURN;
+	END_IF
+END_FOR
+
+IF _Count >= MaxParameters THEN
+	_Overflow := TRUE;
+	RETURN;
+END_IF
+
+_Count := _Count + 1;
+_Bindings[_Count].ParameterId := ParameterId;
+_Bindings[_Count].Target	  := Target;
+AddParameter := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Configure" Id="{d13f7edd-66a5-4004-a8d2-587a0bf0a310}">
+      <Declaration><![CDATA[(* Binds the loader to the NC axis it should read from. *)
+METHOD Configure
+VAR_INPUT
+	Axis : REFERENCE TO Tc3_Mc3Ptp.AXIS_REF;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Axis REF= Axis;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Error" Id="{8ffaab52-06c2-4799-aded-a234ec198c84}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Error : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e989d5da-3cf8-49c0-b250-3165c39294b2}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Error := _Error OR _Overflow;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ErrorId" Id="{6418f018-74c1-455f-bc23-2a9730c9a6c2}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{0d384b78-dc52-4804-8d59-4c4c658f3ee2}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorId := _ErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="FailedParameterId" Id="{58db5c8a-5ba6-49b9-a45f-e3d0fadcc800}">
+      <Declaration><![CDATA[(* The parameter the loader stopped on, for diagnostics. *)
+PROPERTY FailedParameterId : Tc3_Mc3Ptp.EAxisParameterId]]></Declaration>
+      <Get Name="Get" Id="{b1dfadef-222d-4379-b4a1-e29129984829}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _Error AND (_Index >= 1) AND (_Index <= _Count) THEN
+	FailedParameterId := _Bindings[_Index].ParameterId;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Initialize" Id="{a75d5cf7-8a91-4e53-ba34-02666a1d4822}">
+      <Declaration><![CDATA[METHOD Initialize]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _Initialized OR _Error OR _Overflow THEN
+	RETURN;
+END_IF
+
+IF NOT __ISVALIDREF(_Axis) THEN
+	RETURN;
+END_IF
+
+// Nothing to read - trivially complete
+IF _Count = 0 THEN
+	_Initialized := TRUE;
+	RETURN;
+END_IF
+
+// Wait for the NC axis to exist before asking it anything
+IF _Axis.McToPlc.Std.AxisState = EAxisState.Invalid THEN
+	RETURN;
+END_IF
+
+ReadParameter(Axis		  := _Axis,
+			  Enable	  := TRUE,
+			  ParameterId := _Bindings[_Index].ParameterId,
+			  Mode		  := EReadMode.Once,
+			  Valid		  =>,
+			  Busy		  =>,
+			  Error		  =>,
+			  ErrorId	  =>,
+			  Value		  => _Value);
+
+IF ReadParameter.Error THEN
+	_ErrorId := ReadParameter.ErrorId;
+	_Error	 := TRUE;
+	ReadParameter(Axis := _Axis, Enable := FALSE);
+	RETURN;
+END_IF
+
+IF ReadParameter.Valid THEN
+	_Bindings[_Index].Target^ := _Value;
+	ReadParameter(Axis := _Axis, Enable := FALSE);
+
+	IF _Index >= _Count THEN
+		_Initialized := TRUE;
+	ELSE
+		_Index := _Index + 1;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Initialized" Id="{7b11506e-a78f-4943-8a90-e5b01c163e78}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Initialized : BOOL]]></Declaration>
+      <Get Name="Get" Id="{56c91719-787d-4220-b5c5-036613356da7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Initialized := _Initialized;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5e4b5a3c-c47d-404d-85eb-c3d54fdbcd7d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Initialized := Initialized;
+
+// Clearing the flag restarts the read from the first binding
+IF NOT Initialized THEN
+	_Index	 := 1;
+	_Error	 := FALSE;
+	_ErrorId := 0;
+	ReadParameter(Axis := _Axis, Enable := FALSE);
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ParameterCount" Id="{b279b3c6-dc16-4719-8650-2c6a877d3ebd}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ParameterCount : UDINT]]></Declaration>
+      <Get Name="Get" Id="{51ab3b3f-a771-4a1d-b4b9-c2dde39c547e}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ParameterCount := _Count;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

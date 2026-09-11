@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <DUT Name="ST_Mc3ParameterBinding" Id="{12b54c59-aa0a-4c3e-a4ef-868528db6db8}">
+    <Declaration><![CDATA[(* One entry in an Mc3AxisParameterLoader table: which NC axis parameter to
+   read, and where in the owning axis to store it. *)
+TYPE ST_Mc3ParameterBinding :
+STRUCT
+	ParameterId : Tc3_Mc3Ptp.EAxisParameterId;
+	Target		: POINTER TO LREAL;
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

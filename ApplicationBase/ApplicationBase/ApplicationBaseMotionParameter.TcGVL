@@ -4,6 +4,8 @@
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL CONSTANT
 	MaxMotionTasks : UDINT := 10;
+	// Upper bound for the NC parameter table each Mc3Axis pre-loads
+	MaxAxisParameters : UDINT := 10;
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>
