@@ -327,7 +327,12 @@ MotionTaskCollection.AddTask(JogTask);]]></ST>
 VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_HomeTask.Execute();]]></ST>
+        <ST><![CDATA[IF Coupled THEN
+	// Homing a coupled axis is meaningless - decouple first
+	RETURN;
+END_IF
+
+_HomeTask.Execute();]]></ST>
       </Implementation>
     </Method>
     <Property Name="HomeTask" Id="{853ef4ec-dfa5-43fb-8ffc-aded749a9947}" FolderPath="Home\">
@@ -447,7 +452,7 @@ VAR_INPUT
 	Distance	 : LREAL := 0;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF Error THEN
+        <ST><![CDATA[IF Error OR Coupled THEN
 	RETURN;
 END_IF
 

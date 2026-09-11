@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_AxisGear" Id="{6418f018-0001-455f-bc23-2a9730c9a6c2}">
+    <Declaration><![CDATA[(* Electronic gearing as an optional capability rather than an axis subtype.
+
+   An axis that can be coupled to a master implements this in addition to
+   I_Axis_PTP. Consumers discover it instead of assuming it:
+
+       IF __QUERYINTERFACE(MyAxis, Gearing) THEN
+           Gearing.GearOut();
+       END_IF
+
+   Whether an axis is currently coupled is reported by I_AxisStatus.Coupled,
+   which is the NC's own view and is available on every axis. *)
+INTERFACE I_AxisGear EXTENDS I_Base]]></Declaration>
+    <Method Name="GearIn" Id="{6418f018-0002-455f-bc23-2a9730c9a6c2}">
+      <Declaration><![CDATA[(* Couples the slave to its configured master. *)
+METHOD GearIn
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="GearOut" Id="{6418f018-0003-455f-bc23-2a9730c9a6c2}">
+      <Declaration><![CDATA[(* Decouples the slave from its master. *)
+METHOD GearOut
+VAR_INPUT
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

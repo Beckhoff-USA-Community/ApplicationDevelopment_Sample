@@ -36,7 +36,17 @@ MotionTaskCollection.AddTask(MotionCoupleTaskGearing);]]></ST>
 VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[MotionCoupleTaskGearing.BufferMode := _McBufferMode;
+        <ST><![CDATA[MotionCoupleTaskGearing.GearIn	  := TRUE;
+MotionCoupleTaskGearing.BufferMode := _McBufferMode;
+MotionCoupleTaskGearing.Execute();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GearOut" Id="{0d80b130-7a9b-4a56-b26a-6822fc2070f2}" FolderPath="Slave\">
+      <Declaration><![CDATA[METHOD GearOut
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MotionCoupleTaskGearing.GearIn := FALSE;
 MotionCoupleTaskGearing.Execute();]]></ST>
       </Implementation>
     </Method>
@@ -77,7 +87,7 @@ END_VAR
     </Property>
     <Property Name="RatioDenominator" Id="{260b178c-ac1e-4e92-bced-20a6ab9419f2}" FolderPath="Slave\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
-PROPERTY RatioDenominator : LREAL]]></Declaration>
+PROPERTY RatioDenominator : UDINT]]></Declaration>
       <Set Name="Set" Id="{ffaf907e-180c-4dd0-8787-bf26522094bf}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -89,7 +99,7 @@ END_VAR
     </Property>
     <Property Name="RatioNumerator" Id="{aafc7b11-6fdc-49e9-8029-f6214fb9ccd8}" FolderPath="Slave\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
-PROPERTY RatioNumerator : LREAL]]></Declaration>
+PROPERTY RatioNumerator : UDINT]]></Declaration>
       <Set Name="Set" Id="{251ba9a0-8610-4379-8a5e-9884753f2534}">
         <Declaration><![CDATA[VAR
 END_VAR

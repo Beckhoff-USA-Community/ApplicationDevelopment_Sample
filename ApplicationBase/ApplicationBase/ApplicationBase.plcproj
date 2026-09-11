@@ -583,6 +583,9 @@
     <Compile Include="Motion\Interface\I_Axis.TcIO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Motion\Interface\I_AxisGear.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Motion\Interface\I_AxisSettings.TcIO">
       <SubType>Code</SubType>
     </Compile>

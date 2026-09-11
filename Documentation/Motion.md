@@ -47,7 +47,8 @@ These live in `Motion/Interface/` and are implemented by both `Mc2Axis` and `Mc3
 | `I_AxisEnable` | `I_Enablable` | `InhibitFeedForward`, `InhibitFeedBackward` |
 | `I_AxisHome` | `I_Base` | `Home()` |
 | `I_AxisJog` | `I_Base` | `Jog(JogForward, JogBackwards, Distance := 0)` |
-| `I_AxisMoveAbsolute` | `I_Base` | `MoveAbsolute(TargetPosition, AbortPrevious := TRUE)` |
+| `I_AxisGear` | `I_Base` | `GearIn()`, `GearOut()` — the optional gearing role |
+| `I_AxisMoveAbsolute` | `I_Base` | `MoveAbsolute(TargetPosition, AbortPrevious := TRUE) : BOOL` |
 | `I_AxisMoveRelative` | `I_Base` | `MoveRelative(Distance, AbortPrevious := TRUE)` |
 | `I_AxisMoveVelocity` | `I_Base` | `MoveVelocity(Velocity, AbortPrevious := TRUE)` |
 | `I_AxisMoveModulo` | `I_Base` | `MoveModulo(Position, AbortPrevious := TRUE)` |
@@ -145,12 +146,15 @@ A PTP axis that can be electronically geared to a master. The coupling is itself
 |--------|------|-------------|
 | `Master` | `I_Mc3Axis` (Get/Set) | The master axis |
 | `RatioNumerator`, `RatioDenominator` | `LREAL` (Get/Set) | Gear ratio |
-| `GearIn()` | Method | Couples to the master using the current `BufferMode` |
+| `GearIn()` | Method | Couples to the master using the current `BufferMode` (from `I_AxisGear`) |
+| `GearOut()` | Method | Decouples from the master (from `I_AxisGear`) |
 | `InGear` | `BOOL` (Get) | TRUE while coupled |
 | `MasterHasError` | `BOOL` (Get) | TRUE when the master axis is faulted |
 | `ReactionToMasterError`, `ReactionToSlaveError` | Enum (Get/Set) | Coupling fault behaviour |
 
-**MC2 (`I_Mc2AxisGear`)** supports up to four masters instead: `Master1`–`Master4`, `GearRatioMaster1`–`GearRatioMaster4`, `GearInMultiMasterOptions`, plus explicit `GearIn()` / `GearOut()`.
+**MC2 (`I_Mc2AxisGear`)** supports up to four masters instead: `Master1`–`Master4`, `GearRatioMaster1`–`GearRatioMaster4`, `GearInMultiMasterOptions`.
+
+Both extend the shared `I_AxisGear`, which contributes `GearIn()` and `GearOut()`.
 
 ### `AxisPTP_HMI`
 
@@ -221,6 +225,50 @@ Exactly one caller, decided by whether the axis has a parent:
 `RegisterWithParent()` records that a parent exists, and `CyclicLogic()` only self-initializes when there is
 none. Before V2.1.0 both paths were live and the split was implicit — it happened to work only because
 `MAIN` returns before calling `CyclicLogic()` while the machine is still initializing.
+
+### Gearing is a capability, not a subtype
+
+A geared axis is still a PTP axis, so the supertype contract has to hold for it. It does, because **every**
+PTP command refuses while the axis is coupled:
+
+| Command | While `Coupled` |
+|---------|-----------------|
+| `MoveAbsolute`, `MoveRelative`, `MoveVelocity`, `MoveModulo` | Refused, return `FALSE` |
+| `Jog`, `Home` | Refused, no-op |
+| `Stop` | **Allowed** — halting the slave is how MC3 decouples it |
+| `Enable`, `Disable`, `Reset` | Allowed |
+
+The guard lives on `Mc2AxisPTP` / `Mc3AxisPTP`, not on the slave subclass, and keys off `I_AxisStatus.Coupled`
+— the NC's own view. So a plain `Mc3AxisPTP` that ends up in synchronized motion refuses a PTP move just as a
+`Mc3SlaveAxisPTP` does. Widening the base contract this way is what removes the Liskov violation: no subtype
+narrows what its supertype promises.
+
+Because the four `Move*` methods now all return `BOOL`, a refusal is observable:
+
+```pascal
+IF NOT SealerAxis.MoveAbsolute(TargetPosition := 90.0) THEN
+    // errored, coupled, or already busy with AbortPrevious := FALSE
+END_IF
+```
+
+Gearing itself is discovered rather than assumed. `I_AxisGear` is the generation-neutral role:
+
+```pascal
+VAR
+    Gearing : I_AxisGear;
+END_VAR
+
+IF __QUERYINTERFACE(MyAxis, Gearing) THEN
+    Gearing.GearOut();
+END_IF
+```
+
+`I_Mc2AxisGear` and `I_Mc3AxisGear` extend it with their generation-specific members (MC2's four masters,
+MC3's single master and ratio). Code that needs only couple/decouple can depend on `I_AxisGear` alone.
+
+> **MC3 has no `MC_GearOut`.** `Tc3_Mc3Ptp` 4.0.17.0 ships `MC_GearIn` and `MC_GearInPos` only, so
+> `Mc3MotionCoupleTask_Gearing.GearOut()` ends the synchronized motion with `MC_Halt` instead. The effect is
+> the same — the slave decelerates to standstill and leaves `SynchronizedMotion`.
 
 ## Motion Tasks
 

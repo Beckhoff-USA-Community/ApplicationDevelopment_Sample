@@ -45,13 +45,13 @@ MotionTaskCollection.AddTask(MoveVelocityTask);]]></ST>
       </Implementation>
     </Method>
     <Method Name="MoveAbsolute" Id="{091ed05b-36fb-4b60-99af-c6fc39902dbe}" FolderPath="Move Absolute\">
-      <Declaration><![CDATA[METHOD MoveAbsolute
+      <Declaration><![CDATA[METHOD MoveAbsolute : BOOL
 VAR_INPUT
 	TargetPosition : LREAL;
 	AbortPrevious  : BOOL := TRUE;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF Error THEN
+        <ST><![CDATA[IF Error OR Coupled THEN
 	RETURN;
 ELSE
 	IF Busy AND NOT AbortPrevious THEN
@@ -62,7 +62,8 @@ END_IF
 MoveAbsoluteTask.BufferMode		:= _McBufferMode;
 MoveAbsoluteTask.MoveOptions	:= _MoveOptions;
 MoveAbsoluteTask.TargetPosition := TargetPosition;
-MoveAbsoluteTask.Execute();]]></ST>
+MoveAbsoluteTask.Execute();
+MoveAbsolute := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="MoveModulo" Id="{ab4287a1-d74e-4e30-9726-1f69f75b2a60}" FolderPath="Move Modulo\">
@@ -72,7 +73,7 @@ VAR_INPUT
 	AbortPrevious : BOOL := TRUE;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF Error THEN
+        <ST><![CDATA[IF Error OR Coupled THEN
 	RETURN;
 ELSE
 	IF Busy AND NOT AbortPrevious THEN
@@ -84,7 +85,8 @@ MoveModuloTask.BufferMode	  := _McBufferMode;
 MoveModuloTask.MoveOptions	  := _MoveOptions;
 MoveModuloTask.Direction	  := _Direction;
 MoveModuloTask.TargetPosition := Position;
-MoveModuloTask.Execute();]]></ST>
+MoveModuloTask.Execute();
+MoveModulo := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="MoveRelative" Id="{52a9be95-7f95-4ad0-8eb7-4e13b9370599}" FolderPath="Move Relative\">
@@ -94,7 +96,7 @@ VAR_INPUT
 	AbortPrevious : BOOL := TRUE;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF Error THEN
+        <ST><![CDATA[IF Error OR Coupled THEN
 	RETURN;
 ELSE
 	IF Busy AND NOT AbortPrevious THEN
@@ -105,7 +107,8 @@ END_IF
 MoveRelativeTask.BufferMode		:= _McBufferMode;
 MoveRelativeTask.MoveOptions	:= _MoveOptions;
 MoveRelativeTask.TargetDistance := Distance;
-MoveRelativeTask.Execute();]]></ST>
+MoveRelativeTask.Execute();
+MoveRelative := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="MoveVelocity" Id="{798ed600-c3f6-44ea-acc0-111e5f25e0cf}" FolderPath="Move Velocity\">
@@ -115,7 +118,7 @@ VAR_INPUT
 	AbortPrevious : BOOL := TRUE;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF Error THEN
+        <ST><![CDATA[IF Error OR Coupled THEN
 	RETURN;
 ELSE
 	IF Busy AND NOT AbortPrevious THEN
@@ -126,7 +129,8 @@ END_IF
 MoveVelocityTask.BufferMode		:= _McBufferMode;
 MoveVelocityTask.MoveOptions	:= _MoveOptions;
 MoveVelocityTask.TargetVelocity := Velocity;
-MoveVelocityTask.Execute();]]></ST>
+MoveVelocityTask.Execute();
+MoveVelocity := TRUE;]]></ST>
       </Implementation>
     </Method>
   </POU>

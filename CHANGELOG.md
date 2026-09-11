@@ -20,6 +20,12 @@ merged into a single shared pair.
   than an edit to a `CASE` ladder. The MC2 loader has no table because `MC_ReadParameterSet` reads the whole
   `ST_AxisParameterSet` in one call
 - `ST_Mc3ParameterBinding` — one entry in the MC3 loader's table
+- `I_AxisGear` — generation-neutral gearing role (`GearIn()`, `GearOut()`). `I_Mc2AxisGear` and
+  `I_Mc3AxisGear` extend it, so couple/decouple is discoverable from any axis with
+  `__QUERYINTERFACE(axis, gearing)` rather than only from the `I_Mc?SlaveAxis` subtype
+- `I_Mc3AxisGear.GearOut()` and `Mc3SlaveAxisPTP.GearOut()` — MC3 could couple but never decouple.
+  `Tc3_Mc3Ptp` has no `MC_GearOut`, so `Mc3MotionCoupleTask_Gearing` ends the synchronized motion with
+  `MC_Halt`
 - `ApplicationBaseMotionParameter.MaxAxisParameters` (10) — generic bound on `Mc3AxisParameterLoader`
 - `I_Axis` and `I_Axis_PTP` — generation-agnostic axis abstractions in `Motion/Interface/`. `I_Mc2Axis` and
   `I_Mc3Axis` now extend `I_Axis`; `I_Mc2Axis_PTP` and `I_Mc3Axis_PTP` extend `I_Axis_PTP`
@@ -46,6 +52,11 @@ merged into a single shared pair.
 - `Initialize()` now has exactly one driver. A registered axis is driven by its parent module's
   `Initializer`; an axis with no parent self-initializes from `CyclicLogic()`. Previously both paths were
   live, and only the `RETURN` in `MAIN` before `CyclicLogic()` kept them from overlapping
+- **Every PTP command now refuses while the axis is coupled.** `MoveAbsolute`, `MoveRelative`,
+  `MoveVelocity`, `MoveModulo`, `Jog` and `Home` check `I_AxisStatus.Coupled` and return without
+  dispatching. `Stop` is deliberately still allowed, since halting the slave is how MC3 decouples it.
+  The guard sits on `Mc2AxisPTP` / `Mc3AxisPTP` rather than on the slave subclass, so the base contract
+  holds for every subtype and `Mc?SlaveAxisPTP` no longer narrows it
 
 ### Removed
 
@@ -53,6 +64,11 @@ merged into a single shared pair.
   `AxisPTP_HMI` and `Axis_TcEvents`
 
 ### Fixed
+
+- The four `Move*` methods promised a result and always delivered `FALSE`: `MoveRelative`, `MoveVelocity`
+  and `MoveModulo` were declared `: BOOL` but never assigned a return value, and `MoveAbsolute` had no
+  return at all. All four now return `TRUE` when the command is dispatched and `FALSE` when refused.
+  `I_AxisMoveAbsolute.MoveAbsolute` gained the `: BOOL` return to match its three siblings
 
 - `I_Mc2Settings.JogMode` was declared `REFERENCE TO Tc2_MC2.MC_Direction` while `Mc2Axis` backed it with an
   `E_JogMode` and the HMI assigned `E_JogMode` values to it. The property was replaced by the typed

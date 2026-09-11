@@ -1,23 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_Mc2AxisGear" Id="{6c275f38-a60b-4115-a407-e89a6c7e3629}">
-    <Declaration><![CDATA[INTERFACE I_Mc2AxisGear EXTENDS I_Base]]></Declaration>
-    <Method Name="GearIn" Id="{38ea9e4e-cf72-4cc7-8c20-73160004533f}">
-      <Declaration><![CDATA[METHOD GearIn
-VAR_INPUT
-END_VAR]]></Declaration>
-    </Method>
+    <Declaration><![CDATA[INTERFACE I_Mc2AxisGear EXTENDS I_AxisGear]]></Declaration>
     <Property Name="GearInMultiMasterOptions" Id="{613feb86-6752-4536-9fc8-bfe1bdab419f}">
       <Declaration><![CDATA[PROPERTY GearInMultiMasterOptions : ST_GearInMultiMasterOptions]]></Declaration>
       <Set Name="Set" Id="{e5da6742-8725-45eb-9b70-46c8b0ab084b}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
-    <Method Name="GearOut" Id="{815649dc-88ad-44e1-a7a8-4b99a60da25c}">
-      <Declaration><![CDATA[METHOD GearOut
-VAR_INPUT
-END_VAR]]></Declaration>
-    </Method>
     <Property Name="GearRatioMaster1" Id="{4b5bfddc-e3c1-4e0d-a62a-4ac1c748af24}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY GearRatioMaster1 : LREAL]]></Declaration>

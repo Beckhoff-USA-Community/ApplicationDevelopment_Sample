@@ -260,8 +260,8 @@ _ErrorId := 0;]]></ST>
         <ST><![CDATA[CASE Statemachine.Mode.CurrentMode OF
 	E_PMLProtectedUnitMode.Production:
 		PullWheelRightAxis.Master			:= PullWheelLeftAxis;
-		PullWheelRightAxis.RatioDenominator := 1.0;
-		PullWheelRightAxis.RatioNumerator	:= 1.0;
+		PullWheelRightAxis.RatioDenominator := 1;
+		PullWheelRightAxis.RatioNumerator	:= 1;
 		PullWheelRightAxis.GearIn();
 		Resetting := PullWheelRightAxis.InGear;
 

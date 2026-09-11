@@ -4,9 +4,13 @@
     <Declaration><![CDATA[FUNCTION_BLOCK Mc3MotionCoupleTask_Gearing EXTENDS Mc3MotionTask
 VAR
 	McGearIn				  : Tc3_Mc3Ptp.MC_GearIn;
+	// Tc3_Mc3Ptp has no MC_GearOut. Halting the slave ends the synchronized
+	// motion, which is how MC3 decouples a geared axis.
+	McHalt					  : Tc3_Mc3Ptp.MC_Halt;
+	_GearIn					  : BOOL;
 	_InGear					  : BOOL;
-	_RatioNumerator			  : LREAL := 1.0;
-	_RatioDenominator		  : LREAL := 1.0;
+	_RatioNumerator			  : UDINT := 1;
+	_RatioDenominator		  : UDINT := 1;
 	DummyAxis				  : Tc3_Mc3Ptp.AXIS_REF;
 	MasterAxis				  : REFERENCE TO Tc3_Mc3Ptp.AXIS_REF;
 	_Master					  : I_Mc3Axis;
@@ -32,7 +36,7 @@ PROPERTY Busy : BOOL]]></Declaration>
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Busy := McGearIn.Busy;]]></ST>
+          <ST><![CDATA[Busy := McGearIn.Busy OR McHalt.Busy;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -53,7 +57,19 @@ END_VAR]]></Declaration>
 		 ErrorId		=>,
 		 MasterHasError =>);
 
-McGearIn.Execute := FALSE;]]></ST>
+McGearIn.Execute := FALSE;
+
+McHalt(Axis			 := _Axis.Axis,
+	   Deceleration := _Axis.Deceleration,
+	   Jerk			 := _Axis.Jerk,
+	   Done			 =>,
+	   Busy			 =>,
+	   Active		 =>,
+	   CommandAborted =>,
+	   Error		 =>,
+	   ErrorId		 =>);
+
+McHalt.Execute := FALSE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="Error" Id="{c40afe1b-b7d4-42f8-8ee8-94335d915a03}">
@@ -63,7 +79,7 @@ PROPERTY Error : BOOL]]></Declaration>
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Error := McGearIn.Error;]]></ST>
+          <ST><![CDATA[Error := McGearIn.Error OR McHalt.Error;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -74,37 +90,77 @@ PROPERTY ErrorId : UDINT]]></Declaration>
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ErrorId := McGearIn.ErrorID;]]></ST>
+          <ST><![CDATA[IF McHalt.Error THEN
+	ErrorId := McHalt.ErrorId;
+	RETURN;
+END_IF
+
+ErrorId := McGearIn.ErrorID;]]></ST>
         </Implementation>
       </Get>
     </Property>
     <Method Name="Execute" Id="{ed28c839-8f67-40eb-aaad-6b389c70ca56}">
       <Declaration><![CDATA[METHOD Execute : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF NOT McGearIn.Active THEN
+        <ST><![CDATA[IF NOT _GearIn THEN
+	IF Busy THEN
+		RETURN;
+	END_IF
+
+	McHalt(Axis			:= _Axis.Axis,
+		   Execute		:= TRUE,
+		   Deceleration := _Axis.Deceleration,
+		   Jerk			:= _Axis.Jerk);
+
+	Execute := TRUE;
+	RETURN;
+END_IF
+
+IF NOT McGearIn.Active THEN
 	IF _Axis.Error OR Busy THEN
 		RETURN;
 	END_IF
 
-	McGearIn(Master			:= MasterAxis,
-			 Execute		:= TRUE,
-			 Slave			:= _Axis.Axis,
-			 Acceleration	:= _Axis.Acceleration,
-			 Deceleration	:= _Axis.Deceleration,
-			 Jerk			:= _Axis.Jerk,
-			 BufferMode		:= _McBufferMode,
-			 InGear			=> _InGear,
-			 Busy			=>,
-			 Active			=>,
-			 CommandAborted =>,
-			 Error			=>,
-			 ErrorId		=>,
-			 MasterHasError =>);
+	McGearIn(Master			  := MasterAxis,
+			 Execute		  := TRUE,
+			 Slave			  := _Axis.Axis,
+			 Acceleration	  := _Axis.Acceleration,
+			 Deceleration	  := _Axis.Deceleration,
+			 Jerk			  := _Axis.Jerk,
+			 BufferMode		  := _McBufferMode,
+			 RatioDenominator := _RatioNumerator,
+			 RatioDenominator := _RatioDenominator,
+			 InGear			  => _InGear,
+			 Busy			  =>,
+			 Active			  =>,
+			 CommandAborted	  =>,
+			 Error			  =>,
+			 ErrorId		  =>,
+			 MasterHasError	  =>);
 END_IF
 
 Execute := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="GearIn" Id="{56d0df7f-17c7-4637-8e45-ee9558b3444c}">
+      <Declaration><![CDATA[(* TRUE requests coupling, FALSE requests decoupling.
+   Take effect by calling Execute(). *)
+PROPERTY GearIn : BOOL]]></Declaration>
+      <Get Name="Get" Id="{da8c261d-79a4-45a1-980e-700510208fff}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[GearIn := _GearIn;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f1826156-d039-4739-a890-602ef3ac90cc}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_GearIn := GearIn;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="InGear" Id="{63aeaec5-6f7f-4ff2-8190-086b9f67ad44}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY InGear : BOOL]]></Declaration>
@@ -148,7 +204,7 @@ END_VAR
     </Property>
     <Property Name="RatioDenominator" Id="{12c9ae14-9d32-434c-a275-1b3e82dbeafb}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
-PROPERTY RatioDenominator : LREAL]]></Declaration>
+PROPERTY RatioDenominator : UDINT]]></Declaration>
       <Set Name="Set" Id="{99467d9a-fbd5-4581-897d-65ef07609208}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -159,7 +215,7 @@ END_VAR]]></Declaration>
     </Property>
     <Property Name="RatioNumerator" Id="{348ae990-2cef-4379-aa55-ad15c8a94ccf}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
-PROPERTY RatioNumerator : LREAL]]></Declaration>
+PROPERTY RatioNumerator : UDINT]]></Declaration>
       <Set Name="Set" Id="{51db2914-c08e-49f1-adff-1504aed61cf3}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>

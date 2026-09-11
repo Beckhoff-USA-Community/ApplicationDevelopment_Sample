@@ -3,7 +3,7 @@
   <Itf Name="I_AxisMoveAbsolute" Id="{f131de79-9024-420e-97dc-cfb7f7f67b47}">
     <Declaration><![CDATA[INTERFACE I_AxisMoveAbsolute EXTENDS I_Base]]></Declaration>
     <Method Name="MoveAbsolute" Id="{ca6dfe26-59a3-400f-bd15-0a803422840b}">
-      <Declaration><![CDATA[METHOD MoveAbsolute
+      <Declaration><![CDATA[METHOD MoveAbsolute : BOOL
 VAR_INPUT
 	TargetPosition : LREAL;
 	AbortPrevious  : BOOL := TRUE;

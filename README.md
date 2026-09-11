@@ -152,6 +152,10 @@ that reached through an axis interface to the NC.
   longer decode `AxisState` themselves.
 - **`JogMode` is generation-neutral** — an `E_AxisJogMode` (`Slow` / `Fast`) passed by value, mapped
   internally onto each library's own enum.
+- **Gearing is a capability, not a subtype** — the new `I_AxisGear` role makes couple/decouple
+  discoverable with `__QUERYINTERFACE` from any axis, MC3 finally has `GearOut()`, and every PTP command
+  refuses while the axis is coupled so a geared slave no longer breaks the PTP contract it inherits.
+  The four `Move*` methods now actually return whether the command was accepted.
 - **Axis initialization is its own component** — `Mc2AxisParameterLoader` / `Mc3AxisParameterLoader` own
   the NC parameter read. The MC3 loader is table-driven, so pre-loading another parameter is one
   `AddParameter()` call instead of a new step in a `CASE` ladder. `Initialize()` also has a single driver
