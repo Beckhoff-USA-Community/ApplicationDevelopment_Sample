@@ -179,6 +179,17 @@ _Axis.ReadStatus();
 MotionTaskCollection.CyclicLogic();]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Coupled" Id="{94a1a45d-4093-49cf-8a78-11ec9f697c1e}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Coupled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ff7d3c48-4f28-49a0-8138-9f89f5985bcb}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Coupled := _Axis.Status.Coupled;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="Deceleration" Id="{db89bb8c-0dcc-4b5f-8969-ffbccd3ee048}" FolderPath="Dynamics\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Deceleration : LREAL]]></Declaration>
@@ -224,6 +235,17 @@ END_IF
 PowerTask.Enable();]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Disabled" Id="{aa9220f3-a9c9-40ea-a7a1-e827a6b6f41f}" FolderPath="Enable\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Disabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6f5c2ee2-f313-424c-8d3e-095ac80478a6}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Disabled := _Axis.Status.Disabled;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="Enabled" Id="{9c73b2c8-514b-4a7c-998d-28369f5fdf7e}" FolderPath="Enable\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Enabled : BOOL]]></Declaration>
@@ -422,18 +444,35 @@ JogTask.Execute();]]></ST>
       </Implementation>
     </Method>
     <Property Name="JogMode" Id="{cc91e9f8-9b64-407b-bfcb-72aff2578f80}" FolderPath="Settings\">
-      <Declaration><![CDATA[PROPERTY JogMode : REFERENCE TO tc2_mc2.MC_Direction]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY JogMode : E_AxisJogMode]]></Declaration>
       <Get Name="Get" Id="{543a0da7-d855-4288-9d69-02ff90a93b9b}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[JogMode REF= _JogMode;]]></ST>
+          <ST><![CDATA[IF _JogMode = Tc2_MC2.E_JogMode.MC_JOGMODE_STANDARD_FAST THEN
+	JogMode := E_AxisJogMode.Fast;
+ELSE
+	JogMode := E_AxisJogMode.Slow;
+END_IF]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{0aade66c-e629-4232-9bdb-e5b7a262f5d9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF JogMode = E_AxisJogMode.Fast THEN
+	_JogMode := Tc2_MC2.E_JogMode.MC_JOGMODE_STANDARD_FAST;
+ELSE
+	_JogMode := Tc2_MC2.E_JogMode.MC_JOGMODE_STANDARD_SLOW;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="MotionTasks" Id="{cf3fa9ca-401c-41ad-a41f-999b7718040b}">
-      <Declaration><![CDATA[PROPERTY MotionTasks : I_Mc2MotionTaskCollection]]></Declaration>
+      <Declaration><![CDATA[PROPERTY MotionTasks : I_MotionTaskCollection]]></Declaration>
       <Get Name="Get" Id="{af34f3a0-4554-4bf3-84b6-b53c62f02119}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
@@ -584,6 +623,17 @@ _StopTask := StopTask;
 MotionTaskCollection.AddTask(_ResetTask);]]></ST>
         </Implementation>
       </Set>
+    </Property>
+    <Property Name="SynchronizedMotion" Id="{a9a45a3a-219d-4916-9dbe-f9c8a9ffc2bc}" FolderPath="Status\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY SynchronizedMotion : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3df55ffd-78c8-4378-b6f6-f0fb00379a02}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SynchronizedMotion := _Axis.Status.SynchronizedMotion;]]></ST>
+        </Implementation>
+      </Get>
     </Property>
     <Property Name="Velocity" Id="{942585ae-0bea-4380-ad19-28b1e6ed294f}" FolderPath="Dynamics\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}

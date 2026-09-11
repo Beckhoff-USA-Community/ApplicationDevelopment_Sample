@@ -1,19 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_Mc3Axis" Id="{fb36648c-4ae2-4934-a09b-d28e9229474b}">
-    <Declaration><![CDATA[INTERFACE I_Mc3Axis EXTENDS I_Component, I_AxisEnable, I_Mc3AxisRef, I_Resettable, I_Stoppable, I_AxisDynamics, I_AxisStatus, I_AxisJog, I_AxisHome, I_Mc3Settings, I_Override]]></Declaration>
-    <Property Name="ErrorId" Id="{a0d3ec5b-eae4-4799-ae19-283af281757b}">
-      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
-PROPERTY ErrorId : UDINT]]></Declaration>
-      <Get Name="Get" Id="{876ae65a-9ba8-42b8-9eed-5be72f5fa06e}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-    </Property>
-    <Property Name="MotionTasks" Id="{d7b355c1-3564-4cfa-9ece-89a01977069e}">
-      <Declaration><![CDATA[PROPERTY MotionTasks : I_Mc3MotionTaskCollection]]></Declaration>
-      <Get Name="Get" Id="{09373c36-c698-4846-ad60-f1e55ef265b4}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-    </Property>
+    <Declaration><![CDATA[(* MC3 flavour of I_Axis: everything generic, plus the MC3 specific settings
+   and the raw Tc3_Mc3Ptp.AXIS_REF via I_Mc3AxisRef.
+   This interface is MC3 bound by design. Code that should work with MC2 and
+   MC3 alike must be typed on I_Axis / I_Axis_PTP instead. *)
+INTERFACE I_Mc3Axis EXTENDS I_Axis, I_Mc3Settings, I_Mc3AxisRef]]></Declaration>
   </Itf>
 </TcPlcObject>

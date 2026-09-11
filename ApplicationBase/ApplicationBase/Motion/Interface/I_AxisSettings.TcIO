@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_AxisSettings" Id="{c9b8f6c8-5450-4b6f-9d93-c11b366ec065}">
+    <Declaration><![CDATA[(* Axis settings that are independent of the motion generation (MC2 / MC3).
+   Generation specific settings live on I_Mc2Settings / I_Mc3Settings. *)
+INTERFACE I_AxisSettings EXTENDS I_Base]]></Declaration>
+    <Property Name="JogMode" Id="{a9badc64-53bb-46f9-88f1-79a53e57bf4f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY JogMode : E_AxisJogMode]]></Declaration>
+      <Get Name="Get" Id="{878cf3be-5c88-4267-b32f-1f9812e81828}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{da062d94-d479-4698-aeff-842f9d54036a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

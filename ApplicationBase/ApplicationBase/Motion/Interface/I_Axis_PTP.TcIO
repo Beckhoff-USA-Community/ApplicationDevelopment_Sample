@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_Axis_PTP" Id="{3e6c5e95-0a7d-4247-9b2e-626d4927799e}">
+    <Declaration><![CDATA[(* Motion generation independent view on a point to point axis.
+   Implemented by Mc2AxisPTP and Mc3AxisPTP. *)
+INTERFACE I_Axis_PTP EXTENDS I_Axis, I_AxisMoveAbsolute, I_AxisMoveModulo, I_AxisMoveRelative, I_AxisMoveVelocity]]></Declaration>
+  </Itf>
+</TcPlcObject>

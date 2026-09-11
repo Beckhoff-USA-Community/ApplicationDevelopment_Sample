@@ -135,15 +135,34 @@ Full reference docs live in [`Documentation/`](Documentation/README.md). Highlig
 The library version is published at runtime through `Global_Version.stLibVersion_ApplicationBase` and
 `F_GetVersion()`. The full history lives in [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: `ApplicationBase` 2.0.0**
+**Current version: `ApplicationBase` 2.1.0**
+
+### What's New in V2.1.0
+
+V2.1.0 removes every motion-library type from the shared axis abstraction. It is a **breaking change** for code
+that reached through an axis interface to the NC.
+
+- **`AXIS_REF` is out of the *shared* abstraction** — the new `I_Axis` / `I_Axis_PTP` carry no
+  `Tc2_MC2` / `Tc3_Mc3Ptp` types at all. `I_Mc2Axis` / `I_Mc3Axis` still expose the raw `AXIS_REF` for
+  direct NC access, so `myAxis.Axis` keeps working.
+- **One HMI and one event reaction for both stacks** — `AxisPTP_HMI` and `Axis_TcEvents` replace the four
+  per-generation function blocks. They depend only on the new `I_Axis_PTP` / `I_Axis`.
+- **New shared types** — `I_Axis`, `I_Axis_PTP`, `I_AxisSettings`, `I_MotionTaskCollection` and
+  `E_AxisJogMode`. `I_AxisStatus` gained `Coupled`, `SynchronizedMotion` and `Disabled`, so consumers no
+  longer decode `AxisState` themselves.
+- **`JogMode` is generation-neutral** — an `E_AxisJogMode` (`Slow` / `Fast`) passed by value, mapped
+  internally onto each library's own enum.
+
+See [CHANGELOG.md](CHANGELOG.md) and
+[Documentation/Motion.md](Documentation/Motion.md#migrating-from-v20x) for the migration table.
 
 ### What's New in V2.0.0
 
 V2.0.0 restructures the motion stack and is a **breaking change** for applications that use axes.
 
-- **MC3 axis stack added** — `Mc3Axis`, `Mc3AxisPTP`, `Mc3SlaveAxisPTP`, `Mc3AxisPTP_HMI` and
-  `Mc3Axis_TcEvents`, built on the current Beckhoff motion API (`Tc3_Mc3Base` / `Tc3_Mc3Ptp`), together with
-  a full set of MC3 motion tasks. This is the stack to use for new projects.
+- **MC3 axis stack added** — `Mc3Axis`, `Mc3AxisPTP` and `Mc3SlaveAxisPTP`, built on the current Beckhoff
+  motion API (`Tc3_Mc3Base` / `Tc3_Mc3Ptp`), together with a full set of MC3 motion tasks. This is the
+  stack to use for new projects.
 - **MC2 axis updated and renamed** — every pre-existing motion type now carries an `Mc2` prefix and lives
   under `Motion/MC2/` (`Axis` → `Mc2Axis`, `AxisPTP` → `Mc2AxisPTP`, `I_Axis` → `I_Mc2Axis`, …). `Mc2Axis`
   also gained `Direction` and `JogMode` settings and a touch-probe homing task.

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_MotionTaskCollection" Id="{d714f737-5210-4dd8-89bc-61cc646a4982}">
+    <Declaration><![CDATA[(* Read only view on a motion task collection, independent of the motion
+   generation. Adding and removing tasks is generation specific and stays on
+   I_Mc2MotionTaskCollection / I_Mc3MotionTaskCollection. *)
+INTERFACE I_MotionTaskCollection EXTENDS I_TaskResult]]></Declaration>
+    <Property Name="ErrorTask" Id="{3164b808-ac7f-449f-8442-d71a9989bee7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorTask : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{b19162e7-a54e-4951-950c-c82a8ffd0a17}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

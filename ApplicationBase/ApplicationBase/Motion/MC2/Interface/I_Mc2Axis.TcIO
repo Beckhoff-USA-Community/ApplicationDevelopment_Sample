@@ -1,19 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_Mc2Axis" Id="{347e2aef-5611-452f-9ffc-b6ad926a510a}">
-    <Declaration><![CDATA[INTERFACE I_Mc2Axis EXTENDS I_Component, I_AxisEnable, I_Mc2AxisRef, I_Resettable, I_Stoppable, I_AxisDynamics, I_AxisStatus, I_AxisJog, I_AxisHome, I_Mc2Settings, I_Override]]></Declaration>
-    <Property Name="ErrorId" Id="{d56d1c5d-53c1-4373-b824-480679d3561e}">
-      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
-PROPERTY ErrorId : UDINT]]></Declaration>
-      <Get Name="Get" Id="{88d502ca-e062-4cb1-99bc-c31a0f99aa8c}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-    </Property>
-    <Property Name="MotionTasks" Id="{6914240b-1882-4d81-a55f-46a091800bfd}">
-      <Declaration><![CDATA[PROPERTY MotionTasks : I_Mc2MotionTaskCollection]]></Declaration>
-      <Get Name="Get" Id="{526ff234-4916-45a3-8e29-4a9ed0e2f45f}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-    </Property>
+    <Declaration><![CDATA[(* MC2 flavour of I_Axis: everything generic, plus the MC2 specific settings
+   and the raw Tc2_MC2.AXIS_REF via I_Mc2AxisRef.
+   This interface is MC2 bound by design. Code that should work with MC2 and
+   MC3 alike must be typed on I_Axis / I_Axis_PTP instead. *)
+INTERFACE I_Mc2Axis EXTENDS I_Axis, I_Mc2Settings, I_Mc2AxisRef]]></Declaration>
   </Itf>
 </TcPlcObject>

@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_Mc2Settings" Id="{1929287d-762f-4697-b228-a921f106d254}">
-    <Declaration><![CDATA[INTERFACE I_Mc2Settings EXTENDS I_Base
+    <Declaration><![CDATA[(* MC2 specific settings. Generation independent settings (JogMode) live on
+   I_AxisSettings so that generic consumers never touch a Tc2_MC2 type. *)
+INTERFACE I_Mc2Settings EXTENDS I_Base
 ]]></Declaration>
     <Property Name="AxisParameterSet" Id="{b6f76d57-6925-4afe-ab48-db911ba1076f}">
       <Declaration><![CDATA[PROPERTY AxisParameterSet : REFERENCE TO ST_AxisParameterSet]]></Declaration>
@@ -18,12 +20,6 @@
     <Property Name="Direction" Id="{9ea3bdf2-5d44-4259-96af-5dcfc17c45b6}">
       <Declaration><![CDATA[PROPERTY Direction : REFERENCE TO TC2_Mc2.MC_Direction]]></Declaration>
       <Get Name="Get" Id="{b4c90067-f1fa-4d39-9c43-b09bfd3c55fb}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-    </Property>
-    <Property Name="JogMode" Id="{1d06df54-3743-4ac5-b830-6ce3d3a8ba36}">
-      <Declaration><![CDATA[PROPERTY JogMode : REFERENCE TO tc2_mc2.MC_Direction]]></Declaration>
-      <Get Name="Get" Id="{0b2fa1ec-77dc-4620-9773-c16cd937bf2c}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>

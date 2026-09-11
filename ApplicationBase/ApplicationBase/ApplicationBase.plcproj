@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FileVersion>1.0.0.0</FileVersion>
@@ -21,7 +21,7 @@
     <VirtualLibrary>true</VirtualLibrary>
     <Company>Beckhoff Automation LLC</Company>
     <Title>ApplicationBase</Title>
-    <ProjectVersion>2.0.0</ProjectVersion>
+    <ProjectVersion>2.1.0</ProjectVersion>
     <DefaultNamespace>ApplicationBase</DefaultNamespace>
     <Author>FS</Author>
     <GlobalVersionStructureIncluded>true</GlobalVersionStructureIncluded>
@@ -538,6 +538,15 @@
     <Compile Include="Module\Module.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Motion\AxisPTP_HMI.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Axis_TcEvents.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\DUT\E_AxisJogMode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Motion\DUT\ST_AxisPTP_HMI.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -571,6 +580,18 @@
     <Compile Include="Motion\Interface\I_AxisStatus.TcIO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Motion\Interface\I_Axis.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_AxisSettings.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_Axis_PTP.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Motion\Interface\I_MotionTaskCollection.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Motion\MC2\DUT\ST_Mc2MotionDefaults.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -593,12 +614,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\MC2\Mc2AxisPTP.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Motion\MC2\Mc2AxisPTP_HMI.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Motion\MC2\Mc2Axis_TcEvents.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\MC2\Mc2SlaveAxisPTP.TcPOU">
@@ -625,13 +640,7 @@
     <Compile Include="Motion\MC3\Mc3SlaveAxisPTP.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Motion\MC3\Mc3AxisPTP_HMI.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Motion\MC3\Mc3AxisPTP.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Motion\MC3\Mc3Axis_TcEvents.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Motion\MC3\Mc3Axis.TcPOU">

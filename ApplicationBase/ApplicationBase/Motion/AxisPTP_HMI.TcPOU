@@ -1,9 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
-  <POU Name="Mc3AxisPTP_HMI" Id="{f0e649d9-08c5-4b84-b320-9856b2921b9d}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Mc3AxisPTP_HMI EXTENDS HmiFunction
+  <POU Name="AxisPTP_HMI" Id="{f0e649d9-08c5-4b84-b320-9856b2921b9d}" SpecialFunc="None">
+    <Declaration><![CDATA[(* Generation independent HMI function for a point to point axis.
+   Serves Mc2AxisPTP and Mc3AxisPTP alike: it depends only on I_Axis_PTP
+   and never touches a motion library type. *)
+FUNCTION_BLOCK AxisPTP_HMI EXTENDS HmiFunction
 VAR
-	Axis : I_Mc3Axis_PTP;
+	Axis : I_Axis_PTP;
 	{ attribute 'TcHmiSymbol.AddSymbol' }
 	{ attribute 'TcHmiSymbol.AddSymbol.UserGroups' := '__SystemAdministrators,Admin' }
 	AxisPTP_HMI : ST_AxisPTP_HMI;
@@ -51,9 +54,9 @@ AxisPTP_HMI.Busy					  := Axis.Busy;
 AxisPTP_HMI.Error					  := Axis.Error;
 AxisPTP_HMI.ErrorId					  := Axis.ErrorId;
 AxisPTP_HMI.Name					  := Axis.Name;
-AxisPTP_HMI.Status.Coupled			  := Axis.Axis.McToPlc.Std.AxisState = EAxisState.SynchronizedMotion;
-AxisPTP_HMI.Status.Disabled			  := NOT Axis.Enabled;
-AxisPTP_HMI.Status.SynchronizedMotion := Axis.Axis.McToPlc.Std.AxisState = EAxisState.SynchronizedMotion;
+AxisPTP_HMI.Status.Coupled			  := Axis.Coupled;
+AxisPTP_HMI.Status.Disabled			  := Axis.Disabled;
+AxisPTP_HMI.Status.SynchronizedMotion := Axis.SynchronizedMotion;
 
 // HMI Commands
 StopRT(CLK := AxisPTP_HMI.Stop.Active);
@@ -87,20 +90,20 @@ IF Enabled THEN
 
 	IF AxisPTP_HMI.JogBackwardSlow.Active THEN
 		IF AxisPTP_HMI.JogBackwardSlow.Permissive.OK THEN
-			Axis.JogMode := EJogMode.StandardSlow;
+			Axis.JogMode := E_AxisJogMode.Slow;
 			Axis.Jog(JogForward := FALSE, JogBackwards := TRUE);
 		END_IF
 	ELSIF AxisPTP_HMI.JogForwardSlow.Active THEN
-		Axis.JogMode := EJogMode.StandardSlow;
+		Axis.JogMode := E_AxisJogMode.Slow;
 		Axis.Jog(JogForward := TRUE, JogBackwards := FALSE);
 	ELSIF AxisPTP_HMI.JogBackwardFast.Active THEN
-		Axis.JogMode := EJogMode.StandardFast;
+		Axis.JogMode := E_AxisJogMode.Fast;
 		Axis.Jog(JogForward := FALSE, JogBackwards := TRUE);
 	ELSIF AxisPTP_HMI.JogForwardFast.Active THEN
-		Axis.JogMode := EJogMode.StandardFast;
+		Axis.JogMode := E_AxisJogMode.Fast;
 		Axis.Jog(JogForward := TRUE, JogBackwards := FALSE);
 	ELSE
-		Axis.JogMode := EJogMode.StandardSlow;
+		Axis.JogMode := E_AxisJogMode.Slow;
 		Axis.Jog(JogForward := FALSE, JogBackwards := FALSE);
 	END_IF
 
@@ -174,7 +177,7 @@ VAR_INPUT
 	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
 	bInCopyCode : BOOL;
 	Name		: T_MaxString;
-	Axis		: I_Mc3Axis_PTP;
+	Axis		: I_Axis_PTP;
 	Unit		: STRING;
 END_VAR]]></Declaration>
       <Implementation>

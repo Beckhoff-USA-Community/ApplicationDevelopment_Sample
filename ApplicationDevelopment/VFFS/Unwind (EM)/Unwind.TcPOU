@@ -6,8 +6,8 @@ VAR
 	// Components
 	UnwindAxisRef	  : AXIS_REF;
 	_UnwindAxis		  : Mc3AxisPTP('Unwind Axis', UnwindAxisRef);
-	UnwindAxis_HMI	  : Mc3AxisPTP_HMI('Unwind Axis HMI', _UnwindAxis, '°');
-	UnwindAxis_Events : Mc3Axis_TcEvents('Unwind Axis Events', _UnwindAxis);
+	UnwindAxis_HMI	  : AxisPTP_HMI('Unwind Axis HMI', _UnwindAxis, '°');
+	UnwindAxis_Events : Axis_TcEvents('Unwind Axis Events', _UnwindAxis);
 
 	//
 	_Recipe			 : ST_UnwindRecipe;

@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_Mc3Settings" Id="{37de20f7-ec83-469c-97f8-33b8f4a87570}">
-    <Declaration><![CDATA[INTERFACE I_Mc3Settings EXTENDS I_Base
-]]></Declaration>
+    <Declaration><![CDATA[(* MC3 specific settings. Generation independent settings (JogMode) live on
+   I_AxisSettings so that generic consumers never touch a Tc3_Mc3Ptp type. *)
+INTERFACE I_Mc3Settings EXTENDS I_Base]]></Declaration>
     <Property Name="BufferMode" Id="{fa76aa55-1427-4930-bb95-00b970d72d34}">
       <Declaration><![CDATA[PROPERTY BufferMode : REFERENCE TO Tc3_Mc3Ptp.EBufferMode]]></Declaration>
       <Get Name="Get" Id="{1291b058-a331-4617-b351-5b300ed4da32}">
@@ -12,12 +13,6 @@
     <Property Name="Direction" Id="{d6610786-db10-424e-87b1-57e8a7f9bbb1}">
       <Declaration><![CDATA[PROPERTY Direction : REFERENCE TO Tc3_Mc3Ptp.EModuloDirection]]></Declaration>
       <Get Name="Get" Id="{42ee59a8-0a4a-41e8-afe8-b3a9aecf560c}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-    </Property>
-    <Property Name="JogMode" Id="{12904160-5b34-4958-9d7d-0f1b5b75d213}">
-      <Declaration><![CDATA[PROPERTY JogMode : REFERENCE TO Tc3_Mc3Ptp.EJogMode]]></Declaration>
-      <Get Name="Get" Id="{7e7d2b37-aed6-4e20-afb3-554af2e39cc6}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>

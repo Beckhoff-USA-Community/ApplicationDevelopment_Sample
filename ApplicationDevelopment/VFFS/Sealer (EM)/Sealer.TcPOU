@@ -6,8 +6,8 @@ VAR
 	// Components
 	SealerAxisRef	  : AXIS_REF;
 	_SealerAxis		  : Mc3AxisPTP('Sealer Axis', SealerAxisRef);
-	SealerAxis_HMI	  : Mc3AxisPTP_HMI('Sealer Axis HMI', _SealerAxis, '°');
-	SealerAxis_Events : Mc3Axis_TcEvents('Sealer Axis Events', _SealerAxis);
+	SealerAxis_HMI	  : AxisPTP_HMI('Sealer Axis HMI', _SealerAxis, '°');
+	SealerAxis_Events : Axis_TcEvents('Sealer Axis Events', _SealerAxis);
 	_SealBar		  : SealBar('Heat Bar');
 
 	// 

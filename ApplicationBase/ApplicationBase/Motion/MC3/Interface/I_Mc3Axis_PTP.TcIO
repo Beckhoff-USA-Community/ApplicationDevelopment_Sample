@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
   <Itf Name="I_Mc3Axis_PTP" Id="{62de7262-895b-40fa-b1bf-5de4fead0c51}">
-    <Declaration><![CDATA[INTERFACE I_Mc3Axis_PTP EXTENDS I_Mc3Axis, I_AxisMoveAbsolute, I_AxisMoveModulo, I_AxisMoveRelative, I_AxisMoveVelocity]]></Declaration>
+    <Declaration><![CDATA[INTERFACE I_Mc3Axis_PTP EXTENDS I_Mc3Axis, I_Axis_PTP]]></Declaration>
   </Itf>
 </TcPlcObject>

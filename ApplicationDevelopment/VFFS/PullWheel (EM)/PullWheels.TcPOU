@@ -6,12 +6,12 @@ VAR
 	// Components
 	PullWheelLeftAxisRef	  : AXIS_REF;
 	_PullWheelLeftAxis		  : Mc3AxisPTP('Pull Wheel Left Axis', PullWheelLeftAxisRef);
-	PullWheelLeftAxis_HMI	  : MC3AxisPTP_HMI('Pull Wheel Left Axis HMI', _PullWheelLeftAxis, '°');
-	PullWheelLeftAxis_Events  : MC3Axis_TcEvents('Pul lWheel Left Axis Events', _PullWheelLeftAxis);
+	PullWheelLeftAxis_HMI	  : AxisPTP_HMI('Pull Wheel Left Axis HMI', _PullWheelLeftAxis, '°');
+	PullWheelLeftAxis_Events  : Axis_TcEvents('Pul lWheel Left Axis Events', _PullWheelLeftAxis);
 	PullWheelRightAxisRef	  : AXIS_REF;
 	_PullWheelRightAxis		  : Mc3SlaveAxisPTP('Pull Wheel Right Axis', PullWheelRightAxisRef);
-	PullWheelRightAxis_HMI	  : Mc3AxisPTP_HMI('Pull Wheel Right Axis HMI', _PullWheelRightAxis, '°');
-	PullWheelRightAxis_Events : Mc3Axis_TcEvents('Pull Wheel Right Axis Events', _PullWheelRightAxis);
+	PullWheelRightAxis_HMI	  : AxisPTP_HMI('Pull Wheel Right Axis HMI', _PullWheelRightAxis, '°');
+	PullWheelRightAxis_Events : Axis_TcEvents('Pull Wheel Right Axis Events', _PullWheelRightAxis);
 	_PullWheelCylinder		  : Cylinder('Cylinder', 0, 0, 0, 0);
 	PullWheelCylinder_HMI	  : Cylinder_HMI('Cylinder HMI', _PullWheelCylinder) := (ExtendedName := 'Extended', RetractedName := 'Retracted', ExtendCommandName := 'Extend', RetractCommandName := 'Retract');
 	PullWheelCylinder_Events  : Cylinder_TcEvents('Cylinder Events', _PullWheelCylinder);

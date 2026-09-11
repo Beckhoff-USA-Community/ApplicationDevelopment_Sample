@@ -3,6 +3,49 @@
 Version history of the `ApplicationBase` library. The current version is published at runtime through
 `Global_Version.stLibVersion_ApplicationBase` and `F_GetVersion()`.
 
+## 2.1.0
+
+**Breaking change — the shared axis abstraction is now free of motion-library types.** See
+[Documentation/Motion.md](Documentation/Motion.md#migrating-from-v20x) for the migration table.
+
+`I_Mc2Axis` and `I_Mc3Axis` no longer expose `AXIS_REF` or any `Tc2_MC2` / `Tc3_Mc3Ptp` enum. That leak was the
+only reason the HMI and event-reaction function blocks existed once per motion generation, so they have been
+merged into a single shared pair.
+
+### Added
+
+- `I_Axis` and `I_Axis_PTP` — generation-agnostic axis abstractions in `Motion/Interface/`. `I_Mc2Axis` and
+  `I_Mc3Axis` now extend `I_Axis`; `I_Mc2Axis_PTP` and `I_Mc3Axis_PTP` extend `I_Axis_PTP`
+- `I_AxisSettings` — holds the generation-neutral `JogMode`
+- `I_MotionTaskCollection` — read-only view (`Busy`, `Error`, `ErrorId`, `ErrorTask`) on a task collection;
+  `I_Mc2MotionTaskCollection` and `I_Mc3MotionTaskCollection` now extend it
+- `E_AxisJogMode` (`Slow`, `Fast`) — generation-neutral jog mode in `Motion/DUT/`
+- `AxisPTP_HMI` and `Axis_TcEvents` in `Motion/` — one operator faceplate and one event reaction serving both
+  stacks, typed on `I_Axis_PTP` / `I_Axis`
+- `I_AxisStatus` gained `Coupled`, `SynchronizedMotion` and `Disabled`
+
+### Changed
+
+- `I_Axis` and `I_Axis_PTP` do not expose `AXIS_REF`. `I_Mc2Axis` / `I_Mc3Axis` still extend
+  `I_Mc2AxisRef` / `I_Mc3AxisRef`, so raw NC access through `myAxis.Axis` is unchanged — it is simply no
+  longer reachable from the generation-agnostic abstraction
+- `JogMode` moved from `I_Mc2Settings` / `I_Mc3Settings` to `I_AxisSettings`, is now an `E_AxisJogMode` passed by
+  value with Get and Set, and each axis maps it onto its own library enum
+- `Mc2Axis.MotionTasks` / `Mc3Axis.MotionTasks` return `I_MotionTaskCollection`. `AddTask()` and
+  `RemoveTaskByInstance()` remain on the generation-specific interfaces for internal use
+- VFFS was updated to the shared `AxisPTP_HMI` / `Axis_TcEvents`
+
+### Removed
+
+- `Mc2AxisPTP_HMI`, `Mc3AxisPTP_HMI`, `Mc2Axis_TcEvents`, `Mc3Axis_TcEvents` — replaced by the shared
+  `AxisPTP_HMI` and `Axis_TcEvents`
+
+### Fixed
+
+- `I_Mc2Settings.JogMode` was declared `REFERENCE TO Tc2_MC2.MC_Direction` while `Mc2Axis` backed it with an
+  `E_JogMode` and the HMI assigned `E_JogMode` values to it. The property was replaced by the typed
+  `E_AxisJogMode` on `I_AxisSettings`
+
 ## 2.0.0
 
 **Breaking change — the motion stack was restructured.** See [Documentation/Motion.md](Documentation/Motion.md)

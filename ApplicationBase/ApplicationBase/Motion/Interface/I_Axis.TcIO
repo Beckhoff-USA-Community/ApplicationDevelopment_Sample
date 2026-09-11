@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <Itf Name="I_Axis" Id="{0b44cf2b-bb21-4e82-bfd7-db58321cc40c}">
+    <Declaration><![CDATA[(* Motion generation independent view on an axis.
+   Deliberately free of any Tc2_MC2 / Tc3_Mc3Ptp type so that generic consumers
+   (HMI, event reactions, diagnostics) work against MC2 and MC3 alike.
+   The raw AXIS_REF is NOT part of this abstraction. It is available one level
+   down, on I_Mc2Axis / I_Mc3Axis, for code that deliberately targets one
+   motion generation and needs direct access to the NC structure. *)
+INTERFACE I_Axis EXTENDS I_Component, I_AxisEnable, I_Resettable, I_Stoppable, I_AxisDynamics, I_AxisStatus, I_AxisJog, I_AxisHome, I_AxisSettings, I_Override]]></Declaration>
+    <Property Name="ErrorId" Id="{5969c3e5-842a-47be-9fdd-c6b7c91a2937}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{bfb4abcc-d53c-4dc4-924b-1ffb4967d94b}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="MotionTasks" Id="{7c604631-4b4c-472f-8ac7-2e1e32042c9b}">
+      <Declaration><![CDATA[PROPERTY MotionTasks : I_MotionTaskCollection]]></Declaration>
+      <Get Name="Get" Id="{1a4f1c7d-7f46-4230-9106-8d323ae5bb7d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

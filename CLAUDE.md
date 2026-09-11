@@ -63,7 +63,7 @@ The framework uses a **hierarchical, interface-driven component model**:
 | `Components/Analog/` | Analog I/O components |
 | `Components/Cylinder/` | Pneumatic/hydraulic cylinder control |
 | `Components/ADS/` | ADS (Automation Device Specification) communication |
-| `Motion/` | Axis components — `Motion/MC2/` (`Mc2Axis`, `Mc2AxisPTP`, `Mc2SlaveAxisPTP`) and `Motion/MC3/` (`Mc3Axis`, `Mc3AxisPTP`, `Mc3SlaveAxisPTP`), behind shared `Motion/Interface/` axis interfaces |
+| `Motion/` | Axis components — `Motion/MC2/` (`Mc2Axis`, `Mc2AxisPTP`, `Mc2SlaveAxisPTP`) and `Motion/MC3/` (`Mc3Axis`, `Mc3AxisPTP`, `Mc3SlaveAxisPTP`), behind shared `Motion/Interface/` axis interfaces (`I_Axis`, `I_Axis_PTP`, …). The generation-agnostic `AxisPTP_HMI` and `Axis_TcEvents` sit directly in `Motion/` |
 | `_Internal/MotionTasks/` | Motion tasks driving the axes — `MC2/` and `MC3/` variants (move, power, home, reset, gearing) |
 | `Kinematic Group/` | `KinematicGroup` and its events |
 | `Statemachine/` | Generic state machine with mode control |
@@ -94,7 +94,7 @@ Operations on the component/module hierarchy (reset, mode change, name enumerati
 
 The `ApplicationBase` version lives in `Version/Global_Version.TcGVL` and `Project Information/F_GetVersion.TcPOU` — both are generated from the project properties in XAE, so bump the version there rather than editing the files by hand. Record notable changes in the root `CHANGELOG.md`.
 
-Current version: **2.0.0**. V2.0.0 added the MC3 axis stack and renamed all pre-existing motion types with an `Mc2` prefix (breaking change) — see `Documentation/Motion.md`.
+Current version: **2.1.0**. V2.0.0 added the MC3 axis stack and renamed all pre-existing motion types with an `Mc2` prefix (breaking change). V2.1.0 removed `AXIS_REF` and the motion-library enums from the shared axis abstraction and merged the per-generation HMI/event function blocks into `AxisPTP_HMI` and `Axis_TcEvents` (breaking change) — see `Documentation/Motion.md`.
 
 ## Naming Conventions
 

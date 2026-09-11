@@ -37,6 +37,20 @@ PROPERTY ActualVelocity : LREAL]]></Declaration>
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
+    <Property Name="Coupled" Id="{7af5ba8f-51a0-4525-9609-b707c8819eb9}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Coupled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{725909a9-990f-4870-8c7b-c23f9af9becd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Disabled" Id="{83f5ba49-a2f0-46de-bf9e-c9f392b4fd05}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY Disabled : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e0df8fb5-8474-48fc-9a76-6dcba60a6464}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
     <Property Name="Enabled" Id="{ab0ccb6d-71be-4f7f-81a8-36adc99d25e8}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Enabled : BOOL]]></Declaration>
@@ -76,6 +90,13 @@ PROPERTY SetPositionModulo : LREAL]]></Declaration>
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY SetVelocity : LREAL]]></Declaration>
       <Get Name="Get" Id="{cb50f4db-319d-40ff-b743-e2301bfbc1d3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="SynchronizedMotion" Id="{080810a4-25e3-4bc5-87d9-cbf99c290056}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY SynchronizedMotion : BOOL]]></Declaration>
+      <Get Name="Get" Id="{d8216fac-698e-4c9d-a1db-68204b925fd8}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>

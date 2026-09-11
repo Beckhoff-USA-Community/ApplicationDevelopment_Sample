@@ -17,7 +17,7 @@ VFFS  (MachineModule / PackMLModule)
     └── PullWheelCylinder   (Cylinder)
 ```
 
-As of `ApplicationBase` V2.0.0 all VFFS axes use the **MC3** stack (`Mc3AxisPTP` / `Mc3SlaveAxisPTP`), each paired with an `Mc3AxisPTP_HMI` faceplate and an `Mc3Axis_TcEvents` reporter. See [Motion](Motion.md).
+As of `ApplicationBase` V2.0.0 all VFFS axes use the **MC3** stack (`Mc3AxisPTP` / `Mc3SlaveAxisPTP`). Since V2.1.0 each is paired with the shared, generation-agnostic `AxisPTP_HMI` faceplate and `Axis_TcEvents` reporter. See [Motion](Motion.md).
 
 ## Machine Module — `VFFS`
 

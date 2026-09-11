@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.20">
+  <DUT Name="E_AxisJogMode" Id="{4b39cb50-23f6-4cce-9c25-5daecbf6b9cb}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+(* Motion-generation independent jog mode.
+   Mapped onto Tc2_MC2.E_JogMode / Tc3_Mc3Ptp.EJogMode by the concrete axis. *)
+TYPE E_AxisJogMode : (
+		Slow := 0,
+		Fast := 1
+	) DINT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>
