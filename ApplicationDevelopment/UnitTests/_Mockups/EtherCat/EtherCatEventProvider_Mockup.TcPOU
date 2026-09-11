@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="EtherCatEventProvider_Mockup" Id="{e1002265-a848-4f3e-affe-f0028eee8dff}" SpecialFunc="None">
+    <Declaration><![CDATA[// Counts the diagnostic events an EtherCatMaster raises instead of publishing TcEvents.
+FUNCTION_BLOCK EtherCatEventProvider_Mockup EXTENDS Component IMPLEMENTS I_EtherCatDiagnosticEventProvider
+VAR
+	_MasterEventCount	: UINT;
+	_SyncUnitEventCount : UINT;
+	_ResetCount			: UINT;
+	_LastEventId		: UDINT;
+	_LastArgument1		: STRING;
+	_LastArgument2		: STRING;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="GetHighestActiveEventReaction" Id="{c482de27-b231-4cc2-9a16-7d84af5e5435}">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventReaction : DINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventReaction := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetHighestActiveEventSeverity" Id="{a247321c-4d9f-4a25-8585-a398a51e2b8a}">
+      <Declaration><![CDATA[METHOD GetHighestActiveEventSeverity : TcEventSeverity]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetHighestActiveEventSeverity := TcEventSeverity.Verbose;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="LastArgument1" Id="{fbee8c25-c869-495b-945d-fe7b2cd427ba}">
+      <Declaration><![CDATA[PROPERTY LastArgument1 : STRING]]></Declaration>
+      <Get Name="Get" Id="{2466e1f9-f2ad-465b-8192-001c86a1ac80}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LastArgument1 := _LastArgument1;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="LastArgument2" Id="{f4d26b66-6367-4a49-8b30-5e3a39401650}">
+      <Declaration><![CDATA[PROPERTY LastArgument2 : STRING]]></Declaration>
+      <Get Name="Get" Id="{17c9d393-1a4e-4475-a73f-07782ece0e9d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LastArgument2 := _LastArgument2;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="LastEventId" Id="{ace27093-4cd7-4819-8a47-30893e54a128}">
+      <Declaration><![CDATA[PROPERTY LastEventId : UDINT]]></Declaration>
+      <Get Name="Get" Id="{d6ec5ad7-1458-4e8e-b67a-1a230cda72da}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LastEventId := _LastEventId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="MasterEventCount" Id="{c01052ac-952e-403b-bf9d-9f3673868e67}">
+      <Declaration><![CDATA[// Number of RaiseEtherCatDiagnosticEvent calls (master and slave events).
+PROPERTY MasterEventCount : UINT]]></Declaration>
+      <Get Name="Get" Id="{7eaeb0de-7e51-49e3-9878-4d6eb9204ab0}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MasterEventCount := _MasterEventCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="RaiseEtherCatDiagnosticEvent" Id="{9bb025dd-5c6f-43ad-bc14-c492fc080666}">
+      <Declaration><![CDATA[METHOD RaiseEtherCatDiagnosticEvent
+VAR_INPUT
+	EventId	  : UDINT;
+	Argument1 : STRING := '';
+	Argument2 : STRING := '';
+	Argument3 : STRING := '';
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_MasterEventCount := _MasterEventCount + 1;
+_LastEventId	  := EventId;
+_LastArgument1	  := Argument1;
+_LastArgument2	  := Argument2;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RaiseSyncUnitEvent" Id="{ca756507-2739-4665-9841-12db2c331a14}">
+      <Declaration><![CDATA[METHOD RaiseSyncUnitEvent
+VAR_INPUT
+	EventId	  : UDINT;
+	Argument1 : STRING := '';
+	Argument2 : STRING := '';
+	Argument3 : STRING := '';
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_SyncUnitEventCount := _SyncUnitEventCount + 1;
+_LastEventId		:= EventId;
+_LastArgument1		:= Argument1;
+_LastArgument2		:= Argument2;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{27d1d692-d985-4d37-aab7-37b258d6a98a}">
+      <Declaration><![CDATA[METHOD Reset]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_ResetCount := _ResetCount + 1;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ResetCount" Id="{283e356b-1a49-4ceb-bb8d-3d8129264fb9}">
+      <Declaration><![CDATA[PROPERTY ResetCount : UINT]]></Declaration>
+      <Get Name="Get" Id="{3b2478ad-f067-4588-91f6-9cb86921d081}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ResetCount := _ResetCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SetEventReactions" Id="{7bfe5315-0a20-47ee-b83f-32039a1a6181}">
+      <Declaration><![CDATA[METHOD SetEventReactions
+VAR_INPUT
+	Verbose	 : DINT := 0;
+	Info	 : DINT := 1;
+	Warning	 : DINT := 2;
+	Error	 : DINT := 3;
+	Critical : DINT := 4;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SyncUnitEventCount" Id="{c2ef5f96-90a5-495c-bdef-0c4f3d1812f6}">
+      <Declaration><![CDATA[PROPERTY SyncUnitEventCount : UINT]]></Declaration>
+      <Get Name="Get" Id="{8d9611c6-97f6-4d55-9e71-cc84bb078d1f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SyncUnitEventCount := _SyncUnitEventCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

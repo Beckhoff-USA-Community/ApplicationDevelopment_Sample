@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="CoeDevice" Id="{c44fc925-b48d-43e7-9921-59d1275857d3}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK CoeDevice EXTENDS CyclicComponent IMPLEMENTS I_CoeDevice
+    <Declaration><![CDATA[FUNCTION_BLOCK CoeDevice EXTENDS CyclicComponent IMPLEMENTS I_CoeDevice, I_CoeTransfer
 VAR
 	{attribute 'hide'}
 	_Error : BOOL;
@@ -9,9 +9,16 @@ VAR
 	_Busy : BOOL;
 	{attribute 'hide'}
 	_ErrorId : UDINT;
-	_AdsAddr : REFERENCE TO AMSADDR;
-	CoeRead	 : FB_EcCoESdoReadEx;
-	CoeWrite : FB_EcCoESdoReadEx;
+	{attribute 'hide'}
+	_ActiveIsWrite : BOOL;
+	_AdsAddr   : REFERENCE TO AMSADDR;
+	_Scheduler : I_CoeTransferScheduler; // optional: services this device while a transfer is in flight
+	CoeRead	   : FB_EcCoESdoReadEx;
+	CoeWrite   : FB_EcCoESdoWriteEx;
+END_VAR
+
+VAR CONSTANT
+	ERROR_NO_ADDRESS : UDINT := 16#70B; // ADS: invalid parameter - AdsAddr reference not set
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -46,7 +53,9 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Method Name="CyclicLogic" Id="{f7dc4c56-720e-4dcf-a90e-1437f6929992}">
-      <Declaration><![CDATA[METHOD CyclicLogic
+      <Declaration><![CDATA[// Services the SDO transfer in flight. Call each cycle while Busy; with a Scheduler set the
+// scheduler does this for you.
+METHOD CyclicLogic
 VAR_INST
 END_VAR]]></Declaration>
       <Implementation>
@@ -54,18 +63,24 @@ END_VAR]]></Declaration>
 	RETURN;
 END_IF
 
-CoeRead(sNetId := F_CreateAmsNetId(AdsAddr.netId), nSlaveAddr := AdsAddr.port, tTimeout := T#1S);
-CoeWrite(sNetId := F_CreateAmsNetId(AdsAddr.netId), nSlaveAddr := AdsAddr.port, tTimeout := T#1S);
+CoeRead(sNetId := F_CreateAmsNetId(_AdsAddr.netId), nSlaveAddr := _AdsAddr.port, tTimeout := T#1S);
+CoeWrite(sNetId := F_CreateAmsNetId(_AdsAddr.netId), nSlaveAddr := _AdsAddr.port, tTimeout := T#1S);
 CoeRead.bExecute  := FALSE;
 CoeWrite.bExecute := FALSE;
-_Busy			  := CoeRead.bBusy OR CoeWrite.bBusy;
-_Error			  := CoeRead.bError OR CoeWrite.bError;
-IF CoeRead.bError THEN
-	_ErrorId := CoeRead.nErrId;
-END_IF
 
-IF CoeWrite.bError THEN
-	_ErrorId := CoeWrite.nErrId;
+(* Only the active function block decides Busy/Error: a stale bError of the other one must not leak. *)
+IF _ActiveIsWrite THEN
+	_Busy := CoeWrite.bBusy;
+	IF CoeWrite.bError THEN
+		_Error	 := TRUE;
+		_ErrorId := CoeWrite.nErrId;
+	END_IF
+ELSE
+	_Busy := CoeRead.bBusy;
+	IF CoeRead.bError THEN
+		_Error	 := TRUE;
+		_ErrorId := CoeRead.nErrId;
+	END_IF
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -92,7 +107,8 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Method Name="Read" Id="{d76200df-b7b1-4642-b3bc-ba548d1d54d4}">
-      <Declaration><![CDATA[METHOD Read
+      <Declaration><![CDATA[// Starts an SDO read; ignored while Busy. Fails with ERROR_NO_ADDRESS if AdsAddr is not set.
+METHOD Read
 VAR_INPUT
 	Index	 : WORD;
 	SubIndex : BYTE;
@@ -101,6 +117,12 @@ VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _Busy THEN
+	RETURN;
+END_IF
+
+IF NOT __ISVALIDREF(_AdsAddr) THEN
+	_Error	 := TRUE;
+	_ErrorId := ERROR_NO_ADDRESS;
 	RETURN;
 END_IF
 
@@ -109,12 +131,38 @@ CoeRead.nIndex			:= Index;
 CoeRead.pDstBuf			:= pDstBuf;
 CoeRead.cbBufLen		:= BufLen;
 CoeRead.bCompleteAccess := SubIndex = 0;
+_ActiveIsWrite			:= FALSE;
+_Error					:= FALSE;
+_ErrorId				:= 0;
 _Busy					:= TRUE;
-CoeRead.bExecute		:= TRUE;]]></ST>
+CoeRead.bExecute		:= TRUE;
+
+IF _Scheduler <> 0 THEN
+	_Scheduler.Register(THIS^);
+END_IF]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Scheduler" Id="{7446c31d-3cf4-4065-bce9-980d3c94b960}">
+      <Declaration><![CDATA[// Optional scheduler that calls CyclicLogic while a transfer is in flight (set by EtherCatIoDevice).
+PROPERTY Scheduler : I_CoeTransferScheduler]]></Declaration>
+      <Get Name="Get" Id="{4b6a3fca-f994-47db-b71b-7fdbbdccd5ed}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Scheduler := _Scheduler;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6a20a12b-649e-4f0c-bee0-f85b238f9c3c}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Scheduler := Scheduler;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="Write" Id="{f028f408-1739-4375-a0d7-b0a99ab310d9}">
-      <Declaration><![CDATA[METHOD Write
+      <Declaration><![CDATA[// Starts an SDO write from pDstBuf (used as the source buffer); ignored while Busy.
+METHOD Write
 VAR_INPUT
 	Index	 : WORD;
 	SubIndex : BYTE;
@@ -126,13 +174,26 @@ END_VAR]]></Declaration>
 	RETURN;
 END_IF
 
+IF NOT __ISVALIDREF(_AdsAddr) THEN
+	_Error	 := TRUE;
+	_ErrorId := ERROR_NO_ADDRESS;
+	RETURN;
+END_IF
+
 CoeWrite.nSubIndex		 := SubIndex;
 CoeWrite.nIndex			 := Index;
-CoeWrite.pDstBuf		 := pDstBuf;
+CoeWrite.pSrcBuf		 := pDstBuf;
 CoeWrite.cbBufLen		 := BufLen;
 CoeWrite.bCompleteAccess := SubIndex = 0;
+_ActiveIsWrite			 := TRUE;
+_Error					 := FALSE;
+_ErrorId				 := 0;
 _Busy					 := TRUE;
-CoeWrite.bExecute		 := TRUE;]]></ST>
+CoeWrite.bExecute		 := TRUE;
+
+IF _Scheduler <> 0 THEN
+	_Scheduler.Register(THIS^);
+END_IF]]></ST>
       </Implementation>
     </Method>
   </POU>

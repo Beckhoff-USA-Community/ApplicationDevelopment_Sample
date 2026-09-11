@@ -7,11 +7,13 @@ VAR
 	SyncUnitTaskInfo AT %I* : ST_EtherCatSyncUnitTaskInfo;
 	_SlaveCount				: UINT;
 	_IsHotConnect			: BOOL;
+	_SlavesResolved			: BOOL;
 	EcMaster				: I_EtherCatMasterDiagnostic;
 	ConfiguredSlaveInfo		: REFERENCE TO ARRAY[0..MAX_EC_SLAVES] OF ST_EcSlaveConfigData;
 	SlaveTopologyInfo		: REFERENCE TO ARRAY[0..MAX_EC_SLAVES] OF ST_TopologyDataEx;
 	SyncUnitSlaveAddresses	: ARRAY[0..MAX_EC_SLAVES] OF UINT;
-	SyncUnitSlaveNames		: ARRAY[0..MAX_EC_SLAVES] OF STRING(31);
+	// TRUE at the configured slave index of every slave in this sync unit (filled by the resolve pass)
+	MemberByIndex			: ARRAY[0..MAX_EC_SLAVES] OF BOOL;
 END_VAR
 
 VAR
@@ -29,8 +31,11 @@ END_VAR
 
 VAR
 	SyncUnitState			  : UDINT := READ_SLAVES;
-	i						  : UINT;
-	j						  : UINT;
+	ScanIndex				  : UINT;  // position of the multi-cycle resolve pass
+	WaitCycles				  : UDINT; // ADS watchdog and retry delay
+	ReadErrorLogged			  : BOOL;
+	SlaveMessagePartA		  : STRING;
+	SlaveMessagePartB		  : STRING;
 	_EventProvider			  : I_EtherCatDiagnosticEventProvider;
 	EcGetAllSyncUnitSlaveAddr : FB_EcGetAllSyncUnitSlaveAddr;
 END_VAR
@@ -46,9 +51,10 @@ VAR CONSTANT
 	READ_SLAVES			  : UDINT := 0;
 	READ_SLAVES_DONE	  : UDINT := 1;
 	SYNC_UNIT_OK		  : UDINT := 2;
-	POPULATE_SLAVE_NAMES  : UDINT := 3;
+	RESOLVE_SLAVES		  : UDINT := 3;
 	WORKING_COUNTER_ERROR : UDINT := 4;
 	READ_ERROR			  : UDINT := 5;
+	READ_RETRY_WAIT		  : UDINT := 6;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -56,6 +62,29 @@ END_VAR]]></Declaration>
     <Folder Name="Initialize" Id="{e2c06de2-8913-0bc2-3171-b18ce4f50a67}" />
     <Folder Name="SyncUnitTask" Id="{9ecda84e-6ec3-04ab-3827-af113ad3e658}" />
     <Folder Name="TaskResult" Id="{408e4c43-c95b-43fa-b009-f6e408f68e00}" />
+    <Method Name="AppendSlaveName" Id="{5938d094-8abf-4dcb-aedf-9efb74bfd17e}" FolderPath="SyncUnitTask\">
+      <Declaration><![CDATA[// Appends the name to the two event message parts while they have room (STRING_LEN each).
+METHOD PRIVATE AppendSlaveName
+VAR_INPUT
+	SlaveName : STRING;
+END_VAR
+
+VAR
+	Entry : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF LEN(SlaveName) = 0 THEN
+	RETURN;
+END_IF
+
+Entry := CONCAT(SlaveName, ', ');
+IF (LEN(Entry) + LEN(SlaveMessagePartA)) <= STRING_LEN THEN
+	SlaveMessagePartA := CONCAT(SlaveMessagePartA, Entry);
+ELSIF (LEN(Entry) + LEN(SlaveMessagePartB)) <= STRING_LEN THEN
+	SlaveMessagePartB := CONCAT(SlaveMessagePartB, Entry);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="Busy" Id="{781d128d-30d4-4fb1-b0a7-ba9b7b332088}" FolderPath="TaskResult\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Busy : BOOL]]></Declaration>
@@ -69,10 +98,10 @@ END_VAR]]></Declaration>
     </Property>
     <Method Name="CyclicLogic" Id="{61b2331c-0631-0abf-1495-53eeaf453480}">
       <Declaration><![CDATA[METHOD PUBLIC CyclicLogic
-VAR_INST
-	TempSlaveMessage  : STRING;
-	SlaveMessagePartA : STRING;
-	SlaveMessagePartB : STRING;
+VAR
+	k	 : UINT;
+	Addr : UINT;
+	Idx	 : DINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF NOT Initialized THEN
@@ -84,55 +113,64 @@ IF Simulated THEN
 	RETURN;
 END_IF
 
+(* The slave list of a sync unit is configuration data: it is read once (retried on failure) and
+   never re-read on working counter recovery. The buffer is sized to the configured slave count. *)
 EcGetAllSyncUnitSlaveAddr(sNetId	:= '',
 						  nObjectId := SyncUnitTaskInfo.ObjectId,
 						  pAddrBuf	:= ADR(SyncUnitSlaveAddresses),
-						  cbBufLen	:= (SIZEOF(UINT) * MAX_EC_SLAVES),
-						  tTimeout	:= T#5S,
-						  nSlaves	=> _SlaveCount);
+						  cbBufLen	:= SIZEOF(UINT) * MIN(EcMaster.ConfiguredSlaveCount, MAX_EC_SLAVES + 1),
+						  tTimeout	:= T#5S);
 
 EcGetAllSyncUnitSlaveAddr.bExecute := FALSE;
 CASE SyncUnitState OF
 	READ_SLAVES:
 		EcGetAllSyncUnitSlaveAddr.bExecute := TRUE;
+		WaitCycles						   := 0;
 		SyncUnitState					   := READ_SLAVES_DONE;
 
 	READ_SLAVES_DONE:
-		IF NOT EcGetAllSyncUnitSlaveAddr.bBusy AND NOT EcGetAllSyncUnitSlaveAddr.bError AND (_SlaveCount > 0) THEN
-			SyncUnitState := POPULATE_SLAVE_NAMES;
-		END_IF
-
-		IF (EcGetAllSyncUnitSlaveAddr.bError OR (_SlaveCount = 0)) AND NOT EcGetAllSyncUnitSlaveAddr.bBusy THEN
+		IF EcGetAllSyncUnitSlaveAddr.bBusy THEN
+			WaitCycles := WaitCycles + 1;
+			IF WaitCycles > ADS_WAIT_CYCLES THEN
+				SyncUnitState := READ_ERROR;
+			END_IF
+		ELSIF EcGetAllSyncUnitSlaveAddr.bError THEN
 			SyncUnitState := READ_ERROR;
+		ELSE
+			_SlaveCount		  := EcGetAllSyncUnitSlaveAddr.nSlaves;
+			ScanIndex		  := 0;
+			_IsHotConnect	  := FALSE;
+			SlaveMessagePartA := '';
+			SlaveMessagePartB := '';
+			MEMSET(ADR(MemberByIndex), 0, SIZEOF(MemberByIndex));
+			SyncUnitState	  := RESOLVE_SLAVES;
 		END_IF
 
-	POPULATE_SLAVE_NAMES:
-		FOR i := 0 TO (_SlaveCount - 1) DO
-			FOR j := 0 TO (EcMaster.ConfiguredSlaveCount - 1) DO
-				IF SyncUnitSlaveAddresses[i] <> 0 THEN
-					IF SyncUnitSlaveAddresses[i] = ConfiguredSlaveInfo[j].nAddr THEN
-						_IsHotConnect		  := SlaveTopologyInfo[j].nStatusBits.4 OR SlaveTopologyInfo[j].nStatusBits.5;
-						SyncUnitSlaveNames[i] := ConfiguredSlaveInfo[j].sName;
-					END_IF
-				END_IF
-			END_FOR
-		END_FOR
+	RESOLVE_SLAVES:
+		(* Map every address to its configured slave through the address map of the master:
+		   O(n) in total, SLAVES_PER_CYCLE slaves per cycle. *)
+		FOR k := 1 TO SLAVES_PER_CYCLE DO
+			IF ScanIndex >= _SlaveCount THEN
+				EXIT;
+			END_IF
 
-		TempSlaveMessage  := '';
-		SlaveMessagePartA := '';
-		SlaveMessagePartB := '';
-		FOR j := 0 TO (_SlaveCount - 1) DO
-			IF LEN(SyncUnitSlaveNames[j]) > 0 THEN
-				TempSlaveMessage := CONCAT(SyncUnitSlaveNames[j], ', ');
-				IF (LEN(TempSlaveMessage) + LEN(SlaveMessagePartA)) <= STRING_LEN THEN
-					SlaveMessagePartA := CONCAT(SlaveMessagePartA, TempSlaveMessage);
-				ELSIF (LEN(TempSlaveMessage) + LEN(SlaveMessagePartB)) <= STRING_LEN THEN
-					SlaveMessagePartB := CONCAT(SlaveMessagePartB, TempSlaveMessage);
+			Addr := SyncUnitSlaveAddresses[ScanIndex];
+			IF Addr <> 0 THEN
+				Idx := EcMaster.GetSlaveIndexByAddr(Addr);
+				IF Idx >= 0 THEN
+					MemberByIndex[Idx] := TRUE;
+					_IsHotConnect	   := _IsHotConnect OR SlaveTopologyInfo[Idx].nStatusBits.4 OR SlaveTopologyInfo[Idx].nStatusBits.5;
+					AppendSlaveName(ConfiguredSlaveInfo[Idx].sName);
 				END_IF
 			END_IF
+
+			ScanIndex := ScanIndex + 1;
 		END_FOR
 
-		SyncUnitState := SYNC_UNIT_OK;
+		IF ScanIndex >= _SlaveCount THEN
+			_SlavesResolved := TRUE;
+			SyncUnitState	:= SYNC_UNIT_OK;
+		END_IF
 
 	SYNC_UNIT_OK:
 		IF SyncUnitTaskInfo.WcState THEN
@@ -154,7 +192,7 @@ CASE SyncUnitState OF
 												  _Name,
 												  SlaveMessagePartA,
 												  SlaveMessagePartB);
-			ELSIF NOT _IsHotConnect THEN
+			ELSE
 				_EventProvider.RaiseSyncUnitEvent(E_SyncUnit.SyncUnitError,
 												  _Name,
 												  SlaveMessagePartA,
@@ -167,14 +205,25 @@ CASE SyncUnitState OF
 				_EventProvider.Reset();
 			END_IF
 
-			SyncUnitState := READ_SLAVES;
+			SyncUnitState := SYNC_UNIT_OK; // membership does not change on WC recovery: no re-read
 		END_IF
 
 	READ_ERROR:
-		Trace.LogMessage(Name, CONCAT('Sync Unit Slave Names could not be read! Error ID: ', TO_STRING(EcGetAllSyncUnitSlaveAddr.nErrId)));
+		IF NOT ReadErrorLogged THEN
+			Trace.LogMessage(Name, CONCAT('Sync Unit slave addresses could not be read! Error ID: ', TO_STRING(EcGetAllSyncUnitSlaveAddr.nErrId)));
+			ReadErrorLogged := TRUE;
+		END_IF
+
 		_Error		  := TRUE;
 		_ErrorID	  := ERROR_READ_SLAVE_NAMES;
-		SyncUnitState := READ_SLAVES;
+		WaitCycles	  := 0;
+		SyncUnitState := READ_RETRY_WAIT;
+
+	READ_RETRY_WAIT:
+		WaitCycles := WaitCycles + 1;
+		IF WaitCycles > ADS_WAIT_CYCLES THEN
+			SyncUnitState := READ_SLAVES;
+		END_IF
 END_CASE]]></ST>
       </Implementation>
     </Method>
@@ -238,24 +287,24 @@ THIS^.SlaveTopologyInfo	  REF= SlaveTopologyInfo;]]></ST>
 VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF NOT _Error AND NOT (F_GetMappingStatus(ADR(SyncUnitTaskInfo.ObjectId), SIZEOF(SyncUnitTaskInfo.ObjectId)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
+        <ST><![CDATA[IF NOT _Error AND NOT Simulated AND F_GetMappingStatus(ADR(SyncUnitTaskInfo.ObjectId), SIZEOF(SyncUnitTaskInfo.ObjectId)) = EplcMappingStatus.MS_Unmapped THEN
 	_Error := TRUE;
-	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.ObjectId mapped to SyncUnit Diagnostic!');
+	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.ObjectId not mapped to the sync unit diagnostic!');
 END_IF
 
-IF NOT _Error AND NOT (F_GetMappingStatus(ADR(SyncUnitTaskInfo.SlaveCount), SIZEOF(SyncUnitTaskInfo.SlaveCount)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
+IF NOT _Error AND NOT Simulated AND F_GetMappingStatus(ADR(SyncUnitTaskInfo.SlaveCount), SIZEOF(SyncUnitTaskInfo.SlaveCount)) = EplcMappingStatus.MS_Unmapped THEN
 	_Error := TRUE;
-	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.SlaveCount mapped to SyncUnit Diagnostic!');
+	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.SlaveCount not mapped to the sync unit diagnostic!');
 END_IF
 
-IF NOT _Error AND NOT (F_GetMappingStatus(ADR(SyncUnitTaskInfo.State), SIZEOF(SyncUnitTaskInfo.State)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
+IF NOT _Error AND NOT Simulated AND F_GetMappingStatus(ADR(SyncUnitTaskInfo.State), SIZEOF(SyncUnitTaskInfo.State)) = EplcMappingStatus.MS_Unmapped THEN
 	_Error := TRUE;
-	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.State mapped to SyncUnit Diagnostic!');
+	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.State not mapped to the sync unit diagnostic!');
 END_IF
 
-IF NOT _Error AND NOT (F_GetMappingStatus(ADR(SyncUnitTaskInfo.WcState), SIZEOF(SyncUnitTaskInfo.WcState)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
+IF NOT _Error AND NOT Simulated AND F_GetMappingStatus(ADR(SyncUnitTaskInfo.WcState), SIZEOF(SyncUnitTaskInfo.WcState)) = EplcMappingStatus.MS_Unmapped THEN
 	_Error := TRUE;
-	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.WcState mapped to SyncUnit Diagnostic!');
+	Trace.LogMessage(Name, 'Init Failed - SyncUnitTaskInfo.WcState not mapped to the sync unit diagnostic!');
 END_IF
 
 IF _Error THEN
@@ -301,7 +350,8 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Property Name="IsHotConnect" Id="{293d2159-e010-034c-07aa-3ccb3cd64192}" FolderPath="SyncUnitTask\">
-      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+      <Declaration><![CDATA[// TRUE if at least one slave of this sync unit belongs to a hot connect group.
+{attribute 'monitoring' := 'call'}
 PROPERTY IsHotConnect : BOOL]]></Declaration>
       <Get Name="Get" Id="{1ff3282e-a7b2-0f15-1b5c-4f7ccb374a97}">
         <Declaration><![CDATA[VAR
@@ -312,17 +362,18 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Method Name="IsTerminalPartOfSyncUnit" Id="{04f70e98-80b6-4853-9fa9-735db194cd89}" FolderPath="SyncUnitTask\">
-      <Declaration><![CDATA[METHOD IsTerminalPartOfSyncUnit : BOOL
+      <Declaration><![CDATA[// O(1) once the slave list is resolved (SlavesResolved).
+METHOD IsTerminalPartOfSyncUnit : BOOL
 VAR_INPUT
 	Addr : UINT;
+END_VAR
+
+VAR
+	Idx : DINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR i := 0 TO (_SlaveCount - 1) DO
-	IF SyncUnitSlaveAddresses[i] = Addr THEN
-		IsTerminalPartOfSyncUnit := TRUE;
-		EXIT;
-	END_IF
-END_FOR]]></ST>
+        <ST><![CDATA[Idx						 := EcMaster.GetSlaveIndexByAddr(Addr);
+IsTerminalPartOfSyncUnit := (Idx >= 0) AND_THEN MemberByIndex[Idx];]]></ST>
       </Implementation>
     </Method>
     <Property Name="Simulated" Id="{28507140-3303-4f90-8c85-ee2f70eef988}">
@@ -343,6 +394,18 @@ END_VAR]]></Declaration>
         </Implementation>
       </Set>
     </Property>
+    <Method Name="SlaveAddress" Id="{eb050526-dd81-4f5c-985d-33c7db4ccb5f}" FolderPath="SyncUnitTask\">
+      <Declaration><![CDATA[// EtherCAT address of the slave at Position (0..SlaveCount-1) in this sync unit; 0 if out of range.
+METHOD SlaveAddress : UINT
+VAR_INPUT
+	Position : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Position < _SlaveCount THEN
+	SlaveAddress := SyncUnitSlaveAddresses[Position];
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="SlaveCount" Id="{ed198b01-8178-08bb-18c7-2d8c6088f441}" FolderPath="SyncUnitTask\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY PUBLIC SlaveCount : UINT]]></Declaration>
@@ -351,6 +414,18 @@ PROPERTY PUBLIC SlaveCount : UINT]]></Declaration>
 END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[SlaveCount := _SlaveCount;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="SlavesResolved" Id="{4df048de-86c2-444b-ac3b-46caa5143b0b}" FolderPath="SyncUnitTask\">
+      <Declaration><![CDATA[// TRUE once the slave list has been read and mapped to the configured slaves.
+{attribute 'monitoring' := 'call'}
+PROPERTY SlavesResolved : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8a25e2e4-7e89-4ad9-906b-2a380d4f0c09}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SlavesResolved := _SlavesResolved;]]></ST>
         </Implementation>
       </Get>
     </Property>

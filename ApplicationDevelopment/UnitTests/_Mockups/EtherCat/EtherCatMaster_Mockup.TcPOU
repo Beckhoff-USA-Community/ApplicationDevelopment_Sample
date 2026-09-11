@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="EtherCatMaster_Mockup" Id="{5d8d3455-3037-4a3a-8f07-a6cec3895f39}" SpecialFunc="None">
+    <Declaration><![CDATA[// EtherCatMaster with its hardware inputs and slave arrays fed from the test instead of the master
+// device. Exposes the protected evaluation steps so they can be driven without ADS or an EtherCAT master.
+FUNCTION_BLOCK EtherCatMaster_Mockup EXTENDS EtherCatMaster<1, 1>
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_Init" Id="{0d450fdf-169c-4d12-a5b5-3c33a2d8fce1}">
+      <Declaration><![CDATA[// Same inputs as EtherCatMaster.FB_Init; the base constructor receives them implicitly.
+METHOD FB_Init : BOOL
+VAR_INPUT
+	bInitRetains	: BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+	bInCopyCode		: BOOL; // TRUE: the instance will be copied to the copy code afterward (online change)
+	Name			: T_MaxString;
+	EcStartupCycles : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="DiagnosticStep" Id="{e5d0ea0a-5401-4c8d-8ba4-9ee1b295ed2c}">
+      <Declaration><![CDATA[// Current step of the slave diagnostic sequence (0 = idle).
+PROPERTY DiagnosticStep : UDINT]]></Declaration>
+      <Get Name="Get" Id="{446d9455-319b-4b82-8468-ef4cebd205f1}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DiagnosticStep := SlaveSequence;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="LoadConfiguration" Id="{d3c3ed95-6243-4255-abab-edace0fc2cf2}">
+      <Declaration><![CDATA[// Fakes a finished Initialize: Count slaves named Slave1..SlaveN at addresses 1001.., all OP, no mailbox.
+METHOD LoadConfiguration
+VAR_INPUT
+	Count : UINT;
+END_VAR
+
+VAR
+	i : UINT;
+	n : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[n := MIN(Count, MAX_EC_SLAVES + 1);
+
+EcMaster.CfgSlaveCount := n;
+EcMaster.SlaveCount	   := n;
+SlaveCountUsed		   := n;
+
+i := 0;
+WHILE i < n DO
+	ConfiguredSlaveInfo[i].nAddr		  := FIRST_SLAVE_ADDR + i;
+	ConfiguredSlaveInfo[i].sName		  := CONCAT('Slave', TO_STRING(i + 1));
+	ConfiguredSlaveInfo[i].nMailboxInSize := 0;
+	SlavesState[i].deviceState			  := 16#08; // OP
+	SlavesState[i].linkState			  := 16#00;
+	IoDevice[i].Name					  := ConfiguredSlaveInfo[i].sName;
+	IoDevice[i].State					  REF= SlavesState[i];
+	IoDevice[i].Configuration			  REF= ConfiguredSlaveInfo[i];
+	i									  := i + 1;
+END_WHILE
+
+BuildAddrToIndex();
+Initialized := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RunMasterState" Id="{1940fc6d-5d5b-4880-beef-e977459012da}">
+      <Declaration><![CDATA[// One evaluation of the master DevState (normally done by CyclicLogic).
+METHOD RunMasterState : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RunMasterState := MasterState();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RunSlaveState" Id="{0ed23de3-fcaf-4de5-8c0b-d816862db89b}">
+      <Declaration><![CDATA[// One cycle of the slave diagnostic sequence (normally done by CyclicLogic).
+METHOD RunSlaveState]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SlaveState();
+_Busy := SlaveSequence <> 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetMasterAmsNetId" Id="{f94dbf8f-fea0-4483-a83b-80aaaab3ba93}">
+      <Declaration><![CDATA[// Target of the diagnostic ADS reads (normally taken from EcMaster.AmsNetID in Initialize).
+METHOD SetMasterAmsNetId
+VAR_INPUT
+	NetId : T_AmsNetId;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_MasterAmsNetId := NetId;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetMasterDevState" Id="{3b7d2612-ff38-4288-a5c9-7f10ded4bbd2}">
+      <Declaration><![CDATA[// Fakes the master process image: DevState word and number of slaves currently on the bus.
+METHOD SetMasterDevState
+VAR_INPUT
+	DevState   : UINT;
+	SlaveCount : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[EcMaster.DevState	:= DevState;
+EcMaster.SlaveCount := SlaveCount;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetSlaveAddress" Id="{8242f82f-a124-42c3-afca-8c5bfbbc8d5e}">
+      <Declaration><![CDATA[// Gives the configured slave Index another EtherCAT address and rebuilds the address map.
+METHOD SetSlaveAddress
+VAR_INPUT
+	Index : UINT;
+	Addr  : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ConfiguredSlaveInfo[Index].nAddr := Addr;
+BuildAddrToIndex();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetSlaveState" Id="{701d6f27-147a-4bc3-82f0-f67c51db7b15}">
+      <Declaration><![CDATA[// Fakes the state read of one slave.
+METHOD SetSlaveState
+VAR_INPUT
+	Index		: UINT;
+	DeviceState : BYTE;
+	LinkState	: BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SlavesState[Index].deviceState := DeviceState;
+SlavesState[Index].linkState   := LinkState;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StartDiagnostic" Id="{cf46a52b-7bc4-415d-9653-5f48215c363f}">
+      <Declaration><![CDATA[// Requests a slave diagnostic sequence (normally triggered by ChangeCount, slave count or frame WC state).
+METHOD StartDiagnostic]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RunSlaveDiag := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

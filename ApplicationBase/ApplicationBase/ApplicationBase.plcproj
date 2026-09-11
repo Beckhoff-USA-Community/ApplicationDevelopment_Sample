@@ -218,6 +218,12 @@
     <Compile Include="Components\CoE\Interface\I_CoeDevice.TcIO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Components\CoE\Interface\I_CoeTransfer.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\CoE\Interface\I_CoeTransferScheduler.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Components\CoE\NullCoeDevice.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -288,6 +294,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Components\Digital\Visitor\ReleaseAllForceVisitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\DUT\E_EcErrorSource.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Components\EtherCat\DUT\EtherCatParameter.TcGVL">

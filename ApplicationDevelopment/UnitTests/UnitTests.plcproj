@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FileVersion>1.0.0.0</FileVersion>
@@ -115,6 +115,9 @@
     <Compile Include="UnitTests\Events\Events_TEST.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="UnitTests\EtherCat\EtherCatMaster_TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="UnitTests\Force\ForcibleBool_TEST.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -196,6 +199,12 @@
     <Compile Include="_Mockups\Components\MockupComponentTcEvent.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="_Mockups\EtherCat\EtherCatEventProvider_Mockup.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_Mockups\EtherCat\EtherCatMaster_Mockup.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="_Mockups\ModeChange\ModeControl_Mockup.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -246,6 +255,10 @@
           <Value>TRUE</Value>
         </Parameter>
       </Parameters>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_EtherCAT">
+      <DefaultResolution>Tc2_EtherCAT, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_EtherCAT</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc2_Math">
       <DefaultResolution>Tc2_Math, * (Beckhoff Automation GmbH)</DefaultResolution>
@@ -302,6 +315,7 @@
     <Folder Include="UnitTests\Cylinder" />
     <Folder Include="UnitTests\Digital" />
     <Folder Include="UnitTests\Events" />
+    <Folder Include="UnitTests\EtherCat" />
     <Folder Include="UnitTests\Force" />
     <Folder Include="UnitTests\Initializer" />
     <Folder Include="UnitTests\List" />
@@ -320,6 +334,7 @@
     <Folder Include="_Mockups\Collection" />
     <Folder Include="_Mockups\CollectionPeeker" />
     <Folder Include="_Mockups\Components" />
+    <Folder Include="_Mockups\EtherCat" />
     <Folder Include="_Mockups\ModeChange" />
     <Folder Include="_Mockups\Modules" />
     <Folder Include="_Mockups\SerialLineCtrl" />

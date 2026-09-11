@@ -6,23 +6,36 @@ VAR_GENERIC CONSTANT
 	FRAMES	   : UINT := 1;
 	SYNC_UNITS : UINT := 2;
 END_VAR
-EXTENDS CyclicComponent IMPLEMENTS I_EtherCatMasterDiagnostic, I_Initializable, I_TaskResult, I_Simulatable
+EXTENDS CyclicComponent IMPLEMENTS I_EtherCatMasterDiagnostic, I_Initializable, I_TaskResult, I_Simulatable, I_CoeTransferScheduler
 VAR
 	EcMaster	AT %I*	: ST_EtherCatMasterInfo;
 	FrmXWcState AT %I*	: ARRAY[0..(FRAMES - 1)] OF WORD;
 	ConfiguredSlaveInfo : ARRAY[0..MAX_EC_SLAVES] OF ST_EcSlaveConfigData;
 	SlavesState			: ARRAY[0..MAX_EC_SLAVES] OF ST_EcSlaveState;
 	SlaveTopologyInfo	: ARRAY[0..MAX_EC_SLAVES] OF ST_TopologyDataEx;
+	// Configured slave index + 1 by (EtherCAT address - FIRST_SLAVE_ADDR); 0 = no slave at that address
+	AddrToIndex			: ARRAY[0..MAX_EC_SLAVES] OF UINT;
 	SyncUnit			: ARRAY[0..(SYNC_UNITS - 1)] OF SyncUnitTask('Sync Unit', THIS^, ConfiguredSlaveInfo, SlaveTopologyInfo);
 	IoDevice			: ARRAY[0..MAX_EC_SLAVES] OF EtherCatIoDevice('Io Device');
+	// CoE transfers in flight - only these are serviced each cycle (I_CoeTransferScheduler)
+	ActiveCoe			: ARRAY[0..MAX_EC_SLAVES] OF I_CoeTransfer;
+	ActiveCoeCount		: UINT;
 	EventProvider		: I_EtherCatDiagnosticEventProvider;
 END_VAR
 
 VAR
+	InitSequenceState								 : UDINT;
 	SlaveSequence									 : UDINT;
 	RunSlaveDiag, LastFramesWcStatesOk				 : BOOL;
 	LastChangeCount, LastSlaveCount, LastMasterState : UINT;
 	EcStartupCycles									 : UINT;
+	SlaveCountUsed									 : UINT;  // configured slaves covered by the arrays, latched in Initialize
+	ScanIndex										 : UINT;  // slave position of the running multi-cycle pass
+	SyncUnitScan									 : UINT;  // sync unit of the running assignment pass
+	FirstDiagIndex									 : UINT;  // first slave that is not OP or reports a link problem
+	AnyDiag											 : BOOL;
+	SyncUnitsAssigned								 : BOOL;
+	WaitCycles										 : UDINT; // ADS watchdog of the running wait step
 	GetConfiguredSlaves								 : FB_EcGetConfSlaves;
 	GetMasterFrameCount								 : FB_EcMasterFrameCount;
 	GetAllSlaveStates								 : FB_EcGetAllSlaveStates;
@@ -39,6 +52,8 @@ VAR
 	{attribute 'hide'}
 	_ErrorId : UDINT;
 	{attribute 'hide'}
+	_ErrorSource : E_EcErrorSource;
+	{attribute 'hide'}
 	_Simulated : BOOL;
 	{attribute 'hide'}
 	Config : ST_EcSlaveConfigData;
@@ -50,17 +65,53 @@ VAR
 	_LocalAmsNetId : T_AmsNetId;
 	{attribute 'hide'}
 	_MasterAmsNetId : T_AmsNetId;
+END_VAR
+
+VAR CONSTANT
+	FIRST_SLAVE_ADDR  : UINT  := 1001;	 // TwinCAT assigns EtherCAT addresses from 1001 in configuration order
+	ADS_TIMEOUT		  : TIME  := T#5S;
+	ERROR_ADS_TIMEOUT : UDINT := 16#745; // ADS client: timeout elapsed (watchdog abort)
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Folder Name="_Internal" Id="{ca0b50fd-5048-4aec-b945-6ade741b5cc3}" />
+    <Folder Name="CoE" Id="{3a013ee2-7997-4313-a622-78d410a5c6d2}" />
     <Folder Name="Diagnostic" Id="{8daf5ba7-ec56-4aa2-87f5-e02cf302f316}" />
     <Folder Name="Initialize" Id="{70d62c55-9a6e-4608-a13a-af986e41c0cf}" />
     <Folder Name="Resettable" Id="{3af3d3da-4a00-45c9-a31e-fe08287c134d}" />
     <Folder Name="TaskResult" Id="{8aae4edb-d4d6-4720-af63-e947524eb0f2}" />
+    <Method Name="AdsWatchdogExpired" Id="{3b9bd3d5-6590-4dd4-868c-f84365f0df38}" FolderPath="_Internal\">
+      <Declaration><![CDATA[// Counts the cycles of the running wait step; TRUE once MaxCycles is exceeded.
+METHOD PRIVATE AdsWatchdogExpired : BOOL
+VAR_INPUT
+	MaxCycles : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[WaitCycles		   := WaitCycles + 1;
+AdsWatchdogExpired := WaitCycles > MaxCycles;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="BuildAddrToIndex" Id="{540611c4-ced8-4f68-9d63-bc81cccaef12}" FolderPath="_Internal\">
+      <Declaration><![CDATA[// Rebuilds the address map from the configured slaves (SlaveCountUsed entries).
+METHOD PROTECTED BuildAddrToIndex
+VAR
+	i : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MEMSET(ADR(AddrToIndex), 0, SIZEOF(AddrToIndex));
+
+i := 0;
+WHILE i < SlaveCountUsed DO
+	MapSlaveAddress(i);
+	i := i + 1;
+END_WHILE]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="Busy" Id="{a8d6e216-d136-48f1-a6ee-beda6d975c86}" FolderPath="TaskResult\">
-      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+      <Declaration><![CDATA[// TRUE while a diagnostic sequence runs. A pass over n slaves takes up to n / SLAVES_PER_CYCLE cycles,
+// so Error/ErrorId of a change land that many cycles after the trigger.
+{attribute 'monitoring' := 'call'}
 PROPERTY Busy : BOOL]]></Declaration>
       <Get Name="Get" Id="{4056a01c-0c87-4417-bd5a-9b0e2daa64f5}">
         <Declaration><![CDATA[VAR
@@ -93,9 +144,10 @@ END_VAR]]></Declaration>
 END_IF
 
 IF Simulated THEN
-	_Busy	 := FALSE;
-	_Error	 := FALSE;
-	_ErrorId := 0;
+	_Busy		 := FALSE;
+	_Error		 := FALSE;
+	_ErrorId	 := 0;
+	_ErrorSource := E_EcErrorSource.None;
 ELSE
 	IF NOT _Busy THEN
 		IF (LastChangeCount <> EcMaster.ChangeCount) THEN
@@ -113,16 +165,6 @@ ELSE
 		END_IF
 	END_IF
 
-	GetSlaveTopologyInfo(sNetId	  := _MasterAmsNetId,
-						 pAddrBuf := ADR(SlaveTopologyInfo),
-						 cbBufLen := SIZEOF(SlaveTopologyInfo),
-						 tTimeout := T#5S);
-
-	GetAllSlaveStates(sNetId	:= _MasterAmsNetId,
-					  pStateBuf := ADR(SlavesState),
-					  cbBufLen	:= SIZEOF(SlavesState),
-					  tTimeout	:= T#5S);
-
 	MasterState();
 	SlaveState();
 	FOR i := 0 TO (SYNC_UNITS - 1) DO
@@ -132,9 +174,21 @@ ELSE
 	_Busy := SlaveSequence <> 0;
 END_IF
 
-FOR i := 0 TO (EcMaster.CfgSlaveCount - 1) DO
-	IoDevice[i].CyclicLogic();
-END_FOR]]></ST>
+(* Only CoE transfers in flight are serviced; idle io devices cost nothing per cycle. *)
+ServiceCoeTransfers();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EndDiagnosticPass" Id="{a2e8164c-889e-4970-853b-1e9658378f69}" FolderPath="_Internal\">
+      <Declaration><![CDATA[// Leaves the slave evaluation: assigns the sync units once they resolved their slave lists, otherwise idles.
+METHOD PRIVATE EndDiagnosticPass]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT SyncUnitsAssigned AND_THEN SyncUnitsResolved() THEN
+	SyncUnitScan  := 0;
+	ScanIndex	  := 0;
+	SlaveSequence := 40;
+ELSE
+	SlaveSequence := 0;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="Error" Id="{fd2aad37-acbd-4549-8dff-3cc1e8b69d66}" FolderPath="TaskResult\">
@@ -149,7 +203,8 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Property Name="ErrorId" Id="{76e2677e-85b8-4192-ae01-7f29edcaffcd}" FolderPath="TaskResult\">
-      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+      <Declaration><![CDATA[// Raw code of ErrorSource: DevState word (Master), slave index (Slave), ADS error id (Ads), step (Sequence).
+{attribute 'monitoring' := 'call'}
 PROPERTY ErrorId : UDINT]]></Declaration>
       <Get Name="Get" Id="{c59f189e-2b3d-447d-8383-1ed95dba4997}">
         <Declaration><![CDATA[VAR
@@ -159,6 +214,86 @@ END_VAR]]></Declaration>
         </Implementation>
       </Get>
     </Property>
+    <Property Name="ErrorSource" Id="{17e49a29-0c1e-4905-860e-026e3ec8b8ce}" FolderPath="TaskResult\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ErrorSource : E_EcErrorSource]]></Declaration>
+      <Get Name="Get" Id="{f9b69b38-90d1-403e-a932-a7fc61f6b82a}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ErrorSource := _ErrorSource;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="EvaluateSlave" Id="{9023d524-15b7-4b34-acbc-4468eb23bb1b}" FolderPath="_Internal\">
+      <Declaration><![CDATA[// Raises the slave events for one configured slave. TRUE when a fault was latched (Error, ErrorSource.Slave).
+METHOD PROTECTED EvaluateSlave : BOOL
+VAR_INPUT
+	Index : UINT;
+END_VAR
+
+VAR
+	DiagByte : BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF SlaveTopologyInfo[Index].nStatusBits.4 THEN
+	RETURN; // member of a hot connect group: absence or a non-OP state is not a fault
+END_IF
+
+DiagByte := SlavesState[Index].deviceState AND 16#0F;
+IF DiagByte <> EC_DEVICE_STATE_OP THEN
+	IF SlavesState[Index].deviceState.7 THEN // slave is disabled - warning only
+		IF EventProvider <> 0 THEN
+			EventProvider.RaiseEtherCatDiagnosticEvent(E_EtherCatMaster.SlaveDisabled, ConfiguredSlaveInfo[Index].sName);
+		END_IF
+	ELSE
+		IF EventProvider <> 0 THEN
+			EventProvider.RaiseEtherCatDiagnosticEvent(E_EtherCatMaster.SlaveError, ConfiguredSlaveInfo[Index].sName, LookupSlaveState(Index));
+		END_IF
+
+		SetError(E_EcErrorSource.Slave, Index);
+		EvaluateSlave := TRUE;
+		RETURN;
+	END_IF
+END_IF
+
+DiagByte := SlavesState[Index].linkState AND 16#0F;
+IF DiagByte <> EC_LINK_STATE_OK THEN
+	IF EventProvider <> 0 THEN
+		EventProvider.RaiseEtherCatDiagnosticEvent(E_EtherCatMaster.SlaveError, ConfiguredSlaveInfo[Index].sName, LookupSlaveState(Index));
+	END_IF
+
+	SetError(E_EcErrorSource.Slave, Index);
+	EvaluateSlave := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FailInit" Id="{4984ebc0-ef47-45e8-a10b-3591d1da83e0}" FolderPath="Initialize\">
+      <Declaration><![CDATA[// Latches the error, logs Message and parks the init sequence in step 999.
+METHOD PRIVATE FailInit
+VAR_INPUT
+	Source	: E_EcErrorSource;
+	ErrorId : UDINT;
+	Message : T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetError(Source, ErrorId);
+Trace.LogMessage(Name, Message);
+InitSequenceState := 999;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FailSequence" Id="{7dc00690-6d23-4b1f-ab9e-e84f63f4ef5b}" FolderPath="_Internal\">
+      <Declaration><![CDATA[// Latches the error and aborts the running diagnostic sequence.
+METHOD PRIVATE FailSequence
+VAR_INPUT
+	Source	: E_EcErrorSource;
+	ErrorId : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetError(Source, ErrorId);
+SlaveSequence := 0;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="FB_Init" Id="{b13f5ee7-b35d-4d18-9795-7f71c11f59d6}">
       <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
 The return value is not evaluated. For a specific influence, you can also declare the
@@ -185,7 +320,11 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[FramesWcStatesOk := TRUE;
-FOR i := 0 TO (GetMasterFrameCount.nFrames - 1) DO
+IF GetMasterFrameCount.nFrames = 0 THEN
+	RETURN;
+END_IF
+
+FOR i := 0 TO (MIN(GetMasterFrameCount.nFrames, FRAMES) - 1) DO
 	IF FrmXWcState[i] <> 0 THEN
 		FramesWcStatesOk := FALSE;
 		EXIT;
@@ -194,13 +333,14 @@ END_FOR]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetIoDeviceByAddr" Id="{8fec52b1-8c69-4759-b15f-16e0bfdd0031}" FolderPath="Diagnostic\">
-      <Declaration><![CDATA[METHOD GetIoDeviceByAddr : I_EcIoDevice
+      <Declaration><![CDATA[// O(1) through the address map. Returns the null device (and logs a warning) for unknown addresses.
+METHOD GetIoDeviceByAddr : I_EcIoDevice
 VAR_INPUT
 	Addr : WORD;
 END_VAR
 
 VAR
-	i : UINT;
+	Idx : DINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF NOT Initialized THEN
@@ -208,18 +348,19 @@ END_VAR]]></Declaration>
 	RETURN;
 END_IF
 
-FOR i := 0 TO (EcMaster.CfgSlaveCount - 1) DO
-	IF IoDevice[i].Configuration.nAddr = Addr THEN
-		GetIoDeviceByAddr := IoDevice[i];
-		RETURN;
-	END_IF
-END_FOR
-
-GetIoDeviceByAddr := NullIoDevice;]]></ST>
+Idx := GetSlaveIndexByAddr(WORD_TO_UINT(Addr));
+IF Idx >= 0 THEN
+	GetIoDeviceByAddr := IoDevice[Idx];
+ELSE
+	Trace.LogMessage(Name, CONCAT('GetIoDeviceByAddr: no configured slave at address ', TO_STRING(WORD_TO_UINT(Addr))));
+	GetIoDeviceByAddr := NullIoDevice;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetIoDeviceByName" Id="{13f2fd00-8fca-4d64-97a3-0bb868e7b598}" FolderPath="Diagnostic\">
-      <Declaration><![CDATA[METHOD GetIoDeviceByName : I_EcIoDevice
+      <Declaration><![CDATA[// Linear search over the configured slaves: call once and keep the result.
+// Returns the null device (and logs a warning) if no slave carries that name.
+METHOD GetIoDeviceByName : I_EcIoDevice
 VAR_INPUT
 	Name : STRING(31);
 END_VAR
@@ -233,56 +374,79 @@ END_VAR]]></Declaration>
 	RETURN;
 END_IF
 
-FOR i := 0 TO (EcMaster.CfgSlaveCount - 1) DO
+i := 0;
+WHILE i < SlaveCountUsed DO
 	IF IoDevice[i].Name = Name THEN
 		GetIoDeviceByName := IoDevice[i];
 		RETURN;
 	END_IF
-END_FOR
+	i := i + 1;
+END_WHILE
 
+Trace.LogMessage(THIS^.Name, CONCAT('GetIoDeviceByName: no configured slave named ', Name));
 GetIoDeviceByName := NullIoDevice;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="GetSlaveIndexByAddr" Id="{49de51a0-75fa-43d3-9637-c84ac886b692}" FolderPath="Diagnostic\">
+      <Declaration><![CDATA[// Configured slave index (0-based) of the slave with EtherCAT address Addr, -1 if none.
+// O(1) for the dense range FIRST_SLAVE_ADDR .. FIRST_SLAVE_ADDR + MAX_EC_SLAVES, linear search otherwise.
+METHOD GetSlaveIndexByAddr : DINT
+VAR_INPUT
+	Addr : UINT;
+END_VAR
+
+VAR
+	i : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetSlaveIndexByAddr := -1;
+
+IF (Addr >= FIRST_SLAVE_ADDR) AND_THEN ((Addr - FIRST_SLAVE_ADDR) <= MAX_EC_SLAVES) THEN
+	IF AddrToIndex[Addr - FIRST_SLAVE_ADDR] <> 0 THEN
+		GetSlaveIndexByAddr := AddrToIndex[Addr - FIRST_SLAVE_ADDR] - 1;
+	END_IF
+	RETURN; // the map is complete for this range
+END_IF
+
+(* Addresses outside the dense range (assigned by the user): linear search. *)
+i := 0;
+WHILE i < SlaveCountUsed DO
+	IF ConfiguredSlaveInfo[i].nAddr = Addr THEN
+		GetSlaveIndexByAddr := i;
+		RETURN;
+	END_IF
+	i := i + 1;
+END_WHILE]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="Initialize" Id="{59fc31be-2fef-4308-9217-c3cfb6c18f0b}" FolderPath="Initialize\">
-      <Declaration><![CDATA[METHOD Initialize
+      <Declaration><![CDATA[// Init sequence: local AMS Net ID (0) - configured slaves (10) - topology (20) - frame count (30) -
+// sync units (40) - startup cycles, io device wiring and address map (50). Step 999 = failed, see trace.
+METHOD Initialize
 VAR_INST
-	InitSequenceState : UDINT;
-	GetLocalAmsNetId  : FB_GetLocalAmsNetId;
-	StartCycles		  : UINT;
+	GetLocalAmsNetId : FB_GetLocalAmsNetId;
+	StartCycles		 : UINT;
 END_VAR
 
 VAR
 	i : UDINT;
+	k : UINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF NOT _Error AND NOT (F_GetMappingStatus(ADR(EcMaster.AmsNetID), SIZEOF(EcMaster.AmsNetID)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
-	_Error := TRUE;
-	Trace.LogMessage(Name, 'Init Failed - AmsNetID mapped to Master!');
-END_IF
-
-IF NOT _Error AND NOT (F_GetMappingStatus(ADR(EcMaster.DevID), SIZEOF(EcMaster.DevID)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
-	_Error := TRUE;
-	Trace.LogMessage(Name, 'Init Failed - DevID mapped to Master!');
-END_IF
-
-IF NOT _Error AND NOT (F_GetMappingStatus(ADR(EcMaster.DevState), SIZEOF(EcMaster.DevState)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
-	_Error := TRUE;
-	Trace.LogMessage(Name, 'Init Failed - DevState mapped to Master!');
-END_IF
-
-IF NOT _Error AND NOT (F_GetMappingStatus(ADR(EcMaster.ChangeCount), SIZEOF(EcMaster.ChangeCount)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
-	_Error := TRUE;
-	Trace.LogMessage(Name, 'Init Failed - ChangeCount mapped to Master!');
-END_IF
-
-IF NOT _Error AND NOT (F_GetMappingStatus(ADR(EcMaster.SlaveCount), SIZEOF(EcMaster.SlaveCount)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
-	_Error := TRUE;
-	Trace.LogMessage(Name, 'Init Failed - CfgSlaveCount mapped to Master!');
-END_IF
-
-IF NOT _Error AND NOT (F_GetMappingStatus(ADR(EcMaster.CfgSlaveCount), SIZEOF(EcMaster.CfgSlaveCount)) <> EplcMappingStatus.MS_Unmapped) AND NOT Simulated THEN
-	_Error := TRUE;
-	Trace.LogMessage(Name, 'Init Failed - CfgSlaveCount mapped to Master!');
+        <ST><![CDATA[IF NOT _Error AND NOT Simulated THEN
+	IF F_GetMappingStatus(ADR(EcMaster.AmsNetID), SIZEOF(EcMaster.AmsNetID)) = EplcMappingStatus.MS_Unmapped THEN
+		FailInit(E_EcErrorSource.Sequence, InitSequenceState, 'Init Failed - EcMaster.AmsNetID not mapped to the EtherCAT master!');
+	ELSIF F_GetMappingStatus(ADR(EcMaster.DevID), SIZEOF(EcMaster.DevID)) = EplcMappingStatus.MS_Unmapped THEN
+		FailInit(E_EcErrorSource.Sequence, InitSequenceState, 'Init Failed - EcMaster.DevID not mapped to the EtherCAT master!');
+	ELSIF F_GetMappingStatus(ADR(EcMaster.DevState), SIZEOF(EcMaster.DevState)) = EplcMappingStatus.MS_Unmapped THEN
+		FailInit(E_EcErrorSource.Sequence, InitSequenceState, 'Init Failed - EcMaster.DevState not mapped to the EtherCAT master!');
+	ELSIF F_GetMappingStatus(ADR(EcMaster.ChangeCount), SIZEOF(EcMaster.ChangeCount)) = EplcMappingStatus.MS_Unmapped THEN
+		FailInit(E_EcErrorSource.Sequence, InitSequenceState, 'Init Failed - EcMaster.ChangeCount not mapped to the EtherCAT master!');
+	ELSIF F_GetMappingStatus(ADR(EcMaster.SlaveCount), SIZEOF(EcMaster.SlaveCount)) = EplcMappingStatus.MS_Unmapped THEN
+		FailInit(E_EcErrorSource.Sequence, InitSequenceState, 'Init Failed - EcMaster.SlaveCount not mapped to the EtherCAT master!');
+	ELSIF F_GetMappingStatus(ADR(EcMaster.CfgSlaveCount), SIZEOF(EcMaster.CfgSlaveCount)) = EplcMappingStatus.MS_Unmapped THEN
+		FailInit(E_EcErrorSource.Sequence, InitSequenceState, 'Init Failed - EcMaster.CfgSlaveCount not mapped to the EtherCAT master!');
+	END_IF
 END_IF
 
 IF _Error THEN
@@ -305,70 +469,120 @@ END_IF
 
 GetLocalAmsNetId(tTimeOut := T#1S);
 _MasterAmsNetId := F_CreateAmsNetId(EcMaster.AmsNetID);
-GetMasterFrameCount(sNetId := _MasterAmsNetId, tTimeout := T#1S);
+GetMasterFrameCount(sNetId := _MasterAmsNetId, tTimeout := ADS_TIMEOUT);
 GetConfiguredSlaves(sNetId				:= _MasterAmsNetId,
 					pArrEcConfSlaveInfo := ADR(ConfiguredSlaveInfo),
-					cbBufLen			:= SIZEOF(ConfiguredSlaveInfo),
-					tTimeout			:= T#1S);
+					cbBufLen			:= SlaveCountUsed * SIZEOF(ConfiguredSlaveInfo[0]),
+					tTimeout			:= ADS_TIMEOUT);
+GetSlaveTopologyInfo(sNetId	  := _MasterAmsNetId,
+					 pAddrBuf := ADR(SlaveTopologyInfo),
+					 cbBufLen := TopologyBufLen(),
+					 tTimeout := ADS_TIMEOUT);
 
 CASE InitSequenceState OF
-	0:
+	0: (* local AMS Net ID *)
 		GetLocalAmsNetId.bExecute := TRUE;
-		IF GetLocalAmsNetId.bBusy THEN
-			NextMinorStep(InitSequenceState);
-		END_IF
+		WaitCycles				  := 0;
+		NextMinorStep(InitSequenceState);
 
 	1:
-		IF NOT GetLocalAmsNetId.bBusy AND NOT GetLocalAmsNetId.bError THEN
-			_LocalAmsNetId := GetLocalAmsNetId.AddrString;
+		IF GetLocalAmsNetId.bBusy THEN
+			IF AdsWatchdogExpired(ADS_WAIT_CYCLES) THEN
+				GetLocalAmsNetId.bExecute := FALSE;
+				FailInit(E_EcErrorSource.Ads, ERROR_ADS_TIMEOUT, 'Init Failed - GetLocalAmsNetId timed out!');
+			END_IF
+		ELSIF GetLocalAmsNetId.bError THEN
+			GetLocalAmsNetId.bExecute := FALSE;
+			FailInit(E_EcErrorSource.Ads, GetLocalAmsNetId.nErrId, 'Init Failed - GetLocalAmsNetId!');
+		ELSE
+			GetLocalAmsNetId.bExecute := FALSE;
+			_LocalAmsNetId			  := GetLocalAmsNetId.AddrString;
+			WaitCycles				  := 0;
 			NextStep(InitSequenceState);
 		END_IF
 
-		IF GetLocalAmsNetId.bError THEN
-			_ErrorID := GetLocalAmsNetId.nErrId;
-			_Error	 := TRUE;
-			Trace.LogMessage(Name, 'Init Failed - GetLocalAmsNetId!');
-			InitSequenceState := 999;
+	10: (* configured slaves, read sized to the configured count *)
+		IF EcMaster.CfgSlaveCount = 0 THEN
+			IF AdsWatchdogExpired(ADS_WAIT_CYCLES) THEN
+				FailInit(E_EcErrorSource.Sequence, InitSequenceState, 'Init Failed - EcMaster.CfgSlaveCount stays 0: no slaves configured or EcMaster not linked!');
+			END_IF
+			RETURN;
 		END_IF
 
-	10:
-		GetConfiguredSlaves.bExecute := TRUE;
-		IF GetConfiguredSlaves.bBusy THEN
-			NextMinorStep(InitSequenceState);
+		IF EcMaster.CfgSlaveCount > (MAX_EC_SLAVES + 1) THEN
+			FailInit(E_EcErrorSource.Sequence, EcMaster.CfgSlaveCount, 'Init Failed - more slaves configured than EtherCatParameter.MAX_EC_SLAVES + 1 can hold!');
+			RETURN;
 		END_IF
+
+		SlaveCountUsed				 := EcMaster.CfgSlaveCount;
+		GetConfiguredSlaves.bExecute := TRUE;
+		WaitCycles					 := 0;
+		NextMinorStep(InitSequenceState);
 
 	11:
-		IF NOT GetConfiguredSlaves.bBusy AND NOT GetConfiguredSlaves.bError THEN
+		IF GetConfiguredSlaves.bBusy THEN
+			IF AdsWatchdogExpired(INIT_WAIT_CYCLES) THEN
+				GetConfiguredSlaves.bExecute := FALSE;
+				FailInit(E_EcErrorSource.Ads, ERROR_ADS_TIMEOUT, 'Init Failed - reading the configured EtherCAT slaves timed out!');
+			END_IF
+		ELSIF GetConfiguredSlaves.bError THEN
+			GetConfiguredSlaves.bExecute := FALSE;
+			FailInit(E_EcErrorSource.Ads, GetConfiguredSlaves.nErrorId, 'Init Failed - configured EtherCAT slaves could not be read - check linking of the EtherCAT master FB!');
+		ELSE
+			GetConfiguredSlaves.bExecute := FALSE;
+			WaitCycles					 := 0;
 			NextStep(InitSequenceState);
 		END_IF
 
-		IF GetConfiguredSlaves.bError THEN
-			_ErrorId := GetConfiguredSlaves.nErrorId;
-			_Error	 := TRUE;
-			Trace.LogMessage(Name, 'Init Failed - Configured EtherCat Slaves could not be read - check linking of EtherCat Master FB!');
-			InitSequenceState := 999;
-		END_IF
-
-	20: // Get Master Frame Count
-		GetMasterFrameCount.bExecute := TRUE;
-		IF GetMasterFrameCount.bBusy THEN
-			NextMinorStep(InitSequenceState);
-		END_IF
+	20: (* topology: the hot connect flags are needed by the slave evaluation and the sync units *)
+		GetSlaveTopologyInfo.bExecute := TRUE;
+		WaitCycles					  := 0;
+		NextMinorStep(InitSequenceState);
 
 	21:
-		IF NOT GetMasterFrameCount.bBusy AND NOT GetMasterFrameCount.bError THEN
-			// Check Frame Count
-			IF GetMasterFrameCount.nFrames > FRAMES THEN
-				_Error := TRUE;
-				Trace.LogMessage(Name, 'Increase of Frame diagnostic array (FRAMES_MAX) and link to FrmXWcState!');
+		IF GetSlaveTopologyInfo.bBusy THEN
+			IF AdsWatchdogExpired(INIT_WAIT_CYCLES) THEN
+				GetSlaveTopologyInfo.bExecute := FALSE;
+				FailInit(E_EcErrorSource.Ads, ERROR_ADS_TIMEOUT, 'Init Failed - reading the EtherCAT topology timed out!');
+			END_IF
+		ELSIF GetSlaveTopologyInfo.bError THEN
+			GetSlaveTopologyInfo.bExecute := FALSE;
+			FailInit(E_EcErrorSource.Ads, GetSlaveTopologyInfo.nErrId, 'Init Failed - EtherCAT topology could not be read!');
+		ELSE
+			GetSlaveTopologyInfo.bExecute := FALSE;
+			WaitCycles					  := 0;
+			NextStep(InitSequenceState);
+		END_IF
+
+	30: (* frame count *)
+		GetMasterFrameCount.bExecute := TRUE;
+		WaitCycles					 := 0;
+		NextMinorStep(InitSequenceState);
+
+	31:
+		IF GetMasterFrameCount.bBusy THEN
+			IF AdsWatchdogExpired(ADS_WAIT_CYCLES) THEN
+				GetMasterFrameCount.bExecute := FALSE;
+				FailInit(E_EcErrorSource.Ads, ERROR_ADS_TIMEOUT, 'Init Failed - reading the EtherCAT frame count timed out!');
+			END_IF
+		ELSIF GetMasterFrameCount.bError THEN
+			GetMasterFrameCount.bExecute := FALSE;
+			FailInit(E_EcErrorSource.Ads, GetMasterFrameCount.nErrId, 'Init Failed - configured EtherCAT frames could not be read!');
+		ELSE
+			GetMasterFrameCount.bExecute := FALSE;
+			IF GetMasterFrameCount.nFrames = 0 THEN
+				FailInit(E_EcErrorSource.Sequence, InitSequenceState, 'Init Failed - the EtherCAT master reports no cyclic frames!');
 				RETURN;
 			END_IF
 
-			// Check Frame Linking
+			IF GetMasterFrameCount.nFrames > FRAMES THEN
+				FailInit(E_EcErrorSource.Sequence, GetMasterFrameCount.nFrames, 'Init Failed - increase the FRAMES generic parameter and link FrmXWcState[x] to the master!');
+				RETURN;
+			END_IF
+
 			FOR i := 0 TO (GetMasterFrameCount.nFrames - 1) DO
-				IF NOT (F_GetMappingStatus(ADR(FrmXWcState[i]), SIZEOF(FrmXWcState[i])) <> EplcMappingStatus.MS_Unmapped) THEN
-					_Error := TRUE;
-					Trace.LogMessage(Name, 'Init Failed - FrmXWcState[x] not mapped to Master!');
+				IF F_GetMappingStatus(ADR(FrmXWcState[i]), SIZEOF(FrmXWcState[i])) = EplcMappingStatus.MS_Unmapped THEN
+					FailInit(E_EcErrorSource.Sequence, i, 'Init Failed - FrmXWcState[x] not mapped to the EtherCAT master!');
 					RETURN;
 				END_IF
 			END_FOR
@@ -376,17 +590,15 @@ CASE InitSequenceState OF
 			NextStep(InitSequenceState);
 		END_IF
 
-		IF GetMasterFrameCount.bError THEN
-			_ErrorId := GetMasterFrameCount.nErrId;
-			_Error	 := TRUE;
-			Trace.LogMessage(Name, 'Init Failed - Configured EtherCat Frames could not be read!');
-			InitSequenceState := 999;
-		END_IF
-
-	30:
+	40: (* sync units *)
 		FOR i := 0 TO (SYNC_UNITS - 1) DO
 			SyncUnit[i].EventProvider := EventProvider;
 			SyncUnit[i].Initialize();
+			IF SyncUnit[i].Error THEN
+				FailInit(E_EcErrorSource.Sequence, i, 'Init Failed - a sync unit could not be initialised (see its trace message)!');
+				RETURN;
+			END_IF
+
 			IF NOT SyncUnit[i].Initialized THEN
 				RETURN;
 			END_IF
@@ -394,20 +606,33 @@ CASE InitSequenceState OF
 
 		NextStep(InitSequenceState);
 
-	40:
+	50: (* let the master settle, then build the address map *)
 		StartCycles := StartCycles + 1;
-		IF StartCycles = EcStartupCycles THEN
-			FOR i := 0 TO (EcMaster.CfgSlaveCount - 1) DO
-				IoDevice[i].AmsNetId	  := EcMaster.AmsNetID;
-				IoDevice[i].Name		  := ConfiguredSlaveInfo[i].sName;
-				IoDevice[i].State		  REF= SlavesState[i];
-				IoDevice[i].Configuration REF= ConfiguredSlaveInfo[i];
-			END_FOR
+		IF StartCycles >= EcStartupCycles THEN
+			BuildAddrToIndex();
+			ScanIndex := 0;
+			NextMinorStep(InitSequenceState);
+		END_IF
 
+	51: (* wire the io devices, SLAVES_PER_CYCLE per cycle *)
+		FOR k := 1 TO SLAVES_PER_CYCLE DO
+			IF ScanIndex >= SlaveCountUsed THEN
+				EXIT;
+			END_IF
+
+			IoDevice[ScanIndex].AmsNetId	  := EcMaster.AmsNetID;
+			IoDevice[ScanIndex].Name		  := ConfiguredSlaveInfo[ScanIndex].sName;
+			IoDevice[ScanIndex].State		  REF= SlavesState[ScanIndex];
+			IoDevice[ScanIndex].Configuration REF= ConfiguredSlaveInfo[ScanIndex];
+			IoDevice[ScanIndex].CoeScheduler  := THIS^;
+			ScanIndex						  := ScanIndex + 1;
+		END_FOR
+
+		IF ScanIndex >= SlaveCountUsed THEN
 			_Initialized := TRUE;
 		END_IF
 
-	999: // Fail - Look at trace message in ADS log
+	999: (* Fail - look at the trace message in the ADS log *)
 END_CASE]]></ST>
       </Implementation>
     </Method>
@@ -577,6 +802,23 @@ IF SlavesState[Slave].linkState.7 THEN // EC_LINK_STATE_PORT_D
 END_IF]]></ST>
       </Implementation>
     </Method>
+    <Method Name="MapSlaveAddress" Id="{375c31cd-934d-4614-b398-2e47ba3ae9b0}" FolderPath="_Internal\">
+      <Declaration><![CDATA[// Enters the configured slave Index into the address map if its address lies in the dense range.
+METHOD PROTECTED MapSlaveAddress
+VAR_INPUT
+	Index : UINT;
+END_VAR
+
+VAR
+	Addr : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Addr := ConfiguredSlaveInfo[Index].nAddr;
+IF (Addr >= FIRST_SLAVE_ADDR) AND_THEN ((Addr - FIRST_SLAVE_ADDR) <= MAX_EC_SLAVES) THEN
+	AddrToIndex[Addr - FIRST_SLAVE_ADDR] := Index + 1;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="MasterAmsNetId" Id="{e8191ac3-4bf6-4260-9bd6-73f87a18d477}" FolderPath="Diagnostic\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY MasterAmsNetId : T_AmsNetId]]></Declaration>
@@ -589,20 +831,58 @@ END_VAR]]></Declaration>
       </Get>
     </Property>
     <Method Name="MasterState" Id="{9cab473b-cce9-4d54-aadc-9cb8f27d7c22}" FolderPath="_Internal\">
-      <Declaration><![CDATA[METHOD PROTECTED MasterState : BOOL
+      <Declaration><![CDATA[// Raises one MasterError event per DevState change while slaves are missing. TRUE when an error was latched.
+METHOD PROTECTED MasterState : BOOL
 VAR_INPUT
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF (LastMasterState <> EcMaster.DevState) AND (EcMaster.DevState <> 0) AND (EcMaster.SlaveCount < EcMaster.CfgSlaveCount) THEN
-	IF EcMaster.DevState <> 0 THEN
-		IF EventProvider <> 0 THEN
-			EventProvider.RaiseEtherCatDiagnosticEvent(E_EtherCatMaster.MasterError, LookupMasterState(EcMaster.DevState));
-		END_IF
+        <ST><![CDATA[IF LastMasterState = EcMaster.DevState THEN
+	RETURN;
+END_IF
 
-		_Error	 := TRUE;
-		_ErrorId := EcMaster.DevState;
+LastMasterState := EcMaster.DevState;
+
+IF (EcMaster.DevState <> 0) AND (EcMaster.SlaveCount < EcMaster.CfgSlaveCount) THEN
+	IF EventProvider <> 0 THEN
+		EventProvider.RaiseEtherCatDiagnosticEvent(E_EtherCatMaster.MasterError, LookupMasterState(EcMaster.DevState));
 	END_IF
+
+	SetError(E_EcErrorSource.Master, EcMaster.DevState);
+	MasterState := TRUE;
 END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Register" Id="{af1bba30-9816-4532-9ef4-ab7b63e9c3b6}" FolderPath="CoE\">
+      <Declaration><![CDATA[// I_CoeTransferScheduler: adds a CoE transfer to the set serviced by CyclicLogic (idempotent).
+METHOD Register : BOOL
+VAR_INPUT
+	Transfer : I_CoeTransfer;
+END_VAR
+
+VAR
+	i : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Transfer = 0 THEN
+	RETURN;
+END_IF
+
+i := 0;
+WHILE i < ActiveCoeCount DO
+	IF ActiveCoe[i] = Transfer THEN
+		Register := TRUE;
+		RETURN;
+	END_IF
+	i := i + 1;
+END_WHILE
+
+IF ActiveCoeCount > MAX_EC_SLAVES THEN
+	RETURN; // full
+END_IF
+
+ActiveCoe[ActiveCoeCount] := Transfer;
+ActiveCoeCount			  := ActiveCoeCount + 1;
+Register				  := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="RegisterEventProvider" Id="{3c83d169-3fdc-4962-9915-fa3129e33709}" FolderPath="Diagnostic\">
@@ -621,13 +901,50 @@ END_VAR]]></Declaration>
 	EventProvider.Reset();
 END_IF
 
-LastMasterState := 0;
-LastChangeCount := 0;
-LastSlaveCount	:= 0;
-_Error			:= FALSE;
-_ErrorId		:= 0;
-SlaveSequence	:= 0;
-RunSlaveDiag	:= FALSE;]]></ST>
+LastMasterState				  := 0;
+LastChangeCount				  := 0;
+LastSlaveCount				  := 0;
+LastFramesWcStatesOk		  := FALSE;
+_Error						  := FALSE;
+_ErrorId					  := 0;
+_ErrorSource				  := E_EcErrorSource.None;
+SlaveSequence				  := 0;
+RunSlaveDiag				  := FALSE;
+GetAllSlaveStates.bExecute	  := FALSE;
+GetSlaveTopologyInfo.bExecute := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ServiceCoeTransfers" Id="{05356306-57eb-4767-8dbb-3b6da6cd102b}" FolderPath="CoE\">
+      <Declaration><![CDATA[// Calls CyclicLogic of every registered CoE transfer and drops the ones that finished.
+METHOD PRIVATE ServiceCoeTransfers
+VAR
+	i : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[i := 0;
+WHILE i < ActiveCoeCount DO
+	ActiveCoe[i].CyclicLogic();
+	IF ActiveCoe[i].Busy THEN
+		i := i + 1;
+	ELSE
+		(* finished: move the last entry into the gap and service it in this cycle as well *)
+		ActiveCoeCount			  := ActiveCoeCount - 1;
+		ActiveCoe[i]			  := ActiveCoe[ActiveCoeCount];
+		ActiveCoe[ActiveCoeCount] := 0;
+	END_IF
+END_WHILE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetError" Id="{54454f9e-58e9-4682-b57f-abdd8c767e72}" FolderPath="_Internal\">
+      <Declaration><![CDATA[METHOD PROTECTED SetError
+VAR_INPUT
+	Source	: E_EcErrorSource;
+	ErrorId : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Error		 := TRUE;
+_ErrorSource := Source;
+_ErrorId	 := ErrorId;]]></ST>
       </Implementation>
     </Method>
     <Property Name="Simulated" Id="{aa6d861b-93bc-45a2-853a-7b9fd1cc7e49}">
@@ -659,110 +976,186 @@ END_VAR]]></Declaration>
         </Implementation>
       </Get>
     </Property>
-    <Method Name="SlaveState" Id="{483b8cf5-1244-4799-bded-62d3800d6efa}" FolderPath="_Internal\">
-      <Declaration><![CDATA[METHOD PROTECTED SlaveState : BOOL
-VAR_INST
-	DiagByte	 : BYTE;
-	BitMaskDiag	 : BYTE := 16#0F;
-	FaultedSlave : UINT;
-	i, j		 : UINT;
+    <Method Name="SlaveNeedsDiagnostic" Id="{bab5ddbf-5759-4fc8-9d73-93879e28cb5f}" FolderPath="_Internal\">
+      <Declaration><![CDATA[// TRUE if the slave is not in OP with a clean link (any state or link bit set).
+METHOD PROTECTED SlaveNeedsDiagnostic : BOOL
+VAR_INPUT
+	Index : UINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[CASE SlaveSequence OF
-	(* Wait for start *)
+        <ST><![CDATA[SlaveNeedsDiagnostic := (SlavesState[Index].deviceState <> EC_DEVICE_STATE_OP) OR (SlavesState[Index].linkState <> 0);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SlaveState" Id="{483b8cf5-1244-4799-bded-62d3800d6efa}" FolderPath="_Internal\">
+      <Declaration><![CDATA[// Slave diagnostic sequence, run on every trigger (ChangeCount, slave count, frame WC state):
+//  10/11 read all slave states (sized to the configured count)
+//  12    classify, SLAVES_PER_CYCLE slaves per cycle; a clean network ends here
+//  20/21 read the topology (hot connect flags) - only when a slave needs a diagnostic
+//  30    evaluate from the first suspicious slave, stop at the first fault
+//  40    assign the sync unit of every slave, once, after the sync units resolved their lists
+METHOD PROTECTED SlaveState : BOOL
+VAR
+	k	: UINT;
+	Idx : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetSlaveTopologyInfo(sNetId	  := _MasterAmsNetId,
+					 pAddrBuf := ADR(SlaveTopologyInfo),
+					 cbBufLen := TopologyBufLen(),
+					 tTimeout := ADS_TIMEOUT);
+
+GetAllSlaveStates(sNetId	:= _MasterAmsNetId,
+				  pStateBuf := ADR(SlavesState),
+				  cbBufLen	:= SlaveCountUsed * SIZEOF(SlavesState[0]),
+				  tTimeout	:= ADS_TIMEOUT);
+
+CASE SlaveSequence OF
+	(* Wait for a trigger *)
 	0:
-		GetAllSlaveStates.bExecute	  := FALSE;
-		GetSlaveTopologyInfo.bExecute := FALSE;
 		IF RunSlaveDiag THEN
-			RunSlaveDiag := FALSE;
-			NextStep(SlaveSequence);
+			RunSlaveDiag  := FALSE;
+			SlaveSequence := 10;
+		ELSIF NOT SyncUnitsAssigned AND_THEN SyncUnitsResolved() THEN
+			EndDiagnosticPass();
 		END_IF
 
-	(* Update Topology*)
+	(* Read slave states *)
 	10:
-		GetSlaveTopologyInfo.bExecute := TRUE;
-		IF GetSlaveTopologyInfo.bBusy THEN
-			NextMinorStep(SlaveSequence);
-		END_IF
+		GetAllSlaveStates.bExecute := TRUE;
+		WaitCycles				   := 0;
+		NextMinorStep(SlaveSequence);
 
 	11:
-		IF NOT GetSlaveTopologyInfo.bBusy AND NOT GetSlaveTopologyInfo.bError THEN
-			NextStep(SlaveSequence);
-		END_IF
-
-		IF GetSlaveTopologyInfo.bError THEN
-			SlaveSequence := 999;
-		END_IF
-
-	(* Read Slave States *)
-	20:
-		GetAllSlaveStates.bExecute := TRUE;
 		IF GetAllSlaveStates.bBusy THEN
+			IF AdsWatchdogExpired(ADS_WAIT_CYCLES) THEN
+				GetAllSlaveStates.bExecute := FALSE;
+				FailSequence(E_EcErrorSource.Ads, ERROR_ADS_TIMEOUT);
+			END_IF
+		ELSIF GetAllSlaveStates.bError THEN
+			GetAllSlaveStates.bExecute := FALSE;
+			FailSequence(E_EcErrorSource.Ads, GetAllSlaveStates.nErrId);
+		ELSE
+			GetAllSlaveStates.bExecute := FALSE;
+			ScanIndex				   := 0;
+			AnyDiag					   := FALSE;
+			FirstDiagIndex			   := 0;
 			NextMinorStep(SlaveSequence);
 		END_IF
 
-	21:
-		IF NOT GetAllSlaveStates.bBusy AND NOT GetAllSlaveStates.bError THEN
-			NextStep(SlaveSequence);
-		END_IF
-
-		IF GetAllSlaveStates.bError THEN
-			SlaveSequence := 999;
-		END_IF
-
-	(* Evaluate Slave Error *)
-	30:
-		FOR FaultedSlave := 0 TO (EcMaster.CfgSlaveCount - 1) DO
-			BitMaskDiag := 16#0F;
-			DiagByte	:= SlavesState[FaultedSlave].deviceState AND BitMaskDiag;
-			IF DiagByte <> EC_DEVICE_STATE_OP AND SlaveTopologyInfo[FaultedSlave].nStatusBits.4 = FALSE THEN // No error if hotconnect
-				IF SlavesState[FaultedSlave].deviceState.7 THEN												 // Slave is Disabled - warning only
-					IF EventProvider <> 0 THEN
-						EventProvider.RaiseEtherCatDiagnosticEvent(E_EtherCatMaster.SlaveDisabled, ConfiguredSlaveInfo[FaultedSlave].sName);
-					END_IF
-				ELSE
-					IF EventProvider <> 0 THEN
-						EventProvider.RaiseEtherCatDiagnosticEvent(E_EtherCatMaster.SlaveError, ConfiguredSlaveInfo[FaultedSlave].sName, LookupSlaveState(FaultedSlave));
-					END_IF
-
-					_Error	 := TRUE;
-					_ErrorId := FaultedSlave;
-					EXIT;
-				END_IF
-			END_IF
-
-			BitMaskDiag := 16#0F;
-			DiagByte	:= SlavesState[FaultedSlave].linkState AND BitMaskDiag;
-			IF DiagByte <> EC_LINK_STATE_OK AND SlaveTopologyInfo[FaultedSlave].nStatusBits.4 = FALSE THEN // Next slave is in hotconnect group, no error
-				IF EventProvider <> 0 THEN
-					EventProvider.RaiseEtherCatDiagnosticEvent(E_EtherCatMaster.SlaveError, ConfiguredSlaveInfo[FaultedSlave].sName, LookupSlaveState(FaultedSlave));
-				END_IF
-
-				_Error	 := TRUE;
-				_ErrorId := FaultedSlave;
+	(* Classify: find the first slave that needs a diagnostic *)
+	12:
+		FOR k := 1 TO SLAVES_PER_CYCLE DO
+			IF ScanIndex >= SlaveCountUsed THEN
 				EXIT;
 			END_IF
+
+			IF SlaveNeedsDiagnostic(ScanIndex) THEN
+				AnyDiag		   := TRUE;
+				FirstDiagIndex := ScanIndex;
+				EXIT;
+			END_IF
+
+			ScanIndex := ScanIndex + 1;
 		END_FOR
 
-		NextStep(SlaveSequence);
+		IF AnyDiag THEN
+			SlaveSequence := 20;
+		ELSIF ScanIndex >= SlaveCountUsed THEN
+			EndDiagnosticPass(); // every slave OP with a clean link: no topology read, no evaluation
+		END_IF
 
-	(* Build Slaves *)
+	(* Update topology *)
+	20:
+		GetSlaveTopologyInfo.bExecute := TRUE;
+		WaitCycles					  := 0;
+		NextMinorStep(SlaveSequence);
+
+	21:
+		IF GetSlaveTopologyInfo.bBusy THEN
+			IF AdsWatchdogExpired(ADS_WAIT_CYCLES) THEN
+				GetSlaveTopologyInfo.bExecute := FALSE;
+				FailSequence(E_EcErrorSource.Ads, ERROR_ADS_TIMEOUT);
+			END_IF
+		ELSIF GetSlaveTopologyInfo.bError THEN
+			GetSlaveTopologyInfo.bExecute := FALSE;
+			FailSequence(E_EcErrorSource.Ads, GetSlaveTopologyInfo.nErrId);
+		ELSE
+			GetSlaveTopologyInfo.bExecute := FALSE;
+			ScanIndex					  := FirstDiagIndex;
+			SlaveSequence				  := 30;
+		END_IF
+
+	(* Evaluate slave errors from the first suspicious slave on *)
+	30:
+		FOR k := 1 TO SLAVES_PER_CYCLE DO
+			IF ScanIndex >= SlaveCountUsed THEN
+				EXIT;
+			END_IF
+
+			IF EvaluateSlave(ScanIndex) THEN
+				ScanIndex := SlaveCountUsed; // fault latched: stop the pass
+				EXIT;
+			END_IF
+
+			ScanIndex := ScanIndex + 1;
+		END_FOR
+
+		IF ScanIndex >= SlaveCountUsed THEN
+			EndDiagnosticPass();
+		END_IF
+
+	(* Assign the sync unit of every slave (once) *)
 	40:
-		FOR i := 0 TO (EcMaster.CfgSlaveCount - 1) DO
-			FOR j := 0 TO (SYNC_UNITS - 1) DO
-				IF SyncUnit[j].IsTerminalPartOfSyncUnit(ConfiguredSlaveInfo[i].nAddr) THEN
-					IoDevice[i].SyncUnit := SyncUnit[j];
+		FOR k := 1 TO SLAVES_PER_CYCLE DO
+			IF SyncUnitScan >= SYNC_UNITS THEN
+				EXIT;
+			END_IF
+
+			IF ScanIndex >= SyncUnit[SyncUnitScan].SlaveCount THEN
+				SyncUnitScan := SyncUnitScan + 1;
+				ScanIndex	 := 0;
+			ELSE
+				Idx := GetSlaveIndexByAddr(SyncUnit[SyncUnitScan].SlaveAddress(ScanIndex));
+				IF Idx >= 0 THEN
+					IoDevice[Idx].SyncUnit := SyncUnit[SyncUnitScan];
 				END_IF
-			END_FOR
+
+				ScanIndex := ScanIndex + 1;
+			END_IF
 		END_FOR
 
-		SlaveSequence := 0;
+		IF SyncUnitScan >= SYNC_UNITS THEN
+			SyncUnitsAssigned := TRUE;
+			SlaveSequence	  := 0;
+		END_IF
 
-	(* Sequence Error *)
-	999:
-		_ErrorId	  := 999;
-		SlaveSequence := 0;
+ELSE
+	(* Sequence error: unknown step *)
+	FailSequence(E_EcErrorSource.Sequence, SlaveSequence);
 END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SyncUnitsResolved" Id="{5054c0c0-c40a-449a-95f1-194f3792089a}" FolderPath="_Internal\">
+      <Declaration><![CDATA[// TRUE once every sync unit has read and resolved its slave list.
+METHOD PRIVATE SyncUnitsResolved : BOOL
+VAR
+	i : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SyncUnitsResolved := TRUE;
+FOR i := 0 TO (SYNC_UNITS - 1) DO
+	IF NOT SyncUnit[i].SlavesResolved THEN
+		SyncUnitsResolved := FALSE;
+		RETURN;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TopologyBufLen" Id="{2a906241-c190-4ecd-8467-1699bf9f6338}" FolderPath="_Internal\">
+      <Declaration><![CDATA[// Byte length of the topology read: one entry per configured slave, not the whole array.
+METHOD PRIVATE TopologyBufLen : UDINT]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TopologyBufLen := SlaveCountUsed * SIZEOF(SlaveTopologyInfo[0]);]]></ST>
       </Implementation>
     </Method>
   </POU>

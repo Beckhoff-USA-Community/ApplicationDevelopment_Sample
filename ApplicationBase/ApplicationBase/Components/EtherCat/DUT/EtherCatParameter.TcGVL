@@ -2,7 +2,21 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <GVL Name="EtherCatParameter" Id="{3c947b34-68f8-4997-8ab5-70b51281d5e8}" ParameterList="True">
     <Declaration><![CDATA[VAR_GLOBAL CONSTANT
-	MAX_EC_SLAVES : UINT := 49;
+	// Upper index of every per-slave array in EtherCatMaster and SyncUnitTask; holds MAX_EC_SLAVES + 1 slaves.
+	MAX_EC_SLAVES	 : UINT	 := 49;
+
+	// Slaves handled per PLC cycle by the multi-cycle diagnostic passes (state classification, fault
+	// evaluation, sync unit resolution). A pass over n slaves finishes within n / SLAVES_PER_CYCLE cycles.
+	SLAVES_PER_CYCLE : UINT	 := 64;
+
+	// Cycles a diagnostic ADS read may stay busy before the sequence aborts with E_EcErrorSource.Ads,
+	// ErrorId 16#745 (1000 cycles = 10 s on a 10 ms task).
+	ADS_WAIT_CYCLES	 : UDINT := 1000;
+
+	// Cycles the one-off configuration and topology reads in Initialize may stay busy. Generous on purpose:
+	// TwinCAT serves ADS reads above 128 KiB from a task that owns no process data on the master very slowly
+	// (about 3 min for 2500 slaves).
+	INIT_WAIT_CYCLES : UDINT := 60000;
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

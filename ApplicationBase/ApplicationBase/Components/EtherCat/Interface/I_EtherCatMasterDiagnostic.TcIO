@@ -9,6 +9,14 @@ PROPERTY ConfiguredSlaveCount : UINT]]></Declaration>
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
+    <Property Name="ErrorSource" Id="{cf610482-1f30-43e7-aaf6-46b08c01425b}">
+      <Declaration><![CDATA[// Which subsystem produced ErrorId (see E_EcErrorSource for the meaning of ErrorId per source).
+{attribute 'monitoring' := 'call'}
+PROPERTY ErrorSource : E_EcErrorSource]]></Declaration>
+      <Get Name="Get" Id="{014fa14e-fe19-49d1-904f-1a044233a41a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
     <Method Name="GetIoDeviceByAddr" Id="{32fe8214-5c95-4d51-ab86-b26ff0cba3b4}">
       <Declaration><![CDATA[METHOD GetIoDeviceByAddr : I_EcIoDevice
 VAR_INPUT
@@ -19,6 +27,14 @@ END_VAR]]></Declaration>
       <Declaration><![CDATA[METHOD GetIoDeviceByName : I_EcIoDevice
 VAR_INPUT
 	Name : STRING(31);
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="GetSlaveIndexByAddr" Id="{7b3130f3-5ee6-4b64-b1f2-2e24132d8375}">
+      <Declaration><![CDATA[// Configured slave index (0-based) of the slave with EtherCAT address Addr, -1 if none.
+// O(1) for the dense address range starting at 1001, linear search otherwise.
+METHOD GetSlaveIndexByAddr : DINT
+VAR_INPUT
+	Addr : UINT;
 END_VAR]]></Declaration>
     </Method>
     <Property Name="LocalAmsNetId" Id="{632657fe-c107-0bc1-3a88-2ec0303b1452}">

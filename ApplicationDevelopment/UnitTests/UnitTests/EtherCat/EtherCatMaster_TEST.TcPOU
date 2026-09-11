@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="EtherCatMaster_TEST" Id="{6dd3e3c4-5367-4dfd-8570-4ddb29484f0f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK EtherCatMaster_TEST
+VAR
+	Provider : EtherCatEventProvider_Mockup('EtherCAT Event Provider');
+	Master	 : EtherCatMaster_Mockup('EtherCAT Master Mock', EcStartupCycles := 1);
+	Device	 : EtherCatIoDevice('Io Device');
+	State	 : ST_EcSlaveState;
+	Config	 : ST_EcSlaveConfigData;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IoDeviceStateFlags();
+IoDeviceDiagnosticFlags();
+IoDeviceCoeNullWithoutMailbox();
+IoDeviceCoeWithMailbox();
+MasterEventOncePerDevStateChange();
+SlaveIndexByAddress();
+SlaveIndexByAddressOutsideDenseRange();
+IoDeviceByAddrUsesMap();
+AdsFailureKeepsErrorId();]]></ST>
+    </Implementation>
+    <Method Name="AdsFailureKeepsErrorId" Id="{0533ef45-ae8e-4b7d-a3e1-707ef9642df1}">
+      <Declaration><![CDATA[// A failing slave state read aborts the sequence with ErrorSource Ads and the error id of the
+// function block (or 16#745 on watchdog), never the former placeholder 999.
+METHOD AdsFailureKeepsErrorId
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+	Seq		 : UDINT;
+	Cycles	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	CASE Seq OF
+		0:
+			Master.LoadConfiguration(10);
+			Master.SetMasterAmsNetId('1.2.3.4.5.6'); // no route: the read fails or times out
+			Master.StartDiagnostic();
+			Seq := 10;
+
+		10:
+			Master.RunSlaveState();
+			Cycles := Cycles + 1;
+			IF NOT Master.Busy OR Cycles > 2000 THEN
+				Seq := 20;
+			END_IF
+
+		20:
+			Actual := Master.Error AND (Master.ErrorSource = E_EcErrorSource.Ads) AND (Master.ErrorId <> 999) AND (Master.ErrorId <> 0);
+			TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+	END_CASE
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IoDeviceByAddrUsesMap" Id="{a756bd15-f39c-483b-8121-e8f0d0836034}">
+      <Declaration><![CDATA[// The device returned for an address reflects the state of exactly that configured slave.
+METHOD IoDeviceByAddrUsesMap
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Master.LoadConfiguration(10);
+	Master.SetSlaveState(Index := 2, DeviceState := 16#04, LinkState := 16#00); // slave at 1003 in SAFEOP
+	Actual := Master.GetIoDeviceByAddr(1003).SafeOp AND Master.GetIoDeviceByAddr(1002).OP AND Master.GetIoDeviceByAddr(1004).OP AND NOT Master.GetIoDeviceByAddr(2000).OP;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IoDeviceCoeNullWithoutMailbox" Id="{720fa1f4-e9f3-41a8-ab3a-6fdb02f87175}">
+      <Declaration><![CDATA[METHOD IoDeviceCoeNullWithoutMailbox
+VAR_INST
+	Expected : STRING;
+	Actual	 : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			 := 'Null Terminal';
+	Config.nMailboxInSize := 0;
+	Device.Configuration REF= Config;
+	Actual				 := Device.CoE.Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IoDeviceCoeWithMailbox" Id="{c1ef790b-fe22-4392-9032-9982918b361a}">
+      <Declaration><![CDATA[METHOD IoDeviceCoeWithMailbox
+VAR_INST
+	Expected : STRING;
+	Actual	 : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected			 := 'CoE Terminal';
+	Config.nMailboxInSize := 128;
+	Config.nAddr		 := 1001;
+	Device.Configuration REF= Config;
+	Actual				 := Device.CoE.Name;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IoDeviceDiagnosticFlags" Id="{59f97bb8-9cd3-4423-b901-e22775841ab8}">
+      <Declaration><![CDATA[// deviceState bits 4..7 (error, invalid VPRS, init command error, disabled) are flags on top of the ESM state.
+METHOD IoDeviceDiagnosticFlags
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		  := TRUE;
+	Device.State	 REF= State;
+	State.deviceState := 16#F8; // OP with all four diagnostic bits set
+	State.linkState	  := 16#00;
+	Actual			  := Device.OP AND Device.DeviceError AND Device.InvalidVPRS AND Device.InitCmdError AND Device.Disabled;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IoDeviceStateFlags" Id="{2bebb48c-9e71-4d98-b179-069a0d77ab75}">
+      <Declaration><![CDATA[METHOD IoDeviceStateFlags
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected		  := TRUE;
+	Device.State	 REF= State;
+	State.deviceState := 16#04; // SAFEOP, no diagnostic bits
+	State.linkState	  := 16#00;
+	Actual			  := Device.SafeOp AND NOT Device.OP AND NOT Device.PreOp AND NOT Device.Init AND NOT Device.Bootstrap
+						 AND NOT Device.DeviceError AND NOT Device.InvalidVPRS AND NOT Device.InitCmdError AND NOT Device.Disabled;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MasterEventOncePerDevStateChange" Id="{db54d187-a274-44b6-9b1b-dcd93ca1e01e}">
+      <Declaration><![CDATA[// The MasterError event is raised once per DevState change, not every cycle the state persists.
+METHOD MasterEventOncePerDevStateChange
+VAR_INST
+	Expected : UINT;
+	Actual	 : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 1;
+	Master.LoadConfiguration(10);
+	Master.RegisterEventProvider(Provider);
+	Master.SetMasterDevState(DevState := 16#0001, SlaveCount := 9); // link error, one slave missing
+	Master.RunMasterState();
+	Master.RunMasterState();
+	Master.RunMasterState();
+	Actual := Provider.MasterEventCount;
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SlaveIndexByAddress" Id="{84692c39-ef4f-4fb1-bae3-bc0c422d0abb}">
+      <Declaration><![CDATA[METHOD SlaveIndexByAddress
+VAR_INST
+	Expected : DINT;
+	Actual	 : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := 4;
+	Master.LoadConfiguration(10);
+	Actual := Master.GetSlaveIndexByAddr(1005);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SlaveIndexByAddressOutsideDenseRange" Id="{9c43ed01-278b-44df-b670-5dc235d4cc5e}">
+      <Declaration><![CDATA[// A user assigned address outside 1001.. is found by the linear fallback; unknown addresses give -1.
+METHOD SlaveIndexByAddressOutsideDenseRange
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Master.LoadConfiguration(10);
+	Master.SetSlaveAddress(Index := 7, Addr := 60000);
+	Actual := (Master.GetSlaveIndexByAddr(60000) = 7) AND (Master.GetSlaveIndexByAddr(1008) = -1) AND (Master.GetSlaveIndexByAddr(999) = -1);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>
