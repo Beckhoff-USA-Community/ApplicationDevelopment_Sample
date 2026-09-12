@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.26" ClassName="CTComPlcObjDef">
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.27" ClassName="CTComPlcObjDef">
 	<DataTypes>
 		<DataType>
 			<Name GUID="{CE873937-B250-EE13-D5FE-39EFFAB3B019}" Namespace="ApplicationBase" AutoDeleteType="true">ST_SafetyStateDiag</Name>
@@ -1005,7 +1005,7 @@ External Setpoint Generation:
 			</Relations>
 		</DataType>
 	</DataTypes>
-	<Instance TmcHash="{2BD8CA27-7C56-F181-82BD-E143B116ACB3}">
+	<Instance TmcHash="{B04BE04B-DDB3-99AC-ACA5-E299915B0F19}">
 		<Vars VarGrpType="1">
 			<Name>TestsBaseTask Inputs</Name>
 			<Var>
