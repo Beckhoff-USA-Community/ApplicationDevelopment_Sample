@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="I_CoeTransferScheduler" Id="{b8936faa-8e0e-4024-bcb6-6746b11f0baf}">
+    <Declaration><![CDATA[// Services registered CoE transfers each cycle until they report Busy = FALSE.
+// EtherCatMaster implements it so that only transfers in flight cost cycle time.
+INTERFACE I_CoeTransferScheduler EXTENDS I_Base]]></Declaration>
+    <Method Name="Register" Id="{8dfe607d-442e-456c-8ac5-0778646ad4ed}">
+      <Declaration><![CDATA[// Adds Transfer to the set serviced each cycle (idempotent). Returns FALSE if the set is full.
+METHOD Register : BOOL
+VAR_INPUT
+	Transfer : I_CoeTransfer;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

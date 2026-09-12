@@ -33,6 +33,7 @@ VAR
 	Analog_TEST					   : Analog_TEST;
 	Serial_TEST					   : SerialConnection_Tests;
 	Axis_Test					   : Axis_Test;
+	EtherCatMaster_TEST		   : EtherCatMaster_TEST;
 
 	//
 	Component1				  : CyclicComponent_Mockup('Component 1');
@@ -81,6 +82,7 @@ AnyBuffer_TEST();
 ForcibleInt_Test();
 Serial_TEST();
 Axis_Test();
+EtherCatMaster_TEST();
 
 // Mockup code
 Samples_AnyBuffer();

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_EcErrorSource" Id="{9926e323-2ede-4245-94d1-bd86b8762e7d}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+// Origin of EtherCatMaster.ErrorId. ErrorId keeps the raw code of that source:
+//   Master   - EcMaster.DevState word
+//   Slave    - configured slave index (0-based, configuration order)
+//   Ads      - error id of the Tc2_EtherCAT / ADS function block (16#745 = watchdog timeout)
+//   Sequence - step number or count that violated a precondition
+TYPE E_EcErrorSource :
+(
+	None	 := 0,
+	Master	 := 1,
+	Slave	 := 2,
+	Ads		 := 3,
+	Sequence := 4
+) UINT;
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>
