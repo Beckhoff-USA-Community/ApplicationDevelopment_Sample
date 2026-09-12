@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.21">
   <Itf Name="I_EcIoDevice" Id="{e9cac253-276d-4f50-b6e9-56f97e598d10}">
     <Declaration><![CDATA[INTERFACE I_EcIoDevice EXTENDS I_IoDevice, I_CoeAccess]]></Declaration>
     <Property Name="Bootstrap" Id="{31afd5dc-11b2-486c-9f37-0da12d67b283}">
@@ -77,7 +77,7 @@ PROPERTY SafeOp : BOOL]]></Declaration>
       </Get>
     </Property>
     <Property Name="State" Id="{9f6965dc-9595-4f6a-b35b-67be233266ed}">
-      <Declaration><![CDATA[PROPERTY State : REFERENCE TO ST_EcSlaveState]]></Declaration>
+      <Declaration><![CDATA[PROPERTY State : REFERENCE TO ST_EcExtendedSlaveState]]></Declaration>
       <Get Name="Get" Id="{ded39fa3-4664-412b-ba55-c5c5986cbdd7}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

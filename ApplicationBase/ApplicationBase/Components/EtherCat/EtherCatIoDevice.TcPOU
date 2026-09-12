@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.21">
   <POU Name="EtherCatIoDevice" Id="{20a9f0b1-40b0-400f-882c-783fc1cdd204}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK EtherCatIoDevice EXTENDS CyclicComponent IMPLEMENTS I_EcIoDevice
 VAR
 	_Config		  : REFERENCE TO ST_EcSlaveConfigData;
-	_State		  : REFERENCE TO ST_EcSlaveState;
+	_State		  : REFERENCE TO ST_EcExtendedSlaveState;
 	_SyncUnit	  : I_SyncUnitTask;
 	_CoeScheduler : I_CoeTransferScheduler;
 	_AmsAddr	  : AMSADDR;
@@ -245,7 +245,7 @@ END_IF]]></ST>
       </Get>
     </Property>
     <Property Name="State" Id="{7a8d6550-1b78-406d-8ecd-7e25decdd9e3}" FolderPath="Device\">
-      <Declaration><![CDATA[PROPERTY State : REFERENCE TO ST_EcSlaveState]]></Declaration>
+      <Declaration><![CDATA[PROPERTY State : REFERENCE TO ST_EcExtendedSlaveState]]></Declaration>
       <Get Name="Get" Id="{cb6dd145-705e-42af-972f-1e157d39cc88}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>

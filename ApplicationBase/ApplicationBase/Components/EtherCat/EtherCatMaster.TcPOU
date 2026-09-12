@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.21">
   <POU Name="EtherCatMaster" Id="{e9f0f328-f6e9-478d-a143-06ac013b96e0}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK EtherCatMaster
 VAR_GENERIC CONSTANT
@@ -11,7 +11,7 @@ VAR
 	EcMaster	AT %I*	: ST_EtherCatMasterInfo;
 	FrmXWcState AT %I*	: ARRAY[0..(FRAMES - 1)] OF WORD;
 	ConfiguredSlaveInfo : ARRAY[0..MAX_EC_SLAVES] OF ST_EcSlaveConfigData;
-	SlavesState			: ARRAY[0..MAX_EC_SLAVES] OF ST_EcSlaveState;
+	SlavesState			: ARRAY[0..MAX_EC_SLAVES] OF ST_EcExtendedSlaveState;
 	SlaveTopologyInfo	: ARRAY[0..MAX_EC_SLAVES] OF ST_TopologyDataEx;
 	// Configured slave index + 1 by (EtherCAT address - FIRST_SLAVE_ADDR); 0 = no slave at that address
 	AddrToIndex			: ARRAY[0..MAX_EC_SLAVES] OF UINT;
@@ -38,7 +38,7 @@ VAR
 	WaitCycles										 : UDINT; // ADS watchdog of the running wait step
 	GetConfiguredSlaves								 : FB_EcGetConfSlaves;
 	GetMasterFrameCount								 : FB_EcMasterFrameCount;
-	GetAllSlaveStates								 : FB_EcGetAllSlaveStates;
+	GetAllSlaveStates								 : FB_EcGetAllExtSlaveStates;
 	GetSlaveTopologyInfo							 : FB_EcGetSlaveTopologyInfo;
 END_VAR
 
@@ -58,7 +58,7 @@ VAR
 	{attribute 'hide'}
 	Config : ST_EcSlaveConfigData;
 	{attribute 'hide'}
-	State : ST_EcSlaveState;
+	State : ST_EcExtendedSlaveState;
 	{attribute 'hide'}
 	NullIoDevice : EtherCatIoDevice('NullIoDevice') := (Configuration := Config, State := State);
 	{attribute 'hide'}
