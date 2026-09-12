@@ -1,5 +1,9 @@
 # EtherCAT Components
 
+> **Requires TwinCAT 3.1.4026.27 and `Tc2_EtherCAT` 3.8.2.0 or newer** (since `ApplicationBase` 2.2.0). The slave
+> states are read with `FB_EcGetAllExtSlaveStates` into `ST_EcExtendedSlaveState`, which older `Tc2_EtherCAT`
+> releases do not contain.
+
 ## EtherCatMaster\<FRAMES, SYNC_UNITS\>
 
 Cyclic component that manages an EtherCAT master — reads the slave configuration and topology once, monitors master and slave states on every change, and exposes per-slave `EtherCatIoDevice` instances. Requires hardware mapping of the `EcMaster` and `FrmXWcState` variables to the TwinCAT EtherCAT master task.
@@ -91,8 +95,9 @@ IF Device <> 0 AND_THEN Device.OP THEN
 END_IF
 ```
 
-### Changes in 2.1.0
+### Changes in 2.2.0
 
+- Requires TwinCAT 3.1.4026.27 and `Tc2_EtherCAT` 3.8.2.0 or newer. Slave states are read with `FB_EcGetAllExtSlaveStates`; `I_EcIoDevice.State` and `EtherCatIoDevice.State` are `REFERENCE TO ST_EcExtendedSlaveState` (breaking change for code that stored the old `ST_EcSlaveState` reference; the decoded `BOOL` properties are unchanged).
 - The per-slave `CyclicLogic()` loop is gone; `EtherCatMaster` implements `I_CoeTransferScheduler` and services only CoE transfers in flight.
 - Address-to-index map (`GetSlaveIndexByAddr`) replaces the linear scans of the sync unit assignment and `GetIoDeviceByAddr`; the sync unit name resolution is O(n) instead of O(n²).
 - All O(n) passes run at `SLAVES_PER_CYCLE` slaves per cycle; ADS reads are sized to the configured count and the topology is only re-read when a slave needs a diagnostic.
@@ -114,7 +119,7 @@ Implements: `I_EcIoDevice`
 |--------|------|-------------|
 | `Name` | `STRING` (Get/Set) | Slave name from the EtherCAT configuration |
 | `Configuration` | `REFERENCE TO ST_EcSlaveConfigData` (Get/Set) | Slave configuration data (address, mailbox sizes, etc.); setting it addresses the CoE mailbox |
-| `State` | `REFERENCE TO ST_EcSlaveState` (Get/Set) | Live slave state from the master diagnostic |
+| `State` | `REFERENCE TO ST_EcExtendedSlaveState` (Get/Set) | Live extended slave state from the master diagnostic (`FB_EcGetAllExtSlaveStates`). The device decodes `deviceState` and `linkState`; the remaining fields are available to the application through this reference |
 | `AmsNetId` | `AMSNETID` (Set) | Master AMS Net ID, set by `EtherCatMaster` during init |
 | `SyncUnit` | `I_SyncUnitTask` (Set) | DC sync unit this slave belongs to |
 | `CoeScheduler` | `I_CoeTransferScheduler` (Set) | Scheduler that services this slave's CoE transfers; set by `EtherCatMaster` |

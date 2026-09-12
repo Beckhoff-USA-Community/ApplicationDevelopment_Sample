@@ -10,6 +10,8 @@
 - [Component-Module Hierarchy for Modern Machine Design](#component-module-hierarchy-for-modern-machine-design)
   - [Documentation](#documentation)
 - [Versions](#versions)
+  - [What's New in V2.2.0](#whats-new-in-v220)
+  - [What's New in V2.1.0](#whats-new-in-v210)
   - [What's New in V2.0.0](#whats-new-in-v200)
 - [Disclaimer](#disclaimer)
 
@@ -65,6 +67,10 @@ ApplicationDevelopment_Sample/
 ## Build & Run
 
 This project requires **TwinCAT 3 XAE IDE** (Visual Studio extension, Windows-only).
+
+> **Minimum versions since `ApplicationBase` 2.2.0:** TwinCAT **3.1.4026.27** and **`Tc2_EtherCAT` 3.8.2.0** or newer.
+> `EtherCatMaster` depends on `FB_EcGetAllExtSlaveStates` / `ST_EcExtendedSlaveState`, which older `Tc2_EtherCAT`
+> releases do not provide. Projects on an earlier TwinCAT build must stay on `ApplicationBase` 2.1.0.
 
 - **Open the solution** — `ApplicationDevelopment/ApplicationDevelopment.sln`
 - **Build** — right-click the solution in XAE and choose *Build*. Targets: TwinCAT RT or TwinCAT OS, Debug/Release, x86 / x64 / ARMV7-A / ARMV7-M / ARMV8-A.
@@ -135,7 +141,39 @@ Full reference docs live in [`Documentation/`](Documentation/README.md). Highlig
 The library version is published at runtime through `Global_Version.stLibVersion_ApplicationBase` and
 `F_GetVersion()`. The full history lives in [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: `ApplicationBase` 2.1.0**
+**Current version: `ApplicationBase` 2.2.0**
+
+> **Compatibility notice — V2.2.0 can only be used with TwinCAT 3.1.4026.27 and `Tc2_EtherCAT` 3.8.2.0 or newer.**
+> The EtherCAT diagnostics read the slave states with `FB_EcGetAllExtSlaveStates` into `ST_EcExtendedSlaveState`,
+> which do not exist in earlier `Tc2_EtherCAT` releases. The solution and all pinned library copies were upgraded to
+> 4026.27. If your target cannot move to that build, keep using V2.1.0.
+
+### What's New in V2.2.0
+
+V2.2.0 rebuilds the EtherCAT diagnostics so that `EtherCatMaster` scales to large networks. It is a **breaking
+change** for code that holds an `I_EcIoDevice.State` reference, and it raises the minimum TwinCAT and
+`Tc2_EtherCAT` versions (see the notice above).
+
+- **Scales to 2500 slaves on a 10 ms task** — per-cycle work is constant or bounded by the new
+  `EtherCatParameter.SLAVES_PER_CYCLE`. Every O(n) pass runs in slices, ADS reads are sized to the configured
+  slave count, the topology is read once and re-read only when a slave needs a diagnostic, and slave lookups by
+  address go through an O(1) map (`GetSlaveIndexByAddr`).
+- **Only CoE transfers in flight are serviced** — the new `I_CoeTransfer` / `I_CoeTransferScheduler` contract
+  replaces the per-slave `CyclicLogic()` loop. `EtherCatMaster` is the scheduler; `CoeDevice` registers itself
+  when a `Read` / `Write` starts and drops out when it completes.
+- **Extended slave state** — `I_EcIoDevice.State` is a `REFERENCE TO ST_EcExtendedSlaveState`, read with
+  `FB_EcGetAllExtSlaveStates`. The `deviceState` / `linkState` decoding and all `BOOL` state properties are
+  unchanged; the extra fields are available to the application through the reference.
+- **Errors say where they come from** — `ErrorSource` (`E_EcErrorSource`: `Master`, `Slave`, `Ads`, `Sequence`)
+  tells what `ErrorId` means. The placeholder value 999 is gone, ADS errors keep the function block error id,
+  and every wait step is guarded by a cycle watchdog (`ADS_WAIT_CYCLES`, `INIT_WAIT_CYCLES`).
+- **Bugs fixed** — the master TcEvent fired every cycle instead of once per `DevState` change; `DeviceError`,
+  `Disabled`, `InvalidVPRS` and `InitCmdError` of `EtherCatIoDevice` were always FALSE; `CoeDevice.Write` used
+  the SDO *read* function block; the sync unit re-matched its slaves on every working counter recovery;
+  `Reset()` did not clear the frame state.
+- **Tested** — `EtherCatMaster_TEST` with `EtherCatMaster_Mockup` and `EtherCatEventProvider_Mockup`.
+
+See [CHANGELOG.md](CHANGELOG.md) and [Documentation/EtherCAT.md](Documentation/EtherCAT.md).
 
 ### What's New in V2.1.0
 

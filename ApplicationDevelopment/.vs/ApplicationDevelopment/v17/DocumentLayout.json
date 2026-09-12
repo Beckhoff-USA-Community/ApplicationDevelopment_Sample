@@ -3,37 +3,7 @@
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@Initialize||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@SlaveState||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State.Set||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State.Get||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\Interface\\I_EcIoDevice.TcIO@State||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj@Library Manager||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@GetIoDeviceByAddr||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\Interface\\I_EcIoDevice.TcIO||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -43,7 +13,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -67,123 +37,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 0,
               "Title": "Library Manager",
               "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj@Library Manager",
               "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj@Library Manager",
               "ToolTip": "References [ApplicationBase.ApplicationBase]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:16:29.157Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "EtherCatMaster",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU",
-              "ToolTip": "EtherCatMaster [ApplicationBase.ApplicationBase]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:16:44.777Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "EtherCatMaster.GetIoDeviceByAddr",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@GetIoDeviceByAddr",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@GetIoDeviceByAddr",
-              "ToolTip": "GetIoDeviceByAddr [ApplicationBase.ApplicationBase.EtherCatMaster.Diagnostic]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:17:15.621Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "I_EcIoDevice",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\Interface\\I_EcIoDevice.TcIO",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\Interface\\I_EcIoDevice.TcIO",
-              "ToolTip": "I_EcIoDevice [ApplicationBase.ApplicationBase]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:17:18.286Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "I_EcIoDevice.State",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\Interface\\I_EcIoDevice.TcIO@State",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\Interface\\I_EcIoDevice.TcIO@State",
-              "ToolTip": "State [ApplicationBase.ApplicationBase.I_EcIoDevice]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:17:21.397Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "EtherCatIoDevice.State.Get",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State.Get",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State.Get",
-              "ToolTip": "Get [ApplicationBase.ApplicationBase.EtherCatIoDevice.Device.State]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:18:18.101Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "EtherCatIoDevice",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU",
-              "ToolTip": "EtherCatIoDevice [ApplicationBase.ApplicationBase]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:18:21.308Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "EtherCatIoDevice.State.Set",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State.Set",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State.Set",
-              "ToolTip": "Set [ApplicationBase.ApplicationBase.EtherCatIoDevice.Device.State]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:18:26.373Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "EtherCatIoDevice.State",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State",
-              "ToolTip": "State [ApplicationBase.ApplicationBase.EtherCatIoDevice.Device]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:18:27.543Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "EtherCatMaster.SlaveState",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@SlaveState",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@SlaveState",
-              "ToolTip": "SlaveState [ApplicationBase.ApplicationBase.EtherCatMaster._Internal]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:18:46.444Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "EtherCatMaster.Initialize",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@Initialize",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@Initialize",
-              "ToolTip": "Initialize [ApplicationBase.ApplicationBase.EtherCatMaster.Initialize]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:19:34.046Z",
+              "WhenOpened": "2026-09-12T16:52:25.629Z",
               "EditorCaption": ""
             }
           ]
@@ -203,6 +63,10 @@
             {
               "$type": "Bookmark",
               "Name": "ST:3:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
             }
           ]
         }

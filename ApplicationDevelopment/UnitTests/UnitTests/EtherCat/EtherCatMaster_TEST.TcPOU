@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.21">
   <POU Name="EtherCatMaster_TEST" Id="{6dd3e3c4-5367-4dfd-8570-4ddb29484f0f}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK EtherCatMaster_TEST
 VAR
 	Provider : EtherCatEventProvider_Mockup('EtherCAT Event Provider');
 	Master	 : EtherCatMaster_Mockup('EtherCAT Master Mock', EcStartupCycles := 1);
 	Device	 : EtherCatIoDevice('Io Device');
-	State	 : ST_EcSlaveState;
+	State	 : ST_EcExtendedSlaveState;
 	Config	 : ST_EcSlaveConfigData;
 END_VAR]]></Declaration>
     <Implementation>

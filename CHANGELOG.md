@@ -3,6 +3,74 @@
 Version history of the `ApplicationBase` library. The current version is published at runtime through
 `Global_Version.stLibVersion_ApplicationBase` and `F_GetVersion()`.
 
+## 2.2.0
+
+**Requires TwinCAT 3.1.4026.27 and `Tc2_EtherCAT` 3.8.2.0 or newer.** `EtherCatMaster` now reads the slave states with
+`FB_EcGetAllExtSlaveStates` into `ST_EcExtendedSlaveState`. Neither exists in older `Tc2_EtherCAT` releases, so the
+library does not compile against them. The solution was upgraded to 4026.27 and every pinned library copy was
+refreshed to the versions shipped with that build (`Tc2_EtherCAT` 3.8.2.0 among them).
+
+**Breaking change — `I_EcIoDevice.State` changed type.** It is now `REFERENCE TO ST_EcExtendedSlaveState` instead of
+`REFERENCE TO ST_EcSlaveState`. Application code that stored the reference or declared its own
+`EtherCatIoDevice` with a `ST_EcSlaveState` has to be retyped; the `deviceState` / `linkState` words and every
+`BOOL` property of `I_EcIoDevice` are unchanged.
+
+**EtherCAT diagnostics scale.** The per-cycle work of `EtherCatMaster` is either constant or bounded by
+`SLAVES_PER_CYCLE`. Verified target: 2500 slaves on a 10 ms task. See
+[Documentation/EtherCAT.md](Documentation/EtherCAT.md#changes-in-220).
+
+### Added
+
+- `I_CoeTransfer` and `I_CoeTransferScheduler` — scheduling contract for CoE transfers. `CoeDevice` implements
+  `I_CoeTransfer` and gained a `Scheduler` property; `EtherCatMaster` implements `I_CoeTransferScheduler` and
+  passes itself to every `EtherCatIoDevice` through the new `CoeScheduler` setter. A device with a scheduler
+  registers itself in `Read` / `Write` and is dropped from the serviced set when `Busy` falls
+- `E_EcErrorSource` (`None`, `Master`, `Slave`, `Ads`, `Sequence`) and `I_EtherCatMasterDiagnostic.ErrorSource` —
+  says what `ErrorId` means: `DevState` word, configured slave index, function block error id, or the step
+  number / offending count of the sequence itself
+- `I_EtherCatMasterDiagnostic.GetSlaveIndexByAddr(Addr)` — configured slave index for an EtherCAT address,
+  -1 if unknown. O(1) for addresses 1001 .. 1001 + `MAX_EC_SLAVES`, linear for user-assigned addresses
+- `EtherCatParameter.SLAVES_PER_CYCLE` (64) — slaves handled per cycle by the multi-cycle passes
+- `EtherCatParameter.ADS_WAIT_CYCLES` (1000) and `INIT_WAIT_CYCLES` (60000) — cycle watchdogs on every wait
+  step of the diagnostic and of `Initialize()`; a timeout aborts with `ErrorSource = Ads`, `ErrorId = 16#745`
+- `EtherCatMaster_TEST` with `EtherCatMaster_Mockup` and `EtherCatEventProvider_Mockup`; the `UnitTests`
+  project now references `Tc2_EtherCAT`
+
+### Changed
+
+- `EtherCatMaster` reads all slave states with `FB_EcGetAllExtSlaveStates`; `SlavesState`, the `State`
+  property of `EtherCatIoDevice` and `I_EcIoDevice.State` are typed `ST_EcExtendedSlaveState`. The master and
+  the io device still decode only `deviceState` and `linkState`; the extended fields are exposed to the
+  application through the `State` reference
+- The per-slave `CyclicLogic()` loop is gone. `EtherCatMaster` services only the CoE transfers in flight;
+  `EtherCatIoDevice.CyclicLogic()` services its own `CoeDevice` only when no `CoeScheduler` is attached
+- Address-to-index map replaces the linear scans of the sync unit assignment and of `GetIoDeviceByAddr`;
+  sync unit name resolution is O(n) instead of O(n²)
+- Every O(n) pass — classification, evaluation, sync unit resolution, io device wiring — runs at
+  `SLAVES_PER_CYCLE` slaves per cycle. `Busy` therefore stays TRUE for up to n / `SLAVES_PER_CYCLE` cycles and
+  `Error` of a change lands that many cycles after the trigger
+- ADS reads are sized to the configured slave count. The topology is read once in `Initialize()` and again
+  only when a slave needs a diagnostic; a clean network ends the diagnostic after the classification pass
+- The diagnostic is triggered by a change of `ChangeCount`, of `SlaveCount` while it differs from
+  `CfgSlaveCount`, or of the frame working counter state
+- `ErrorId` keeps the raw code of its `ErrorSource`. The placeholder value 999 is gone and ADS errors keep the
+  function block error id
+- `Initialize()` fails with `ErrorSource = Sequence` when more slaves are configured than `MAX_EC_SLAVES + 1`
+- `GetIoDeviceByAddr` and `GetIoDeviceByName` log a message when they fall back to the null device
+- `CoeDevice.Error` / `ErrorId` describe the last started transfer only; `Read` / `Write` without an `AdsAddr`
+  set `Error` with `ErrorId = 16#70B` instead of returning silently
+- Solution upgraded to TwinCAT 3.1.4026.27; pinned copies of the Beckhoff libraries refreshed accordingly
+
+### Fixed
+
+- The master TcEvent was raised every cycle instead of once per `DevState` change
+- `DeviceError`, `Disabled`, `InvalidVPRS` and `InitCmdError` of `EtherCatIoDevice` were always FALSE
+- `CoeDevice.Write` used the SDO read function block
+- The sync unit re-read and re-matched its slaves on every working counter recovery and logged an error each
+  pass for an empty sync unit
+- `Reset()` did not clear the frame state
+- Init trace texts said "mapped" for "not mapped"
+
 ## 2.1.0
 
 **Breaking change — the shared axis abstraction is now free of motion-library types.** See

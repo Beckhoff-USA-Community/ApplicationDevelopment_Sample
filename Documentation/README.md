@@ -40,8 +40,8 @@ Reference docs for the `ApplicationBase` framework and the sample applications b
 
 | Topic | Description |
 |-------|-------------|
-| [EtherCAT](EtherCAT.md) | `EtherCatMaster`, `EtherCatIoDevice` |
-| [CoE](CoE.md) | `CoeDevice`, `NullCoeDevice` — SDO read/write for EtherCAT slaves |
+| [EtherCAT](EtherCAT.md) | `EtherCatMaster`, `EtherCatIoDevice` — diagnostics that scale to 2500 slaves; requires TwinCAT 3.1.4026.27 / `Tc2_EtherCAT` 3.8.2.0+ |
+| [CoE](CoE.md) | `CoeDevice`, `NullCoeDevice`, `I_CoeTransfer` / `I_CoeTransferScheduler` — SDO read/write for EtherCAT slaves |
 | [ADS](ADS.md) | `AdsReadWrite` — ADS read/write by index or symbol name |
 | [Serial](Serial.md) | `SerialByteConnection`, `SerialStringConnection`, line control variants |
 | [TCP/IP](TcpIp.md) | `TcpIpConnection`, `TcpIpCommandResultFilter` |
