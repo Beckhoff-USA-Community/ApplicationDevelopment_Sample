@@ -691,7 +691,7 @@
 			</Properties>
 		</DataType>
 	</DataTypes>
-	<Instance TmcHash="{3BD60573-0943-4929-3100-579818654159}">
+	<Instance TmcHash="{4FB6C2A9-0FF6-F2DB-5493-9CA0BE28E343}">
 		<Vars VarGrpType="1">
 			<Name>PlcTask Inputs</Name>
 			<Var>

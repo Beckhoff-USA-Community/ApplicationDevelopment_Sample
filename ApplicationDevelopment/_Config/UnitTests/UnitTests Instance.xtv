@@ -818,6 +818,101 @@ External Setpoint Generation:
 			</Relations>
 		</DataType>
 		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-000000000041}" TcBaseType="true" HideSubItems="true" CName="AmsNetId">AMSNETID</Name>
+			<BitSize>48</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>6</Elements>
+			</ArrayInfo>
+			<Format>
+				<Printf>%d.%d.%d.%d.%d.%d</Printf>
+				<Parameter>[0]</Parameter>
+				<Parameter>[1]</Parameter>
+				<Parameter>[2]</Parameter>
+				<Parameter>[3]</Parameter>
+				<Parameter>[4]</Parameter>
+				<Parameter>[5]</Parameter>
+			</Format>
+		</DataType>
+		<DataType>
+			<Name GUID="{F0A056A1-F525-62D5-3065-391AE5B4ACA7}" Namespace="ApplicationBase" AutoDeleteType="true">ST_EtherCatMasterInfo</Name>
+			<BitSize>128</BitSize>
+			<SubItem>
+				<Name>AmsNetID</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000041}">AMSNETID</Type>
+				<BitSize>48</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>DevID</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>48</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>DevState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ChangeCount</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>80</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SlaveCount</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CfgSlaveCount</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>112</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{836079FD-F763-48C6-425D-BFA195D7E1DE}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..0] OF WORD</Name>
+			<BitSize>16</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000004}">WORD</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>1</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{918EE580-9D86-E60D-34E3-99D7289631B2}" Namespace="ApplicationBase" AutoDeleteType="true">ST_EtherCatSyncUnitTaskInfo</Name>
+			<BitSize>96</BitSize>
+			<SubItem>
+				<Name>WcState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ObjectId</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000F}">OTCID</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>State</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SlaveCount</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>80</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
 			<Name GUID="{875D2B22-B7EB-497E-B933-0C004593CCF3}" Namespace="MC" HideType="true" IecDeclaration="DWORD;">PLCTONC_AXIS_REF_CTRL</Name>
 			<BitSize>32</BitSize>
 			<SubItem>
@@ -1005,7 +1100,7 @@ External Setpoint Generation:
 			</Relations>
 		</DataType>
 	</DataTypes>
-	<Instance TmcHash="{B04BE04B-DDB3-99AC-ACA5-E299915B0F19}">
+	<Instance TmcHash="{D6D0BE47-16A2-4B2D-59BA-808B31D12C06}">
 		<Vars VarGrpType="1">
 			<Name>TestsBaseTask Inputs</Name>
 			<Var>
@@ -1035,6 +1130,18 @@ External Setpoint Generation:
 			<Var>
 				<Name>TestsBase.Axis_Test.AxisRef.NcToPlc</Name>
 				<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+			</Var>
+			<Var>
+				<Name>TestsBase.EtherCatMaster_TEST.Master.EcMaster</Name>
+				<Type GUID="{F0A056A1-F525-62D5-3065-391AE5B4ACA7}" Namespace="ApplicationBase">ST_EtherCatMasterInfo</Type>
+			</Var>
+			<Var>
+				<Name>TestsBase.EtherCatMaster_TEST.Master.FrmXWcState</Name>
+				<Type GUID="{836079FD-F763-48C6-425D-BFA195D7E1DE}">ARRAY [0..0] OF WORD</Type>
+			</Var>
+			<Var>
+				<Name>TestsBase.EtherCatMaster_TEST.Master.SyncUnit[0].SyncUnitTaskInfo</Name>
+				<Type GUID="{918EE580-9D86-E60D-34E3-99D7289631B2}" Namespace="ApplicationBase">ST_EtherCatSyncUnitTaskInfo</Type>
 			</Var>
 		</Vars>
 		<Vars VarGrpType="2" AreaNo="1">
