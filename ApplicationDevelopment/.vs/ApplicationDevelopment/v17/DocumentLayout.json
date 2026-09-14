@@ -3,7 +3,26 @@
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj@Library Manager||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+      "AbsoluteMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\UnitTests\\EtherCat\\EtherCatMaster_TEST.TcPOU@IoDeviceRawExposesVendorStructs||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}",
+      "RelativeMoniker": "D:0:0:{E16D0348-87FB-4E71-B2D0-1FA672D17EB8}|UnitTests\\UnitTests.plcproj|solutionrelative:UnitTests\\UnitTests\\EtherCat\\EtherCatMaster_TEST.TcPOU@IoDeviceRawExposesVendorStructs||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@GetIoDeviceByAddr||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@IsHotConnectMember||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@GetIoDeviceByName||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -13,7 +32,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -37,13 +56,79 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Library Manager",
-              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj@Library Manager",
-              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj@Library Manager",
-              "ToolTip": "References [ApplicationBase.ApplicationBase]",
+              "DocumentIndex": 1,
+              "Title": "EtherCatIoDevice",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU",
+              "ToolTip": "EtherCatIoDevice [ApplicationBase.ApplicationBase]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-09-12T16:52:25.629Z",
+              "WhenOpened": "2026-09-14T13:25:35.983Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "EtherCatMaster.GetIoDeviceByName",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@GetIoDeviceByName",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@GetIoDeviceByName",
+              "ToolTip": "GetIoDeviceByName [ApplicationBase.ApplicationBase.EtherCatMaster.Diagnostic]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-14T14:51:53.636Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "EtherCatMaster",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU",
+              "ToolTip": "EtherCatMaster [ApplicationBase.ApplicationBase]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-14T14:55:30.839Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "EtherCatMaster.IsHotConnectMember",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@IsHotConnectMember",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@IsHotConnectMember",
+              "ToolTip": "IsHotConnectMember [ApplicationBase.ApplicationBase.EtherCatMaster.Diagnostic]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-14T14:55:56.556Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "EtherCatIoDevice.State",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatIoDevice.TcPOU@State",
+              "ToolTip": "State [ApplicationBase.ApplicationBase.EtherCatIoDevice.Device]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-14T14:56:23.405Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "EtherCatMaster.GetIoDeviceByAddr",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@GetIoDeviceByAddr",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Components\\EtherCat\\EtherCatMaster.TcPOU@GetIoDeviceByAddr",
+              "ToolTip": "GetIoDeviceByAddr [ApplicationBase.ApplicationBase.EtherCatMaster.Diagnostic]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-14T14:56:52.705Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "EtherCatMaster_TEST.IoDeviceRawExposesVendorStructs",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\UnitTests\\UnitTests\\EtherCat\\EtherCatMaster_TEST.TcPOU@IoDeviceRawExposesVendorStructs",
+              "RelativeDocumentMoniker": "UnitTests\\UnitTests\\EtherCat\\EtherCatMaster_TEST.TcPOU@IoDeviceRawExposesVendorStructs",
+              "ToolTip": "IoDeviceRawExposesVendorStructs [ApplicationDevelopment.UnitTests.EtherCatMaster_TEST]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-14T14:58:02.992Z",
               "EditorCaption": ""
             }
           ]

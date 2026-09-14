@@ -58,6 +58,7 @@ WHILE i < n DO
 	ConfiguredSlaveInfo[i].nMailboxInSize := 0;
 	SlavesState[i].deviceState			  := 16#08; // OP
 	SlavesState[i].linkState			  := 16#00;
+	SlaveTopologyInfo[i].nStatusBits	  := 0;	// no hot connect group (see SetHotConnect)
 	IoDevice[i].Name					  := ConfiguredSlaveInfo[i].sName;
 	IoDevice[i].State					  REF= SlavesState[i];
 	IoDevice[i].Configuration			  REF= ConfiguredSlaveInfo[i];
@@ -115,6 +116,16 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[ConfiguredSlaveInfo[Index].nAddr := Addr;
 BuildAddrToIndex();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetHotConnect" Id="{3507781b-af48-492d-af78-5b1087afd038}">
+      <Declaration><![CDATA[// Fakes the topology read: marks one slave as member of a hot connect group.
+METHOD SetHotConnect
+VAR_INPUT
+	Index : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SlaveTopologyInfo[Index].nStatusBits.4 := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetSlaveState" Id="{701d6f27-147a-4bc3-82f0-f67c51db7b15}">

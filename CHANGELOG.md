@@ -3,6 +3,35 @@
 Version history of the `ApplicationBase` library. The current version is published at runtime through
 `Global_Version.stLibVersion_ApplicationBase` and `F_GetVersion()`.
 
+## 2.3.0
+
+Interface segregation of the EtherCAT diagnostics: `SyncUnitTask` talks to the master through the narrow
+`I_EcSlaveRegistry` contract instead of the full diagnostic interface and two raw buffer references. Same
+minimum versions as 2.2.0 (TwinCAT 3.1.4026.27, `Tc2_EtherCAT` 3.8.2.0).
+
+**Breaking change — `SyncUnitTask.FB_Init`.** The constructor is `(Name, Registry : I_EcSlaveRegistry)` instead of
+`(Name, EcMaster : I_EtherCatMasterDiagnostic, ConfiguredSlaveInfo, SlaveTopologyInfo)`. Only code that
+instantiates `SyncUnitTask` itself is affected; `EtherCatMaster` creates its sync units internally.
+
+### Added
+
+- `I_EcSlaveRegistry` — `ConfiguredSlaveCount`, `GetSlaveIndexByAddr(Addr)`, `GetSlaveName(Index)`,
+  `IsHotConnectMember(Index)`. Narrow contract for collaborators that only resolve slaves.
+  `I_EtherCatMasterDiagnostic` extends it, so existing callers of `ConfiguredSlaveCount` and
+  `GetSlaveIndexByAddr` compile unchanged
+- `EtherCatMaster.GetSlaveName(Index)` and `IsHotConnectMember(Index)`; both return `''` / FALSE outside the
+  configured range
+- `EtherCatMaster_TEST.SlaveRegistryNameAndHotConnect` and `EtherCatMaster_Mockup.SetHotConnect(Index)`
+
+### Changed
+
+- `SyncUnitTask` depends on `I_EcSlaveRegistry` only. It no longer holds `REFERENCE TO` the master's
+  `ST_EcSlaveConfigData` / `ST_TopologyDataEx` arrays and no longer sees the master's diagnostic interface,
+  which removes the concrete master ↔ sync unit dependency cycle. Behaviour of the resolve pass is unchanged
+- `I_EcIoDevice.Configuration` and `I_EcIoDevice.State` are Get-only on the interface. The setters remain on
+  `EtherCatIoDevice`, which is where `EtherCatMaster` wires them; code that assigned the references through an
+  `I_EcIoDevice` has to use the function block type
+
 ## 2.2.0
 
 **Requires TwinCAT 3.1.4026.27 and `Tc2_EtherCAT` 3.8.2.0 or newer.** `EtherCatMaster` now reads the slave states with

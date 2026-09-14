@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.21">
   <Itf Name="I_EcIoDevice" Id="{e9cac253-276d-4f50-b6e9-56f97e598d10}">
-    <Declaration><![CDATA[INTERFACE I_EcIoDevice EXTENDS I_IoDevice, I_CoeAccess]]></Declaration>
+    <Declaration><![CDATA[// One EtherCAT slave: decoded ESM / link flags, CoE access and the raw Tc2_EtherCAT
+// configuration and extended state references.
+INTERFACE I_EcIoDevice EXTENDS I_IoDevice, I_CoeAccess]]></Declaration>
     <Property Name="Bootstrap" Id="{31afd5dc-11b2-486c-9f37-0da12d67b283}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Bootstrap : BOOL]]></Declaration>
@@ -9,16 +11,12 @@ PROPERTY Bootstrap : BOOL]]></Declaration>
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Property Name="Configuration" Id="{b9316c67-a6f6-480f-9ad6-74125e3bf52c}">
-      <Declaration><![CDATA[PROPERTY Configuration : REFERENCE TO ST_EcSlaveConfigData]]></Declaration>
-      <Get Name="Get" Id="{bd40129e-0e06-4e63-82f9-fddeec328974}">
+    <Property Name="Configuration" Id="{b941e0ac-0632-4305-8664-6c1e45743eea}">
+      <Declaration><![CDATA[// Slave configuration data (address, mailbox sizes, ...) as read by FB_EcGetConfSlaves.
+PROPERTY Configuration : REFERENCE TO ST_EcSlaveConfigData]]></Declaration>
+      <Get Name="Get" Id="{35d58332-d3c1-4f05-a139-167538dbc57e}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
-      <Set Name="Set" Id="{b7e6db12-f360-4d4c-8ad9-4f914b5390bc}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-      </Set>
     </Property>
     <Property Name="DeviceError" Id="{3bded88e-74e2-413a-b817-bd735fda5a4e}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
@@ -76,16 +74,12 @@ PROPERTY SafeOp : BOOL]]></Declaration>
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Property Name="State" Id="{9f6965dc-9595-4f6a-b35b-67be233266ed}">
-      <Declaration><![CDATA[PROPERTY State : REFERENCE TO ST_EcExtendedSlaveState]]></Declaration>
-      <Get Name="Get" Id="{ded39fa3-4664-412b-ba55-c5c5986cbdd7}">
+    <Property Name="State" Id="{a5dac58f-f6c5-43a7-947d-9a53b64a0ccc}">
+      <Declaration><![CDATA[// Live extended slave state as read by FB_EcGetAllExtSlaveStates.
+PROPERTY State : REFERENCE TO ST_EcExtendedSlaveState]]></Declaration>
+      <Get Name="Get" Id="{44331840-f33f-48bf-b3ee-7609f278aa1f}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
-      <Set Name="Set" Id="{725212f6-8fcb-4601-aa73-db828e95db79}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-      </Set>
     </Property>
   </Itf>
 </TcPlcObject>

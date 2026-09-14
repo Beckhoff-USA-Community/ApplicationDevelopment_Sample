@@ -8,9 +8,8 @@ VAR
 	_SlaveCount				: UINT;
 	_IsHotConnect			: BOOL;
 	_SlavesResolved			: BOOL;
-	EcMaster				: I_EtherCatMasterDiagnostic;
-	ConfiguredSlaveInfo		: REFERENCE TO ARRAY[0..MAX_EC_SLAVES] OF ST_EcSlaveConfigData;
-	SlaveTopologyInfo		: REFERENCE TO ARRAY[0..MAX_EC_SLAVES] OF ST_TopologyDataEx;
+	// Resolves sync unit slave addresses to configured slaves (implemented by EtherCatMaster)
+	Registry				: I_EcSlaveRegistry;
 	SyncUnitSlaveAddresses	: ARRAY[0..MAX_EC_SLAVES] OF UINT;
 	// TRUE at the configured slave index of every slave in this sync unit (filled by the resolve pass)
 	MemberByIndex			: ARRAY[0..MAX_EC_SLAVES] OF BOOL;
@@ -118,7 +117,7 @@ END_IF
 EcGetAllSyncUnitSlaveAddr(sNetId	:= '',
 						  nObjectId := SyncUnitTaskInfo.ObjectId,
 						  pAddrBuf	:= ADR(SyncUnitSlaveAddresses),
-						  cbBufLen	:= SIZEOF(UINT) * MIN(EcMaster.ConfiguredSlaveCount, MAX_EC_SLAVES + 1),
+						  cbBufLen	:= SIZEOF(UINT) * MIN(Registry.ConfiguredSlaveCount, MAX_EC_SLAVES + 1),
 						  tTimeout	:= T#5S);
 
 EcGetAllSyncUnitSlaveAddr.bExecute := FALSE;
@@ -147,7 +146,7 @@ CASE SyncUnitState OF
 		END_IF
 
 	RESOLVE_SLAVES:
-		(* Map every address to its configured slave through the address map of the master:
+		(* Map every address to its configured slave through the slave registry of the master:
 		   O(n) in total, SLAVES_PER_CYCLE slaves per cycle. *)
 		FOR k := 1 TO SLAVES_PER_CYCLE DO
 			IF ScanIndex >= _SlaveCount THEN
@@ -156,11 +155,11 @@ CASE SyncUnitState OF
 
 			Addr := SyncUnitSlaveAddresses[ScanIndex];
 			IF Addr <> 0 THEN
-				Idx := EcMaster.GetSlaveIndexByAddr(Addr);
+				Idx := Registry.GetSlaveIndexByAddr(Addr);
 				IF Idx >= 0 THEN
 					MemberByIndex[Idx] := TRUE;
-					_IsHotConnect	   := _IsHotConnect OR SlaveTopologyInfo[Idx].nStatusBits.4 OR SlaveTopologyInfo[Idx].nStatusBits.5;
-					AppendSlaveName(ConfiguredSlaveInfo[Idx].sName);
+					_IsHotConnect	   := _IsHotConnect OR Registry.IsHotConnectMember(DINT_TO_UINT(Idx));
+					AppendSlaveName(Registry.GetSlaveName(DINT_TO_UINT(Idx)));
 				END_IF
 			END_IF
 
@@ -271,15 +270,11 @@ VAR_INPUT
 
 	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
 	bInCopyCode			: BOOL;
-	Name				: T_MaxString;
-	EcMaster			: I_EtherCatMasterDiagnostic;
-	ConfiguredSlaveInfo : REFERENCE TO ARRAY[0..MAX_EC_SLAVES] OF ST_EcSlaveConfigData;
-	SlaveTopologyInfo	: REFERENCE TO ARRAY[0..MAX_EC_SLAVES] OF ST_TopologyDataEx;
+	Name	 : T_MaxString;
+	Registry : I_EcSlaveRegistry;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[THIS^.EcMaster			  := EcMaster;
-THIS^.ConfiguredSlaveInfo REF= ConfiguredSlaveInfo;
-THIS^.SlaveTopologyInfo	  REF= SlaveTopologyInfo;]]></ST>
+        <ST><![CDATA[THIS^.Registry := Registry;]]></ST>
       </Implementation>
     </Method>
     <Method Name="Initialize" Id="{c396d1a2-ac47-0c27-2331-87a75aa82632}" FolderPath="Initialize\">
@@ -372,7 +367,7 @@ VAR
 	Idx : DINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Idx						 := EcMaster.GetSlaveIndexByAddr(Addr);
+        <ST><![CDATA[Idx						 := Registry.GetSlaveIndexByAddr(Addr);
 IsTerminalPartOfSyncUnit := (Idx >= 0) AND_THEN MemberByIndex[Idx];]]></ST>
       </Implementation>
     </Method>

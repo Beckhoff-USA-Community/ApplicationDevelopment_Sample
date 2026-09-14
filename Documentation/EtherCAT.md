@@ -11,7 +11,7 @@ Cyclic component that manages an EtherCAT master — reads the slave configurati
 Built to scale: the per-cycle cost is either constant or bounded by `SLAVES_PER_CYCLE`, every ADS read is sized to the configured slave count, slave lookups by address go through an O(1) map, and only CoE transfers in flight are serviced. Verified target: 2500 slaves on a 10 ms task.
 
 Extends: `CyclicComponent`  
-Implements: `I_EtherCatMasterDiagnostic`, `I_Initializable`, `I_TaskResult`, `I_Simulatable`, `I_CoeTransferScheduler`
+Implements: `I_EtherCatMasterDiagnostic` (which extends `I_EcSlaveRegistry`), `I_Initializable`, `I_TaskResult`, `I_Simulatable`, `I_CoeTransferScheduler`
 
 ### Generic Parameters
 
@@ -31,7 +31,7 @@ Implements: `I_EtherCatMasterDiagnostic`, `I_Initializable`, `I_TaskResult`, `I_
 | `Error` | `BOOL` (Get) | TRUE if the master, a slave, an ADS read or the sequence itself faulted; latched until `Reset()` |
 | `ErrorSource` | `E_EcErrorSource` (Get) | Origin of `ErrorId`: `None`, `Master`, `Slave`, `Ads`, `Sequence` |
 | `ErrorId` | `UDINT` (Get) | Raw code of `ErrorSource`: `DevState` word (`Master`), configured slave index (`Slave`), function block error id or `16#745` after the watchdog (`Ads`), step number or offending count (`Sequence`) |
-| `ConfiguredSlaveCount` | `UINT` (Get) | Number of configured slaves |
+| `ConfiguredSlaveCount` | `UINT` (Get) | Number of configured slaves (`I_EcSlaveRegistry`) |
 | `SlaveCount` | `UINT` (Get) | Number of currently active slaves |
 | `LocalAmsNetId` | `T_AmsNetId` (Get) | AMS Net ID of the local runtime |
 | `MasterAmsNetId` | `T_AmsNetId` (Get) | AMS Net ID of the EtherCAT master |
@@ -40,7 +40,9 @@ Implements: `I_EtherCatMasterDiagnostic`, `I_Initializable`, `I_TaskResult`, `I_
 | `CyclicLogic()` | Method | Must be called each scan |
 | `GetIoDeviceByAddr(Addr)` | Method → `I_EcIoDevice` | O(1) lookup; returns the null device and logs a message for unknown addresses |
 | `GetIoDeviceByName(Name)` | Method → `I_EcIoDevice` | Linear search; call once and keep the result. Returns the null device and logs a message on a miss |
-| `GetSlaveIndexByAddr(Addr)` | Method → `DINT` | Configured slave index (0-based) for an EtherCAT address, -1 if unknown. O(1) for addresses 1001 .. 1001 + `MAX_EC_SLAVES`, linear search for user-assigned addresses outside that range |
+| `GetSlaveIndexByAddr(Addr)` | Method → `DINT` | Configured slave index (0-based) for an EtherCAT address, -1 if unknown. O(1) for addresses 1001 .. 1001 + `MAX_EC_SLAVES`, linear search for user-assigned addresses outside that range (`I_EcSlaveRegistry`) |
+| `GetSlaveName(Index)` | Method → `STRING` | Name of the configured slave at `Index`, `''` if out of range (`I_EcSlaveRegistry`) |
+| `IsHotConnectMember(Index)` | Method → `BOOL` | TRUE if the slave at `Index` belongs to a hot connect group (topology status bits 4 or 5), FALSE if out of range (`I_EcSlaveRegistry`) |
 | `RegisterEventProvider(Provider)` | Method | Plugs in a TcEvent publisher for master/slave diagnostics |
 | `Register(Transfer)` | Method → `BOOL` | `I_CoeTransferScheduler`; called by `CoeDevice`, not by applications |
 
@@ -95,6 +97,12 @@ IF Device <> 0 AND_THEN Device.OP THEN
 END_IF
 ```
 
+### Changes in 2.3.0
+
+- `I_EtherCatMasterDiagnostic` extends the new `I_EcSlaveRegistry`; `GetSlaveName(Index)` and `IsHotConnectMember(Index)` were added. Existing callers of `ConfiguredSlaveCount` and `GetSlaveIndexByAddr` are unaffected.
+- `SyncUnitTask` is constructed with `(Name, Registry : I_EcSlaveRegistry)` and no longer receives the master's configuration and topology arrays (breaking only for code that instantiates `SyncUnitTask` itself).
+- `I_EcIoDevice.Configuration` and `State` are Get-only on the interface; the setters stay on `EtherCatIoDevice`.
+
 ### Changes in 2.2.0
 
 - Requires TwinCAT 3.1.4026.27 and `Tc2_EtherCAT` 3.8.2.0 or newer. Slave states are read with `FB_EcGetAllExtSlaveStates`; `I_EcIoDevice.State` and `EtherCatIoDevice.State` are `REFERENCE TO ST_EcExtendedSlaveState` (breaking change for code that stored the old `ST_EcSlaveState` reference; the decoded `BOOL` properties are unchanged).
@@ -146,3 +154,19 @@ IF Device.OP AND NOT Device.CoE.Busy THEN
     Device.CoE.Read(16#1018, 0, ADR(Identity), SIZEOF(Identity)); // serviced by the master until done
 END_IF
 ```
+
+---
+
+## Interfaces
+
+### I_EcSlaveRegistry
+
+Read-only view of the configured slaves, indexed 0-based in configuration order. `EtherCatMaster` implements it through `I_EtherCatMasterDiagnostic`; `SyncUnitTask` depends on this contract only, so it neither sees the master's diagnostic state nor its internal `ST_EcSlaveConfigData` / `ST_TopologyDataEx` arrays.
+
+| Member | Type | Description |
+|--------|------|-------------|
+| `ConfiguredSlaveCount` | `UINT` (Get) | Number of configured slaves |
+| `GetSlaveIndexByAddr(Addr)` | Method → `DINT` | Configured slave index for an EtherCAT address, -1 if unknown |
+| `GetSlaveName(Index)` | Method → `STRING` | Slave name, `''` if `Index` is out of range |
+| `IsHotConnectMember(Index)` | Method → `BOOL` | TRUE if the slave belongs to a hot connect group, FALSE if out of range |
+

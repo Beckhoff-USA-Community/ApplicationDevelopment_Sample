@@ -15,7 +15,8 @@ VAR
 	SlaveTopologyInfo	: ARRAY[0..MAX_EC_SLAVES] OF ST_TopologyDataEx;
 	// Configured slave index + 1 by (EtherCAT address - FIRST_SLAVE_ADDR); 0 = no slave at that address
 	AddrToIndex			: ARRAY[0..MAX_EC_SLAVES] OF UINT;
-	SyncUnit			: ARRAY[0..(SYNC_UNITS - 1)] OF SyncUnitTask('Sync Unit', THIS^, ConfiguredSlaveInfo, SlaveTopologyInfo);
+	// The sync units resolve their slaves through the I_EcSlaveRegistry role of this master
+	SyncUnit			: ARRAY[0..(SYNC_UNITS - 1)] OF SyncUnitTask('Sync Unit', THIS^);
 	IoDevice			: ARRAY[0..MAX_EC_SLAVES] OF EtherCatIoDevice('Io Device');
 	// CoE transfers in flight - only these are serviced each cycle (I_CoeTransferScheduler)
 	ActiveCoe			: ARRAY[0..MAX_EC_SLAVES] OF I_CoeTransfer;
@@ -419,6 +420,18 @@ WHILE i < SlaveCountUsed DO
 END_WHILE]]></ST>
       </Implementation>
     </Method>
+    <Method Name="GetSlaveName" Id="{7ab1777b-bb34-4d61-afb1-332f6cf67366}" FolderPath="Diagnostic\">
+      <Declaration><![CDATA[// I_EcSlaveRegistry: name of the configured slave at Index, '' if Index is out of range.
+METHOD GetSlaveName : STRING
+VAR_INPUT
+	Index : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Index < SlaveCountUsed THEN
+	GetSlaveName := ConfiguredSlaveInfo[Index].sName;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="Initialize" Id="{59fc31be-2fef-4308-9217-c3cfb6c18f0b}" FolderPath="Initialize\">
       <Declaration><![CDATA[// Init sequence: local AMS Net ID (0) - configured slaves (10) - topology (20) - frame count (30) -
 // sync units (40) - startup cycles, io device wiring and address map (50). Step 999 = failed, see trace.
@@ -654,6 +667,19 @@ END_VAR]]></Declaration>
         </Implementation>
       </Set>
     </Property>
+    <Method Name="IsHotConnectMember" Id="{1346fea0-0c2c-405a-915d-3220ee7700b6}" FolderPath="Diagnostic\">
+      <Declaration><![CDATA[// I_EcSlaveRegistry: TRUE if the configured slave at Index belongs to a hot connect group
+// (topology status bits 4 or 5, read once in Initialize). FALSE if Index is out of range.
+METHOD IsHotConnectMember : BOOL
+VAR_INPUT
+	Index : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Index < SlaveCountUsed THEN
+	IsHotConnectMember := SlaveTopologyInfo[Index].nStatusBits.4 OR SlaveTopologyInfo[Index].nStatusBits.5;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="LocalAmsNetId" Id="{a970c90e-4636-418a-85de-aa121c8437d5}" FolderPath="Diagnostic\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY LocalAmsNetId : T_AmsNetId]]></Declaration>

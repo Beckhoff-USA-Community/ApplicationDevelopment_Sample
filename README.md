@@ -10,6 +10,7 @@
 - [Component-Module Hierarchy for Modern Machine Design](#component-module-hierarchy-for-modern-machine-design)
   - [Documentation](#documentation)
 - [Versions](#versions)
+  - [What's New in V2.3.0](#whats-new-in-v230)
   - [What's New in V2.2.0](#whats-new-in-v220)
   - [What's New in V2.1.0](#whats-new-in-v210)
   - [What's New in V2.0.0](#whats-new-in-v200)
@@ -141,12 +142,29 @@ Full reference docs live in [`Documentation/`](Documentation/README.md). Highlig
 The library version is published at runtime through `Global_Version.stLibVersion_ApplicationBase` and
 `F_GetVersion()`. The full history lives in [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: `ApplicationBase` 2.2.0**
+**Current version: `ApplicationBase` 2.3.0**
 
-> **Compatibility notice — V2.2.0 can only be used with TwinCAT 3.1.4026.27 and `Tc2_EtherCAT` 3.8.2.0 or newer.**
+> **Compatibility notice — V2.2.0 and newer can only be used with TwinCAT 3.1.4026.27 and `Tc2_EtherCAT` 3.8.2.0 or newer.**
 > The EtherCAT diagnostics read the slave states with `FB_EcGetAllExtSlaveStates` into `ST_EcExtendedSlaveState`,
 > which do not exist in earlier `Tc2_EtherCAT` releases. The solution and all pinned library copies were upgraded to
 > 4026.27. If your target cannot move to that build, keep using V2.1.0.
+
+### What's New in V2.3.0
+
+V2.3.0 tightens the EtherCAT diagnostics along the interface segregation principle. It is a **breaking change**
+only for code that instantiates `SyncUnitTask` itself or assigned `Configuration` / `State` through an
+`I_EcIoDevice`; applications that use `EtherCatMaster` and `I_EcIoDevice` as documented are unaffected.
+
+- **`I_EcSlaveRegistry`** — narrow read-only contract over the configured slaves: `ConfiguredSlaveCount`,
+  `GetSlaveIndexByAddr`, `GetSlaveName(Index)`, `IsHotConnectMember(Index)`. `I_EtherCatMasterDiagnostic`
+  extends it, so existing callers compile unchanged.
+- **`SyncUnitTask` depends on the registry only** — its constructor is `(Name, Registry : I_EcSlaveRegistry)`.
+  It no longer receives the master's diagnostic interface or `REFERENCE TO` its `ST_EcSlaveConfigData` /
+  `ST_TopologyDataEx` buffers, which removes the concrete master ↔ sync unit dependency cycle.
+- **`EtherCatMaster.GetSlaveName` / `IsHotConnectMember`** — implement the registry; both return safe defaults
+  outside the configured range.
+- **`I_EcIoDevice.Configuration` / `State` are Get-only** on the interface; the setters stay on `EtherCatIoDevice`.
+- **Tested** — `EtherCatMaster_TEST.SlaveRegistryNameAndHotConnect` with `EtherCatMaster_Mockup.SetHotConnect`.
 
 ### What's New in V2.2.0
 

@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.27">
+  <Itf Name="I_EcSlaveRegistry" Id="{7ecd9ba6-d0e2-4c1f-ab63-8e024170d7f5}">
+    <Declaration><![CDATA[// Read-only view of the configured EtherCAT slaves, indexed 0-based in configuration order.
+// EtherCatMaster implements it; SyncUnitTask and other collaborators that only need to resolve
+// slaves depend on this contract instead of on the whole master.
+INTERFACE I_EcSlaveRegistry EXTENDS I_Base]]></Declaration>
+    <Property Name="ConfiguredSlaveCount" Id="{69b8a77d-8601-4098-bed0-bb5963e01edb}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+PROPERTY ConfiguredSlaveCount : UINT]]></Declaration>
+      <Get Name="Get" Id="{e9dc7296-1fcc-4ef5-a9ab-99fef2c652e0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="GetSlaveIndexByAddr" Id="{fe76d2a1-904b-493d-b227-045ce9d15c25}">
+      <Declaration><![CDATA[// Configured slave index (0-based) of the slave with EtherCAT address Addr, -1 if none.
+// O(1) for the dense address range starting at 1001, linear search otherwise.
+METHOD GetSlaveIndexByAddr : DINT
+VAR_INPUT
+	Addr : UINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="GetSlaveName" Id="{f0578778-594b-4c69-aab7-c0ed3eaa0640}">
+      <Declaration><![CDATA[// Name of the configured slave at Index, '' if Index is out of range.
+METHOD GetSlaveName : STRING
+VAR_INPUT
+	Index : UINT;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="IsHotConnectMember" Id="{1381a31c-5c4f-4c2b-a5f6-b00af3f5750c}">
+      <Declaration><![CDATA[// TRUE if the configured slave at Index belongs to a hot connect group (topology status bits 4 or 5).
+// FALSE if Index is out of range.
+METHOD IsHotConnectMember : BOOL
+VAR_INPUT
+	Index : UINT;
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

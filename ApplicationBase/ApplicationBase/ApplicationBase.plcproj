@@ -21,7 +21,7 @@
     <VirtualLibrary>true</VirtualLibrary>
     <Company>Beckhoff Automation LLC</Company>
     <Title>ApplicationBase</Title>
-    <ProjectVersion>2.2.0</ProjectVersion>
+    <ProjectVersion>2.3.0</ProjectVersion>
     <DefaultNamespace>ApplicationBase</DefaultNamespace>
     <Author>FS</Author>
     <GlobalVersionStructureIncluded>true</GlobalVersionStructureIncluded>
@@ -319,6 +319,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Components\EtherCat\Interface\I_EcIoDevice.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\EtherCat\Interface\I_EcSlaveRegistry.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Components\EtherCat\Interface\I_EtherCatDiagnosticEventProvider.TcIO">

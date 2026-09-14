@@ -17,6 +17,7 @@ IoDeviceCoeWithMailbox();
 MasterEventOncePerDevStateChange();
 SlaveIndexByAddress();
 SlaveIndexByAddressOutsideDenseRange();
+SlaveRegistryNameAndHotConnect();
 IoDeviceByAddrUsesMap();
 AdsFailureKeepsErrorId();]]></ST>
     </Implementation>
@@ -189,6 +190,31 @@ END_VAR]]></Declaration>
 	Master.LoadConfiguration(10);
 	Master.SetSlaveAddress(Index := 7, Addr := 60000);
 	Actual := (Master.GetSlaveIndexByAddr(60000) = 7) AND (Master.GetSlaveIndexByAddr(1008) = -1) AND (Master.GetSlaveIndexByAddr(999) = -1);
+	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SlaveRegistryNameAndHotConnect" Id="{f5f65aa5-3928-4063-ba79-256f7c9ea1d0}">
+      <Declaration><![CDATA[// The master serves SyncUnitTask through I_EcSlaveRegistry: name and hot connect flag by index,
+// safe defaults outside the configured range.
+METHOD SlaveRegistryNameAndHotConnect
+VAR_INST
+	Expected : BOOL;
+	Actual	 : BOOL;
+	Registry : I_EcSlaveRegistry;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TestSuite.Test(__POUNAME()).ExecuteTest() THEN
+	Expected := TRUE;
+	Master.LoadConfiguration(10);
+	Master.SetHotConnect(Index := 3);
+	Registry := Master;
+	Actual	 := (Registry.ConfiguredSlaveCount = 10)
+				AND (Registry.GetSlaveName(4) = 'Slave5')
+				AND Registry.IsHotConnectMember(3)
+				AND NOT Registry.IsHotConnectMember(4)
+				AND (Registry.GetSlaveName(10) = '')
+				AND NOT Registry.IsHotConnectMember(10);
 	TestSuite.Test(__POUNAME()).AssertEqual(Expected, Actual);
 END_IF]]></ST>
       </Implementation>
