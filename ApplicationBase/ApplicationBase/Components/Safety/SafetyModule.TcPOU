@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.21">
   <POU Name="SafetyModule" Id="{1cc953a6-bf43-4bbb-a475-b0a5baac31f8}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK SafetyModule EXTENDS Module IMPLEMENTS I_SafetyModule
 VAR
 	SequenceState			 : UDINT;
+	ResetRequestedThisScan	 : BOOL;
 	TwinSAFEResetDelay		 : TON;
 	SafetyPLC_WcState AT %I* : BOOL;
 	SafetyPLC_AmsAddr AT %I* : AMSADDR;
@@ -19,10 +20,10 @@ END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Folder Name="Cyclic" Id="{c0d6a1ef-2da3-4b99-8fea-087ccfad0af9}" />
-    <Folder Name="Initialize" Id="{6d5af7d0-62c6-4169-850f-bd724baed4d1}" />
-    <Folder Name="Safety Simulation" Id="{a111a2c3-b108-4406-abdb-7dc536eba1b5}" />
-    <Folder Name="Task Result" Id="{78e742c9-683d-46dd-9109-8e1cca89f14c}" />
+    <Folder Name="Cyclic" Id="{c4981cda-16bc-470e-af5a-e1f35b9cbe3a}" />
+    <Folder Name="Initialize" Id="{b7f8fc5e-f1dd-449c-88e6-e56a167c5456}" />
+    <Folder Name="Safety Simulation" Id="{b6be3fc2-38ea-4cce-a2e8-ac2d4e5aa0f0}" />
+    <Folder Name="Task Result" Id="{09b84b21-0c39-426a-8f3a-6012a0df5c4b}" />
     <Method Name="AddSafetyComponent" Id="{315a3e35-02f8-4038-a83e-8559fb0c282c}">
       <Declaration><![CDATA[METHOD AddSafetyComponent
 VAR_INPUT
@@ -35,18 +36,19 @@ END_VAR]]></Declaration>
     <Property Name="Busy" Id="{6e50ddf1-36f1-424c-b8c0-b3de7809d002}" FolderPath="Task Result\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Busy : BOOL]]></Declaration>
-      <Get Name="Get" Id="{f38af481-c8fa-4b56-9f59-acbeef2a31a4}">
+      <Get Name="Get" Id="{888f4230-250d-412e-aaef-0f9027f443e7}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Busy := SequenceState <> 0;]]></ST>
+          <ST><![CDATA[// State 30 (reset complete, latched) is not busy so a polling caller sees completion
+Busy := (SequenceState <> 0) AND (SequenceState <> 30);]]></ST>
         </Implementation>
       </Get>
     </Property>
     <Property Name="Error" Id="{d63da2b3-a3b3-462b-8efa-6c9d66507f85}" FolderPath="Task Result\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Error : BOOL]]></Declaration>
-      <Get Name="Get" Id="{67ff506a-b0d1-4cc9-98ba-a986b9fc8f95}">
+      <Get Name="Get" Id="{b376ee6e-7808-4d6e-a7ec-eb49abc5dba2}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -57,7 +59,7 @@ END_VAR]]></Declaration>
     <Property Name="ErrorId" Id="{b010b629-240a-47a6-a958-23fddcc188ff}" FolderPath="Task Result\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY ErrorId : UDINT]]></Declaration>
-      <Get Name="Get" Id="{80a0c5e1-ea54-4931-a7a4-d9d81ecad48a}">
+      <Get Name="Get" Id="{abe0d089-4611-4a9d-b922-c4ed4ecab6c5}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -163,7 +165,7 @@ END_CASE]]></ST>
     <Property Name="OK" Id="{c41da4a9-26c2-45fe-9be5-5f0d1280fe2b}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY OK : BOOL]]></Declaration>
-      <Get Name="Get" Id="{38c41a29-29b9-4492-b380-c9fa933ba2d0}">
+      <Get Name="Get" Id="{ca5eee10-8db5-4f41-8483-0af19692b972}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -191,9 +193,17 @@ CASE SequenceState OF
 	20:
 		TwinSAFEResetDelay.IN := TRUE;
 		IF TwinSAFEResetDelay.Q THEN
+			SequenceState := 30;
+		END_IF
+
+	30:
+		// Reset complete: latched until the caller stops requesting resets
+		TwinSAFEResetDelay.IN := FALSE;
+		IF NOT ResetRequestedThisScan THEN
 			SequenceState := 0;
 		END_IF
 END_CASE
+ResetRequestedThisScan := FALSE;
 
 GetComponentsTaskResultVisitor.Update(THIS^);
 SafetyOkVisitor.Check(Components);]]></ST>
@@ -202,7 +212,15 @@ SafetyOkVisitor.Check(Components);]]></ST>
     <Method Name="Reset" Id="{bac45c0a-62e1-4841-ae21-4a6a041a17ca}">
       <Declaration><![CDATA[METHOD Reset]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF Busy THEN
+        <ST><![CDATA[// Holds the completed state while the caller keeps polling
+ResetRequestedThisScan := TRUE;
+
+IF Busy THEN
+	RETURN;
+END_IF
+
+// Already reset and no error present: silently reject cyclic requests
+IF SequenceState = 30 AND NOT Error THEN
 	RETURN;
 END_IF
 
@@ -211,7 +229,7 @@ SequenceState := 10;]]></ST>
     </Method>
     <Property Name="SafetyAddressInfo" Id="{1ea51f96-15c8-4af8-a79c-ef78e42ebe6d}">
       <Declaration><![CDATA[PROPERTY SafetyAddressInfo : REFERENCE TO ST_SafetyAddressInfo]]></Declaration>
-      <Get Name="Get" Id="{b89f9385-9553-407c-8953-4848eacee658}">
+      <Get Name="Get" Id="{a963db84-4502-44ae-9e40-da59245b6be8}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -221,7 +239,7 @@ END_VAR]]></Declaration>
     </Property>
     <Property Name="SafetyPlcCoE" Id="{8aa21f8e-1155-4aa6-8381-a884efc0e2a0}">
       <Declaration><![CDATA[PROPERTY SafetyPlcCoE : I_CoeDevice]]></Declaration>
-      <Get Name="Get" Id="{4ad8b943-1bb2-4e48-8b09-1677858e970d}">
+      <Get Name="Get" Id="{c892039f-683c-4af1-9d02-6b920276ae1a}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -232,14 +250,14 @@ END_VAR]]></Declaration>
     <Property Name="Simulated" Id="{72c9e5c6-9a77-4770-be37-32042ad6c45c}" FolderPath="Safety Simulation\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY Simulated : BOOL]]></Declaration>
-      <Get Name="Get" Id="{6529046a-d950-489e-864e-a03c8abaf993}">
+      <Get Name="Get" Id="{23418fcc-3747-4f54-b9d2-04d4e853fe45}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[Simulated := SetSafetySimulationVisitor.Simulated;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{a20567dd-e4fa-425b-9b27-6e3e17a38af6}">
+      <Set Name="Set" Id="{a94247ea-582b-4609-8728-469d4e9ed8e9}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
