@@ -610,5 +610,44 @@
         <Hide GUID="{670BED62-70D8-4757-89AF-53283251429E}" />
       </Hides>
     </DataType>
+    <DataType>
+      <Name GUID="{E5558B94-0CD8-4631-BBCE-F90C1100B094}">TcEventClassFailure</Name>
+      <DisplayName TxtId=""><![CDATA[Event class generation failure]]></DisplayName>
+      <EventId>
+        <Name Id="1">BufferMissing</Name>
+        <DisplayName TxtId=""><![CDATA[Event class '{0}' failed verification (1): the class definition or a dynamic buffer was not allocated, or the class has no events. All events of this class are disabled.]]></DisplayName>
+        <Severity>Critical</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="2">AllocationFailed</Name>
+        <DisplayName TxtId=""><![CDATA[Event class '{0}' failed verification (2): the dynamic allocation of an alarm or auto reset flag returned 0 (out of memory). All events of this class are disabled.]]></DisplayName>
+        <Severity>Critical</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="3">SharedMemory</Name>
+        <DisplayName TxtId=""><![CDATA[Event class '{0}' failed verification (3): two events share the same alarm or auto reset memory. All events of this class are disabled.]]></DisplayName>
+        <Severity>Critical</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="4">TriggerAssigned</Name>
+        <DisplayName TxtId=""><![CDATA[Event class '{0}' failed verification (4): an event trigger was already assigned during generation. All events of this class are disabled.]]></DisplayName>
+        <Severity>Critical</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="5">IdMismatch</Name>
+        <DisplayName TxtId=""><![CDATA[Event class '{0}' failed verification (5): an alarm does not carry the event id stored for its slot. All events of this class are disabled.]]></DisplayName>
+        <Severity>Critical</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="6">SortedSlotOutOfRange</Name>
+        <DisplayName TxtId=""><![CDATA[Event class '{0}' failed verification (6): the sorted slot list refers to a slot that does not exist. All events of this class are disabled.]]></DisplayName>
+        <Severity>Critical</Severity>
+      </EventId>
+      <EventId>
+        <Name Id="7">DuplicateEventId</Name>
+        <DisplayName TxtId=""><![CDATA[Event class '{0}' failed verification (7): the event ids are not unique (check the event class in the type system) or the sorted slot list is broken. All events of this class are disabled.]]></DisplayName>
+        <Severity>Critical</Severity>
+      </EventId>
+    </DataType>
   </DataTypes>
 </TcModuleClass>

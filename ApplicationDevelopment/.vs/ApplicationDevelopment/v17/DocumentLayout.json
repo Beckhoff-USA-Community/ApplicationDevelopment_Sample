@@ -1,7 +1,20 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationDevelopment\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU@ReportGenerationFailure||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU@Arguments||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU@CyclicLogic||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7DC97CB5-93B7-4A86-B49C-C9C5F076C612}|..\\ApplicationBase\\ApplicationBase\\ApplicationBase.plcproj|C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU||{CFF47BB1-5559-4BDE-A2AF-06B30BC64F6C}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -29,11 +42,55 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:1528276488:0:{a6f4fceb-1c71-4697-840a-c4fdf5060a5f}"
+              "Name": "ST:0:0:{ed0bcd91-6645-4c98-a08d-0550d8ae7328}"
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{ed0bcd91-6645-4c98-a08d-0550d8ae7328}"
+              "Name": "ST:1528276488:0:{a6f4fceb-1c71-4697-840a-c4fdf5060a5f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TcEventClass.CyclicLogic",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU@CyclicLogic",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU@CyclicLogic",
+              "ToolTip": "CyclicLogic [ApplicationBase.ApplicationBase.TcEventClass]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-10-29T15:08:20.77Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "TcEventClass.Arguments",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU@Arguments",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU@Arguments",
+              "ToolTip": "Arguments [ApplicationBase.ApplicationBase.TcEventClass]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-10-29T15:08:21.988Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "TcEventClass.ReportGenerationFailure",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU@ReportGenerationFailure",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU@ReportGenerationFailure",
+              "ToolTip": "ReportGenerationFailure [ApplicationBase.ApplicationBase.TcEventClass.Private]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-10-29T15:09:34.03Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "TcEventClass",
+              "DocumentMoniker": "C:\\Prj\\ApplicationDevelopment_Sample\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU",
+              "RelativeDocumentMoniker": "..\\ApplicationBase\\ApplicationBase\\Events\\TcEventClass.TcPOU",
+              "ToolTip": "TcEventClass [ApplicationBase.ApplicationBase]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-10-29T15:08:16.878Z",
+              "EditorCaption": ""
             }
           ]
         },
@@ -48,6 +105,10 @@
             {
               "$type": "Bookmark",
               "Name": "ST:3:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{94c070b9-db0b-4415-9311-bac4eef266f5}"
             }
           ]
         }

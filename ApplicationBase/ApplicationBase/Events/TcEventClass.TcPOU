@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.1.0.1">
   <POU Name="TcEventClass" Id="{f296ebbc-7688-440d-8415-d25114030b28}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK TcEventClass EXTENDS CyclicComponent IMPLEMENTS I_EventClassTcEvents
@@ -8,9 +8,15 @@ VAR
 	pEventBuffer			   : POINTER TO PVOID;
 	pEventTriggerBuffer		   : POINTER TO PVOID;
 	pEventAutoResetBuffer	   : POINTER TO PVOID;
+	// Slot = position of an event in the event class of the type system (1..NumberOfEvents). Event ids may have gaps.
+	pEventIdBuffer			   : POINTER TO UDINT; // event id of each slot
+	pSortedSlotBuffer		   : POINTER TO UDINT; // slots ordered by ascending event id, binary searched by FindSlot
 	NullEvent				   : FB_TcAlarm;
+	GenerationFailedEvent	   : FB_TcAlarm; // raised (never cleared) when GenerateTcEvents fails verification, see ReportGenerationFailure
 	NullBool				   : BOOL;
 	NumberOfEvents			   : UDINT;
+	GenerationFailed		   : BOOL; // TRUE if the dynamic allocation or the event ids failed VerifyAllocation. All lookups by event id then fail
+	GenerationFailureCode	   : UDINT; // 0 = verified, otherwise the number of the VerifyAllocation check that failed
 	HighestActiveEventSeverity : TcEventSeverity;
 	EventReactionVerbose	   : DINT := 0;
 	EventReactionInfo		   : DINT := 1;
@@ -37,7 +43,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF CheckEventId(EventId) THEN
-	pEvent := GetEventInstance(EventId);
+	pEvent := GetEventInstanceById(EventId);
 	IF (pEvent <> 0) THEN
 		TcEventClassArguments.Event := pEvent;
 	ELSE
@@ -56,7 +62,7 @@ VAR_INPUT
 	EventId : UDINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[CheckEventId := (EventID > 0) AND (EventId <= NumberOfEvents) AND (pEventBuffer <> 0);]]></ST>
+        <ST><![CDATA[CheckEventId := FindSlot(EventId) <> 0;]]></ST>
       </Implementation>
     </Method>
     <Method Name="ClearEventById" Id="{0bc34990-e2a1-4d61-80e6-6e73e823ff10}" FolderPath="EventClass\">
@@ -70,7 +76,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF CheckEventId(EventId) THEN
-	pEvent := GetEventInstance(EventId);
+	pEvent := GetEventInstanceById(EventId);
 	IF (pEvent <> 0) THEN
 		IF pEvent^.bRaised THEN
 			pEvent^.Clear();
@@ -90,10 +96,10 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[FOR i := 1 TO NumberOfEvents DO
-	pTrigger := GetEventTriggerInstance(i);
+	pTrigger := GetEventTriggerInstanceBySlot(i);
 	IF (pTrigger <> 0) THEN
-		pEvent	  := GetEventInstance(i);
-		AutoReset := GetEventAutoResetInstance(i)^;
+		pEvent	  := GetEventInstanceBySlot(i);
+		AutoReset := GetEventAutoResetInstanceBySlot(i)^;
 		IF (pEvent <> 0) AND_THEN AutoReset AND NOT pTrigger^ THEN
 			pEvent^.Clear();
 			FindActiveSeverity();
@@ -110,24 +116,12 @@ END_FOR]]></ST>
     <Method Name="Dispose" Id="{c2a2e0ed-32e6-414a-9fba-591f7246fc2e}" FolderPath="Destructor\">
       <Declaration><![CDATA[METHOD Dispose
 VAR
-	i				: UDINT;
-	pEvent			: POINTER TO FB_TcAlarm;
-	pDispose		: POINTER TO TcEventClass;
-	pEventAutoReset : POINTER TO BOOL;
+	pDispose : POINTER TO TcEventClass;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[pDispose := THIS;
-FOR i := 1 TO NumberOfEvents DO
-	pEvent := GetEventInstance(i);
-	__DELETE(pEvent);
-	pEventAutoReset := GetEventAutoResetInstance(i);
-	__DELETE(pEventAutoReset);
-END_FOR
-
-__DELETE(pEventBuffer);
-__DELETE(pDispose);
-__DELETE(pEventTriggerBuffer);
-__DELETE(pEventAutoResetBuffer);]]></ST>
+ReleaseBuffers();
+__DELETE(pDispose);]]></ST>
       </Implementation>
     </Method>
     <Method Name="FB_Exit" Id="{17232ae3-3631-4da3-b234-aa6161b3bc99}" FolderPath="Destructor\">
@@ -138,25 +132,10 @@ __DELETE(pEventAutoResetBuffer);]]></ST>
 //(implicit call). The return value is not evaluated.
 METHOD FB_Exit : BOOL
 VAR_INPUT
-	bInCopyCode : BOOL; // TRUE: the exit method is called in order to leave the instance which will be copied afterwards (online change).  
-END_VAR
-
-VAR
-	i				: UDINT;
-	pEvent			: POINTER TO FB_TcAlarm;
-	pEventAutoReset : POINTER TO BOOL;
+	bInCopyCode : BOOL; // TRUE: the exit method is called in order to leave the instance which will be copied afterwards (online change).
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR i := 1 TO NumberOfEvents DO
-	pEvent := GetEventInstance(i);
-	__DELETE(pEvent);
-	pEventAutoReset := GetEventAutoResetInstance(i);
-	__DELETE(pEventAutoReset);
-END_FOR
-
-__DELETE(pEventBuffer);
-__DELETE(pEventTriggerBuffer);
-__DELETE(pEventAutoResetBuffer);]]></ST>
+        <ST><![CDATA[ReleaseBuffers();]]></ST>
       </Implementation>
     </Method>
     <Method Name="FindActiveSeverity" Id="{e9db7bf4-bc96-4131-b2cb-d92e8b4fea93}" FolderPath="Private\">
@@ -168,11 +147,48 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[HighestActiveEventSeverity := Global.TcEventSeverity.Verbose;
 FOR i := 1 TO NumberOfEvents DO
-	pEvent := GetEventInstance(i);
+	pEvent := GetEventInstanceBySlot(i);
 	IF (pEvent <> 0) AND_THEN pEvent^.bRaised AND_THEN pEvent^.eSeverity > HighestActiveEventSeverity THEN
 		HighestActiveEventSeverity := pEvent^.eSeverity;
 	END_IF
 END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindSlot" Id="{5ff99340-2603-4b0f-9e67-d557718f0b79}" FolderPath="Private\">
+      <Declaration><![CDATA[// Binary search of an event id through the sorted slots. Returns the slot (1..NumberOfEvents), or 0 if the id is not in the class
+METHOD PROTECTED FindSlot : UDINT
+VAR_INPUT
+	EventId : UDINT;
+END_VAR
+
+VAR
+	Low	 : UDINT;
+	High : UDINT;
+	Mid	 : UDINT;
+	Slot : UDINT;
+	Id	 : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FindSlot := 0;
+IF GenerationFailed OR (pEventIdBuffer = 0) OR (pSortedSlotBuffer = 0) THEN
+	RETURN;
+END_IF
+
+Low	 := 1;
+High := NumberOfEvents;
+WHILE Low <= High DO
+	Mid	 := Low + (High - Low) / 2;
+	Slot := GetSortedSlot(Mid);
+	Id	 := GetEventIdBySlot(Slot);
+	IF Id = EventId THEN
+		FindSlot := Slot;
+		RETURN;
+	ELSIF Id < EventId THEN
+		Low := Mid + 1;
+	ELSE
+		High := Mid - 1; // Mid >= 1 here, so this cannot underflow
+	END_IF
+END_WHILE]]></ST>
       </Implementation>
     </Method>
     <Method Name="GenerateTcEvents" Id="{b70681ab-99f1-42be-b37f-8c919729985e}">
@@ -185,89 +201,202 @@ END_VAR
 
 VAR
 	i				 : UDINT;
+	j				 : UDINT;
+	SortedIndex		 : UDINT;
+	EventCount		 : UDINT;
 	pEventDef		 : POINTER TO TcEventEntry;
+	pOtherDef		 : POINTER TO TcEventEntry;
 	pEvent			 : POINTER TO FB_TcAlarm;
-	pBuffer			 : PVOID;
-	ppBuffer		 : POINTER TO POINTER TO FB_TcAlarm;
+	ppEvent			 : POINTER TO POINTER TO FB_TcAlarm;
 	SourceInfo		 : FB_TcSourceInfo;
 	pEventAutoReset	 : POINTER TO BOOL;
 	ppEventAutoReset : POINTER TO POINTER TO BOOL;
+	pId				 : POINTER TO UDINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[NumberOfEvents		  := nSize / SIZEOF(TcEventEntry);
-pEventBuffer		  := __NEW(PVOID, NumberOfEvents);
-pEventTriggerBuffer	  := __NEW(PVOID, NumberOfEvents);
-pEventAutoResetBuffer := __NEW(PVOID, NumberOfEvents);
-pEventClass			  := pClass;
-IF pEventBuffer <> 0 THEN
+        <ST><![CDATA[// A repeated call must not leak the buffers of the previous one
+ReleaseBuffers();
+
+// Fail-safe: the class stays unusable until VerifyAllocation has passed at the end of this method
+GenerationFailed := TRUE;
+pEventClass		 := pClass;
+EventCount		 := nSize / SIZEOF(TcEventEntry);
+
+IF (pClass <> 0) AND (EventCount > 0) THEN
+	NumberOfEvents		  := EventCount;
+	pEventBuffer		  := __NEW(PVOID, EventCount);
+	pEventTriggerBuffer	  := __NEW(PVOID, EventCount);
+	pEventAutoResetBuffer := __NEW(PVOID, EventCount);
+	pEventIdBuffer		  := __NEW(UDINT, EventCount);
+	pSortedSlotBuffer	  := __NEW(UDINT, EventCount);
+END_IF
+
+IF (NumberOfEvents > 0) AND (pEventBuffer <> 0) AND (pEventTriggerBuffer <> 0) AND (pEventAutoResetBuffer <> 0) AND (pEventIdBuffer <> 0) AND (pSortedSlotBuffer <> 0) THEN
 	SourceInfo.ResetToDefault();
 	SourceInfo.sName := Name;
-	FOR i := 1 TO NumberOfEvents DO
-		pEvent	  := __NEW(FB_TcAlarm);
-		ppBuffer  := pEventBuffer + ((i - 1) * SIZEOF(PVOID));
-		ppBuffer^ := pEvent;
-		pEventDef := pEventClass + ((i - 1) * SIZEOF(TcEventEntry));
-		pEvent^.CreateEx2(pEventDef^, SourceInfo);
 
-		//
+	// Do not rely on the allocator: start with every pointer unassigned (0) and every sorted slot unset (0)
+	MEMSET(pEventBuffer, 0, EventCount * SIZEOF(PVOID));
+	MEMSET(pEventTriggerBuffer, 0, EventCount * SIZEOF(PVOID));
+	MEMSET(pEventAutoResetBuffer, 0, EventCount * SIZEOF(PVOID));
+	MEMSET(pEventIdBuffer, 0, EventCount * SIZEOF(UDINT));
+	MEMSET(pSortedSlotBuffer, 0, EventCount * SIZEOF(UDINT));
+
+	// Store the event id of each slot
+	FOR i := 1 TO EventCount DO
+		pEventDef := pEventClass + ((i - 1) * SIZEOF(TcEventEntry));
+		pId		  := pEventIdBuffer + ((i - 1) * SIZEOF(UDINT));
+		pId^	  := pEventDef^.nEventID;
+	END_FOR
+
+	// Sorted index of slot i = 1 + number of events with a smaller id. Equal ids are ordered by slot so the
+	// result is always a permutation of the slots; VerifyAllocation rejects duplicate ids.
+	FOR i := 1 TO EventCount DO
+		pEventDef	:= pEventClass + ((i - 1) * SIZEOF(TcEventEntry));
+		SortedIndex := 1;
+		FOR j := 1 TO EventCount DO
+			pOtherDef := pEventClass + ((j - 1) * SIZEOF(TcEventEntry));
+			IF (pOtherDef^.nEventID < pEventDef^.nEventID) OR ((pOtherDef^.nEventID = pEventDef^.nEventID) AND (j < i)) THEN
+				SortedIndex := SortedIndex + 1;
+			END_IF
+		END_FOR
+
+		pId	  := pSortedSlotBuffer + ((SortedIndex - 1) * SIZEOF(UDINT));
+		pId^  := i;
+	END_FOR
+
+	// One alarm and one auto reset flag per slot. A failed allocation is left as 0 and caught by VerifyAllocation
+	FOR i := 1 TO EventCount DO
+		pEventDef := pEventClass + ((i - 1) * SIZEOF(TcEventEntry));
+
+		pEvent	  := __NEW(FB_TcAlarm);
+		ppEvent	  := pEventBuffer + ((i - 1) * SIZEOF(PVOID));
+		ppEvent^  := pEvent;
+		IF pEvent <> 0 THEN
+			pEvent^.CreateEx2(pEventDef^, SourceInfo);
+		END_IF
+
 		pEventAutoReset	  := __NEW(BOOL);
 		ppEventAutoReset  := pEventAutoResetBuffer + ((i - 1) * SIZEOF(PVOID));
 		ppEventAutoReset^ := pEventAutoReset;
+		IF pEventAutoReset <> 0 THEN
+			pEventAutoReset^ := FALSE;
+		END_IF
 	END_FOR
+END_IF
+
+GenerationFailureCode := VerifyAllocation();
+GenerationFailed	  := GenerationFailureCode <> 0;
+IF GenerationFailed THEN
+	ReportGenerationFailure(Name);
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GetEventAutoResetInstance" Id="{ccc4ce8d-afb2-44b8-9905-aada37ad25a4}" FolderPath="Private\">
-      <Declaration><![CDATA[METHOD PROTECTED GetEventAutoResetInstance : POINTER TO BOOL
+    <Method Name="GetEventAutoResetInstanceById" Id="{ccc4ce8d-afb2-44b8-9905-aada37ad25a4}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED GetEventAutoResetInstanceById : POINTER TO BOOL
 VAR_INPUT
 	EventId : UDINT;
+END_VAR
+
+VAR
+	Slot : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Slot := FindSlot(EventId);
+IF Slot <> 0 THEN
+	GetEventAutoResetInstanceById := GetEventAutoResetInstanceBySlot(Slot);
+ELSE
+	GetEventAutoResetInstanceById := ADR(NullBool);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetEventAutoResetInstanceBySlot" Id="{077e2e4b-5043-4ff8-9a36-1f3dc4a4222b}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED GetEventAutoResetInstanceBySlot : POINTER TO BOOL
+VAR_INPUT
+	Slot : UDINT;
 END_VAR
 
 VAR
 	ppEventAutoReset : POINTER TO POINTER TO BOOL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF CheckEventId(EventId) THEN
-	ppEventAutoReset := pEventAutoResetBuffer + ((EventId - 1) * SIZEOF(PVOID));
-	GetEventAutoResetInstance := ppEventAutoReset^;
+        <ST><![CDATA[IF (Slot >= 1) AND (Slot <= NumberOfEvents) AND (pEventAutoResetBuffer <> 0) THEN
+	ppEventAutoReset				:= pEventAutoResetBuffer + ((Slot - 1) * SIZEOF(PVOID));
+	GetEventAutoResetInstanceBySlot := ppEventAutoReset^;
 ELSE
-	GetEventAutoResetInstance := ADR(NullBool);
+	GetEventAutoResetInstanceBySlot := ADR(NullBool);
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GetEventInstance" Id="{8c4f7721-baec-4f66-b099-e4a1d6d31119}" FolderPath="Private\">
-      <Declaration><![CDATA[METHOD PROTECTED GetEventInstance : POINTER TO FB_TcAlarm
+    <Method Name="GetEventIdBySlot" Id="{c5901ea8-4bef-4585-b384-d1e994909f4a}" FolderPath="Private\">
+      <Declaration><![CDATA[// Event id stored for a slot, 0 if the slot does not exist
+METHOD PROTECTED GetEventIdBySlot : UDINT
+VAR_INPUT
+	Slot : UDINT;
+END_VAR
+
+VAR
+	pId : POINTER TO UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetEventIdBySlot := 0;
+IF (Slot >= 1) AND (Slot <= NumberOfEvents) AND (pEventIdBuffer <> 0) THEN
+	pId				 := pEventIdBuffer + ((Slot - 1) * SIZEOF(UDINT));
+	GetEventIdBySlot := pId^;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetEventInstanceById" Id="{8c4f7721-baec-4f66-b099-e4a1d6d31119}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED GetEventInstanceById : POINTER TO FB_TcAlarm
 VAR_INPUT
 	EventId : UDINT;
+END_VAR
+
+VAR
+	Slot : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Slot := FindSlot(EventId);
+IF Slot <> 0 THEN
+	GetEventInstanceById := GetEventInstanceBySlot(Slot);
+ELSE
+	GetEventInstanceById := ADR(NullEvent);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetEventInstanceBySlot" Id="{783cd066-637b-49da-b402-0cecad4b66e7}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED GetEventInstanceBySlot : POINTER TO FB_TcAlarm
+VAR_INPUT
+	Slot : UDINT;
 END_VAR
 
 VAR
 	ppEvent : POINTER TO POINTER TO FB_TcAlarm;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF CheckEventId(EventId) THEN
-	ppEvent			 := pEventBuffer + ((EventId - 1) * SIZEOF(PVOID));
-	GetEventInstance := ppEvent^;
+        <ST><![CDATA[IF (Slot >= 1) AND (Slot <= NumberOfEvents) AND (pEventBuffer <> 0) THEN
+    ppEvent                := pEventBuffer + ((Slot - 1) * SIZEOF(PVOID));
+    GetEventInstanceBySlot := ppEvent^;
 ELSE
-	GetEventInstance := ADR(NullEvent);
+    GetEventInstanceBySlot := ADR(NullEvent);
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GetEventTriggerInstance" Id="{44e2756d-7eda-4a5d-a41f-06ab35d92b28}" FolderPath="Private\">
-      <Declaration><![CDATA[METHOD PROTECTED GetEventTriggerInstance : POINTER TO BOOL
+    <Method Name="GetEventTriggerInstanceBySlot" Id="{387644ae-774a-449f-8fec-aa433a4bfe4f}" FolderPath="Private\">
+      <Declaration><![CDATA[METHOD PROTECTED GetEventTriggerInstanceBySlot : POINTER TO BOOL
 VAR_INPUT
-	EventId : UDINT;
+	Slot : UDINT;
 END_VAR
 
 VAR
 	ppEventTrigger : POINTER TO POINTER TO BOOL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF CheckEventId(EventId) THEN
-	ppEventTrigger := pEventTriggerBuffer + ((EventId - 1) * SIZEOF(PVOID));
-	GetEventTriggerInstance := ppEventTrigger^;
+        <ST><![CDATA[IF (Slot >= 1) AND (Slot <= NumberOfEvents) AND (pEventTriggerBuffer <> 0) THEN
+	ppEventTrigger				  := pEventTriggerBuffer + ((Slot - 1) * SIZEOF(PVOID));
+	GetEventTriggerInstanceBySlot := ppEventTrigger^;
 ELSE
-	GetEventTriggerInstance := ADR(NullBool);
+	GetEventTriggerInstanceBySlot := ADR(NullBool);
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -298,6 +427,26 @@ END_CASE]]></ST>
         <ST><![CDATA[GetHighestActiveEventSeverity := HighestActiveEventSeverity;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="GetSortedSlot" Id="{1ed6ef09-588a-4cb2-a001-c944c2e246be}" FolderPath="Private\">
+      <Declaration><![CDATA[// Reads entry Position (1-based) of the sorted list of slots, which is ordered by ascending event id.
+// Example: ids by slot = [2, 5, 4, 65534] gives the sorted list [1, 3, 2, 4], so GetSortedSlot(2) = 3,
+// because the second smallest id (4) is in slot 3. Returns 0 if Position is outside 1..NumberOfEvents.
+METHOD PROTECTED GetSortedSlot : UDINT
+VAR_INPUT
+	Position : UDINT;
+END_VAR
+
+VAR
+	pSlot : POINTER TO UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetSortedSlot := 0;
+IF (Position >= 1) AND (Position <= NumberOfEvents) AND (pSortedSlotBuffer <> 0) THEN
+	pSlot		  := pSortedSlotBuffer + ((Position - 1) * SIZEOF(UDINT));
+	GetSortedSlot := pSlot^;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="IsResettable" Id="{6572cedf-e2f0-4204-b69d-e02d9ba95338}" FolderPath="EventClass\">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 PROPERTY IsResettable : BOOL]]></Declaration>
@@ -310,9 +459,9 @@ END_VAR]]></Declaration>
         <Implementation>
           <ST><![CDATA[IsResettable := FALSE;
 FOR i := 1 TO NumberOfEvents DO
-	pTrigger := GetEventTriggerInstance(i);
+	pTrigger := GetEventTriggerInstanceBySlot(i);
 	IF (pTrigger <> 0) THEN
-		pEvent := GetEventInstance(i);
+		pEvent := GetEventInstanceBySlot(i);
 		IF (pEvent <> 0) AND_THEN NOT pTrigger^ AND pEvent^.bRaised THEN
 			IsResettable := TRUE;
 		END_IF
@@ -332,7 +481,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF CheckEventId(EventId) THEN
-	pEvent := GetEventInstance(EventId);
+	pEvent := GetEventInstanceById(EventId);
 	IF (pEvent <> 0) THEN
 		IF NOT pEvent^.bRaised THEN
 			pEvent^.Raise();
@@ -346,6 +495,68 @@ END_VAR]]></Declaration>
 END_IF]]></ST>
       </Implementation>
     </Method>
+    <Method Name="ReleaseBuffers" Id="{46a0392a-126f-4ac8-89e0-09f6f0431f43}" FolderPath="Private\">
+      <Declaration><![CDATA[// Frees everything GenerateTcEvents allocated. Safe to call repeatedly and after a partly failed allocation
+METHOD PROTECTED ReleaseBuffers
+VAR
+	i				 : UDINT;
+	pEvent			 : POINTER TO FB_TcAlarm;
+	ppEvent			 : POINTER TO POINTER TO FB_TcAlarm;
+	pEventAutoReset	 : POINTER TO BOOL;
+	ppEventAutoReset : POINTER TO POINTER TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO NumberOfEvents DO
+	IF pEventBuffer <> 0 THEN
+		ppEvent := pEventBuffer + ((i - 1) * SIZEOF(PVOID));
+		pEvent	:= ppEvent^;
+		IF pEvent <> 0 THEN
+			__DELETE(pEvent);
+		END_IF
+
+		ppEvent^ := 0;
+	END_IF
+
+	IF pEventAutoResetBuffer <> 0 THEN
+		ppEventAutoReset := pEventAutoResetBuffer + ((i - 1) * SIZEOF(PVOID));
+		pEventAutoReset	 := ppEventAutoReset^;
+		IF pEventAutoReset <> 0 THEN
+			__DELETE(pEventAutoReset);
+		END_IF
+
+		ppEventAutoReset^ := 0;
+	END_IF
+END_FOR
+
+IF pEventBuffer <> 0 THEN
+	__DELETE(pEventBuffer);
+END_IF
+
+IF pEventTriggerBuffer <> 0 THEN
+	__DELETE(pEventTriggerBuffer);
+END_IF
+
+IF pEventAutoResetBuffer <> 0 THEN
+	__DELETE(pEventAutoResetBuffer);
+END_IF
+
+IF pEventIdBuffer <> 0 THEN
+	__DELETE(pEventIdBuffer);
+END_IF
+
+IF pSortedSlotBuffer <> 0 THEN
+	__DELETE(pSortedSlotBuffer);
+END_IF
+
+pEventBuffer		  := 0;
+pEventTriggerBuffer	  := 0;
+pEventAutoResetBuffer := 0;
+pEventIdBuffer		  := 0;
+pSortedSlotBuffer	  := 0;
+NumberOfEvents		  := 0;
+HighestActiveEventSeverity := Global.TcEventSeverity.Verbose;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="Reset" Id="{84598324-b79b-4c91-9e45-be0f6a3b4619}" FolderPath="Reset\">
       <Declaration><![CDATA[METHOD Reset
 VAR
@@ -355,8 +566,8 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[FOR i := 1 TO NumberOfEvents DO
-	pTrigger := GetEventTriggerInstance(i);
-	pEvent	 := GetEventInstance(i);
+	pTrigger := GetEventTriggerInstanceBySlot(i);
+	pEvent	 := GetEventInstanceBySlot(i);
 	IF (pEvent <> 0) THEN
 		IF (pTrigger <> 0) AND_THEN NOT pTrigger^ THEN
 			pEvent^.Clear();
@@ -383,7 +594,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[FOR i := 1 TO NumberOfEvents DO
-	pEvent := GetEventInstance(i);
+	pEvent := GetEventInstanceBySlot(i);
 	IF (pEvent <> 0) AND_THEN (pEvent^.eSeverity <= TO_DINT(Severity)) THEN
 		pEvent^.Clear();
 	END_IF
@@ -410,7 +621,7 @@ END_VAR]]></Declaration>
 		SetEventTriggerInstance(EventId, Trigger);
 	END_IF
 
-	pBool  := GetEventAutoResetInstance(EventId);
+	pBool  := GetEventAutoResetInstanceById(EventId);
 	pBool^ := AutoReset;
 END_IF]]></ST>
       </Implementation>
@@ -440,13 +651,127 @@ VAR_INPUT
 END_VAR
 
 VAR
+	Slot		   : UDINT;
 	ppEventTrigger : POINTER TO POINTER TO BOOL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF CheckEventId(EventId) THEN
-	ppEventTrigger	:= pEventTriggerBuffer + ((EventId - 1) * SIZEOF(PVOID));
+        <ST><![CDATA[Slot := FindSlot(EventId);
+IF (Slot <> 0) AND (pEventTriggerBuffer <> 0) THEN
+	ppEventTrigger	:= pEventTriggerBuffer + ((Slot - 1) * SIZEOF(PVOID));
 	ppEventTrigger^ := Trigger;
 END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="VerifyAllocation" Id="{2d5eb436-5eb8-4a9f-8c93-cc3b10502492}" FolderPath="Private\">
+      <Declaration><![CDATA[// Verification of the dynamic allocation done by GenerateTcEvents (fail-safe, SIL1): everything the lookups and loops
+// dereference must exist, be distinct and be consistent. Returns 0 if all checks pass, otherwise the number of the first failed check:
+//  1. the class definition and all five buffers were allocated, and there is at least one event
+//  2. a slot has no FB_TcAlarm or no auto reset flag (the allocation returned 0)
+//  3. two slots share the same FB_TcAlarm or auto reset flag
+//  4. the trigger of a slot is already assigned (it must be 0 until SetEvent)
+//  5. an alarm does not answer to the event id stored for its slot (broken link slot -> id -> alarm)
+//  6. SortedSlots refers to a slot that does not exist
+//  7. the ids along SortedSlots are not strictly ascending: duplicate event ids, or a broken sort,
+//     so the binary search would be invalid. (Strictly ascending also makes SortedSlots a permutation.)
+METHOD PROTECTED VerifyAllocation : UDINT
+VAR
+	i				 : UDINT;
+	j				 : UDINT;
+	Slot			 : UDINT;
+	pEvent			 : POINTER TO FB_TcAlarm;
+	pOtherEvent		 : POINTER TO FB_TcAlarm;
+	ppEvent			 : POINTER TO POINTER TO FB_TcAlarm;
+	pEventAutoReset	 : POINTER TO BOOL;
+	pOtherAutoReset	 : POINTER TO BOOL;
+	ppEventAutoReset : POINTER TO POINTER TO BOOL;
+	ppEventTrigger	 : POINTER TO POINTER TO BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (pEventClass = 0) OR (NumberOfEvents = 0) OR (pEventBuffer = 0) OR (pEventTriggerBuffer = 0) OR (pEventAutoResetBuffer = 0) OR (pEventIdBuffer = 0) OR (pSortedSlotBuffer = 0) THEN
+	VerifyAllocation := 1;
+	RETURN;
+END_IF
+
+FOR i := 1 TO NumberOfEvents DO
+	ppEvent			 := pEventBuffer + ((i - 1) * SIZEOF(PVOID));
+	pEvent			 := ppEvent^;
+	ppEventAutoReset := pEventAutoResetBuffer + ((i - 1) * SIZEOF(PVOID));
+	pEventAutoReset	 := ppEventAutoReset^;
+	ppEventTrigger	 := pEventTriggerBuffer + ((i - 1) * SIZEOF(PVOID));
+
+	IF (pEvent = 0) OR (pEventAutoReset = 0) THEN
+		VerifyAllocation := 2;
+		RETURN;
+	END_IF
+
+	FOR j := 1 TO i - 1 DO
+		ppEvent			 := pEventBuffer + ((j - 1) * SIZEOF(PVOID));
+		pOtherEvent		 := ppEvent^;
+		ppEventAutoReset := pEventAutoResetBuffer + ((j - 1) * SIZEOF(PVOID));
+		pOtherAutoReset	 := ppEventAutoReset^;
+		IF (pEvent = pOtherEvent) OR (pEventAutoReset = pOtherAutoReset) THEN
+			VerifyAllocation := 3;
+			RETURN;
+		END_IF
+	END_FOR
+
+	IF ppEventTrigger^ <> 0 THEN
+		VerifyAllocation := 4;
+		RETURN;
+	END_IF
+
+	IF pEvent^.nEventId <> GetEventIdBySlot(i) THEN
+		VerifyAllocation := 5;
+		RETURN;
+	END_IF
+
+	Slot := GetSortedSlot(i);
+	IF (Slot < 1) OR (Slot > NumberOfEvents) THEN
+		VerifyAllocation := 6;
+		RETURN;
+	END_IF
+
+	IF (i > 1) AND_THEN (GetEventIdBySlot(GetSortedSlot(i - 1)) >= GetEventIdBySlot(Slot)) THEN
+		VerifyAllocation := 7;
+		RETURN;
+	END_IF
+END_FOR
+
+VerifyAllocation := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReportGenerationFailure" Id="{cf7acd43-0ced-499c-b548-6f7a085132b9}" FolderPath="Private\">
+      <Declaration><![CDATA[// Raises the Critical event that belongs to GenerationFailureCode (TC_EVENTS.TcEventClassFailure), with the name of the failed class as argument {0}.
+// It is not cleared again, so the failure stays visible in the logged events. It uses its own FB_TcAlarm and no dynamic memory.
+METHOD PROTECTED ReportGenerationFailure
+VAR_INPUT
+	Name : T_MaxString;
+END_VAR
+
+VAR
+	SourceInfo : FB_TcSourceInfo;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF GenerationFailedEvent.bRaised THEN
+	RETURN; // keep the first failure, a second Create would also reset the alarm
+END_IF
+
+SourceInfo.ResetToDefault();
+SourceInfo.sName := Name;
+CASE GenerationFailureCode OF
+	1: GenerationFailedEvent.CreateEx2(TC_EVENTS.TcEventClassFailure.BufferMissing, SourceInfo);
+	2: GenerationFailedEvent.CreateEx2(TC_EVENTS.TcEventClassFailure.AllocationFailed, SourceInfo);
+	3: GenerationFailedEvent.CreateEx2(TC_EVENTS.TcEventClassFailure.SharedMemory, SourceInfo);
+	4: GenerationFailedEvent.CreateEx2(TC_EVENTS.TcEventClassFailure.TriggerAssigned, SourceInfo);
+	5: GenerationFailedEvent.CreateEx2(TC_EVENTS.TcEventClassFailure.IdMismatch, SourceInfo);
+	6: GenerationFailedEvent.CreateEx2(TC_EVENTS.TcEventClassFailure.SortedSlotOutOfRange, SourceInfo);
+ELSE
+	GenerationFailedEvent.CreateEx2(TC_EVENTS.TcEventClassFailure.DuplicateEventId, SourceInfo);
+END_CASE
+
+GenerationFailedEvent.ipArguments.Clear();
+GenerationFailedEvent.ipArguments.AddString(Name);
+GenerationFailedEvent.Raise(0);]]></ST>
       </Implementation>
     </Method>
   </POU>
